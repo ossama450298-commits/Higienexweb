@@ -3004,17 +3004,21 @@ var NOTIFY_EMAIL = 'ossama450298@gmail.com'; // ja fixat com a "To Email" dins d
   }
 })();
 
-function enviarNotificacioEmail(titol, nom, contingut, emailResposta) {
+function enviarNotificacioEmail(opts) {
+  opts = opts || {};
   if (!window.emailjs || EMAILJS_PUBLIC_KEY === 'LA_TEVA_PUBLIC_KEY') {
     console.warn('EmailJS no està configurat: revisa EMAILJS_PUBLIC_KEY / SERVICE_ID / TEMPLATE_ID al principi del <script>.');
     return;
   }
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-    title: titol,
-    name: nom,
-    message: contingut,
-    email: emailResposta || NOTIFY_EMAIL,
-    time: new Date().toLocaleString('ca-ES')
+    title: opts.title || '',
+    name: opts.name || '',
+    message: opts.message || '',
+    email: opts.email || NOTIFY_EMAIL,
+    time: new Date().toLocaleString('ca-ES'),
+    badge: opts.badge || 'NOU AVÍS',
+    subtitle: opts.subtitle || 'S\'ha registrat automàticament aquesta informació des de la web.',
+    detail_label: opts.detailLabel || 'Detall'
   }).then(function(){
     console.log('Notificació enviada per email.');
   }).catch(function(err){
@@ -3283,11 +3287,17 @@ function submitForm(e) {
         '<td style="padding:5px 4px;font-weight:600;color:#333;">' + escHtml(f[1]) + '</td></tr>';
     }).join('');
     var cos =
-      '<p style="margin:0 0 14px;">S\'ha rebut un nou missatge des del formulari de contacte de la web.</p>' +
       '<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px;">' + filesHTML + '</table>' +
-      '<div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;">Missatge</div>' +
-      '<div style="background:#F5FAFF;border-left:3px solid #F2A900;border-radius:6px;padding:12px 14px;font-size:14px;color:#333;white-space:pre-wrap;">' + escHtml(missatge) + '</div>';
-    enviarNotificacioEmail('Nou contacte web: ' + (empresa || nom) + ' — HIGIENEX', nom || 'Formulari de contacte', cos, email);
+      escHtml(missatge).replace(/\n/g, '<br>');
+    enviarNotificacioEmail({
+      title: 'Nou contacte web: ' + (empresa || nom) + ' — HIGIENEX',
+      name: nom || 'Formulari de contacte',
+      message: cos,
+      email: email,
+      badge: 'NOVA CONSULTA',
+      subtitle: 'Algú ha enviat una nova consulta des del formulari de contacte.',
+      detailLabel: 'Missatge'
+    });
   } catch(err) { console.warn('No s\'ha pogut preparar l\'email de contacte:', err); }
 
   var s = document.getElementById('formSuccess');
@@ -4106,7 +4116,7 @@ function generateInvoice() {
   doc.text('Pago por transferencia: ES7600491892602010012345', 20, y);
 
   doc.save('Factura_' + invoiceNum + '.pdf');
-  return { invoiceNum: invoiceNum, total: total };
+  return { invoiceNum: invoiceNum, total: total, email: (clientInfo.email && clientInfo.email !== '-') ? clientInfo.email : '' };
 }
 
 function sendOrder() {
@@ -4137,7 +4147,6 @@ function sendOrder() {
         '</tr>';
     }).join('');
     var cos =
-      '<p style="margin:0 0 14px;">S\'ha rebut una nova comanda a través de la web.</p>' +
       '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
         '<tr style="color:#0B3D6B;font-weight:700;border-bottom:2px solid #0B3D6B;font-size:12px;text-transform:uppercase;letter-spacing:.03em;">' +
           '<td style="padding:6px 4px;">Producte</td><td style="padding:6px 4px;text-align:center;">Uds.</td><td style="padding:6px 4px;text-align:right;">Import</td>' +
@@ -4145,11 +4154,18 @@ function sendOrder() {
         filesHTML +
       '</table>' +
       '<table style="width:100%;margin-top:14px;font-size:14px;">' +
-        '<tr><td style="padding:3px 4px;color:#888;">Client</td><td style="padding:3px 4px;text-align:right;font-weight:600;color:#333;">' + escHtml(userName) + '</td></tr>' +
         '<tr><td style="padding:3px 4px;color:#888;">Factura</td><td style="padding:3px 4px;text-align:right;font-weight:600;color:#333;">' + escHtml(inv.invoiceNum) + '</td></tr>' +
         '<tr><td style="padding:8px 4px 3px;color:#0B3D6B;font-size:16px;font-weight:700;">Total</td><td style="padding:8px 4px 3px;text-align:right;font-size:18px;font-weight:800;color:#0B3D6B;">' + inv.total.toFixed(2) + ' €</td></tr>' +
       '</table>';
-    enviarNotificacioEmail('Nova comanda ' + inv.invoiceNum + ' — HIGIENEX', userName, cos);
+    enviarNotificacioEmail({
+      title: 'Nova comanda ' + inv.invoiceNum + ' — HIGIENEX',
+      name: userName,
+      message: cos,
+      email: inv.email,
+      badge: 'NOVA COMANDA',
+      subtitle: 'S\'ha registrat una nova comanda a través de la web.',
+      detailLabel: 'Detall de la comanda'
+    });
   } catch(e) { console.warn('No s\'ha pogut preparar l\'email de la comanda:', e); }
 
   // Show success
