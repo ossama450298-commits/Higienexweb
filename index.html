@@ -22,7 +22,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: auto; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
   background: var(--warm-white);
@@ -3078,7 +3078,7 @@ function navTo(id) {
         var sec = document.getElementById(id);
         if (sec) {
           var top = sec.getBoundingClientRect().top + window.pageYOffset - 70;
-          window.scrollTo({ top: top, behavior: 'smooth' });
+          window.scrollTo({ top: top, behavior: 'auto' });
         }
       }, 100);
     }
