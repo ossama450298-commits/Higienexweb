@@ -706,12 +706,24 @@ const nomProv = id => prov(id).nom;
     {id:'OP2',nom:'Lote desinfección quirófanos',cli:'C01',valor:52000,fase:'Propuesta',resp:'U3'},
     {id:'OP3',nom:'Suministro cadena hotelera 12 hoteles',cli:'C02',valor:74000,fase:'Contacto',resp:'U1'},
     {id:'OP4',nom:'Licitación material higiene 2027',cli:'C04',valor:96000,fase:'Propuesta',resp:'U1'},
-    {id:'OP5',nom:'Renovación anual dispensadores',cli:'C05',valor:12500,fase:'Ganada',resp:'U3'}
+    {id:'OP5',nom:'Renovación anual dispensadores',cli:'C05',valor:12500,fase:'Ganada',resp:'U3'},
+    {id:'OP6',nom:'Suministro guantes de nitrilo · cadena distribución',cli:'C03',valor:18500,fase:'Contacto',resp:'U3'},
+    {id:'OP7',nom:'Ampliación dispensadores automáticos 3 plantas',cli:'C02',valor:27500,fase:'Propuesta',resp:'U3'},
+    {id:'OP8',nom:'Ampliación servicio desinfección UCI',cli:'C01',valor:61000,fase:'Negociación',resp:'U1'},
+    {id:'OP9',nom:'Renovación material higiene anual',cli:'C04',valor:43000,fase:'Contacto',resp:'U1'},
+    {id:'OP10',nom:'Pedido urgente desinfectante de superficies',cli:'C05',valor:9800,fase:'Ganada',resp:'U3',cerrada:'2026-07-18'},
+    {id:'OP11',nom:'Kits de bioseguridad temporada alta',cli:'C02',valor:15600,fase:'Propuesta',resp:'U3'}
   );
   DB.actividades.push(
     {id:'AC1',fecha:'2026-07-21',cli:'C01',txt:'Visita a compras. Piden ficha de seguridad actualizada del HOSP-V.'},
     {id:'AC2',fecha:'2026-07-17',cli:'C03',txt:'Llamada: aceptan precio si mantenemos porte gratuito por encima de 2.000 €.'},
-    {id:'AC3',fecha:'2026-07-10',cli:'C04',txt:'Recibido pliego de la licitación. Plazo de presentación: 15/09/2026.'}
+    {id:'AC3',fecha:'2026-07-10',cli:'C04',txt:'Recibido pliego de la licitación. Plazo de presentación: 15/09/2026.'},
+    {id:'AC4',fecha:'2026-07-24',cli:'C02',txt:'Reunión con F&B: quieren ampliar los dispensadores a las 3 plantas nuevas del hotel.'},
+    {id:'AC5',fecha:'2026-07-23',cli:'C05',txt:'Email: confirman el pedido urgente de desinfectante, entrega en 48h.'},
+    {id:'AC6',fecha:'2026-07-22',cli:'C01',txt:'Llamada de seguimiento sobre la ampliación del servicio en UCI. Piden propuesta económica esta semana.'},
+    {id:'AC7',fecha:'2026-07-20',cli:'C03',txt:'Visita comercial: interesados en guantes de nitrilo para toda la cadena de distribución.'},
+    {id:'AC8',fecha:'2026-07-16',cli:'C04',txt:'Reunión con el ayuntamiento para revisar las condiciones del pliego antes de presentar oferta.'},
+    {id:'AC9',fecha:'2026-07-12',cli:'C02',txt:'Propuesta enviada para kits de bioseguridad de cara a la temporada alta de verano.'}
   );
 
   // Registro de jornada de julio (hasta el viernes 24)
@@ -1261,7 +1273,62 @@ function verFacturaE(num){
           return rowN(['<span class="mono">'+l.lote+'</span>',esc(art(l.prod).nom),NUM(d),FD(l.cad)],[2]);})):'';})()+
     '<div class="eyebrow" style="display:block;margin:20px 0 8px">Asientos generados</div>'+asientoHTML(as)+(cob?'<div style="margin-top:10px">'+asientoHTML(cob)+'</div>':''),
     '<button class="btn ghost" onclick="closeModal()">Cerrar</button>'+
+    '<button class="btn ghost" onclick="imprimirFacturaE(\''+num+'\')"><i data-lucide="download"></i> Descargar factura</button>'+
     (f.estado==='Pendiente'?'<button class="btn" onclick="closeModal();go(\'concilia\')">Ir a conciliar el cobro</button>':''),true);
+}
+
+/* ---------- Documento imprimible / descargable de la factura ---------- */
+function abrirImprimible(titulo, html){
+  const w = window.open('', '_blank');
+  if(!w){ toast('El navegador ha bloqueado la ventana emergente. Permite las ventanas emergentes para descargar la factura.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  w.focus();
+  setTimeout(()=>{ try{ w.print(); }catch(e){} }, 350);
+}
+function htmlFacturaE(num){
+  const f=DB.facturasE.find(x=>x.num===num), c=cli(f.cli);
+  const filas=f.lineas.map(l=>{
+    const p=art(l.art);
+    return '<tr><td>'+esc(p?p.ref+' — '+p.nom:l.art)+'</td><td class="num">'+NUM(l.cant)+'</td><td class="num">'+EUR(l.precio)+'</td><td class="num">'+EUR(l.cant*l.precio)+'</td></tr>';
+  }).join('');
+  return '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Factura '+esc(num)+' · HIGIENEX S.L.</title>'+
+    '<style>'+
+    '*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:13px}'+
+    '.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0B3D6B;padding-bottom:18px;margin-bottom:24px}'+
+    '.brand{font-size:24px;font-weight:800;color:#0B3D6B}.brand span{color:#F2A900}'+
+    '.brand-sub{font-size:11px;color:#4A5A6A;margin-top:4px;line-height:1.5}'+
+    '.doc{text-align:right}.doc h1{font-size:20px;margin:0 0 4px 0;color:#0B3D6B}'+
+    '.doc .num{font-size:15px;font-weight:700;font-family:monospace}'+
+    '.meta{display:flex;justify-content:space-between;gap:24px;margin-bottom:26px}'+
+    '.box{flex:1;border:1px solid #D9E5F0;border-radius:8px;padding:12px 14px}'+
+    '.box h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#4A5A6A;margin:0 0 6px 0}'+
+    '.box p{margin:0;line-height:1.5}'+
+    'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:20px}'+
+    'th,td{border:1px solid #D9E5F0;padding:7px 9px;text-align:left}'+
+    'th{background:#0B3D6B;color:#fff;font-weight:600}'+
+    'td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}'+
+    '.totbox{margin-left:auto;width:280px}'+
+    '.totbox .l{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #EFF6FC}'+
+    '.totbox .tot{font-weight:800;font-size:16px;border-top:2px solid #0B3D6B;border-bottom:none;margin-top:4px;padding-top:8px;color:#0B3D6B}'+
+    '.foot{margin-top:36px;font-size:10.5px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:12px}'+
+    '@media print{ @page{margin:15mm} }'+
+    '</style></head><body>'+
+    '<div class="top">'+
+      '<div><div class="brand">HIGIENE<span>X</span></div>'+
+      '<div class="brand-sub">HIGIENEX S.L. · CIF B00000000<br>Av. de les Corts Valencianes 1, 46015 València<br>info@higienex.es · 963 000 000</div></div>'+
+      '<div class="doc"><h1>FACTURA</h1><div class="num">'+esc(num)+'</div></div>'+
+    '</div>'+
+    '<div class="meta">'+
+      '<div class="box"><h3>Facturar a</h3><p><strong>'+esc(c.nom)+'</strong><br>NIF '+esc(c.nif)+'<br>'+esc(c.dir||'')+'<br>'+esc(c.pob||'')+'</p></div>'+
+      '<div class="box"><h3>Detalles</h3><p>Fecha emisión: '+FD(f.fecha)+'<br>Vencimiento: '+FD(f.venc)+'<br>Estado: '+esc(f.estado)+'</p></div>'+
+    '</div>'+
+    '<table><thead><tr><th>Concepto</th><th class="num">Cantidad</th><th class="num">Precio</th><th class="num">Importe</th></tr></thead><tbody>'+filas+'</tbody></table>'+
+    '<div class="totbox"><div class="l"><span>Base imponible</span><span>'+EUR(f.base)+'</span></div><div class="l"><span>IVA 21%</span><span>'+EUR(f.cuota)+'</span></div><div class="l tot"><span>Total</span><span>'+EUR(f.total)+'</span></div></div>'+
+    '<div class="foot">Documento generado el '+new Date().toLocaleString('es-ES')+' · HIGIENEX S.L. — Datos de ejemplo con fines académicos.</div>'+
+    '</body></html>';
+}
+function imprimirFacturaE(num){
+  abrirImprimible('Factura '+num, htmlFacturaE(num));
 }
 let LIN=[];
 function formFacturaE(cliPre){
@@ -1314,7 +1381,8 @@ function saveFacturaE(){
   if(typeof asignarLotes==='function'){ f.lotes=[]; LIN.forEach(l=>{ const r=asignarLotes(l.art,l.cant,f.num,cliId); r.usados.forEach(u=>f.lotes.push({art:l.art,...u})); }); }
   if(typeof log==='function') log('Factura emitida',f.num+' · '+cli(cliId).nom+' · '+EUR(f.total));
   closeModal(); go('femitidas');
-  toast('Factura '+f.num+' emitida: asiento contabilizado y salida de almacén registrada.');
+  imprimirFacturaE(f.num);
+  toast('Factura '+f.num+' emitida y guardada. Se ha abierto para descargarla.');
 }
 
 /* =========================================================
@@ -3293,7 +3361,8 @@ DB.bajasEmpleados = [];
 
 /* Fechas de apertura/cierre de las oportunidades ya sembradas, para poder medir ciclo de venta */
 (function fechasPipeline(){
-  const fechas = {OP1:'2026-06-18', OP2:'2026-06-25', OP3:'2026-07-02', OP4:'2026-07-10', OP5:'2026-05-10'};
+  const fechas = {OP1:'2026-06-18', OP2:'2026-06-25', OP3:'2026-07-02', OP4:'2026-07-10', OP5:'2026-05-10',
+    OP6:'2026-07-20', OP7:'2026-07-14', OP8:'2026-07-22', OP9:'2026-07-08', OP10:'2026-07-05', OP11:'2026-07-16'};
   DB.oportunidades.forEach(o=>{ o.creada = fechas[o.id] || TODAY; if(o.fase==='Ganada' && !o.cerrada) o.cerrada = '2026-06-21'; });
 })();
 
@@ -3612,9 +3681,8 @@ DB.facturasR.length = 0;
 DB.movimientos.length = 0;
 DB.clientes.length = 0;
 DB.bancos.length = 0;
-DB.oportunidades.length = 0;
-DB.actividades.length = 0;
-DB.expediciones.length = 0;
+/* oportunidades, actividades y expediciones NO se tocan: pertenecen al pipeline
+   comercial y a logística de 2026, no al ejercicio contable 2025 que se reconstruye aquí. */
 
 DB.asientos2025 = [];
 DB.clientes2025 = [
