@@ -2821,7 +2821,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
         <div class="contact-item"><div class="contact-icon">✉️</div><div><h4>Email</h4><a href="mailto:contacto@higienexvalencia.es">contacto@higienexvalencia.es</a><br><a href="mailto:administracion@higienexvalencia.es" style="font-size:0.82rem;color:#888;">administracion@higienexvalencia.es</a></div></div>
         <div class="contact-item"><div class="contact-icon">🕒</div><div><h4>Horari</h4><p>Dilluns – Divendres: 8:00 – 17:30<br><span style="font-size:0.8rem;color:#888;">Urgències 24/7 per a hospitals i centres crítics</span></p></div></div>
       </div>
-      <div><form class="contact-form" onsubmit="submitForm(event)"><div class="form-row"><div class="form-field"><label>Nom i Cognoms *</label><input type="text" required placeholder="Maria Garcia López"></div><div class="form-field"><label>Empresa *</label><input type="text" required placeholder="Hospital Sant Josep"></div></div><div class="form-row"><div class="form-field"><label>Email *</label><input type="email" required placeholder="maria@hospital.com"></div><div class="form-field"><label>Telèfon</label><input type="tel" placeholder="600 000 000"></div></div><div class="form-field"><label>Sector</label><select><option>Selecciona el teu sector...</option><option>Sanitari / Hospitals</option><option>Hotels / Turisme</option><option>Indústria Alimentària</option><option>Oficines / Empreses</option><option>Administració Pública</option><option>Altres</option></select></div><div class="form-field"><label>Missatge *</label><textarea required placeholder="Explica'ns les teves necessitats d'higiene professional..."></textarea></div><button type="submit" class="btn-submit">Enviar Missatge →</button></form><div id="formSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;">✅ Missatge enviat correctament! Us contactarem en menys de 24 hores.</div></div>
+      <div><form class="contact-form" onsubmit="submitForm(event)"><div class="form-row"><div class="form-field"><label>Nom i Cognoms *</label><input type="text" name="nom" required placeholder="Maria Garcia López"></div><div class="form-field"><label>Empresa *</label><input type="text" name="empresa" required placeholder="Hospital Sant Josep"></div></div><div class="form-row"><div class="form-field"><label>Email *</label><input type="email" name="email" required placeholder="maria@hospital.com"></div><div class="form-field"><label>Telèfon</label><input type="tel" name="telefon" placeholder="600 000 000"></div></div><div class="form-field"><label>Sector</label><select name="sector"><option>Selecciona el teu sector...</option><option>Sanitari / Hospitals</option><option>Hotels / Turisme</option><option>Indústria Alimentària</option><option>Oficines / Empreses</option><option>Administració Pública</option><option>Altres</option></select></div><div class="form-field"><label>Missatge *</label><textarea name="missatge" required placeholder="Explica'ns les teves necessitats d'higiene professional..."></textarea></div><button type="submit" class="btn-submit">Enviar Missatge →</button></form><div id="formSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;">✅ Missatge enviat correctament! Us contactarem en menys de 24 hores.</div></div>
     </div>
   </div>
   <iframe class="map-embed" loading="lazy" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3079.5!2d-0.3769!3d39.4738!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd6048a0eefcb0a9%3A0x1a5c5f3d0b6b7f5e!2sCalle%20de%20la%20Industria%2C%2025%2C%2046010%20Valencia!5e0!3m2!1sca!2ses!4v1" allowfullscreen loading="lazy" allowfullscreen></iframe>
@@ -3022,6 +3022,14 @@ function enviarNotificacioEmail(titol, nom, contingut, emailResposta) {
   });
 }
 window.enviarNotificacioEmail = enviarNotificacioEmail;
+
+// Petita utilitat per evitar que text escrit per l'usuari (formulari de
+// contacte) trenqui l'HTML de l'email o hi injecti codi.
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+  });
+}
 
 // ── SPLASH ───────────────────────────────────────
 var _hgCookieTimer = null;
@@ -3253,9 +3261,38 @@ window.toggleFaq = toggleFaq;
 // ── FORMULARI ────────────────────────────────────
 function submitForm(e) {
   e.preventDefault();
+  var f = e.target;
+  var val = function(name){ var el = f.elements[name]; return el ? el.value.trim() : ''; };
+  var nom      = val('nom');
+  var empresa  = val('empresa');
+  var email    = val('email');
+  var telefon  = val('telefon');
+  var sector   = val('sector');
+  var missatge = val('missatge');
+
+  try {
+    var files = [
+      ['Nom', nom],
+      ['Empresa', empresa],
+      ['Email', email]
+    ];
+    if (telefon) files.push(['Telèfon', telefon]);
+    if (sector && sector.indexOf('Selecciona') !== 0) files.push(['Sector', sector]);
+    var filesHTML = files.map(function(f){
+      return '<tr><td style="padding:5px 4px;color:#888;width:110px;font-size:12px;text-transform:uppercase;letter-spacing:.03em;">' + escHtml(f[0]) + '</td>' +
+        '<td style="padding:5px 4px;font-weight:600;color:#333;">' + escHtml(f[1]) + '</td></tr>';
+    }).join('');
+    var cos =
+      '<p style="margin:0 0 14px;">S\'ha rebut un nou missatge des del formulari de contacte de la web.</p>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px;">' + filesHTML + '</table>' +
+      '<div style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;">Missatge</div>' +
+      '<div style="background:#F5FAFF;border-left:3px solid #F2A900;border-radius:6px;padding:12px 14px;font-size:14px;color:#333;white-space:pre-wrap;">' + escHtml(missatge) + '</div>';
+    enviarNotificacioEmail('Nou contacte web: ' + (empresa || nom) + ' — HIGIENEX', nom || 'Formulari de contacte', cos, email);
+  } catch(err) { console.warn('No s\'ha pogut preparar l\'email de contacte:', err); }
+
   var s = document.getElementById('formSuccess');
   if (s) { s.style.display = 'block'; setTimeout(function() { s.style.display = 'none'; }, 5000); }
-  e.target.reset();
+  f.reset();
 }
 window.submitForm = submitForm;
 
@@ -4089,17 +4126,29 @@ function sendOrder() {
     return;
   }
 
-  // Enviar avís per email amb el detall de la comanda
+  // Enviar avís per email amb el detall de la comanda (en HTML amb estil HIGIENEX)
   try {
     var userName = (document.getElementById('userName') || {}).textContent || 'Client no identificat';
-    var detallLinies = keys.map(function(k){
-      return k + ' — ' + cart[k].qty + ' u. — ' + cart[k].total.toFixed(2) + ' €';
-    }).join('\n');
-    var cos = 'Nova comanda a HIGIENEX\n\n' +
-      'Client: ' + userName + '\n' +
-      'Factura: ' + inv.invoiceNum + '\n' +
-      'Total: ' + inv.total.toFixed(2) + ' €\n\n' +
-      'Productes:\n' + detallLinies;
+    var filesHTML = keys.map(function(k){
+      return '<tr>' +
+        '<td style="padding:8px 4px;border-bottom:1px solid #EEF2F5;color:#333;">' + escHtml(k) + '</td>' +
+        '<td style="padding:8px 4px;border-bottom:1px solid #EEF2F5;color:#333;text-align:center;">' + cart[k].qty + '</td>' +
+        '<td style="padding:8px 4px;border-bottom:1px solid #EEF2F5;color:#0B3D6B;font-weight:600;text-align:right;">' + cart[k].total.toFixed(2) + ' €</td>' +
+        '</tr>';
+    }).join('');
+    var cos =
+      '<p style="margin:0 0 14px;">S\'ha rebut una nova comanda a través de la web.</p>' +
+      '<table style="width:100%;border-collapse:collapse;font-size:13px;">' +
+        '<tr style="color:#0B3D6B;font-weight:700;border-bottom:2px solid #0B3D6B;font-size:12px;text-transform:uppercase;letter-spacing:.03em;">' +
+          '<td style="padding:6px 4px;">Producte</td><td style="padding:6px 4px;text-align:center;">Uds.</td><td style="padding:6px 4px;text-align:right;">Import</td>' +
+        '</tr>' +
+        filesHTML +
+      '</table>' +
+      '<table style="width:100%;margin-top:14px;font-size:14px;">' +
+        '<tr><td style="padding:3px 4px;color:#888;">Client</td><td style="padding:3px 4px;text-align:right;font-weight:600;color:#333;">' + escHtml(userName) + '</td></tr>' +
+        '<tr><td style="padding:3px 4px;color:#888;">Factura</td><td style="padding:3px 4px;text-align:right;font-weight:600;color:#333;">' + escHtml(inv.invoiceNum) + '</td></tr>' +
+        '<tr><td style="padding:8px 4px 3px;color:#0B3D6B;font-size:16px;font-weight:700;">Total</td><td style="padding:8px 4px 3px;text-align:right;font-size:18px;font-weight:800;color:#0B3D6B;">' + inv.total.toFixed(2) + ' €</td></tr>' +
+      '</table>';
     enviarNotificacioEmail('Nova comanda ' + inv.invoiceNum + ' — HIGIENEX', userName, cos);
   } catch(e) { console.warn('No s\'ha pogut preparar l\'email de la comanda:', e); }
 
