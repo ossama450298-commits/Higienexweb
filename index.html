@@ -3726,8 +3726,10 @@ document.addEventListener('DOMContentLoaded', function() {
   if (pf) pf.addEventListener('input', clearLoginErrorOnEdit);
 });
 
+var _authModalOpenedAt = 0;
 function openAuthModal() {
   var m=document.getElementById('authModal'); if(m) m.classList.add('open');
+  _authModalOpenedAt = Date.now();
   var errBox=document.getElementById('loginError'); if(errBox) errBox.style.display='none';
   var em=document.getElementById('loginEmail'), pw=document.getElementById('loginPassword');
   if(em) em.style.borderColor='#E0E0E0';
@@ -4328,6 +4330,7 @@ function openProductPopup(name){
   if(pi && info.img){ pi.src=info.img; pi.style.display='block'; if(pe) pe.style.display='none'; }
   else { if(pe){pe.textContent=info.emoji; pe.style.display='block';} if(pi) pi.style.display='none'; }
   var pop=document.getElementById('productPopup'); if(pop) pop.classList.add('open');
+  _productPopupOpenedAt = Date.now();
 }
 window.openProductPopup=openProductPopup;
 function closeProductPopup(){var p=document.getElementById('productPopup');if(p)p.classList.remove('open');}
@@ -4337,9 +4340,14 @@ function closeWelcome(){var m=document.getElementById('welcomeMsg');if(m)m.style
 window.closeWelcome=closeWelcome;
 
 var _am2=document.getElementById('authModal');
-if(_am2) _am2.addEventListener('click',function(e){if(e.target===this)closeAuthModal();});
+if(_am2) _am2.addEventListener('click',function(e){
+  if(e.target===this && (Date.now() - _authModalOpenedAt) > 350) closeAuthModal();
+});
+var _productPopupOpenedAt = 0;
 var _pp2=document.getElementById('productPopup');
-if(_pp2) _pp2.addEventListener('click',function(e){if(e.target===this)closeProductPopup();});
+if(_pp2) _pp2.addEventListener('click',function(e){
+  if(e.target===this && (Date.now() - _productPopupOpenedAt) > 350) closeProductPopup();
+});
 
 // ═══════════════════════════════════════
 // SUPERPODERES OUSSAMA — CEO HIGIENEX
