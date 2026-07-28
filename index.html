@@ -2976,6 +2976,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 // ═══════════════════════════════════════════════
 
 // ── SPLASH ───────────────────────────────────────
+var _hgCookieTimer = null;
 function enterWeb() {
   var splash = document.getElementById('splashScreen');
   if (splash) {
@@ -2985,6 +2986,14 @@ function enterWeb() {
   }
   document.body.style.overflow = '';
   window.scrollTo(0, 0);
+  // Mostrar sempre l'avís de cookies en entrar. Evitem que es programi més
+  // d'un cop (p. ex. si el clic i el touchend disparen enterWeb() dues
+  // vegades seguides en mòbil), perquè no torni a aparèixer i a bloquejar
+  // la pàgina més tard sense que l'usuari ho esperi.
+  clearTimeout(_hgCookieTimer);
+  _hgCookieTimer = setTimeout(function(){
+    if (typeof hgInitCookies === 'function') hgInitCookies();
+  }, 600);
 }
 window.enterWeb = enterWeb;
 
@@ -2999,7 +3008,8 @@ function goTop() {
 }
 window.goTop = goTop;
 
-// iOS touch fix per al botó entrar
+// iOS touch fix per al botó entrar (només toquem la pantalla, enterWeb ja és
+// segur davant de crides duplicades gràcies al debounce de dalt)
 document.addEventListener('DOMContentLoaded', function() {
   document.body.setAttribute('data-view','home');
   var splBtn = document.getElementById('splashBtn');
@@ -3010,6 +3020,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { passive: false });
   }
   document.body.style.overflow = 'hidden';
+  // Xarxa de seguretat: si per qualsevol motiu l'avís de cookies no s'ha
+  // pogut mostrar uns segons després d'entrar (per exemple, per un error
+  // de JavaScript en un altre punt de la pàgina), desbloquegem el scroll
+  // perquè l'usuari no es quedi atrapat sense poder navegar ni veure cap avís.
+  setTimeout(function(){
+    var splash = document.getElementById('splashScreen');
+    var modal = document.getElementById('hgCookieModal');
+    var splashHidden = !splash || splash.style.display === 'none';
+    var modalVisible = modal && modal.classList.contains('active');
+    if (splashHidden && !modalVisible && document.body.style.overflow === 'hidden') {
+      document.body.style.overflow = '';
+    }
+  }, 4000);
 });
 
 // Funciones del menú
@@ -4330,14 +4353,8 @@ function legalClose() {
 window.legalOpen = legalOpen;
 window.legalClose = legalClose;
 
-// Hook al botó "Entrar" del splash perquè mostri el modal de cookies
-(function(){
-  var origEnter = window.enterWeb;
-  window.enterWeb = function() {
-    if (typeof origEnter === 'function') origEnter.apply(this, arguments);
-    setTimeout(hgInitCookies, 600);
-  };
-})();
+// (L'avís de cookies ja es mostra directament des d'enterWeb(), més amunt,
+// amb protecció contra crides duplicades — no cal cap "hook" addicional aquí.)
 </script>
 
 <!-- MAINTENANCE OVERLAY -->
