@@ -3335,10 +3335,11 @@ window.submitForm = submitForm;
         <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Nom o Email</label>
         <input id="loginEmail" type="text" placeholder="Nom/Email" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('loginPassword').focus();}" style="width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:Arial,sans-serif;box-sizing:border-box;">
       </div>
-      <div style="text-align:left;margin-bottom:1.2rem;">
+      <div style="text-align:left;margin-bottom:0.4rem;">
         <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Contrasenya</label>
         <input id="loginPassword" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();loginWithEmail();}" style="width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:Arial,sans-serif;box-sizing:border-box;">
       </div>
+      <div id="loginError" style="display:none;text-align:left;color:#D32F2F;font-size:0.8rem;font-weight:600;margin-bottom:1rem;">⚠ Nom o contrasenya incorrectes.</div>
       <button onclick="loginWithEmail()" style="width:100%;padding:0.8rem;background:#0B3D6B;color:white;border:none;border-radius:10px;font-size:0.92rem;font-weight:700;cursor:pointer;margin-bottom:1rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;">
         Entrar →
       </button>
@@ -3716,9 +3717,22 @@ document.addEventListener('DOMContentLoaded', function() {
   var pf = document.getElementById('loginPassword');
   if (ef) ef.addEventListener('keydown', function(e) { if(e.key==='Enter'){e.preventDefault();if(pf)pf.focus();} });
   if (pf) pf.addEventListener('keydown', function(e) { if(e.key==='Enter'){e.preventDefault();loginWithEmail();} });
+  function clearLoginErrorOnEdit() {
+    var errBox=document.getElementById('loginError'); if(errBox) errBox.style.display='none';
+    if(ef) ef.style.borderColor='#E0E0E0';
+    if(pf) pf.style.borderColor='#E0E0E0';
+  }
+  if (ef) ef.addEventListener('input', clearLoginErrorOnEdit);
+  if (pf) pf.addEventListener('input', clearLoginErrorOnEdit);
 });
 
-function openAuthModal() { var m=document.getElementById('authModal'); if(m) m.classList.add('open'); }
+function openAuthModal() {
+  var m=document.getElementById('authModal'); if(m) m.classList.add('open');
+  var errBox=document.getElementById('loginError'); if(errBox) errBox.style.display='none';
+  var em=document.getElementById('loginEmail'), pw=document.getElementById('loginPassword');
+  if(em) em.style.borderColor='#E0E0E0';
+  if(pw) pw.style.borderColor='#E0E0E0';
+}
 window.openAuthModal = openAuthModal;
 function closeAuthModal() { var m=document.getElementById('authModal'); if(m) m.classList.remove('open'); }
 window.closeAuthModal = closeAuthModal;
@@ -3758,9 +3772,25 @@ var PRODUCTS = [
 ];
 
 function loginWithEmail() {
-  var input    = (document.getElementById('loginEmail').value    || '').trim().toLowerCase();
-  var password = (document.getElementById('loginPassword').value || '').trim();
-  if (!input || !password) { alert('Introdueix el teu nom i contrasenya.'); return; }
+  var emailInput = document.getElementById('loginEmail');
+  var passInput  = document.getElementById('loginPassword');
+  var errBox     = document.getElementById('loginError');
+  var input    = (emailInput.value    || '').trim().toLowerCase();
+  var password = (passInput.value || '').trim();
+
+  function showLoginError(msg) {
+    if (errBox) { errBox.textContent = '⚠ ' + msg; errBox.style.display = 'block'; }
+    emailInput.style.borderColor = '#D32F2F';
+    passInput.style.borderColor  = '#D32F2F';
+  }
+  function clearLoginError() {
+    if (errBox) errBox.style.display = 'none';
+    emailInput.style.borderColor = '#E0E0E0';
+    passInput.style.borderColor  = '#E0E0E0';
+  }
+
+  if (!input || !password) { showLoginError('Introdueix el teu nom i contrasenya.'); return; }
+
   var found = null, keys = Object.keys(USERS);
   for (var i=0; i<keys.length; i++) {
     var u = USERS[keys[i]];
@@ -3773,7 +3803,9 @@ function loginWithEmail() {
       if ((ru.name.toLowerCase()===input || rk[k].toLowerCase()===input) && ru.password===password) { found=ru; found._role='client'; break; }
     }
   }
-  if (!found) { alert('Nom o contrasenya incorrectes.'); return; }
+  if (!found) { showLoginError('Nom o contrasenya incorrectes.'); return; }
+
+  clearLoginError();
   var role = found.role || found._role || 'client';
   closeAuthModal();
   setLoggedInUser(found.name, '', role);
