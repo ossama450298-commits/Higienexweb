@@ -1870,6 +1870,11 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 #pedidosBody h2 { font-family: Georgia, 'Times New Roman', serif; color: var(--green-deep); margin-bottom: 0.3rem; }
 #pedidosBody > p { color: #666; margin-bottom: 2rem; }
 
+/* Catàleg de productes per a pedidos: 3 productes per fila (2 files de 3) */
+#pedidosGrid { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) { #pedidosGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { #pedidosGrid { grid-template-columns: 1fr; } }
+
 /* Catàleg de productes per a pedidos */
 .pedidos-grid {
   display: grid;
@@ -2458,7 +2463,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
         <input id="catalogSearch" type="text" placeholder="🔍 Cercar productes..." oninput="filterCatalog(this.value)" style="width:100%;padding:0.75rem 1.2rem;border:1.5px solid #D9E5F0;border-radius:14px;font-size:0.92rem;font-family:Arial,sans-serif;box-sizing:border-box;background:white;">
         <div id="catalogSearchEmpty" style="display:none;text-align:center;color:#999;padding:1.5rem 0;font-size:0.88rem;">Cap producte coincideix amb la cerca.</div>
       </div>
-      <div id="pedidosGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;margin-bottom:2rem;">
+      <div id="pedidosGrid" style="display:grid;gap:1.2rem;margin-bottom:2rem;">
 
         <!-- Producte 1 -->
         <div class="pedido-card-new" style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(11,61,107,0.08);border:1px solid rgba(11,61,107,0.06);transition:transform 0.2s,box-shadow 0.2s;">
