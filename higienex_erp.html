@@ -420,6 +420,7 @@ button,.navitem,.btn,a{min-height:32px}
         <span class="exercise">Ejercicio 2026</span>
         <span id="whoName"></span>
         <span class="avatar" id="whoAv"></span>
+        <button class="btn ghost sm" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()">Restablecer datos</button>
         <button class="btn ghost sm" onclick="logout()">Salir</button>
       </div>
     </div>
@@ -552,6 +553,45 @@ bancos:[
 facturasE:[], facturasR:[], movimientos:[], asientos:[], pedidos:[], oportunidades:[],
 nominas:[], actividades:[], fichajes:[], movStock:[]
 };
+
+/* =========================================================
+   PERSISTENCIA LOCAL (localStorage)
+   Guarda automáticamente el estado del ERP en el navegador
+   para que sobreviva a recargas de página, y permite volver
+   a los datos de ejemplo originales cuando se desee.
+   ========================================================= */
+const HX_DB_KEY = 'hx_erp_db_v1';
+function guardarDB(){
+  try{ localStorage.setItem(HX_DB_KEY, JSON.stringify(DB)); }catch(e){}
+}
+let _hxSaveTimer = null;
+function guardarDBDebounced(){
+  clearTimeout(_hxSaveTimer);
+  _hxSaveTimer = setTimeout(guardarDB, 300);
+}
+function cargarDB(){
+  try{
+    const raw = localStorage.getItem(HX_DB_KEY);
+    if(!raw) return false;
+    const saved = JSON.parse(raw);
+    Object.keys(saved).forEach(k=>{
+      if(Array.isArray(saved[k])){
+        if(!Array.isArray(DB[k])) DB[k] = [];
+        DB[k].length = 0;
+        DB[k].push(...saved[k]);
+      } else {
+        DB[k] = saved[k];
+      }
+    });
+    return true;
+  }catch(e){ return false; }
+}
+function restablecerDatosEjemplo(){
+  if(!confirm('Esto borrará todos los cambios guardados en este navegador (facturas, oportunidades, pedidos…) y volverá a los datos de ejemplo originales. ¿Continuar?')) return;
+  try{ localStorage.removeItem(HX_DB_KEY); }catch(e){}
+  location.reload();
+}
+window.restablecerDatosEjemplo = restablecerDatosEjemplo;
 
 /* ---------- Alta de subcuentas ---------- */
 function abrirSubcuentas(){
@@ -809,6 +849,7 @@ function doLogin(){
   const found=USERS.find(x=>[x.mail,x.alias,x.nom,x.nom.split(' ')[0]].some(v=>v.toLowerCase()===u)&&x.pass===p);
   if(!found){document.getElementById('loginErr').style.display='block';return;}
   ME=found;
+  cargarDB();
   document.getElementById('login').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('whoName').textContent=ME.nom+' · '+ME.rol;
@@ -936,7 +977,7 @@ function go(v,keepQ){
   initDashboardChart();
   if(!keepQ) window.scrollTo(0,0);
 }
-function refresh(){ go(VIEW,true); }
+function refresh(){ guardarDBDebounced(); go(VIEW,true); }
 
 /* Cálculos compartidos */
 const pendCobro = ()=>DB.facturasE.filter(f=>f.estado==='Pendiente');
