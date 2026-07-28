@@ -3108,11 +3108,9 @@ document.querySelectorAll('section, #cinemaHero, footer').forEach(function(el) {
 function updateNav() {
   var nav = document.getElementById('mainNav');
   if (!nav) return;
-  // Mostrar nav a partir de la secció #home
-  var homeSection = document.getElementById('home');
-  var threshold = homeSection
-    ? homeSection.getBoundingClientRect().top + window.pageYOffset - 10
-    : window.innerHeight;
+  // Mostrar nav només després de passar el logo animat (#cinemaHero)
+  var hero = document.getElementById('cinemaHero');
+  var threshold = hero ? hero.offsetHeight * 0.85 : window.innerHeight;
   if (window.pageYOffset >= threshold) {
     nav.classList.add('nav-visible');
     nav.classList.add('scrolled');
@@ -3122,6 +3120,7 @@ function updateNav() {
   }
 }
 window.addEventListener('scroll', updateNav, { passive: true });
+window.addEventListener('resize', updateNav);
 window.addEventListener('load', updateNav);
 document.addEventListener('DOMContentLoaded', updateNav);
 
