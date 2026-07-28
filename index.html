@@ -1447,6 +1447,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -2975,6 +2976,53 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 // HIGIENEX — Script principal (sense IIFE)
 // ═══════════════════════════════════════════════
 
+// ── NOTIFICACIONS PER EMAIL (EmailJS) ─────────────
+// Perquè arribi un correu real cada vegada que algú fa una comanda o
+// escriu al formulari de contacte, cal connectar un compte gratuït
+// d'EmailJS (no calen servidors: funciona directament des del navegador).
+// Passos ràpids:
+//   1. Crea un compte a https://www.emailjs.com (pots fer-ho amb el mateix
+//      Gmail on vols rebre els avisos).
+//   2. "Email Services" → "Add New Service" → connecta el teu Gmail →
+//      copia l'ID que et dona (és el EMAILJS_SERVICE_ID d'aquí baix).
+//   3. "Email Templates" → utilitza la plantilla per defecte "Contact Us"
+//      (o crea'n una) amb les variables {{title}}, {{name}}, {{message}}
+//      al cos/assumpte i {{email}} al camp "Reply To" → desa i copia l'ID
+//      de la plantilla (EMAILJS_TEMPLATE_ID).
+//   4. "Account" → "General" → copia la "Public Key" (EMAILJS_PUBLIC_KEY).
+//   5. Substitueix els tres valors de sota per els teus i puja l'arxiu.
+// Fins que no ho configuris, la web seguirà funcionant amb normalitat
+// (descarrega la factura igualment), simplement no s'enviarà l'email.
+var EMAILJS_PUBLIC_KEY  = 'qY3VsQTptjWr7IfC9JJVW';
+var EMAILJS_SERVICE_ID  = 'service_x8etty8';
+var EMAILJS_TEMPLATE_ID = 'template_dae7cth';
+var NOTIFY_EMAIL = 'ossama450298@gmail.com'; // ja fixat com a "To Email" dins de la plantilla d'EmailJS
+
+(function(){
+  if (window.emailjs && EMAILJS_PUBLIC_KEY !== 'LA_TEVA_PUBLIC_KEY') {
+    try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) { console.warn('EmailJS init error:', e); }
+  }
+})();
+
+function enviarNotificacioEmail(titol, nom, contingut, emailResposta) {
+  if (!window.emailjs || EMAILJS_PUBLIC_KEY === 'LA_TEVA_PUBLIC_KEY') {
+    console.warn('EmailJS no està configurat: revisa EMAILJS_PUBLIC_KEY / SERVICE_ID / TEMPLATE_ID al principi del <script>.');
+    return;
+  }
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    title: titol,
+    name: nom,
+    message: contingut,
+    email: emailResposta || NOTIFY_EMAIL,
+    time: new Date().toLocaleString('ca-ES')
+  }).then(function(){
+    console.log('Notificació enviada per email.');
+  }).catch(function(err){
+    console.warn('No s\'ha pogut enviar la notificació per email:', err);
+  });
+}
+window.enviarNotificacioEmail = enviarNotificacioEmail;
+
 // ── SPLASH ───────────────────────────────────────
 var _hgCookieTimer = null;
 function enterWeb() {
@@ -4040,6 +4088,20 @@ function sendOrder() {
     // PDF generation failed — abort sending the order
     return;
   }
+
+  // Enviar avís per email amb el detall de la comanda
+  try {
+    var userName = (document.getElementById('userName') || {}).textContent || 'Client no identificat';
+    var detallLinies = keys.map(function(k){
+      return k + ' — ' + cart[k].qty + ' u. — ' + cart[k].total.toFixed(2) + ' €';
+    }).join('\n');
+    var cos = 'Nova comanda a HIGIENEX\n\n' +
+      'Client: ' + userName + '\n' +
+      'Factura: ' + inv.invoiceNum + '\n' +
+      'Total: ' + inv.total.toFixed(2) + ' €\n\n' +
+      'Productes:\n' + detallLinies;
+    enviarNotificacioEmail('Nova comanda ' + inv.invoiceNum + ' — HIGIENEX', userName, cos);
+  } catch(e) { console.warn('No s\'ha pogut preparar l\'email de la comanda:', e); }
 
   // Show success
   var s = document.getElementById('orderSuccess');
