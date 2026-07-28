@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>HIGIENEX S.L. – Higiene Professional Sostenible</title>
+<meta name="description" content="HIGIENEX S.L. — productes d'higiene professional sostenible per a hospitals, hotels, indústria alimentària i oficines. Desinfecció, neteja ecològica i subministrament recurrent a València.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B3D6B'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' font-weight='bold' fill='%23F2A900' text-anchor='middle'%3EX%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="HIGIENEX S.L. – Higiene Professional Sostenible">
+<meta property="og:description" content="Productes d'higiene professional sostenible per a hospitals, hotels, indústria alimentària i oficines.">
+<meta property="og:type" content="website">
 <style>
 :root {
   --green-deep: #0B3D6B;
@@ -3465,7 +3470,11 @@ window.submitForm = submitForm;
 
       <!-- Grid de productes -->
       <h3 style="color:#0B3D6B;font-size:1rem;font-weight:700;margin:0 0 1rem;text-transform:uppercase;letter-spacing:1px;">🧴 Catàleg de Productes</h3>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;margin-bottom:2rem;">
+      <div style="margin-bottom:1.2rem;position:relative;">
+        <input id="catalogSearch" type="text" placeholder="🔍 Cercar productes..." oninput="filterCatalog(this.value)" style="width:100%;padding:0.75rem 1.2rem;border:1.5px solid #D9E5F0;border-radius:14px;font-size:0.92rem;font-family:Arial,sans-serif;box-sizing:border-box;background:white;">
+        <div id="catalogSearchEmpty" style="display:none;text-align:center;color:#999;padding:1.5rem 0;font-size:0.88rem;">Cap producte coincideix amb la cerca.</div>
+      </div>
+      <div id="pedidosGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;margin-bottom:2rem;">
 
         <!-- Producte 1 -->
         <div class="pedido-card-new" style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(11,61,107,0.08);border:1px solid rgba(11,61,107,0.06);transition:transform 0.2s,box-shadow 0.2s;">
@@ -3724,6 +3733,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   if (ef) ef.addEventListener('input', clearLoginErrorOnEdit);
   if (pf) pf.addEventListener('input', clearLoginErrorOnEdit);
+  if (typeof renderCart === 'function') renderCart();
 });
 
 var _authModalOpenedAt = 0;
@@ -3894,8 +3904,31 @@ function closePedidosSection() { var p=document.getElementById('pedidosSection')
 window.closePedidosSection = closePedidosSection;
 
 var cart = {};
+try {
+  var _savedCart = localStorage.getItem('hx_cart');
+  if (_savedCart) cart = JSON.parse(_savedCart) || {};
+} catch(e) { cart = {}; }
+function guardarCarret() {
+  try { localStorage.setItem('hx_cart', JSON.stringify(cart)); } catch(e) {}
+}
 function changeQty(btn, delta) { var n=btn.parentElement.querySelector('.qty-num'); if(n) n.textContent=Math.max(0,parseInt(n.textContent)+delta); }
 window.changeQty = changeQty;
+function filterCatalog(q) {
+  var grid = document.getElementById('pedidosGrid');
+  if (!grid) return;
+  var cards = grid.querySelectorAll('.pedido-card-new');
+  var query = (q || '').trim().toLowerCase();
+  var visibleCount = 0;
+  cards.forEach(function(card){
+    var text = card.textContent.toLowerCase();
+    var match = !query || text.indexOf(query) !== -1;
+    card.style.display = match ? '' : 'none';
+    if (match) visibleCount++;
+  });
+  var empty = document.getElementById('catalogSearchEmpty');
+  if (empty) empty.style.display = (visibleCount === 0 && query) ? 'block' : 'none';
+}
+window.filterCatalog = filterCatalog;
 function addToCart(name, price, btn) {
   // Find qty-num inside the card (go up to card container then find .qty-num)
   var card = btn.parentElement;
@@ -3913,6 +3946,7 @@ var TRANSPORT = 5.00;
 var IVA_PCT  = 0.21;
 
 function renderCart() {
+  guardarCarret();
   var items   = document.getElementById('cartItems');
   var tot     = document.getElementById('cartTotal');
   var totAmt  = document.getElementById('cartTotalAmount');
