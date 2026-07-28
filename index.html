@@ -3910,7 +3910,7 @@ function renderCart() {
   if (tot) tot.style.display = 'flex';
   if (totAmt) totAmt.innerHTML = '<strong style="font-size:1.1rem;">' + total.toFixed(2) + ' €</strong>';
 }
-function generateInvoice() {
+function generateComanda() {
   var keys = Object.keys(cart);
   if (!keys.length) return null;
 
@@ -3920,10 +3920,10 @@ function generateInvoice() {
   var mm    = String(date.getMonth()+1).padStart(2,'0');
   var yyyy  = date.getFullYear();
   var dateStr = dd + '/' + mm + '/' + yyyy;
-  var due   = new Date(date.getTime() + 30*24*60*60*1000);
-  var dueStr = String(due.getDate()).padStart(2,'0') + '/' + String(due.getMonth()+1).padStart(2,'0') + '/' + due.getFullYear();
+  var entrega = new Date(date.getTime() + 5*24*60*60*1000); // lliurament estimat: 5 dies laborables
+  var entregaStr = String(entrega.getDate()).padStart(2,'0') + '/' + String(entrega.getMonth()+1).padStart(2,'0') + '/' + entrega.getFullYear();
   var seq   = String(Math.floor(Math.random()*9000)+1000);
-  var invoiceNum = yyyy + '-' + seq;
+  var comandaNum = 'C' + yyyy + '-' + seq;
 
   // ── Client info ──
   var userName = (document.getElementById('userName') || {}).textContent || 'Client';
@@ -3976,7 +3976,7 @@ function generateInvoice() {
   doc.setFont('helvetica','bold');
   doc.setFontSize(34);
   doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('Factura', 20, 32);
+  doc.text('Comanda', 20, 32);
   // Logo HIGIENEX con la X en dorado
   doc.setFontSize(22);
   var hlW = doc.getTextWidth('HIGIENE');
@@ -3993,15 +3993,15 @@ function generateInvoice() {
   doc.setFont('helvetica','bold');
   doc.setFontSize(9);
   doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('Fecha de factura:',     20,  y);
-  doc.text('Número de factura:',    85,  y);
-  doc.text('Fecha de vencimiento:', 145, y);
+  doc.text('Data de la comanda:',   20,  y);
+  doc.text('Número de comanda:',    85,  y);
+  doc.text('Lliurament estimat:',   145, y);
   doc.setFont('helvetica','normal');
   doc.setFontSize(10);
   doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]);
-  doc.text(dateStr,    20,  y+6);
-  doc.text(invoiceNum, 85,  y+6);
-  doc.text(dueStr,     145, y+6);
+  doc.text(dateStr,     20,  y+6);
+  doc.text(comandaNum,  85,  y+6);
+  doc.text(entregaStr,  145, y+6);
 
   doc.setDrawColor(LINE[0],LINE[1],LINE[2]);
   doc.setLineWidth(0.5);
@@ -4081,7 +4081,7 @@ function generateInvoice() {
   doc.setFont('helvetica','bold');
   doc.setFontSize(10);
   doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('BASE IMPONIBLE:', 150, y, {align:'right'});
+  doc.text('SUBTOTAL:', 150, y, {align:'right'});
   doc.setFont('helvetica','normal');
   doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]);
   doc.text(fmt(subtotal) + ' €', W-20, y, {align:'right'});
@@ -4108,25 +4108,27 @@ function generateInvoice() {
   doc.setFont('helvetica','bold');
   doc.setFontSize(11);
   doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('Comentarios:', 20, y);
+  doc.text('Estat de la comanda:', 20, y);
   y += 8;
   doc.setFont('helvetica','normal');
   doc.setFontSize(10);
   doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]);
-  doc.text('Pago por transferencia: ES7600491892602010012345', 20, y);
+  doc.text('Pendent de confirmació. El nostre equip et contactarà en menys de 24h', 20, y);
+  y += 6;
+  doc.text('per confirmar la comanda i indicar-te com formalitzar el pagament.', 20, y);
 
-  doc.save('Factura_' + invoiceNum + '.pdf');
-  return { invoiceNum: invoiceNum, total: total, email: (clientInfo.email && clientInfo.email !== '-') ? clientInfo.email : '' };
+  doc.save('Comanda_' + comandaNum + '.pdf');
+  return { invoiceNum: comandaNum, total: total, email: (clientInfo.email && clientInfo.email !== '-') ? clientInfo.email : '' };
 }
 
 function sendOrder() {
   var keys = Object.keys(cart);
   if (!keys.length) { alert('Afegeix almenys un producte.'); return; }
 
-  // Generate and download invoice as PDF
+  // Generate and download the order confirmation as PDF
   var inv;
   try {
-    inv = generateInvoice();
+    inv = generateComanda();
   } catch(err) {
     console.log('PDF error:', err);
     inv = null;
@@ -4154,7 +4156,7 @@ function sendOrder() {
         filesHTML +
       '</table>' +
       '<table style="width:100%;margin-top:14px;font-size:14px;">' +
-        '<tr><td style="padding:3px 4px;color:#888;">Factura</td><td style="padding:3px 4px;text-align:right;font-weight:600;color:#333;">' + escHtml(inv.invoiceNum) + '</td></tr>' +
+        '<tr><td style="padding:3px 4px;color:#888;">Comanda</td><td style="padding:3px 4px;text-align:right;font-weight:600;color:#333;">' + escHtml(inv.invoiceNum) + '</td></tr>' +
         '<tr><td style="padding:8px 4px 3px;color:#0B3D6B;font-size:16px;font-weight:700;">Total</td><td style="padding:8px 4px 3px;text-align:right;font-size:18px;font-weight:800;color:#0B3D6B;">' + inv.total.toFixed(2) + ' €</td></tr>' +
       '</table>';
     enviarNotificacioEmail({
@@ -4173,7 +4175,7 @@ function sendOrder() {
   if (s) {
     s.style.display = 'block';
     s.innerHTML = '<strong>✅ Comanda enviada!</strong><br>' +
-      'Factura <strong>' + inv.invoiceNum + '</strong> descarregada · Total: <strong>' + inv.total.toFixed(2) + ' €</strong><br>' +
+      'Comanda <strong>' + inv.invoiceNum + '</strong> descarregada · Total: <strong>' + inv.total.toFixed(2) + ' €</strong><br>' +
       '<span style="font-size:0.82rem;color:#555;">El nostre equip et contactara en menys de 24h</span>';
   }
   cart = {};
@@ -4181,7 +4183,7 @@ function sendOrder() {
   setTimeout(function(){ var s=document.getElementById('orderSuccess'); if(s) s.style.display='none'; }, 10000);
 }
 window.sendOrder = sendOrder;
-window.generateInvoice = generateInvoice;
+window.generateComanda = generateComanda;
 
 function openAdminPanel() {
   var p=document.getElementById('adminPanel'); if(!p) return;
