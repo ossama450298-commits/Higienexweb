@@ -3848,6 +3848,15 @@ function registerUser() {
   if (password.length<6) { alert('La contrasenya ha de tenir minim 6 caracters.'); return; }
   if (USERS[email]) { alert('Email ja registrat.'); switchTab('login'); return; }
   REGISTERED_USERS[email] = {name:name, company:company, cif:cif, password:password, sector:sector};
+  enviarNotificacioEmail({
+    title: 'Nou usuari registrat a la web',
+    badge: 'NOU REGISTRE',
+    subtitle: 'Algú s\'ha registrat a HIGIENEX des de la web.',
+    name: name,
+    email: email,
+    detailLabel: 'Dades del registre',
+    message: 'Nom: ' + name + '\nEmail: ' + email + (company ? ('\nEmpresa: ' + company) : '') + (cif ? ('\nCIF: ' + cif) : '') + (sector ? ('\nSector: ' + sector) : '')
+  });
   closeAuthModal(); setLoggedInUser(name,'','client'); showWelcome(name,false);
 }
 window.registerUser = registerUser;
