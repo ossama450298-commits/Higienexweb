@@ -398,6 +398,30 @@ button,.navitem,.btn,a{min-height:32px}
 }
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+// ── Avisos per email al client quan canvia l'estat de la seva expedició ──
+var EMAILJS_PUBLIC_KEY  = 'EITy91aX6QkGA4ppG';
+var EMAILJS_SERVICE_ID  = 'service_x8etty8';
+var EMAILJS_TEMPLATE_ID = 'template_dae7cth';
+(function(){
+  if (window.emailjs) { try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e){} }
+})();
+function enviarAvisEstatClient(opts){
+  opts = opts || {};
+  if (!window.emailjs || !opts.email) return;
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    title: opts.title || 'Actualització de la teva comanda — HIGIENEX',
+    name: opts.name || '',
+    message: opts.message || '',
+    email: opts.email,
+    time: new Date().toLocaleString('ca-ES'),
+    badge: 'ESTAT ACTUALITZAT',
+    subtitle: 'Hi ha una novetat sobre la teva comanda a HIGIENEX.',
+    detail_label: 'Detall'
+  }).catch(function(err){ console.warn('No s\'ha pogut avisar al client:', err); });
+}
+</script>
 </head>
 <body>
 
@@ -807,6 +831,39 @@ const nomProv = id => prov(id).nom;
    INTERFAZ · base
    ========================================================= */
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove('on'),2800);}
+
+// ── Exportació a CSV (obrible directament amb Excel) ──────────────
+function csvEscape(v){
+  var s = (v===null||v===undefined) ? '' : String(v);
+  if (/[";\n,]/.test(s)) s = '"' + s.replace(/"/g,'""') + '"';
+  return s;
+}
+function downloadCSV(filename, headers, rows){
+  var lines = [headers.map(csvEscape).join(';')];
+  rows.forEach(function(r){ lines.push(r.map(csvEscape).join(';')); });
+  var csv = '\uFEFF' + lines.join('\n'); // BOM per a accents correctes a Excel
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  toast('CSV descarregat: ' + filename);
+}
+function exportFacturasECSV(){
+  var rows = DB.facturasE.map(function(f){
+    return [f.num, f.fecha, nomCli(f.cli), f.base.toFixed(2), f.cuota.toFixed(2), f.total.toFixed(2), f.venc, f.estado];
+  });
+  downloadCSV('facturas_emitidas_' + TODAY + '.csv',
+    ['Numero','Fecha','Cliente','Base','IVA','Total','Vencimiento','Estado'], rows);
+}
+function exportFacturasRCSV(){
+  var rows = DB.facturasR.map(function(f){
+    return [f.num, f.fecha, nomProv(f.prov), f.concepto, f.cuenta, f.base.toFixed(2), f.cuota.toFixed(2), f.total.toFixed(2), f.estado];
+  });
+  downloadCSV('facturas_recibidas_' + TODAY + '.csv',
+    ['Numero','Fecha','Proveedor','Concepto','Cuenta','Base','IVA','Total','Estado'], rows);
+}
 function openModal(title,body,footer,wide){
   document.getElementById('modalBox').className='box'+(wide?' wide':'');
   document.getElementById('modalBox').innerHTML=
@@ -978,7 +1035,15 @@ function initDashboardChart(){
 }
 let VIEW='panel';
 const ROUTES={};
+function viewPermArea(v){
+  const label = NAV.flatMap(s=>s.items).find(i=>i[0]===v);
+  return label ? label[2] : 'all';
+}
 function go(v,keepQ){
+  if (!can(viewPermArea(v))) {
+    if (typeof toast === 'function') toast('⛔ No tens permisos per accedir a aquesta secció.');
+    v = 'panel';
+  }
   if(v!==VIEW && !keepQ) Q='';
   VIEW=v;
   document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
@@ -1302,7 +1367,7 @@ ROUTES.femitidas=function(){
   const all=DB.facturasE.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const lista=all.filter(f=>hit(f.num+' '+nomCli(f.cli)+' '+f.estado));
   let h=head('Facturas emitidas','Base '+EUR(all.reduce((s,f)=>s+f.base,0))+' · IVA repercutido '+EUR(all.reduce((s,f)=>s+f.cuota,0)),
-    '<button class="btn" onclick="formFacturaE()">Nueva factura</button>');
+    '<button class="btn ghost" onclick="exportFacturasECSV()">⬇ Exportar CSV</button><button class="btn" onclick="formFacturaE()">Nueva factura</button>');
   h+=buscador('Buscar por número, cliente o estado…',all.length,lista.length);
   const rows=lista.map(f=>rowN([
     '<strong>'+f.num+'</strong>',FD(f.fecha),esc(nomCli(f.cli)),EUR(f.base),EUR(f.cuota),'<strong>'+EUR(f.total)+'</strong>',FD(f.venc),estadoTag(f)
@@ -1446,7 +1511,7 @@ ROUTES.frecibidas=function(){
   const all=DB.facturasR.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const lista=all.filter(f=>hit(f.num+' '+nomProv(f.prov)+' '+f.concepto+' '+f.estado));
   let h=head('Facturas recibidas','IVA soportado acumulado: '+EUR(all.reduce((s,f)=>s+f.cuota,0)),
-    '<button class="btn" onclick="formFacturaR()">Registrar factura</button>');
+    '<button class="btn ghost" onclick="exportFacturasRCSV()">⬇ Exportar CSV</button><button class="btn" onclick="formFacturaR()">Registrar factura</button>');
   h+=buscador('Buscar por número, proveedor o concepto…',all.length,lista.length);
   const rows=lista.map(f=>rowN([
     '<strong>'+esc(f.num)+'</strong>',FD(f.fecha),esc(nomProv(f.prov)),esc(f.concepto),
@@ -3277,6 +3342,23 @@ function avanzarExpedicion(id, estado){
   e.estado = estado;
   if(estado==='Entregada') e.fechaEntrega = TODAY;
   log('Expedición '+estado.toLowerCase(), e.fact+' · '+nomTransp(e.transp));
+  const fact = DB.facturasE.find(f=>f.num===e.fact);
+  if (fact) {
+    const c = cli(fact.cli);
+    if (c && c.mail) {
+      const estatMsgs = {
+        'Enviada': 'La teva comanda ' + e.fact + ' ja ha sortit cap a tu, transportada per ' + nomTransp(e.transp) + '.',
+        'Entregada': 'La teva comanda ' + e.fact + ' ha estat entregada amb èxit. Gràcies per confiar en HIGIENEX!',
+        'Incidencia': 'Hi ha hagut una incidència amb la teva comanda ' + e.fact + '. Ens posarem en contacte amb tu.'
+      };
+      enviarAvisEstatClient({
+        title: 'La teva comanda ' + e.fact + ' — ' + estado,
+        name: c.nom,
+        email: c.mail,
+        message: estatMsgs[estado] || ('La teva comanda ' + e.fact + ' ha canviat d\'estat a: ' + estado + '.')
+      });
+    }
+  }
   refresh(); toast('Expedición de '+e.fact+' marcada como '+estado.toLowerCase()+'.');
 }
 function formExpedicion(factPre){
