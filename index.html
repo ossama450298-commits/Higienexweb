@@ -941,26 +941,22 @@ tbody tr:hover td { background: var(--green-cream); }
    NEWSLETTER - SECCIÓ NOTÍCIES
    ============================================ */
 #newsletter { background: var(--green-cream); }
-.news-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  margin-top: 2rem;
-}
-.news-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow);
-  transition: transform .3s, box-shadow .3s;
+.news-article-list {
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
 }
-.news-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.news-article {
+  background: white;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 2rem 2.2rem;
+  margin-bottom: 2rem;
+}
 .news-date { font-size: 0.7rem; color: var(--green-mid); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; font-family: 'Courier New', Courier, monospace; }
-.news-content { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
-.news-title { font-size: 1rem; color: var(--charcoal); line-height: 1.4; margin-top: 0.3rem; }
-.news-excerpt { font-size: 0.82rem; color: #666; line-height: 1.6; }
+.news-article .news-title { font-size: 1.3rem; color: var(--green-deep); line-height: 1.4; margin: 0.5rem 0 1rem; }
+.news-article p { font-size: 0.92rem; color: #444; line-height: 1.8; margin-bottom: 0.9rem; }
+.news-article p:last-child { margin-bottom: 0; }
 .news-inline-form {
   margin-top: 2.5rem;
   background: var(--green-deep);
@@ -1002,7 +998,7 @@ tbody tr:hover td { background: var(--green-cream); }
   inset: 0;
   background: rgba(11,61,107,0.55);
   backdrop-filter: blur(3px);
-  z-index: 9998;
+  z-index: 999999;
   display: none;
   align-items: center;
   justify-content: center;
@@ -1085,8 +1081,7 @@ tbody tr:hover td { background: var(--green-cream); }
 .hg-news-popup-success { display: none; }
 .hg-news-popup-success.active { display: block; }
 .hg-news-popup-success .hg-news-popup-icon { color: var(--green-bright); }
-@media(max-width:900px){ .news-grid { grid-template-columns: 1fr 1fr; } }
-@media(max-width:600px){ .news-grid { grid-template-columns: 1fr; } .news-inline-row { flex-direction: column; } .news-inline-row button { width: 100%; } }
+@media(max-width:600px){ .news-inline-row { flex-direction: column; } .news-inline-row button { width: 100%; } .news-article { padding: 1.5rem 1.3rem; } }
 
 /* FUTUR */
 #futur { background: linear-gradient(160deg, var(--green-deep) 0%, #071E3A 100%); color: white; }
@@ -2379,6 +2374,9 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
         🛒
         <span id="cartBadge" style="display:none;position:absolute;top:-5px;right:-6px;background:#F2A900;color:#1A1A1A;font-size:0.68rem;font-weight:800;border-radius:50%;min-width:18px;height:18px;padding:0 3px;align-items:center;justify-content:center;border:2px solid white;">0</span>
       </button>
+      <button onclick="navTo('newsletter')" title="Newsletter" aria-label="Newsletter" style="display:flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--green-deep);color:white;border:none;cursor:pointer;flex-shrink:0;font-size:1rem;line-height:1;">
+        📰
+      </button>
       <a href="higienex_erp.html" target="_blank" rel="noopener" title="Accés Intern (ERP)" aria-label="Accés Intern (ERP)" style="display:flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--green-deep,#0B3D6B);color:white;flex-shrink:0;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="8" r="4"></circle>
@@ -2403,6 +2401,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
       <a class="dditem" onclick="navTo('productes')">🧴 Productes i Innovació</a>
       <a class="dditem" onclick="navTo('operacions')">🏭 Operacions</a>
       <a class="dditem" onclick="navTo('compromis')">♻️ Compromís i Mercat</a>
+      <a class="dditem" onclick="navTo('newsletter')">📰 Newsletter</a>
       <a class="dditem" onclick="navTo('contacte')">📞 Ajuda i Contacte</a>
     </div>
   </div>
@@ -3111,73 +3110,96 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   </div>
 </section>
 
-<!-- 18b. NEWSLETTER -->
-<section id="newsletter">
-  <div class="container">
-    <span class="section-tag">18b / Newsletter</span>
-    <h2>Newsletter HIGIENEX</h2>
-    <p>Les últimes novetats de l'empresa, llançaments de producte i actualitat del sector, directament al teu correu.</p>
-    <div class="news-grid fade-in">
-      <div class="news-card">
-        <div class="news-content">
-          <span class="news-date">14 juliol 2026</span>
-          <h3 class="news-title">HIGIENEX obre nova planta de producció a l'Horta Sud</h3>
-          <p class="news-excerpt">La nova instal·lació de 2.400 m² duplicarà la capacitat de fabricació de concentrats ECO i crearà 18 llocs de treball directes durant el 2026.</p>
-        </div>
-      </div>
-      <div class="news-card">
-        <div class="news-content">
-          <span class="news-date">2 juny 2026</span>
-          <h3 class="news-title">Acord amb la Generalitat per subministrar hospitals públics valencians</h3>
-          <p class="news-excerpt">HIGIENEX serà proveïdora homologada de productes de desinfecció per a set hospitals de la xarxa pública durant els pròxims tres anys.</p>
-        </div>
-      </div>
-      <div class="news-card">
-        <div class="news-content">
-          <span class="news-date">21 maig 2026</span>
-          <h3 class="news-title">Nova línia WorkSafe Smart Space arriba al mercat</h3>
-          <p class="news-excerpt">Fruit de la col·laboració amb OfiNova, la línia combina mobiliari ergonòmic i higiene automatitzada per a oficines i espais de treball.</p>
-        </div>
-      </div>
-      <div class="news-card">
-        <div class="news-date" style="padding:1.5rem 1.5rem 0;">18 abril 2026</div>
-        <div class="news-content" style="padding-top:0.3rem;">
-          <h3 class="news-title">HIGIENEX obté la 19a patent per a un nou desinfectant de superfície</h3>
-          <p class="news-excerpt">La nova patent millora el temps d'acció del producte en un 30% mantenint la fórmula ECO de baix impacte ambiental.</p>
-        </div>
-      </div>
-      <div class="news-card">
-        <div class="news-date" style="padding:1.5rem 1.5rem 0;">5 març 2026</div>
-        <div class="news-content" style="padding-top:0.3rem;">
-          <h3 class="news-title">Primer pas cap a Portugal: acord amb distribuïdor a Porto</h3>
-          <p class="news-excerpt">HIGIENEX inicia la seva expansió internacional amb un acord de distribució que arrencarà a la zona nord de Portugal el 2026.</p>
-        </div>
-      </div>
-      <div class="news-card">
-        <div class="news-date" style="padding:1.5rem 1.5rem 0;">12 febrer 2026</div>
-        <div class="news-content" style="padding-top:0.3rem;">
-          <h3 class="news-title">HIGIENEX renova la certificació ISO 14001 de gestió ambiental</h3>
-          <p class="news-excerpt">L'auditoria destaca la reducció del 70% en envasos plàstics gràcies als concentrats ×3 implantats en tota la gamma professional.</p>
-        </div>
-      </div>
-    </div>
+<!-- ═══════════════════════════════════════
+     CATEGORY: AJUDA I CONTACTE
+     ═══════════════════════════════════════ -->
+</div><!-- /g-compromis -->
 
-    <div class="news-inline-form">
+<!-- ═══════════════════════════════════════
+     CATEGORY: NEWSLETTER (pàgina independent)
+     ═══════════════════════════════════════ -->
+<div class="hg-page" id="g-newsletter">
+<div id="cat-newsletter" class="cat-banner">
+  <div class="cat-banner-inner">
+    <span class="cat-num">06</span>
+    <div>
+      <h2>Newsletter</h2>
+      <p>Notícies, llançaments i actualitat d'HIGIENEX</p>
+    </div>
+  </div>
+</div>
+
+<!-- 19. NEWSLETTER -->
+<section id="newsletter">
+  <div class="container" style="max-width:820px;">
+    <span class="section-tag">19 / Newsletter</span>
+    <h2>Newsletter HIGIENEX</h2>
+    <p>Segueix de prop l'actualitat de l'empresa: obertures de planta, acords comercials, nous productes i fites del sector de la higiene professional. Subscriu-te gratuïtament i no et perdis cap novetat.</p>
+
+    <div class="news-inline-form" style="margin-top:2rem;margin-bottom:1rem;">
       <h3>No et perdis cap novetat</h3>
-      <p>Subscriu-te gratis a la newsletter d'HIGIENEX i rep les notícies, llançaments i ofertes exclusives per a professionals.</p>
+      <p>Subscriu-te gratis a la newsletter d'HIGIENEX i rep les notícies, llançaments i ofertes exclusives per a professionals directament al teu correu.</p>
       <form class="news-inline-row" onsubmit="hgNewsletterSubmit(event)">
         <input type="email" placeholder="El teu correu electrònic" required>
         <button type="submit">Subscriu-te gratis</button>
       </form>
       <p class="news-inline-note">100% gratuït · Sense spam · Cancel·la quan vulguis</p>
     </div>
+
+    <div class="news-article-list fade-in">
+
+      <article class="news-article">
+        <span class="news-date">14 juliol 2026</span>
+        <h3 class="news-title">HIGIENEX obre una nova planta de producció a l'Horta Sud i duplica la seva capacitat de fabricació</h3>
+        <p>HIGIENEX, S.L. ha inaugurat aquesta setmana les seves noves instal·lacions productives a l'Horta Sud, un complex de 2.400 m² que suposa la inversió industrial més important de l'empresa des de la seva constitució el 2015. La nova planta incorpora línies de producció automatitzades per als concentrats ECO ×3, la família de productes que ja representa més del 40% de la facturació anual de la companyia.</p>
+        <p>Segons ha explicat la direcció, l'ampliació respon a la creixent demanda d'hospitals, cadenes hoteleres i indústria alimentària, sectors que en els últims exercicis han incrementat de mitjana un 18% les seves comandes recurrents. La nova capacitat productiva permetrà a HIGIENEX absorbir aquest creixement sense allargar els terminis de subministrament, un dels compromisos clau amb els seus clients de contracte.</p>
+        <p>La posada en marxa de la planta comportarà la creació de 18 llocs de treball directes durant el 2026, entre personal de producció, control de qualitat i logística, i consolida l'aposta d'HIGIENEX per mantenir la fabricació a la Comunitat Valenciana malgrat l'expansió cap a nous mercats.</p>
+      </article>
+
+      <article class="news-article">
+        <span class="news-date">2 juny 2026</span>
+        <h3 class="news-title">HIGIENEX, proveïdora homologada de la Generalitat per a set hospitals públics valencians</h3>
+        <p>La Generalitat Valenciana ha adjudicat a HIGIENEX el subministrament de productes de desinfecció i higiene professional per a set hospitals de la xarxa pública durant els pròxims tres anys. L'acord, resultat d'un concurs públic en què HIGIENEX competia amb altres quatre proveïdors del sector, situa l'empresa com a referent en higiene sanitària a la Comunitat Valenciana.</p>
+        <p>El contracte inclou el subministrament de desinfectants de superfície amb registre biocida europeu, sabons quirúrgics i solucions hidroalcohòliques, amb protocols de lliurament setmanal adaptats a cada centre hospitalari. HIGIENEX haurà de mantenir estocs de seguretat i temps de resposta inferiors a 24 hores davant incidències, unes condicions que la companyia ja aplica amb els seus clients privats del sector sanitari.</p>
+        <p>Per a la direcció comercial d'HIGIENEX, aquest acord "valida deu anys de treball en el sector sanitari" i obre la porta a futures licitacions amb altres administracions públiques, un mercat que l'empresa considera estratègic per als propers exercicis.</p>
+      </article>
+
+      <article class="news-article">
+        <span class="news-date">21 maig 2026</span>
+        <h3 class="news-title">Neix WorkSafe Smart Space, la nova línia d'espais de treball intel·ligents amb OfiNova</h3>
+        <p>Després de mesos de desenvolupament conjunt, HIGIENEX i el fabricant de mobiliari OfiNova han presentat oficialment WorkSafe Smart Space, una solució integral per a oficines que combina mobiliari ergonòmic modular amb sistemes d'higiene automatitzada i sensòrica IoT. El projecte, amb una inversió conjunta estimada entre 70.000 i 90.000 euros, es dirigirà inicialment a mitjanes empreses i administracions que vulguin renovar els seus espais de treball post-pandèmia.</p>
+        <p>La proposta integra dispensadors automàtics de gel hidroalcohòlic i sabó connectats a un sistema de monitorització que avisa quan cal reposar producte, superfícies de treball amb tractament antimicrobià de llarga durada desenvolupat pel departament de R+D d'HIGIENEX, i mobiliari d'OfiNova pensat per facilitar la neteja diària sense juntes ni racons de difícil accés.</p>
+        <p>Ambdues empreses preveuen un marge conjunt del 25-35% en aquesta línia de negoci i ja treballen en els primers projectes pilot amb clients del sector d'oficines corporatives, amb l'objectiu d'ampliar la gamma a gimnasos i centres educatius durant el 2027.</p>
+      </article>
+
+      <article class="news-article">
+        <span class="news-date">18 abril 2026</span>
+        <h3 class="news-title">HIGIENEX registra la seva 19a patent: un desinfectant de superfície un 30% més ràpid</h3>
+        <p>El departament de R+D d'HIGIENEX ha aconseguit registrar una nova patent per a un desinfectant de superfície d'ampli espectre que redueix en un 30% el temps d'acció respecte a la fórmula anterior, mantenint la base ECO de baix impacte ambiental que caracteritza tota la gamma de l'empresa. Es tracta de la 19a patent pròpia registrada per HIGIENEX des de la seva creació.</p>
+        <p>La innovació és especialment rellevant per a clients del sector alimentari i hoteler, on els temps de contacte curts són crítics per no interrompre els ritmes de producció o neteja d'habitacions. Segons l'equip tècnic, la nova fórmula manté la certificació de biocides europea i la compatibilitat amb els protocols HACCP ja homologats per als productes anteriors de la companyia.</p>
+        <p>HIGIENEX preveu incorporar aquesta formulació a la seva gamma professional durant el segon semestre de 2026, després de completar les últimes proves de camp amb clients pilot del sector hoteler.</p>
+      </article>
+
+      <article class="news-article">
+        <span class="news-date">5 març 2026</span>
+        <h3 class="news-title">HIGIENEX fa el primer pas cap a Portugal amb un acord de distribució a Porto</h3>
+        <p>HIGIENEX ha signat el seu primer acord de distribució internacional amb una empresa local de Porto, marcant l'inici del pla d'expansió cap al mercat portuguès previst inicialment per al 2026. L'acord contempla la distribució de la gamma de concentrats ECO i productes de desinfecció professional a la zona nord del país, amb previsió d'ampliar-se a Lisboa en una segona fase.</p>
+        <p>Per a l'entrada al mercat portuguès, HIGIENEX ha hagut d'adaptar l'etiquetatge de tots els seus productes a l'idioma local i revisar la documentació tècnica i de seguretat conforme a la normativa europea de biocides, un procés que el departament de qualitat ha completat en els últims mesos.</p>
+        <p>Aquest acord suposa el tret de sortida d'una estratègia d'internacionalització més àmplia amb què HIGIENEX vol reduir la seva dependència del mercat espanyol i diversificar la seva base de clients a mitjà termini.</p>
+      </article>
+
+      <article class="news-article">
+        <span class="news-date">12 febrer 2026</span>
+        <h3 class="news-title">HIGIENEX renova la certificació ISO 14001 amb una reducció del 70% en envasos plàstics</h3>
+        <p>HIGIENEX ha renovat amb èxit la seva certificació ISO 14001 de gestió ambiental després de l'auditoria anual realitzada per una entitat independent. L'informe destaca especialment la reducció del 70% en l'ús d'envasos plàstics aconseguida gràcies a la implantació generalitzada dels concentrats ×3 en tota la gamma professional de l'empresa.</p>
+        <p>L'auditoria també ha valorat positivament les millores en la gestió de residus a la planta de producció i la reducció de la petjada de transport, ja que els concentrats permeten enviar més producte útil amb menys volum i pes per palet. Aquests factors situen HIGIENEX per davant de la mitjana del sector en indicadors de sostenibilitat.</p>
+        <p>La renovació de la certificació reforça el posicionament d'HIGIENEX davant clients del sector públic i grans comptes, que cada vegada exigeixen més criteris ambientals verificables als seus proveïdors d'higiene professional.</p>
+      </article>
+
+    </div>
   </div>
 </section>
-
-<!-- ═══════════════════════════════════════
-     CATEGORY: AJUDA I CONTACTE
-     ═══════════════════════════════════════ -->
-</div><!-- /g-compromis -->
+</div><!-- /g-newsletter -->
 
 <div class="hg-page" id="g-contacte">
 <!-- ═══════════════════════════════════════
@@ -3185,7 +3207,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
      ═══════════════════════════════════════ -->
 <div id="cat-contacte" class="cat-banner">
   <div class="cat-banner-inner">
-    <span class="cat-num">06</span>
+    <span class="cat-num">07</span>
     <div>
       <h2>Ajuda i Contacte</h2>
       <p>Preguntes freqüents i com contactar</p>
@@ -5105,7 +5127,6 @@ window.legalClose = legalClose;
 (function () {
   var STORAGE_KEY = 'hgNewsletterPopupDismissed';
   var DELAY_MS = 25000;      // temps de navegació abans de mostrar el popup
-  var SCROLL_THRESHOLD = 0.5; // o quan l'usuari fa scroll del 50% de la pàgina
   var shown = false;
 
   function alreadyDismissed() {
@@ -5119,13 +5140,23 @@ window.legalClose = legalClose;
     if (shown || alreadyDismissed()) return;
     var overlay = document.getElementById('hgNewsPopupOverlay');
     if (!overlay) return;
+    // No mostrar si el menú lateral, un modal legal o el de cookies ja estan oberts
+    var dd = document.getElementById('navDropdown');
+    var cookieModal = document.querySelector('.hg-cookie-modal.active');
+    var legalPage = document.querySelector('.legal-page.active');
+    if ((dd && dd.classList.contains('open')) || cookieModal || legalPage) {
+      setTimeout(window.hgNewsPopupShow, 2000);
+      return;
+    }
     shown = true;
     overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
   };
 
   window.hgNewsPopupClose = function () {
     var overlay = document.getElementById('hgNewsPopupOverlay');
     if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
     markDismissed();
   };
 
@@ -5150,14 +5181,8 @@ window.legalClose = legalClose;
     }, 2500);
   };
 
-  // Mostrar per temps de navegació
+  // Mostrar per temps de navegació (únic disparador)
   setTimeout(function () { window.hgNewsPopupShow(); }, DELAY_MS);
-
-  // Mostrar per scroll (el que succeeixi primer)
-  window.addEventListener('scroll', function () {
-    var scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight || 1);
-    if (scrolled > SCROLL_THRESHOLD) window.hgNewsPopupShow();
-  }, { passive: true });
 
   // Tancar clicant fora de la caixa
   document.addEventListener('click', function (e) {
