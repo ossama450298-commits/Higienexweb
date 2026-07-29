@@ -937,6 +937,157 @@ tbody tr:hover td { background: var(--green-cream); }
 .blog-content { padding: 1.5rem; }
 .blog-title { font-size: 1rem; color: var(--charcoal); margin-bottom: 0.6rem; line-height: 1.4; }
 
+/* ============================================
+   NEWSLETTER - SECCIÓ NOTÍCIES
+   ============================================ */
+#newsletter { background: var(--green-cream); }
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.news-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: transform .3s, box-shadow .3s;
+  display: flex;
+  flex-direction: column;
+}
+.news-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
+.news-date { font-size: 0.7rem; color: var(--green-mid); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; font-family: 'Courier New', Courier, monospace; }
+.news-content { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+.news-title { font-size: 1rem; color: var(--charcoal); line-height: 1.4; margin-top: 0.3rem; }
+.news-excerpt { font-size: 0.82rem; color: #666; line-height: 1.6; }
+.news-inline-form {
+  margin-top: 2.5rem;
+  background: var(--green-deep);
+  border-radius: 16px;
+  padding: 2.2rem 2rem;
+  text-align: center;
+  color: white;
+}
+.news-inline-form h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+.news-inline-form p { font-size: 0.88rem; color: rgba(255,255,255,0.75); margin-bottom: 1.3rem; }
+.news-inline-row { display: flex; gap: 0.7rem; max-width: 440px; margin: 0 auto; flex-wrap: wrap; justify-content: center; }
+.news-inline-row input[type="email"] {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.8rem 1.1rem;
+  border-radius: 30px;
+  border: none;
+  font-size: 0.88rem;
+  font-family: inherit;
+}
+.news-inline-row button {
+  background: var(--accent);
+  color: var(--charcoal);
+  border: none;
+  padding: 0.8rem 1.6rem;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform .2s;
+}
+.news-inline-row button:hover { transform: scale(1.04); }
+.news-inline-note { font-size: 0.72rem; color: rgba(255,255,255,0.5); margin-top: 0.8rem; }
+
+/* POPUP SUBSCRIPCIÓ NEWSLETTER */
+.hg-news-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11,61,107,0.55);
+  backdrop-filter: blur(3px);
+  z-index: 9998;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.hg-news-popup-overlay.active { display: flex; }
+.hg-news-popup-box {
+  background: white;
+  border-radius: 20px;
+  max-width: 440px;
+  width: 100%;
+  padding: 2.4rem 2rem 2rem;
+  position: relative;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  animation: newsPopupIn .35s ease;
+}
+@keyframes newsPopupIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.hg-news-popup-close {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #999;
+  line-height: 1;
+}
+.hg-news-popup-close:hover { color: var(--charcoal); }
+.hg-news-popup-icon { font-size: 2.6rem; margin-bottom: 0.8rem; }
+.hg-news-popup-box h2 { font-size: 1.3rem; color: var(--green-deep); margin-bottom: 0.6rem; }
+.hg-news-popup-box p { font-size: 0.88rem; color: #666; margin-bottom: 1.4rem; line-height: 1.6; }
+.hg-news-popup-badge {
+  display: inline-block;
+  background: var(--accent-soft);
+  color: #8a6a00;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  margin-bottom: 1rem;
+}
+.hg-news-popup-form { display: flex; flex-direction: column; gap: 0.7rem; }
+.hg-news-popup-form input[type="email"] {
+  padding: 0.85rem 1.1rem;
+  border-radius: 30px;
+  border: 1.5px solid var(--border);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+}
+.hg-news-popup-form input[type="email"]:focus { border-color: var(--green-bright); }
+.hg-news-popup-form button {
+  background: var(--green-deep);
+  color: white;
+  border: none;
+  padding: 0.85rem 1.1rem;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background .2s;
+}
+.hg-news-popup-form button:hover { background: var(--green-mid); }
+.hg-news-popup-later {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 0.78rem;
+  margin-top: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.hg-news-popup-success { display: none; }
+.hg-news-popup-success.active { display: block; }
+.hg-news-popup-success .hg-news-popup-icon { color: var(--green-bright); }
+@media(max-width:900px){ .news-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width:600px){ .news-grid { grid-template-columns: 1fr; } .news-inline-row { flex-direction: column; } .news-inline-row button { width: 100%; } }
+
 /* FUTUR */
 #futur { background: linear-gradient(160deg, var(--green-deep) 0%, #071E3A 100%); color: white; }
 #futur h2 { color: white; }
@@ -2959,6 +3110,70 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
     </div>
   </div>
 </section>
+
+<!-- 18b. NEWSLETTER -->
+<section id="newsletter">
+  <div class="container">
+    <span class="section-tag">18b / Newsletter</span>
+    <h2>Newsletter HIGIENEX</h2>
+    <p>Les últimes novetats de l'empresa, llançaments de producte i actualitat del sector, directament al teu correu.</p>
+    <div class="news-grid fade-in">
+      <div class="news-card">
+        <div class="news-content">
+          <span class="news-date">14 juliol 2026</span>
+          <h3 class="news-title">HIGIENEX obre nova planta de producció a l'Horta Sud</h3>
+          <p class="news-excerpt">La nova instal·lació de 2.400 m² duplicarà la capacitat de fabricació de concentrats ECO i crearà 18 llocs de treball directes durant el 2026.</p>
+        </div>
+      </div>
+      <div class="news-card">
+        <div class="news-content">
+          <span class="news-date">2 juny 2026</span>
+          <h3 class="news-title">Acord amb la Generalitat per subministrar hospitals públics valencians</h3>
+          <p class="news-excerpt">HIGIENEX serà proveïdora homologada de productes de desinfecció per a set hospitals de la xarxa pública durant els pròxims tres anys.</p>
+        </div>
+      </div>
+      <div class="news-card">
+        <div class="news-content">
+          <span class="news-date">21 maig 2026</span>
+          <h3 class="news-title">Nova línia WorkSafe Smart Space arriba al mercat</h3>
+          <p class="news-excerpt">Fruit de la col·laboració amb OfiNova, la línia combina mobiliari ergonòmic i higiene automatitzada per a oficines i espais de treball.</p>
+        </div>
+      </div>
+      <div class="news-card">
+        <div class="news-date" style="padding:1.5rem 1.5rem 0;">18 abril 2026</div>
+        <div class="news-content" style="padding-top:0.3rem;">
+          <h3 class="news-title">HIGIENEX obté la 19a patent per a un nou desinfectant de superfície</h3>
+          <p class="news-excerpt">La nova patent millora el temps d'acció del producte en un 30% mantenint la fórmula ECO de baix impacte ambiental.</p>
+        </div>
+      </div>
+      <div class="news-card">
+        <div class="news-date" style="padding:1.5rem 1.5rem 0;">5 març 2026</div>
+        <div class="news-content" style="padding-top:0.3rem;">
+          <h3 class="news-title">Primer pas cap a Portugal: acord amb distribuïdor a Porto</h3>
+          <p class="news-excerpt">HIGIENEX inicia la seva expansió internacional amb un acord de distribució que arrencarà a la zona nord de Portugal el 2026.</p>
+        </div>
+      </div>
+      <div class="news-card">
+        <div class="news-date" style="padding:1.5rem 1.5rem 0;">12 febrer 2026</div>
+        <div class="news-content" style="padding-top:0.3rem;">
+          <h3 class="news-title">HIGIENEX renova la certificació ISO 14001 de gestió ambiental</h3>
+          <p class="news-excerpt">L'auditoria destaca la reducció del 70% en envasos plàstics gràcies als concentrats ×3 implantats en tota la gamma professional.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="news-inline-form">
+      <h3>No et perdis cap novetat</h3>
+      <p>Subscriu-te gratis a la newsletter d'HIGIENEX i rep les notícies, llançaments i ofertes exclusives per a professionals.</p>
+      <form class="news-inline-row" onsubmit="hgNewsletterSubmit(event)">
+        <input type="email" placeholder="El teu correu electrònic" required>
+        <button type="submit">Subscriu-te gratis</button>
+      </form>
+      <p class="news-inline-note">100% gratuït · Sense spam · Cancel·la quan vulguis</p>
+    </div>
+  </div>
+</section>
+
 <!-- ═══════════════════════════════════════
      CATEGORY: AJUDA I CONTACTE
      ═══════════════════════════════════════ -->
@@ -4856,6 +5071,100 @@ window.legalClose = legalClose;
     </div>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════
+     POPUP SUBSCRIPCIÓ NEWSLETTER
+     ═══════════════════════════════════════ -->
+<div id="hgNewsPopupOverlay" class="hg-news-popup-overlay">
+  <div class="hg-news-popup-box">
+    <button class="hg-news-popup-close" onclick="hgNewsPopupClose()" aria-label="Tancar">✕</button>
+
+    <div id="hgNewsPopupStep1">
+      <div class="hg-news-popup-icon">📰</div>
+      <span class="hg-news-popup-badge">100% gratuït</span>
+      <h2>Subscriu-te a la newsletter HIGIENEX</h2>
+      <p>Rep les últimes novetats de l'empresa, nous productes i notícies del sector directament al teu correu. Sense cap cost.</p>
+      <form class="hg-news-popup-form" onsubmit="hgNewsPopupSubmit(event)">
+        <input type="email" id="hgNewsPopupEmail" placeholder="El teu correu electrònic" required>
+        <button type="submit">Subscriu-me gratis</button>
+      </form>
+      <button class="hg-news-popup-later" onclick="hgNewsPopupClose()">Ara no, gràcies</button>
+    </div>
+
+    <div id="hgNewsPopupStep2" class="hg-news-popup-success">
+      <div class="hg-news-popup-icon">✅</div>
+      <h2>Ja estàs subscrit!</h2>
+      <p>Gràcies per unir-te a la newsletter d'HIGIENEX. Aviat rebràs les nostres novetats al teu correu.</p>
+      <button onclick="hgNewsPopupClose()" style="background:var(--green-deep);color:white;border:none;padding:0.8rem 1.8rem;border-radius:30px;font-weight:800;font-size:0.88rem;cursor:pointer;">Tancar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════ NEWSLETTER: POPUP DE SUBSCRIPCIÓ ════════════
+(function () {
+  var STORAGE_KEY = 'hgNewsletterPopupDismissed';
+  var DELAY_MS = 25000;      // temps de navegació abans de mostrar el popup
+  var SCROLL_THRESHOLD = 0.5; // o quan l'usuari fa scroll del 50% de la pàgina
+  var shown = false;
+
+  function alreadyDismissed() {
+    try { return sessionStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
+  }
+  function markDismissed() {
+    try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (e) {}
+  }
+
+  window.hgNewsPopupShow = function () {
+    if (shown || alreadyDismissed()) return;
+    var overlay = document.getElementById('hgNewsPopupOverlay');
+    if (!overlay) return;
+    shown = true;
+    overlay.classList.add('active');
+  };
+
+  window.hgNewsPopupClose = function () {
+    var overlay = document.getElementById('hgNewsPopupOverlay');
+    if (overlay) overlay.classList.remove('active');
+    markDismissed();
+  };
+
+  window.hgNewsPopupSubmit = function (e) {
+    e.preventDefault();
+    document.getElementById('hgNewsPopupStep1').style.display = 'none';
+    document.getElementById('hgNewsPopupStep2').classList.add('active');
+    markDismissed();
+  };
+
+  window.hgNewsletterSubmit = function (e) {
+    e.preventDefault();
+    var form = e.target;
+    var btn = form.querySelector('button');
+    var original = btn.textContent;
+    btn.textContent = '✓ Subscrit!';
+    btn.disabled = true;
+    setTimeout(function () {
+      btn.textContent = original;
+      btn.disabled = false;
+      form.reset();
+    }, 2500);
+  };
+
+  // Mostrar per temps de navegació
+  setTimeout(function () { window.hgNewsPopupShow(); }, DELAY_MS);
+
+  // Mostrar per scroll (el que succeeixi primer)
+  window.addEventListener('scroll', function () {
+    var scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight || 1);
+    if (scrolled > SCROLL_THRESHOLD) window.hgNewsPopupShow();
+  }, { passive: true });
+
+  // Tancar clicant fora de la caixa
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'hgNewsPopupOverlay') window.hgNewsPopupClose();
+  });
+})();
+</script>
 
 </body>
 </html>
