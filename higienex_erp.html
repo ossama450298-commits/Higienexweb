@@ -1049,8 +1049,104 @@ function initDashboardChart(){
     });
   }catch(e){ /* Chart.js not available offline: fail silently, KPI cards still show the data */ }
 }
-let VIEW='panel';
-const ROUTES={};
+/* =========================================================
+   MINI-LIBRERÍA DE GRÁFICOS SVG (sin dependencias externas)
+   Se generan como texto en el momento de construir el HTML,
+   así que funcionan siempre: sin CDN, sin conexión a internet,
+   sin esperas ni fallos silenciosos. También se incrustan tal
+   cual en el PDF exportado.
+   ========================================================= */
+function svgEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+function svgBarChart(items, opts){
+  opts = opts || {};
+  const w = opts.width || 480, h = opts.height || 230;
+  const padL = 8, padR = 8, padT = 28, padB = 34;
+  const zeroPossible = items.some(it=>it.value<0);
+  const maxV = Math.max(...items.map(it=>it.value), 0);
+  const minV = zeroPossible ? Math.min(...items.map(it=>it.value), 0) : 0;
+  const range = (maxV - minV) || 1;
+  const plotH = h - padT - padB;
+  const zeroY = padT + plotH * (maxV/range);
+  const n = items.length;
+  const gap = 10;
+  const bw = (w - padL - padR - gap*(n-1)) / n;
+  let bars='', labels='', vals='';
+  items.forEach((it,i)=>{
+    const x = padL + i*(bw+gap);
+    const barH = Math.abs(it.value)/range*plotH;
+    const y = it.value>=0 ? zeroY - barH : zeroY;
+    bars += '<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+Math.max(barH,1.5)+'" rx="4" fill="'+it.color+'"><title>'+svgEsc(it.label)+': '+svgEsc(it.valueLabel||it.value)+'</title></rect>';
+    vals += '<text x="'+(x+bw/2)+'" y="'+(it.value>=0 ? y-5 : y+barH+12)+'" font-size="10" text-anchor="middle" fill="#3C5063" font-family="IBM Plex Mono, monospace">'+svgEsc(it.valueLabel!==undefined?it.valueLabel:it.value)+'</text>';
+    labels += '<text x="'+(x+bw/2)+'" y="'+(h-10)+'" font-size="10" text-anchor="middle" fill="#3C5063">'+svgEsc(it.label)+'</text>';
+  });
+  const zeroLine = zeroPossible ? '<line x1="'+padL+'" y1="'+zeroY+'" x2="'+(w-padR)+'" y2="'+zeroY+'" stroke="#D7E0E7" stroke-width="1"/>' : '';
+  return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block">'+zeroLine+bars+vals+labels+'</svg>';
+}
+
+function svgHBarChart(items, opts){
+  opts = opts || {};
+  const w = opts.width || 480, rowH = opts.rowH || 34;
+  const padL = 130, padR = 105, padT = 8, padB = 8;
+  const h = padT + padB + rowH*items.length;
+  const maxV = Math.max(...items.map(it=>Math.abs(it.value)), 1);
+  const plotW = w - padL - padR;
+  let rows='';
+  items.forEach((it,i)=>{
+    const y = padT + i*rowH;
+    const barW = Math.abs(it.value)/maxV*plotW;
+    rows += '<text x="'+(padL-10)+'" y="'+(y+rowH/2+4)+'" font-size="11" text-anchor="end" fill="#3C5063">'+svgEsc(it.label)+'</text>';
+    rows += '<rect x="'+padL+'" y="'+(y+7)+'" width="'+Math.max(barW,2)+'" height="'+(rowH-14)+'" rx="5" fill="'+it.color+'"><title>'+svgEsc(it.label)+': '+svgEsc(it.valueLabel||it.value)+'</title></rect>';
+    rows += '<text x="'+(padL+barW+8)+'" y="'+(y+rowH/2+4)+'" font-size="9.5" fill="#0F1D2B" font-family="IBM Plex Mono, monospace" font-weight="600">'+svgEsc(it.valueLabel!==undefined?it.valueLabel:it.value)+'</text>';
+  });
+  return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block">'+rows+'</svg>';
+}
+
+function svgDonutChart(items, opts){
+  opts = opts || {};
+  const size = opts.size || 200, cx = size/2, cy = size/2, r = size*0.36, r0 = size*0.22;
+  const total = items.reduce((a,it)=>a+Math.max(0,it.value),0) || 1;
+  let angle = -Math.PI/2, paths='';
+  const pt = (a,rad)=>[cx+Math.cos(a)*rad, cy+Math.sin(a)*rad];
+  items.forEach(it=>{
+    const v = Math.max(0,it.value);
+    if (v<=0) return;
+    const frac = v/total;
+    const a0 = angle, a1 = angle + frac*Math.PI*2;
+    const large = (a1-a0) > Math.PI ? 1 : 0;
+    const [x0,y0]=pt(a0,r), [x1,y1]=pt(a1,r), [x0i,y0i]=pt(a1,r0), [x1i,y1i]=pt(a0,r0);
+    paths += '<path d="M '+x0+' '+y0+' A '+r+' '+r+' 0 '+large+' 1 '+x1+' '+y1+' L '+x0i+' '+y0i+' A '+r0+' '+r0+' 0 '+large+' 0 '+x1i+' '+y1i+' Z" fill="'+it.color+'"><title>'+svgEsc(it.label)+': '+svgEsc(it.valueLabel||it.value)+' ('+NUM(frac*100)+'%)</title></path>';
+    angle = a1;
+  });
+  let legend = '<g font-family="Arial" font-size="11" fill="#3C5063">';
+  items.forEach((it,i)=>{
+    if (Math.max(0,it.value)<=0) return;
+    const ly = 10 + i*18;
+    legend += '<rect x="0" y="'+(ly-9)+'" width="10" height="10" rx="2" fill="'+it.color+'"/><text x="16" y="'+ly+'">'+svgEsc(it.label)+' — '+NUM(Math.max(0,it.value)/total*100)+'%</text>';
+  });
+  legend += '</g>';
+  return '<div style="display:flex;align-items:center;gap:18px;height:100%;flex-wrap:wrap">'+
+    '<svg viewBox="0 0 '+size+' '+size+'" style="width:'+size+'px;height:'+size+'px;flex-shrink:0">'+paths+'</svg>'+
+    '<svg viewBox="0 0 220 '+(items.length*18+10)+'" style="width:180px;height:auto">'+legend+'</svg>'+
+    '</div>';
+}
+
+/* Aguja/velocímetro simple para el resumen ejecutivo (0-100) */
+function svgGauge(pct, color, label){
+  pct = Math.max(0, Math.min(100, pct));
+  const size=132, cx=size/2, cy=size/2+6, r=52;
+  const a0=Math.PI, a1=Math.PI - (pct/100)*Math.PI;
+  const pt=(a)=>[cx+Math.cos(a)*r, cy-Math.sin(a)*r]; // ojo: y invertido para semicírculo superior
+  const [x0,y0]=[cx-r,cy], [x1,y1]=pt(a1<0?0:a1);
+  const large = pct>50?1:0;
+  return '<svg viewBox="0 0 '+size+' '+(size*0.62)+'" style="width:132px;height:82px">'+
+    '<path d="M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 1 1 '+(cx+r)+' '+cy+'" fill="none" stroke="#E7ECF1" stroke-width="14" stroke-linecap="round"/>'+
+    '<path d="M '+x0+' '+y0+' A '+r+' '+r+' 0 '+large+' 1 '+x1+' '+y1+'" fill="none" stroke="'+color+'" stroke-width="14" stroke-linecap="round"/>'+
+    '<text x="'+cx+'" y="'+(cy-4)+'" text-anchor="middle" font-size="20" font-weight="800" fill="#0F1D2B" font-family=\'IBM Plex Mono, monospace\'>'+Math.round(pct)+'</text>'+
+    '</svg>';
+}
+
+let VIEW='panel';const ROUTES={};
 function viewPermArea(v){
   const label = NAV.flatMap(s=>s.items).find(i=>i[0]===v);
   return label ? label[2] : 'all';
@@ -4370,18 +4466,55 @@ ROUTES.ejercicio2025 = function(){
     const vAut = verdict(autonomia*100, 40, 20);
     const vEnd = (() => { if(endeudamiento<=1) return ['t-ok','Adecuado']; if(endeudamiento<=2) return ['t-wait','Mejorable']; return ['t-late','Elevado']; })();
 
+    // Puntuación de salud financiera (0-100), a partir de 4 señales normalizadas
+    const scoreLiq = Math.max(0, Math.min(100, ratioLiquidez/1.75*100));
+    const scoreFM  = fondoManiobra>=0 ? 100 : Math.max(0, 100 + fondoManiobra/pasivoCorriente*100);
+    const scoreEnd = Math.max(0, Math.min(100, 100 - (endeudamiento/3)*100));
+    const scoreGar = Math.max(0, Math.min(100, (garantia-1)/1*100));
+    const scoreFinTotal = Math.round((scoreLiq+scoreFM+scoreEnd+scoreGar)/4);
+    const colorScore = s => s>=66 ? '#0F9E8E' : s>=40 ? '#C99A2E' : '#C0392B';
+    const labelScore = s => s>=66 ? 'Buena' : s>=40 ? 'A vigilar' : 'Débil';
+
+    h += '<div class="card" style="margin-bottom:16px"><div class="cardbody" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">'+
+      '<div style="text-align:center">'+svgGauge(scoreFinTotal, colorScore(scoreFinTotal))+
+        '<div style="font-size:11px;color:var(--ink-2);margin-top:-6px">Salud financiera</div>'+
+        '<span class="tag" style="background:'+colorScore(scoreFinTotal)+'22;color:'+colorScore(scoreFinTotal)+';margin-top:4px;display:inline-block">'+labelScore(scoreFinTotal)+'</span></div>'+
+      '<div style="flex:1;min-width:260px;display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;font-size:12.5px">'+
+        '<div style="display:flex;justify-content:space-between"><span>Liquidez</span><strong style="color:'+colorScore(scoreLiq)+'">'+Math.round(scoreLiq)+'/100</strong></div>'+
+        '<div style="display:flex;justify-content:space-between"><span>Fondo de maniobra</span><strong style="color:'+colorScore(scoreFM)+'">'+Math.round(scoreFM)+'/100</strong></div>'+
+        '<div style="display:flex;justify-content:space-between"><span>Endeudamiento</span><strong style="color:'+colorScore(scoreEnd)+'">'+Math.round(scoreEnd)+'/100</strong></div>'+
+        '<div style="display:flex;justify-content:space-between"><span>Garantía</span><strong style="color:'+colorScore(scoreGar)+'">'+Math.round(scoreGar)+'/100</strong></div>'+
+      '</div></div></div>';
+
     h += '<div class="card" style="margin-bottom:16px;border-left:3px solid var(--gold)"><div class="cardbody" style="font-size:13px">'+
       '<strong>Análisis financiero completo del ejercicio 2025.</strong> Estudia el equilibrio, la liquidez y la solvencia de HIGIENEX S.L. a partir del balance de situación a 31/12/2025 y de las facturas reales del ejercicio. Mide la capacidad de la empresa de afrontar sus pagos a corto y largo plazo, no si gana o pierde dinero (eso lo ves en «Análisis económico»).'+
       '</div></div>';
 
-    // Diagnóstico narrativo automático
-    const puntos = [];
-    puntos.push(ratioLiquidez>=1.5 ? 'la liquidez general es sólida' : ratioLiquidez>=1 ? 'la liquidez general es ajustada pero cubre el pasivo corriente' : 'la liquidez general es insuficiente: el activo corriente no llega a cubrir el pasivo corriente');
-    puntos.push(fondoManiobra>=0 ? 'el fondo de maniobra es positivo, señal de estabilidad financiera a corto plazo' : 'el fondo de maniobra es negativo, lo que indica que parte del activo no corriente se está financiando con pasivo corriente (situación de riesgo si no se corrige)');
-    puntos.push(endeudamiento<=1 ? 'el nivel de endeudamiento es moderado respecto a los fondos propios' : endeudamiento<=2 ? 'el endeudamiento es notable, aunque todavía dentro de rangos gestionables' : 'el endeudamiento es muy elevado en relación con el patrimonio neto');
-    puntos.push(garantia>=1.5 ? 'el activo total ofrece un margen de garantía cómodo frente a las deudas' : garantia>=1 ? 'el activo cubre justo el total de las deudas, sin apenas margen' : 'el activo total no llega a cubrir las deudas: situación de quiebra técnica');
-    h += '<div class="card" style="margin-bottom:16px"><h3>Diagnóstico</h3><div class="cardbody" style="font-size:13px;line-height:1.85">'+
-      'En síntesis, '+puntos.join('; ')+'. El ciclo de conversión de caja es de <strong>'+ccc+' días</strong>, es decir, el dinero invertido en existencias y ventas tarda esos días de media en volver a caja.'+
+    // Informe redactado (varios párrafos, con las cifras del ejercicio ya calculadas)
+    const parLiquidez = ratioLiquidez>=1.5
+      ? 'La liquidez general se sitúa en '+NUM(ratioLiquidez)+', dentro del rango habitualmente considerado saludable (entre 1,5 y 2). Esto significa que por cada euro de deuda a corto plazo, la empresa dispone de '+NUM(ratioLiquidez)+' € en activo corriente (existencias, clientes y tesorería) para hacerle frente.'
+      : ratioLiquidez>=1
+      ? 'La liquidez general es de '+NUM(ratioLiquidez)+', es decir, el activo corriente cubre justo el pasivo corriente pero sin apenas margen de maniobra. Cualquier retraso en el cobro a clientes o en la venta del stock podría generar tensiones de tesorería.'
+      : 'La liquidez general es de '+NUM(ratioLiquidez)+', por debajo de 1: el activo corriente (existencias, clientes, tesorería) no llega a cubrir el pasivo corriente. Esto es una señal de alerta que exige vigilar de cerca los vencimientos de pago.';
+    const parAcida = 'Si se excluyen las existencias del cálculo (prueba ácida), el ratio baja a '+NUM(pruebaAcida)+', '+(pruebaAcida<ratioLiquidez-0.3?'una caída relevante que indica que buena parte de la liquidez depende de vender el stock, no solo de cobrar a clientes o disponer de caja':'un descenso moderado respecto a la liquidez general, lo que indica que el peso de las existencias sobre el activo corriente no es determinante')+'.';
+    const parFM = fondoManiobra>=0
+      ? 'El fondo de maniobra es positivo ('+EUR(fondoManiobra)+'): la empresa financia todo su activo corriente con recursos permanentes (patrimonio neto y deuda a largo plazo) y le sobra margen, lo que aporta estabilidad financiera a corto plazo.'
+      : 'El fondo de maniobra es negativo ('+EUR(fondoManiobra)+'): parte del activo no corriente (inmovilizado) se está financiando con pasivo corriente, en vez de con recursos permanentes. Es una estructura de financiación arriesgada, porque obliga a renovar constantemente deuda a corto plazo para sostener inversiones a largo plazo.';
+    const parEndeuda = 'El endeudamiento (pasivo total sobre patrimonio neto) es de '+NUM(endeudamiento)+' veces, '+(endeudamiento<=1?'un nivel moderado que deja margen de maniobra para asumir nueva financiación si fuera necesario.':endeudamiento<=2?'un nivel notable: la empresa depende considerablemente de la financiación ajena, aunque todavía dentro de un rango gestionable.':'un nivel muy elevado: por cada euro de patrimonio neto hay '+NUM(endeudamiento)+' euros de deuda, lo que deja muy poco margen de maniobra y encarece o dificulta el acceso a nueva financiación.')+
+      ' La autonomía financiera —el peso del patrimonio neto sobre el total de la financiación ajena— es del '+NUM(autonomia*100)+' %, y la capitalización —qué parte del activo total está financiada con fondos propios— del '+NUM(capitalizacion)+' %.';
+    const parCiclo = 'El ciclo de conversión de caja es de <strong>'+ccc+' días</strong>: el stock tarda de media '+dio+' días en venderse (DIO), el cobro a clientes se demora '+dso+' días (DSO), y el pago a proveedores se realiza a '+dpo+' días (DPO). '+
+      (ccc>90 ? 'Un ciclo tan largo obliga a financiar durante más de tres meses el negocio con recursos propios o ajenos antes de recuperar el dinero invertido, lo que presiona la tesorería de forma estructural.' : ccc>45 ? 'Es un ciclo moderado, que exige financiar el negocio durante mes y medio a tres meses antes de recuperar la inversión en caja.' : 'Es un ciclo corto, señal de una gestión ágil del circulante.');
+    const parCierre = (fondoManiobra>=0 && ratioLiquidez>=1 && endeudamiento<=1.5)
+      ? 'En conjunto, la posición financiera del ejercicio 2025 es razonablemente sólida, con liquidez suficiente y un nivel de endeudamiento controlado.'
+      : 'En conjunto, la posición financiera del ejercicio 2025 presenta puntos débiles —'+(fondoManiobra<0?'fondo de maniobra negativo':'liquidez ajustada')+' y un endeudamiento '+(endeudamiento>2?'muy elevado':'notable')+'— que conviene corregir en los próximos ejercicios: mejorar el plazo de cobro a clientes, renegociar plazos con proveedores o reforzar los fondos propios son las palancas habituales para revertir esta situación.';
+
+    h += '<div class="card" style="margin-bottom:16px"><h3>Informe de análisis financiero</h3><div class="cardbody" style="font-size:13px;line-height:1.9">'+
+      '<p style="margin-bottom:12px">'+parLiquidez+'</p>'+
+      '<p style="margin-bottom:12px">'+parAcida+'</p>'+
+      '<p style="margin-bottom:12px">'+parFM+'</p>'+
+      '<p style="margin-bottom:12px">'+parEndeuda+'</p>'+
+      '<p style="margin-bottom:12px">'+parCiclo+'</p>'+
+      '<p style="margin:0;padding-top:10px;border-top:1px solid var(--line)"><strong>Conclusión: </strong>'+parCierre+'</p>'+
       '</div></div>';
 
     h += '<div class="grid g4" style="margin-bottom:16px">'+
@@ -4389,6 +4522,21 @@ ROUTES.ejercicio2025 = function(){
       kpi('Prueba ácida', NUM(pruebaAcida), '(AC − existencias) ÷ pasivo corriente', pruebaAcida>=0.9?'teal':'amber')+
       kpi('Ratio de tesorería', NUM(ratioTesoreria), 'disponible ÷ pasivo corriente', ratioTesoreria>=0.3?'teal':'amber')+
       kpi('Fondo de maniobra', EUR(fondoManiobra), 'activo corriente − pasivo corriente', fondoManiobra>=0?'teal':'red')+
+    '</div>';
+    h += '<div class="grid g2" style="margin-bottom:16px">'+
+      '<div class="card chartcard"><h3>Activo corriente vs. pasivo corriente</h3><div class="cardbody"><div style="height:220px">'+
+        svgBarChart([
+          {label:'Activo corriente', value:activoCorriente, color:'#0F9E8E', valueLabel:EUR(activoCorriente)},
+          {label:'Pasivo corriente', value:pasivoCorriente, color:'#C0392B', valueLabel:EUR(pasivoCorriente)}
+        ], {height:220})+
+      '</div></div></div>'+
+      '<div class="card chartcard"><h3>Composición del activo corriente</h3><div class="cardbody" style="height:220px">'+
+        svgDonutChart([
+          {label:'Existencias', value:existencias, color:'#C99A2E', valueLabel:EUR(existencias)},
+          {label:'Realizable', value:Math.max(0,realizable), color:'#1668A8', valueLabel:EUR(Math.max(0,realizable))},
+          {label:'Disponible', value:tesoreria, color:'#0F9E8E', valueLabel:EUR(tesoreria)}
+        ], {size:150})+
+      '</div></div>'+
     '</div>';
     h += '<div class="grid g4" style="margin-bottom:16px">'+
       kpi('Ratio de garantía', NUM(garantia), 'activo total ÷ pasivo total', garantia>=1.5?'teal':garantia>=1?'amber':'red')+
@@ -4402,6 +4550,14 @@ ROUTES.ejercicio2025 = function(){
       kpi('DPO · plazo de pago', dpo+' días', EUR(provPend)+' pendientes de pago', 'blue')+
       kpi('Ciclo de caja (DIO+DSO−DPO)', ccc+' días', 'días con el dinero inmovilizado', ccc<=60?'teal':ccc<=100?'amber':'red')+
     '</div>';
+    h += '<div class="card chartcard" style="margin-bottom:16px"><h3>Ciclo de conversión de caja (días)</h3><div class="cardbody" style="height:auto">'+
+      svgHBarChart([
+        {label:'DIO · existencias', value:dio, color:'#C99A2E', valueLabel:dio+' días'},
+        {label:'DSO · cobro clientes', value:dso, color:'#1668A8', valueLabel:dso+' días'},
+        {label:'DPO · pago proveedores', value:dpo, color:'#0F9E8E', valueLabel:dpo+' días'},
+        {label:'Ciclo de caja', value:ccc, color: ccc>=0 ? '#C0392B' : '#0F9E8E', valueLabel:ccc+' días'}
+      ])+
+    '</div></div>';
 
     h += '<div class="card" style="margin-bottom:16px"><h3>Tabla completa de ratios financieros</h3><div class="cardbody" style="padding:0">'+
       '<table><thead><tr><th>Ratio</th><th>Fórmula</th><th class="num">Valor</th><th>Valoración</th><th>Qué mide</th></tr></thead><tbody>'+
@@ -4435,7 +4591,7 @@ ROUTES.ejercicio2025 = function(){
         '<div class="l"><span>Existencias (materias primas + producto terminado)</span><span>'+EUR(existencias)+'</span></div>'+
         '<div class="l"><span>Realizable (clientes, IVA soportado, etc.)</span><span>'+EUR(realizable)+'</span></div>'+
         '<div class="l"><span>Disponible (caja y bancos)</span><span>'+EUR(tesoreria)+'</span></div>'+
-        '<div class="tot"><span>Total activo corriente</span><span>'+EUR(activoCorriente)+'</span></div>'+
+        '<div class="l tot"><span>Total activo corriente</span><span>'+EUR(activoCorriente)+'</span></div>'+
       '</div>'+
       '<p style="margin-top:12px;color:var(--ink-2);font-size:12.5px">Cuanto más concentrado esté el activo corriente en «disponible» y menos en «existencias», más rápida es su conversión en efectivo — de ahí la diferencia entre el ratio de liquidez general y la prueba ácida.</p>'+
       '</div></div>';
@@ -4461,6 +4617,24 @@ ROUTES.ejercicio2025 = function(){
     const puntoEquilibrio = margenContribucionPct>0 ? costesFijos/margenContribucionPct : 0;
     const margenSeguridad = ventas ? (ventas-puntoEquilibrio)/ventas*100 : 0;
 
+    // Puntuación de salud económica (0-100)
+    const scoreMargen = Math.max(0, Math.min(100, (margenNeto+20)/30*100));
+    const scoreROE = Math.max(0, Math.min(100, (roe+30)/50*100));
+    const scoreSeg = Math.max(0, Math.min(100, (margenSeguridad+50)/70*100));
+    const scoreEcoTotal = Math.round((scoreMargen+scoreROE+scoreSeg)/3);
+    const colorScoreE = s => s>=66 ? '#0F9E8E' : s>=40 ? '#C99A2E' : '#C0392B';
+    const labelScoreE = s => s>=66 ? 'Rentable' : s>=40 ? 'Ajustado' : 'Deficitario';
+
+    h += '<div class="card" style="margin-bottom:16px"><div class="cardbody" style="display:flex;align-items:center;gap:24px;flex-wrap:wrap">'+
+      '<div style="text-align:center">'+svgGauge(scoreEcoTotal, colorScoreE(scoreEcoTotal))+
+        '<div style="font-size:11px;color:var(--ink-2);margin-top:-6px">Salud económica</div>'+
+        '<span class="tag" style="background:'+colorScoreE(scoreEcoTotal)+'22;color:'+colorScoreE(scoreEcoTotal)+';margin-top:4px;display:inline-block">'+labelScoreE(scoreEcoTotal)+'</span></div>'+
+      '<div style="flex:1;min-width:260px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px 18px;font-size:12.5px">'+
+        '<div style="display:flex;justify-content:space-between"><span>Margen neto</span><strong style="color:'+colorScoreE(scoreMargen)+'">'+Math.round(scoreMargen)+'/100</strong></div>'+
+        '<div style="display:flex;justify-content:space-between"><span>ROE</span><strong style="color:'+colorScoreE(scoreROE)+'">'+Math.round(scoreROE)+'/100</strong></div>'+
+        '<div style="display:flex;justify-content:space-between"><span>Mg. seguridad</span><strong style="color:'+colorScoreE(scoreSeg)+'">'+Math.round(scoreSeg)+'/100</strong></div>'+
+      '</div></div></div>';
+
     h += '<div class="card" style="margin-bottom:16px;border-left:3px solid var(--gold)"><div class="cardbody" style="font-size:13px">'+
       '<strong>Análisis económico completo del ejercicio 2025.</strong> Estudia si el negocio genera beneficio y de dónde viene ese resultado, a partir de la cuenta de pérdidas y ganancias. A diferencia del análisis financiero (solvencia), este mide la rentabilidad del negocio en sí.'+
       '</div></div>';
@@ -4469,8 +4643,30 @@ ROUTES.ejercicio2025 = function(){
     diag.push(r.resultadoEjercicio>=0 ? 'el ejercicio se cierra con beneficio' : 'el ejercicio se cierra con pérdidas de '+EUR(Math.abs(r.resultadoEjercicio)));
     diag.push(margenNeto>=5 ? 'el margen neto sobre ventas es saludable' : margenNeto>=0 ? 'el margen neto sobre ventas es positivo pero ajustado' : 'el margen neto es negativo: cada euro vendido genera pérdida');
     diag.push(r.gastosPersonal/ventas>0.5 ? 'los gastos de personal absorben más de la mitad de la cifra de negocio, el principal factor a vigilar' : 'la estructura de costes está relativamente equilibrada entre partidas');
-    h += '<div class="card" style="margin-bottom:16px"><h3>Diagnóstico</h3><div class="cardbody" style="font-size:13px;line-height:1.85">'+
-      'En síntesis, '+diag.join('; ')+'. El punto de equilibrio se sitúa en <strong>'+EUR(puntoEquilibrio)+'</strong> de ventas anuales'+(margenSeguridad>=0?', lo que deja un margen de seguridad del '+NUM(margenSeguridad)+' % sobre la cifra de negocio real':'; la cifra de negocio real quedó por debajo de ese umbral')+'.'+
+
+    // Informe redactado (varios párrafos)
+    const parResultado = r.resultadoEjercicio>=0
+      ? 'El ejercicio 2025 se cierra con un <strong>beneficio de '+EUR(r.resultadoEjercicio)+'</strong>, equivalente a un margen neto del '+NUM(margenNeto)+' % sobre las ventas.'
+      : 'El ejercicio 2025 se cierra con <strong>pérdidas de '+EUR(Math.abs(r.resultadoEjercicio))+'</strong>, equivalentes a un margen neto del '+NUM(margenNeto)+' % sobre las ventas: por cada 100 € vendidos, la empresa pierde '+NUM(Math.abs(margenNeto))+' €.';
+    const parEstructura = 'Sobre una cifra de negocio de '+EUR(r.importeNeto)+', los aprovisionamientos representan el '+NUM(r.aprovisionamientos/ventas*100)+' % de las ventas, los gastos de personal el '+NUM(r.gastosPersonal/ventas*100)+' %, y el resto de gastos de explotación (generales y amortización) el '+NUM((r.otrosGastosExplotacion+r.amortizacion+r.deterioro)/ventas*100)+' %. '+
+      (r.gastosPersonal/ventas>0.5 ? 'Los gastos de personal son, con diferencia, la partida de coste más pesada, y el principal punto sobre el que actuar para mejorar la rentabilidad.' : 'La estructura de costes está relativamente repartida entre las distintas partidas, sin una única causa dominante del resultado.');
+    const parRentabilidad = 'La rentabilidad económica (ROA) es del '+NUM(roa)+' %: cada 100 € invertidos en el activo de la empresa '+(roa>=0?'generan '+NUM(roa)+' € de beneficio':'generan '+NUM(Math.abs(roa))+' € de pérdida')+' al año. La rentabilidad financiera (ROE), la que perciben realmente los socios sobre su inversión, es del '+NUM(roe)+' %. '+
+      (Math.abs(roe) > Math.abs(roa)*1.5
+        ? 'La diferencia tan marcada entre ROE y ROA se explica por el apalancamiento financiero (×'+NUM(apalancamiento)+'): el uso de deuda amplifica el resultado para los socios, tanto si es positivo como, en este caso, si es negativo.'
+        : 'La diferencia entre ROE y ROA es moderada, señal de que el apalancamiento no está distorsionando en exceso la rentabilidad percibida por los socios.');
+    const parEquilibrio = margenSeguridad>=0
+      ? 'El punto de equilibrio se sitúa en '+EUR(puntoEquilibrio)+' de ventas anuales. Con una cifra de negocio real de '+EUR(ventas)+', la empresa opera <strong>por encima</strong> de su umbral de rentabilidad, con un margen de seguridad del '+NUM(margenSeguridad)+' %.'
+      : 'El punto de equilibrio se sitúa en '+EUR(puntoEquilibrio)+' de ventas anuales, pero la cifra de negocio real fue de solo '+EUR(ventas)+'. Es decir, <strong>las ventas del ejercicio quedaron por debajo del umbral de rentabilidad</strong> necesario para cubrir todos los costes fijos y variables, lo que explica directamente el resultado negativo del ejercicio.';
+    const parCierreEco = r.resultadoEjercicio>=0
+      ? 'En conjunto, el ejercicio 2025 muestra un negocio rentable, con una estructura de costes '+(r.gastosPersonal/ventas>0.5?'condicionada por el peso de los gastos de personal':'equilibrada')+'.'
+      : 'En conjunto, el ejercicio 2025 refleja un negocio que todavía no alcanza el volumen de ventas necesario para cubrir su estructura de costes. Para revertir la situación, las palancas disponibles son: aumentar la cifra de negocio, reducir costes fijos (especialmente de personal, la partida más pesada) o mejorar el margen sobre cada venta.';
+
+    h += '<div class="card" style="margin-bottom:16px"><h3>Informe de análisis económico</h3><div class="cardbody" style="font-size:13px;line-height:1.9">'+
+      '<p style="margin-bottom:12px">'+parResultado+'</p>'+
+      '<p style="margin-bottom:12px">'+parEstructura+'</p>'+
+      '<p style="margin-bottom:12px">'+parRentabilidad+'</p>'+
+      '<p style="margin-bottom:12px">'+parEquilibrio+'</p>'+
+      '<p style="margin:0;padding-top:10px;border-top:1px solid var(--line)"><strong>Conclusión: </strong>'+parCierreEco+'</p>'+
       '</div></div>';
 
     h += '<div class="grid g4" style="margin-bottom:16px">'+
@@ -4479,6 +4675,35 @@ ROUTES.ejercicio2025 = function(){
       kpi('ROA · rentabilidad económica', NUM(roa)+' %', 'resultado ÷ activo total', roa>=0?'teal':'red')+
       kpi('ROE · rentabilidad financiera', NUM(roe)+' %', 'resultado ÷ patrimonio neto', roe>=0?'teal':'red')+
     '</div>';
+
+    h += '<div class="grid g2" style="margin-bottom:16px">'+
+      '<div class="card chartcard"><h3>Estructura de costes sobre ventas</h3><div class="cardbody" style="height:230px">'+
+        svgDonutChart([
+          {label:'Aprovisionamientos', value:r.aprovisionamientos, color:'#C99A2E', valueLabel:EUR(r.aprovisionamientos)},
+          {label:'Personal', value:r.gastosPersonal, color:'#C0392B', valueLabel:EUR(r.gastosPersonal)},
+          {label:'Otros gastos', value:r.otrosGastosExplotacion+r.deterioro, color:'#8E6FC9', valueLabel:EUR(r.otrosGastosExplotacion+r.deterioro)},
+          {label:'Amortización', value:r.amortizacion, color:'#1668A8', valueLabel:EUR(r.amortizacion)},
+          {label:'Resultado', value:Math.max(0,r.resultadoEjercicio), color:'#0F9E8E', valueLabel:EUR(r.resultadoEjercicio)}
+        ], {size:150})+
+      '</div></div>'+
+      '<div class="card chartcard"><h3>Cascada del resultado (de ventas a beneficio)</h3><div class="cardbody" style="height:230px">'+
+        svgBarChart([
+          {label:'Ventas', value:r.importeNeto, color:'#1668A8', valueLabel:EUR(r.importeNeto)},
+          {label:'− Aprov.', value:-r.aprovisionamientos, color:'#C99A2E', valueLabel:EUR(-r.aprovisionamientos)},
+          {label:'− Personal', value:-r.gastosPersonal, color:'#C99A2E', valueLabel:EUR(-r.gastosPersonal)},
+          {label:'− Otros', value:-(r.otrosGastosExplotacion+r.deterioro), color:'#C99A2E', valueLabel:EUR(-(r.otrosGastosExplotacion+r.deterioro))},
+          {label:'− Amortiz.', value:-r.amortizacion, color:'#C99A2E', valueLabel:EUR(-r.amortizacion)},
+          {label:'− Financ.', value:-r.gastosFinancieros, color:'#C99A2E', valueLabel:EUR(-r.gastosFinancieros)},
+          {label:'Resultado', value:r.resultadoEjercicio, color: r.resultadoEjercicio>=0?'#0F9E8E':'#C0392B', valueLabel:EUR(r.resultadoEjercicio)}
+        ], {height:230})+
+      '</div></div>'+
+    '</div>';
+    h += '<div class="card chartcard" style="margin-bottom:16px"><h3>Ventas reales vs. punto de equilibrio</h3><div class="cardbody" style="height:auto">'+
+      svgHBarChart([
+        {label:'Punto de equilibrio', value:puntoEquilibrio, color:'#C99A2E', valueLabel:EUR(puntoEquilibrio)},
+        {label:'Ventas reales', value:ventas, color: ventas>=puntoEquilibrio ? '#0F9E8E' : '#C0392B', valueLabel:EUR(ventas)}
+      ])+
+    '</div></div>';
 
     const linea = (label,val)=>{
       const pct = ventas ? (val/ventas*100) : 0;
@@ -4561,7 +4786,7 @@ function abrirPDFOficial(titulo, cuerpo){
     'h2{font-size:13px;margin:18px 0 6px 0;color:#0F1D2B;page-break-after:avoid}'+
     '.masa{font-size:12.5px;font-weight:700;margin:16px 0 6px;color:#0B3D6B;border-bottom:1.5px solid #0B3D6B;padding-bottom:3px}'+
     '.rec .l{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #EEF2F5}'+
-    '.rec .tot{font-weight:700;border-top:2px solid #0F1D2B;border-bottom:none;margin-top:4px;padding-top:6px}'+
+    '.rec .tot{display:flex;justify-content:space-between;font-weight:700;border-top:2px solid #0F1D2B;border-bottom:none;margin-top:4px;padding-top:6px}'+
     '.footlegal{margin-top:26px;font-size:9.5px;color:#7A8896;border-top:1px solid #D7E0E7;padding-top:8px}'+
     '.pagefoot{position:fixed;bottom:10mm;left:28px;right:28px;font-size:9px;color:#9AA6B1;display:flex;justify-content:space-between}'+
     '@media print{ @page{margin:15mm} }'+
@@ -4689,7 +4914,7 @@ function abrirPDF2025(titulo, cuerpo){
     'tr.total td{font-weight:700;border-top:2px solid #0F1D2B;background:#F7FAFC}'+
     'h2{font-size:13px;margin:18px 0 6px 0;color:#0F1D2B;page-break-after:avoid}'+
     '.rec .l{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #EEF2F5}'+
-    '.rec .tot{font-weight:700;border-top:2px solid #0F1D2B;border-bottom:none;margin-top:4px;padding-top:6px}'+
+    '.rec .tot{display:flex;justify-content:space-between;font-weight:700;border-top:2px solid #0F1D2B;border-bottom:none;margin-top:4px;padding-top:6px}'+
     '@media print{ @page{margin:15mm} }'+
     '</style></head><body>'+
     '<h1>HIGIENEX S.L. — '+esc(titulo)+'</h1>'+
@@ -4803,6 +5028,110 @@ function pdfBodyIsoc2025(){
       : '<p style="margin-top:14px;font-size:11px;color:#3C5063">Cálculo simplificado de nivel escolar: sin ajustes por gastos no deducibles, diferencias temporarias, ni bonificaciones o deducciones. Cuota a ingresar según Modelo 200.</p>');
 }
 
+function pdfBodyAnalisisFin2025(){
+  const bal = balanceAgrupado2025();
+  const activoCorriente = bal.totales.AC, pasivoCorriente = bal.totales.PC;
+  const pasivoTotal = bal.totales.PNC + bal.totales.PC, patrimonioNeto = bal.totales.PN;
+  const sPre = saldosCuentas2025PreCierre();
+  const saldoPre = c => ((sPre[c]||{d:0}).d-(sPre[c]||{h:0}).h);
+  const existencias = ['300','310','350'].reduce((a,c)=>a+Math.max(0,saldoPre(c)),0);
+  const ratioLiquidez = pasivoCorriente ? activoCorriente/pasivoCorriente : 0;
+  const pruebaAcida = pasivoCorriente ? (activoCorriente-existencias)/pasivoCorriente : 0;
+  const fondoManiobra = activoCorriente - pasivoCorriente;
+  const endeudamiento = patrimonioNeto ? pasivoTotal/patrimonioNeto : 0;
+  const autonomia = pasivoTotal ? patrimonioNeto/pasivoTotal : 0;
+  const garantia = pasivoTotal ? bal.totalActivo/pasivoTotal : 0;
+  const clientesPend = DB.facturasE2025.filter(f=>f.estado==='Pendiente').reduce((s,f)=>s+f.total,0);
+  const ventasBase = DB.facturasE2025.reduce((s,f)=>s+f.base,0) || 1;
+  const provPend = DB.facturasR2025.filter(f=>f.estado==='Pendiente').reduce((s,f)=>s+f.total,0);
+  const comprasBase = DB.facturasR2025.reduce((s,f)=>s+f.base,0) || 1;
+  const rdet = resultadoDetalle2025();
+  const coste2025 = rdet.aprovisionamientos || 1;
+  const dso = Math.round(clientesPend/ventasBase*365);
+  const dpo = Math.round(provPend/comprasBase*365);
+  const dio = Math.round(existencias/coste2025*365);
+  const ccc = dio+dso-dpo;
+
+  const parLiquidez = ratioLiquidez>=1.5
+    ? 'La liquidez general se sitúa en '+NUM(ratioLiquidez)+', dentro del rango saludable (1,5–2). Por cada euro de deuda a corto plazo, la empresa dispone de '+NUM(ratioLiquidez)+' € en activo corriente.'
+    : ratioLiquidez>=1
+    ? 'La liquidez general es de '+NUM(ratioLiquidez)+': el activo corriente cubre justo el pasivo corriente, sin apenas margen.'
+    : 'La liquidez general es de '+NUM(ratioLiquidez)+', por debajo de 1: el activo corriente no cubre el pasivo corriente. Señal de alerta.';
+  const parFM = fondoManiobra>=0
+    ? 'El fondo de maniobra es positivo ('+EUR(fondoManiobra)+'): el activo corriente está financiado con recursos permanentes, con margen de sobra.'
+    : 'El fondo de maniobra es negativo ('+EUR(fondoManiobra)+'): parte del inmovilizado se financia con pasivo corriente, una estructura de riesgo.';
+  const parEndeuda = 'El endeudamiento es de '+NUM(endeudamiento)+' veces el patrimonio neto, con una autonomía financiera del '+NUM(autonomia*100)+' %.';
+  const parCiclo = 'El ciclo de conversión de caja es de '+ccc+' días (DIO '+dio+' + DSO '+dso+' − DPO '+dpo+').';
+
+  return '<h2>Informe de análisis financiero</h2>'+
+    '<p style="margin:0 0 10px">'+parLiquidez+'</p>'+
+    '<p style="margin:0 0 10px">'+parFM+'</p>'+
+    '<p style="margin:0 0 10px">'+parEndeuda+'</p>'+
+    '<p style="margin:0 0 16px">'+parCiclo+'</p>'+
+    '<table><thead><tr><th>Ratio</th><th class="num">Valor</th><th>Qué mide</th></tr></thead><tbody>'+
+    '<tr><td>Liquidez general (AC ÷ PC)</td><td class="num">'+NUM(ratioLiquidez)+'</td><td>Cobertura del pasivo corriente con todo el activo corriente</td></tr>'+
+    '<tr><td>Prueba ácida ((AC−Exist.) ÷ PC)</td><td class="num">'+NUM(pruebaAcida)+'</td><td>Igual, sin depender de vender el stock</td></tr>'+
+    '<tr><td>Fondo de maniobra (AC − PC)</td><td class="num">'+EUR(fondoManiobra)+'</td><td>Colchón de seguridad a corto plazo</td></tr>'+
+    '<tr><td>Ratio de garantía (Activo ÷ Pasivo)</td><td class="num">'+NUM(garantia)+'</td><td>Cobertura de toda la deuda con el activo total</td></tr>'+
+    '<tr><td>Endeudamiento (Pasivo ÷ PN)</td><td class="num">'+NUM(endeudamiento)+'</td><td>Deuda por cada euro de fondos propios</td></tr>'+
+    '<tr><td>Autonomía financiera (PN ÷ Pasivo)</td><td class="num">'+NUM(autonomia*100)+' %</td><td>Independencia respecto a la financiación ajena</td></tr>'+
+    '<tr><td>DIO — rotación existencias</td><td class="num">'+dio+' días</td><td>Días que tarda en venderse el stock</td></tr>'+
+    '<tr><td>DSO — plazo de cobro</td><td class="num">'+dso+' días</td><td>Días que tarda en cobrarse una venta</td></tr>'+
+    '<tr><td>DPO — plazo de pago</td><td class="num">'+dpo+' días</td><td>Días que se tarda en pagar a proveedores</td></tr>'+
+    '<tr class="total"><td>Ciclo de conversión de caja</td><td class="num">'+ccc+' días</td><td>DIO + DSO − DPO</td></tr>'+
+    '</tbody></table>';
+}
+
+function pdfBodyAnalisisEco2025(){
+  const r = resultadoDetalle2025();
+  const bal = balanceAgrupado2025();
+  const ventas = r.importeNeto || 1;
+  const margenExplotacion = r.resultadoExplotacion/ventas*100;
+  const margenNeto = r.resultadoEjercicio/ventas*100;
+  const roa = bal.totalActivo ? r.resultadoEjercicio/bal.totalActivo*100 : 0;
+  const roe = bal.totales.PN ? r.resultadoEjercicio/bal.totales.PN*100 : 0;
+  const rotacionActivos = bal.totalActivo ? ventas/bal.totalActivo : 0;
+  const apalancamiento = bal.totales.PN ? bal.totalActivo/bal.totales.PN : 0;
+  const costesVariables = r.aprovisionamientos;
+  const costesFijos = r.gastosPersonal + r.otrosGastosExplotacion + r.amortizacion + r.deterioro + r.gastosFinancieros;
+  const margenContribucionPct = ventas ? (ventas-costesVariables)/ventas : 0;
+  const puntoEquilibrio = margenContribucionPct>0 ? costesFijos/margenContribucionPct : 0;
+  const margenSeguridad = ventas ? (ventas-puntoEquilibrio)/ventas*100 : 0;
+
+  const parResultado = r.resultadoEjercicio>=0
+    ? 'El ejercicio 2025 se cierra con un beneficio de '+EUR(r.resultadoEjercicio)+', un margen neto del '+NUM(margenNeto)+' % sobre ventas.'
+    : 'El ejercicio 2025 se cierra con pérdidas de '+EUR(Math.abs(r.resultadoEjercicio))+', un margen neto del '+NUM(margenNeto)+' % sobre ventas.';
+  const parEstructura = 'Los aprovisionamientos representan el '+NUM(r.aprovisionamientos/ventas*100)+' % de las ventas y los gastos de personal el '+NUM(r.gastosPersonal/ventas*100)+' %.';
+  const parRentabilidad = 'ROA '+NUM(roa)+' %, ROE '+NUM(roe)+' % (apalancamiento ×'+NUM(apalancamiento)+').';
+  const parEquilibrio = margenSeguridad>=0
+    ? 'El punto de equilibrio es de '+EUR(puntoEquilibrio)+'; con ventas de '+EUR(ventas)+', el margen de seguridad es del '+NUM(margenSeguridad)+' %.'
+    : 'El punto de equilibrio es de '+EUR(puntoEquilibrio)+', pero las ventas reales fueron de '+EUR(ventas)+': la cifra de negocio quedó por debajo del umbral de rentabilidad.';
+
+  return '<h2>Informe de análisis económico</h2>'+
+    '<p style="margin:0 0 10px">'+parResultado+'</p>'+
+    '<p style="margin:0 0 10px">'+parEstructura+'</p>'+
+    '<p style="margin:0 0 10px">'+parRentabilidad+'</p>'+
+    '<p style="margin:0 0 16px">'+parEquilibrio+'</p>'+
+    '<table><thead><tr><th>Concepto</th><th class="num">% s/ ventas</th><th class="num">Importe</th></tr></thead><tbody>'+
+    '<tr><td>Importe neto de la cifra de negocios</td><td class="num">100,0%</td><td class="num">'+EUR(r.importeNeto)+'</td></tr>'+
+    '<tr><td>− Aprovisionamientos</td><td class="num">'+NUM(r.aprovisionamientos/ventas*100)+'%</td><td class="num">'+EUR(-r.aprovisionamientos)+'</td></tr>'+
+    '<tr><td>− Gastos de personal</td><td class="num">'+NUM(r.gastosPersonal/ventas*100)+'%</td><td class="num">'+EUR(-r.gastosPersonal)+'</td></tr>'+
+    '<tr><td>− Otros gastos de explotación</td><td class="num">'+NUM(r.otrosGastosExplotacion/ventas*100)+'%</td><td class="num">'+EUR(-r.otrosGastosExplotacion)+'</td></tr>'+
+    '<tr><td>− Amortización</td><td class="num">'+NUM(r.amortizacion/ventas*100)+'%</td><td class="num">'+EUR(-r.amortizacion)+'</td></tr>'+
+    '<tr class="total"><td>A) Resultado de explotación</td><td class="num">'+NUM(margenExplotacion)+'%</td><td class="num">'+EUR(r.resultadoExplotacion)+'</td></tr>'+
+    '<tr><td>− Gastos financieros</td><td class="num">'+NUM(r.gastosFinancieros/ventas*100)+'%</td><td class="num">'+EUR(-r.gastosFinancieros)+'</td></tr>'+
+    '<tr class="total"><td>D) Resultado del ejercicio</td><td class="num">'+NUM(margenNeto)+'%</td><td class="num">'+EUR(r.resultadoEjercicio)+'</td></tr>'+
+    '</tbody></table>'+
+    '<table style="margin-top:14px"><thead><tr><th>Ratio de rentabilidad</th><th class="num">Valor</th></tr></thead><tbody>'+
+    '<tr><td>Margen de explotación</td><td class="num">'+NUM(margenExplotacion)+' %</td></tr>'+
+    '<tr><td>Margen neto</td><td class="num">'+NUM(margenNeto)+' %</td></tr>'+
+    '<tr><td>ROA</td><td class="num">'+NUM(roa)+' %</td></tr>'+
+    '<tr><td>ROE</td><td class="num">'+NUM(roe)+' %</td></tr>'+
+    '<tr><td>Rotación de activos</td><td class="num">'+NUM(rotacionActivos)+'</td></tr>'+
+    '<tr class="total"><td>Punto de equilibrio (ventas)</td><td class="num">'+EUR(puntoEquilibrio)+'</td></tr>'+
+    '</tbody></table>';
+}
+
 function exportarPDF2025(){
   const map = {
     diario:  ['Libro diario',                        pdfBodyDiario2025],
@@ -4810,7 +5139,9 @@ function exportarPDF2025(){
     sumas:   ['Sumas y saldos',                       pdfBodySumas2025],
     balance: ['Balance de situación a 31/12/2025 (antes del cierre)', pdfBodyBalance2025],
     pyg:     ['Cuenta de pérdidas y ganancias',        pdfBodyPyG2025],
-    isoc:    ['Impuesto de Sociedades',                pdfBodyIsoc2025]
+    isoc:    ['Impuesto de Sociedades',                pdfBodyIsoc2025],
+    analisisfin: ['Análisis financiero',               pdfBodyAnalisisFin2025],
+    analisiseco: ['Análisis económico',                pdfBodyAnalisisEco2025]
   };
   const cfg = map[VISTA2025] || map.diario;
   abrirPDF2025(cfg[0], cfg[1]());
