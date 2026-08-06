@@ -4331,40 +4331,114 @@ ROUTES.ejercicio2025 = function(){
     const pasivoCorriente = bal.totales.PC;
     const pasivoTotal = bal.totales.PNC + bal.totales.PC;
     const patrimonioNeto = bal.totales.PN;
-    const existencias = (function(){
-      const s = saldosCuentas2025PreCierre();
-      const saldo = c => ((s[c]||{d:0}).d-(s[c]||{h:0}).h);
-      return ['300','310','350'].reduce((a,c)=>a+Math.max(0,saldo(c)),0);
-    })();
+    const sPre = saldosCuentas2025PreCierre();
+    const saldoPre = c => ((sPre[c]||{d:0}).d-(sPre[c]||{h:0}).h);
+    const existencias = ['300','310','350'].reduce((a,c)=>a+Math.max(0,saldoPre(c)),0);
+    const tesoreria = ['570','572'].reduce((a,c)=>a+Math.max(0,saldoPre(c)),0);
+    const realizable = activoCorriente - existencias - tesoreria;
+
     const ratioLiquidez = pasivoCorriente ? activoCorriente/pasivoCorriente : 0;
     const pruebaAcida = pasivoCorriente ? (activoCorriente-existencias)/pasivoCorriente : 0;
+    const ratioTesoreria = pasivoCorriente ? tesoreria/pasivoCorriente : 0;
     const fondoManiobra = activoCorriente - pasivoCorriente;
     const endeudamiento = patrimonioNeto ? pasivoTotal/patrimonioNeto : 0;
     const autonomia = pasivoTotal ? patrimonioNeto/pasivoTotal : 0;
     const garantia = pasivoTotal ? bal.totalActivo/pasivoTotal : 0;
+    const calidadDeuda = pasivoTotal ? pasivoCorriente/pasivoTotal : 0;
+    const capitalizacion = bal.totalActivo ? patrimonioNeto/bal.totalActivo*100 : 0;
+
+    // DSO / DPO / DIO reales del ejercicio 2025 (base 365 días, sobre el ejercicio completo)
+    const clientesPend = DB.facturasE2025.filter(f=>f.estado==='Pendiente').reduce((s,f)=>s+f.total,0);
+    const ventasBase = DB.facturasE2025.reduce((s,f)=>s+f.base,0) || 1;
+    const provPend = DB.facturasR2025.filter(f=>f.estado==='Pendiente').reduce((s,f)=>s+f.total,0);
+    const comprasBase = DB.facturasR2025.reduce((s,f)=>s+f.base,0) || 1;
+    const rdet = resultadoDetalle2025();
+    const coste2025 = rdet.aprovisionamientos || 1;
+    const dso = Math.round(clientesPend/ventasBase*365);
+    const dpo = Math.round(provPend/comprasBase*365);
+    const dio = Math.round(existencias/coste2025*365);
+    const ccc = dio + dso - dpo;
+
+    const verdict = (val, bueno, regular) => {
+      if (val>=bueno) return ['t-ok','Adecuado'];
+      if (val>=regular) return ['t-wait','Mejorable'];
+      return ['t-late','Débil'];
+    };
+    const vLiq = verdict(ratioLiquidez, 1.5, 1);
+    const vAcida = verdict(pruebaAcida, 0.9, 0.6);
+    const vGar = verdict(garantia, 1.5, 1.1);
+    const vAut = verdict(autonomia*100, 40, 20);
+    const vEnd = (() => { if(endeudamiento<=1) return ['t-ok','Adecuado']; if(endeudamiento<=2) return ['t-wait','Mejorable']; return ['t-late','Elevado']; })();
 
     h += '<div class="card" style="margin-bottom:16px;border-left:3px solid var(--gold)"><div class="cardbody" style="font-size:13px">'+
-      'Análisis financiero (equilibrio, liquidez y solvencia) del ejercicio 2025, calculado sobre el balance de situación a 31/12/2025.'+
+      '<strong>Análisis financiero completo del ejercicio 2025.</strong> Estudia el equilibrio, la liquidez y la solvencia de HIGIENEX S.L. a partir del balance de situación a 31/12/2025 y de las facturas reales del ejercicio. Mide la capacidad de la empresa de afrontar sus pagos a corto y largo plazo, no si gana o pierde dinero (eso lo ves en «Análisis económico»).'+
       '</div></div>';
+
+    // Diagnóstico narrativo automático
+    const puntos = [];
+    puntos.push(ratioLiquidez>=1.5 ? 'la liquidez general es sólida' : ratioLiquidez>=1 ? 'la liquidez general es ajustada pero cubre el pasivo corriente' : 'la liquidez general es insuficiente: el activo corriente no llega a cubrir el pasivo corriente');
+    puntos.push(fondoManiobra>=0 ? 'el fondo de maniobra es positivo, señal de estabilidad financiera a corto plazo' : 'el fondo de maniobra es negativo, lo que indica que parte del activo no corriente se está financiando con pasivo corriente (situación de riesgo si no se corrige)');
+    puntos.push(endeudamiento<=1 ? 'el nivel de endeudamiento es moderado respecto a los fondos propios' : endeudamiento<=2 ? 'el endeudamiento es notable, aunque todavía dentro de rangos gestionables' : 'el endeudamiento es muy elevado en relación con el patrimonio neto');
+    puntos.push(garantia>=1.5 ? 'el activo total ofrece un margen de garantía cómodo frente a las deudas' : garantia>=1 ? 'el activo cubre justo el total de las deudas, sin apenas margen' : 'el activo total no llega a cubrir las deudas: situación de quiebra técnica');
+    h += '<div class="card" style="margin-bottom:16px"><h3>Diagnóstico</h3><div class="cardbody" style="font-size:13px;line-height:1.85">'+
+      'En síntesis, '+puntos.join('; ')+'. El ciclo de conversión de caja es de <strong>'+ccc+' días</strong>, es decir, el dinero invertido en existencias y ventas tarda esos días de media en volver a caja.'+
+      '</div></div>';
+
     h += '<div class="grid g4" style="margin-bottom:16px">'+
       kpi('Ratio de liquidez', NUM(ratioLiquidez), 'activo corriente ÷ pasivo corriente', ratioLiquidez>=1.5?'teal':ratioLiquidez>=1?'amber':'red')+
-      kpi('Prueba ácida', NUM(pruebaAcida), '(AC − existencias) ÷ pasivo corriente', pruebaAcida>=1?'teal':'amber')+
+      kpi('Prueba ácida', NUM(pruebaAcida), '(AC − existencias) ÷ pasivo corriente', pruebaAcida>=0.9?'teal':'amber')+
+      kpi('Ratio de tesorería', NUM(ratioTesoreria), 'disponible ÷ pasivo corriente', ratioTesoreria>=0.3?'teal':'amber')+
       kpi('Fondo de maniobra', EUR(fondoManiobra), 'activo corriente − pasivo corriente', fondoManiobra>=0?'teal':'red')+
+    '</div>';
+    h += '<div class="grid g4" style="margin-bottom:16px">'+
       kpi('Ratio de garantía', NUM(garantia), 'activo total ÷ pasivo total', garantia>=1.5?'teal':garantia>=1?'amber':'red')+
-    '</div>';
-    h += '<div class="grid g2" style="margin-bottom:16px">'+
       kpi('Endeudamiento', NUM(endeudamiento), 'pasivo total ÷ patrimonio neto', endeudamiento<=1?'teal':endeudamiento<=2?'amber':'red')+
-      kpi('Autonomía financiera', NUM(autonomia*100)+' %', 'patrimonio neto ÷ pasivo total', autonomia>=0.5?'teal':'amber')+
+      kpi('Autonomía financiera', NUM(autonomia*100)+' %', 'patrimonio neto ÷ pasivo total', autonomia>=0.4?'teal':'amber')+
+      kpi('Capitalización', NUM(capitalizacion)+' %', 'patrimonio neto ÷ activo total', capitalizacion>=30?'teal':'amber')+
     '</div>';
-    h += '<div class="card"><h3>Cómo se leen estos ratios</h3><div class="cardbody" style="font-size:13px;line-height:1.9">'+
+    h += '<div class="grid g4" style="margin-bottom:16px">'+
+      kpi('DIO · rotación existencias', dio+' días', EUR(existencias)+' en almacén', dio<=60?'teal':dio<=90?'amber':'red')+
+      kpi('DSO · plazo de cobro', dso+' días', EUR(clientesPend)+' pendientes de cobro', dso<=60?'teal':dso<=90?'amber':'red')+
+      kpi('DPO · plazo de pago', dpo+' días', EUR(provPend)+' pendientes de pago', 'blue')+
+      kpi('Ciclo de caja (DIO+DSO−DPO)', ccc+' días', 'días con el dinero inmovilizado', ccc<=60?'teal':ccc<=100?'amber':'red')+
+    '</div>';
+
+    h += '<div class="card" style="margin-bottom:16px"><h3>Tabla completa de ratios financieros</h3><div class="cardbody" style="padding:0">'+
+      '<table><thead><tr><th>Ratio</th><th>Fórmula</th><th class="num">Valor</th><th>Valoración</th><th>Qué mide</th></tr></thead><tbody>'+
+      '<tr><td><strong>Liquidez general</strong></td><td class="mono" style="font-size:11px">AC ÷ PC</td><td class="num mono">'+NUM(ratioLiquidez)+'</td><td><span class="tag '+vLiq[0]+'">'+vLiq[1]+'</span></td><td>Capacidad de pagar las deudas a corto plazo con todo el activo corriente. Ideal entre 1,5 y 2.</td></tr>'+
+      '<tr><td><strong>Prueba ácida</strong></td><td class="mono" style="font-size:11px">(AC−Existencias) ÷ PC</td><td class="num mono">'+NUM(pruebaAcida)+'</td><td><span class="tag '+vAcida[0]+'">'+vAcida[1]+'</span></td><td>Igual que la liquidez, pero sin contar con vender el stock. Ideal cercano a 1.</td></tr>'+
+      '<tr><td><strong>Tesorería inmediata</strong></td><td class="mono" style="font-size:11px">Disponible ÷ PC</td><td class="num mono">'+NUM(ratioTesoreria)+'</td><td><span class="tag '+(ratioTesoreria>=0.3?'t-ok':'t-wait')+'">'+(ratioTesoreria>=0.3?'Adecuado':'Ajustado')+'</span></td><td>Qué parte de la deuda a corto se podría pagar hoy mismo, solo con caja y bancos.</td></tr>'+
+      '<tr><td><strong>Fondo de maniobra</strong></td><td class="mono" style="font-size:11px">AC − PC</td><td class="num mono">'+EUR(fondoManiobra)+'</td><td><span class="tag '+(fondoManiobra>=0?'t-ok':'t-late')+'">'+(fondoManiobra>=0?'Positivo':'Negativo')+'</span></td><td>Colchón de seguridad: parte del activo corriente financiada con recursos permanentes.</td></tr>'+
+      '<tr><td><strong>Ratio de garantía</strong></td><td class="mono" style="font-size:11px">Activo total ÷ Pasivo total</td><td class="num mono">'+NUM(garantia)+'</td><td><span class="tag '+vGar[0]+'">'+vGar[1]+'</span></td><td>Margen del activo para responder ante todas las deudas si hubiera que liquidar la empresa.</td></tr>'+
+      '<tr><td><strong>Endeudamiento</strong></td><td class="mono" style="font-size:11px">Pasivo total ÷ Patrimonio neto</td><td class="num mono">'+NUM(endeudamiento)+'</td><td><span class="tag '+vEnd[0]+'">'+vEnd[1]+'</span></td><td>Cuánta deuda hay por cada euro de recursos propios. Ideal por debajo de 1,5.</td></tr>'+
+      '<tr><td><strong>Autonomía financiera</strong></td><td class="mono" style="font-size:11px">Patrimonio neto ÷ Pasivo total</td><td class="num mono">'+NUM(autonomia*100)+' %</td><td><span class="tag '+vAut[0]+'">'+vAut[1]+'</span></td><td>Independencia respecto a la financiación ajena (bancos, proveedores).</td></tr>'+
+      '<tr><td><strong>Calidad de la deuda</strong></td><td class="mono" style="font-size:11px">Pasivo corriente ÷ Pasivo total</td><td class="num mono">'+NUM(calidadDeuda*100)+' %</td><td><span class="tag '+(calidadDeuda<=0.6?'t-ok':'t-wait')+'">'+(calidadDeuda<=0.6?'Buena':'A vigilar')+'</span></td><td>Qué parte de la deuda vence a corto plazo. Cuanto menor, mejor (deuda más «cómoda»).</td></tr>'+
+      '</tbody></table></div></div>';
+
+    // Análisis vertical del balance (estructura, % sobre el total)
+    const pct = v => bal.totalActivo ? NUM(v/bal.totalActivo*100)+' %' : '—';
+    h += '<div class="card"><h3>Análisis vertical del balance <span class="tag t-neu" style="margin-left:8px;font-size:10px">estructura, % s/ total</span></h3><div class="cardbody" style="padding:0">'+
+      '<table><thead><tr><th>Masa patrimonial</th><th class="num">Importe</th><th class="num">% sobre el total</th></tr></thead><tbody>'+
+      '<tr><td>'+MASA_LABEL.ANC+'</td><td class="num mono">'+EUR(bal.totales.ANC)+'</td><td class="num mono">'+pct(bal.totales.ANC)+'</td></tr>'+
+      '<tr><td>'+MASA_LABEL.AC+'</td><td class="num mono">'+EUR(bal.totales.AC)+'</td><td class="num mono">'+pct(bal.totales.AC)+'</td></tr>'+
+      '<tr class="total"><td>Total activo</td><td class="num mono">'+EUR(bal.totalActivo)+'</td><td class="num mono">100,0 %</td></tr>'+
+      '<tr><td>'+MASA_LABEL.PN+' (con resultado)</td><td class="num mono">'+EUR(bal.totales.PN)+'</td><td class="num mono">'+pct(bal.totales.PN)+'</td></tr>'+
+      '<tr><td>'+MASA_LABEL.PNC+'</td><td class="num mono">'+EUR(bal.totales.PNC)+'</td><td class="num mono">'+pct(bal.totales.PNC)+'</td></tr>'+
+      '<tr><td>'+MASA_LABEL.PC+'</td><td class="num mono">'+EUR(bal.totales.PC)+'</td><td class="num mono">'+pct(bal.totales.PC)+'</td></tr>'+
+      '<tr class="total"><td>Total patrimonio neto y pasivo</td><td class="num mono">'+EUR(bal.totalPasivoNeto)+'</td><td class="num mono">100,0 %</td></tr>'+
+      '</tbody></table>'+
+      '<p style="margin:14px 16px;font-size:12.5px;color:var(--ink-2)">El análisis vertical muestra el peso relativo de cada masa dentro del balance, independientemente de su tamaño absoluto: permite ver, por ejemplo, si la empresa está demasiado cargada de pasivo corriente en relación con su activo total.</p>'+
+      '</div></div>';
+
+    h += '<div class="card" style="margin-top:16px"><h3>Composición del activo corriente</h3><div class="cardbody" style="font-size:13px;line-height:1.9">'+
       '<div class="rec">'+
-        '<div class="l"><span>Ratio de liquidez (ideal 1,5–2)</span><span>'+NUM(ratioLiquidez)+'</span></div>'+
-        '<div class="l"><span>Prueba ácida — liquidez sin depender del stock (ideal ≈1)</span><span>'+NUM(pruebaAcida)+'</span></div>'+
-        '<div class="l"><span>Fondo de maniobra — colchón de seguridad a corto plazo</span><span>'+EUR(fondoManiobra)+'</span></div>'+
-        '<div class="l"><span>Endeudamiento — cuánta deuda hay por cada euro propio (ideal &lt;1,5)</span><span>'+NUM(endeudamiento)+'</span></div>'+
-        '<div class="l"><span>Autonomía financiera — % del negocio financiado con recursos propios</span><span>'+NUM(autonomia*100)+' %</span></div>'+
-        '<div class="l"><span>Ratio de garantía — capacidad del activo de cubrir toda la deuda</span><span>'+NUM(garantia)+'</span></div>'+
-      '</div></div></div>';
+        '<div class="l"><span>Existencias (materias primas + producto terminado)</span><span>'+EUR(existencias)+'</span></div>'+
+        '<div class="l"><span>Realizable (clientes, IVA soportado, etc.)</span><span>'+EUR(realizable)+'</span></div>'+
+        '<div class="l"><span>Disponible (caja y bancos)</span><span>'+EUR(tesoreria)+'</span></div>'+
+        '<div class="tot"><span>Total activo corriente</span><span>'+EUR(activoCorriente)+'</span></div>'+
+      '</div>'+
+      '<p style="margin-top:12px;color:var(--ink-2);font-size:12.5px">Cuanto más concentrado esté el activo corriente en «disponible» y menos en «existencias», más rápida es su conversión en efectivo — de ahí la diferencia entre el ratio de liquidez general y la prueba ácida.</p>'+
+      '</div></div>';
   }
 
   if(VISTA2025==='analisiseco'){
@@ -4375,10 +4449,30 @@ ROUTES.ejercicio2025 = function(){
     const margenNeto = r.resultadoEjercicio/ventas*100;
     const roa = bal.totalActivo ? r.resultadoEjercicio/bal.totalActivo*100 : 0;
     const roe = bal.totales.PN ? r.resultadoEjercicio/bal.totales.PN*100 : 0;
+    const rotacionActivos = bal.totalActivo ? ventas/bal.totalActivo : 0;
+    const apalancamiento = bal.totales.PN ? bal.totalActivo/bal.totales.PN : 0;
+    const roeDupont = (margenNeto/100) * rotacionActivos * apalancamiento * 100;
+
+    // Punto de equilibrio (simplificación de nivel escolar): variable = aprovisionamientos;
+    // fijos = personal + otros gastos explotación + amortización + gastos financieros.
+    const costesVariables = r.aprovisionamientos;
+    const costesFijos = r.gastosPersonal + r.otrosGastosExplotacion + r.amortizacion + r.deterioro + r.gastosFinancieros;
+    const margenContribucionPct = ventas ? (ventas-costesVariables)/ventas : 0;
+    const puntoEquilibrio = margenContribucionPct>0 ? costesFijos/margenContribucionPct : 0;
+    const margenSeguridad = ventas ? (ventas-puntoEquilibrio)/ventas*100 : 0;
 
     h += '<div class="card" style="margin-bottom:16px;border-left:3px solid var(--gold)"><div class="cardbody" style="font-size:13px">'+
-      'Análisis económico (rentabilidad y estructura de costes) del ejercicio 2025, calculado sobre la cuenta de pérdidas y ganancias.'+
+      '<strong>Análisis económico completo del ejercicio 2025.</strong> Estudia si el negocio genera beneficio y de dónde viene ese resultado, a partir de la cuenta de pérdidas y ganancias. A diferencia del análisis financiero (solvencia), este mide la rentabilidad del negocio en sí.'+
       '</div></div>';
+
+    const diag = [];
+    diag.push(r.resultadoEjercicio>=0 ? 'el ejercicio se cierra con beneficio' : 'el ejercicio se cierra con pérdidas de '+EUR(Math.abs(r.resultadoEjercicio)));
+    diag.push(margenNeto>=5 ? 'el margen neto sobre ventas es saludable' : margenNeto>=0 ? 'el margen neto sobre ventas es positivo pero ajustado' : 'el margen neto es negativo: cada euro vendido genera pérdida');
+    diag.push(r.gastosPersonal/ventas>0.5 ? 'los gastos de personal absorben más de la mitad de la cifra de negocio, el principal factor a vigilar' : 'la estructura de costes está relativamente equilibrada entre partidas');
+    h += '<div class="card" style="margin-bottom:16px"><h3>Diagnóstico</h3><div class="cardbody" style="font-size:13px;line-height:1.85">'+
+      'En síntesis, '+diag.join('; ')+'. El punto de equilibrio se sitúa en <strong>'+EUR(puntoEquilibrio)+'</strong> de ventas anuales'+(margenSeguridad>=0?', lo que deja un margen de seguridad del '+NUM(margenSeguridad)+' % sobre la cifra de negocio real':'; la cifra de negocio real quedó por debajo de ese umbral')+'.'+
+      '</div></div>';
+
     h += '<div class="grid g4" style="margin-bottom:16px">'+
       kpi('Margen de explotación', NUM(margenExplotacion)+' %', 'resultado explotación ÷ ventas', margenExplotacion>=0?'teal':'red')+
       kpi('Margen neto', NUM(margenNeto)+' %', 'resultado del ejercicio ÷ ventas', margenNeto>=0?'teal':'red')+
@@ -4390,18 +4484,54 @@ ROUTES.ejercicio2025 = function(){
       const pct = ventas ? (val/ventas*100) : 0;
       return '<div class="l"><span>'+label+'</span><span><span class="mono" style="color:var(--ink-2);margin-right:10px">'+NUM(pct)+' %</span>'+EUR(val)+'</span></div>';
     };
-    h += '<div class="card"><h3>Estructura de la cuenta de resultados (% sobre ventas)</h3><div class="cardbody"><div class="rec">'+
+    h += '<div class="grid g2">';
+    h += '<div class="card"><h3>Cuenta de resultados detallada (% sobre ventas)</h3><div class="cardbody"><div class="rec">'+
       linea('Importe neto de la cifra de negocios', r.importeNeto)+
-      linea('− Aprovisionamientos', -r.aprovisionamientos)+
+      linea('− Variación de existencias', -r.variacionExistencias)+
+      linea('− Aprovisionamientos (coste de lo vendido)', -r.aprovisionamientos)+
       linea('− Gastos de personal', -r.gastosPersonal)+
       linea('− Otros gastos de explotación', -r.otrosGastosExplotacion)+
-      linea('− Amortización', -r.amortizacion)+
-      '<div class="l tot"><span>Resultado de explotación</span><span>'+EUR(r.resultadoExplotacion)+'</span></div>'+
+      linea('− Amortización del inmovilizado', -r.amortizacion)+
+      linea('− Deterioro y otros resultados', -r.deterioro)+
+      '<div class="l tot"><span>A) Resultado de explotación</span><span>'+EUR(r.resultadoExplotacion)+'</span></div>'+
       linea('− Gastos financieros', -r.gastosFinancieros)+
-      '<div class="l tot" style="font-size:15px"><span>Resultado del ejercicio</span><span class="'+(r.resultadoEjercicio>=0?'pos':'neg')+'">'+EUR(r.resultadoEjercicio)+'</span></div>'+
+      '<div class="l tot"><span>B) Resultado financiero</span><span>'+EUR(r.resultadoFinanciero)+'</span></div>'+
+      '<div class="l tot"><span>C) Resultado antes de impuestos</span><span>'+EUR(r.resultadoAntesImpuestos)+'</span></div>'+
+      linea('− Impuesto sobre beneficios', -r.impuesto)+
+      '<div class="l tot" style="font-size:15px"><span>D) Resultado del ejercicio</span><span class="'+(r.resultadoEjercicio>=0?'pos':'neg')+'">'+EUR(r.resultadoEjercicio)+'</span></div>'+
+      '</div></div></div>';
+
+    h += '<div class="card"><h3>Descomposición del ROE (método DuPont)</h3><div class="cardbody" style="font-size:13px;line-height:1.9">'+
+      '<div class="rec">'+
+        '<div class="l"><span>Margen neto (beneficio ÷ ventas)</span><span>'+NUM(margenNeto)+' %</span></div>'+
+        '<div class="l"><span>× Rotación de activos (ventas ÷ activo)</span><span>'+NUM(rotacionActivos)+'</span></div>'+
+        '<div class="l"><span>× Apalancamiento (activo ÷ patrimonio neto)</span><span>'+NUM(apalancamiento)+'</span></div>'+
+        '<div class="tot"><span>= ROE</span><span>'+NUM(roeDupont)+' %</span></div>'+
       '</div>'+
-      '<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">El ROA mide cuánto beneficio genera cada euro invertido en la empresa (sea cual sea su financiación); el ROE mide cuánto beneficio obtienen específicamente los socios sobre su aportación. Un ROE muy superior al ROA indica que el apalancamiento (deuda) está amplificando el resultado para el accionista, en positivo o en negativo.</p>'+
+      '<p style="margin-top:12px;color:var(--ink-2);font-size:12.5px">El método DuPont descompone la rentabilidad para los socios (ROE) en tres palancas: cuánto margen deja cada venta, cuántas veces «rota» el activo generando ventas, y cuánta deuda se usa para multiplicar el resultado. Un ROE alto apoyado en mucho apalancamiento (deuda) es más frágil que uno apoyado en buen margen y rotación.</p>'+
       '</div></div>';
+    h += '</div>';
+
+    h += '<div class="card" style="margin-top:16px"><h3>Punto de equilibrio (umbral de rentabilidad)</h3><div class="cardbody" style="font-size:13px;line-height:1.9">'+
+      '<div class="rec">'+
+        '<div class="l"><span>Costes variables estimados (aprovisionamientos)</span><span>'+EUR(costesVariables)+'</span></div>'+
+        '<div class="l"><span>Costes fijos estimados (personal, otros gastos, amortización, financieros)</span><span>'+EUR(costesFijos)+'</span></div>'+
+        '<div class="l"><span>Margen de contribución</span><span>'+NUM(margenContribucionPct*100)+' %</span></div>'+
+        '<div class="tot"><span>Punto de equilibrio (ventas mínimas para no perder dinero)</span><span>'+EUR(puntoEquilibrio)+'</span></div>'+
+        '<div class="l"><span>Ventas reales del ejercicio</span><span>'+EUR(ventas)+'</span></div>'+
+        '<div class="l"><span>Margen de seguridad</span><span class="'+(margenSeguridad>=0?'pos':'neg')+'">'+NUM(margenSeguridad)+' %</span></div>'+
+      '</div>'+
+      '<p style="margin-top:12px;color:var(--ink-2);font-size:12.5px">Cálculo simplificado de nivel escolar: se asume que solo los aprovisionamientos varían con el volumen de ventas, y que el resto de gastos (personal, generales, amortización, financieros) son fijos en el corto plazo. El margen de seguridad indica cuánto podrían caer las ventas antes de entrar en pérdidas.</p>'+
+      '</div></div>';
+
+    h += '<div class="card" style="margin-top:16px"><h3>Tabla de ratios de rentabilidad</h3><div class="cardbody" style="padding:0">'+
+      '<table><thead><tr><th>Ratio</th><th>Fórmula</th><th class="num">Valor</th><th>Qué mide</th></tr></thead><tbody>'+
+      '<tr><td><strong>Margen de explotación</strong></td><td class="mono" style="font-size:11px">Rdo. explotación ÷ Ventas</td><td class="num mono">'+NUM(margenExplotacion)+' %</td><td>Rentabilidad del negocio antes de gastos financieros e impuestos.</td></tr>'+
+      '<tr><td><strong>Margen neto</strong></td><td class="mono" style="font-size:11px">Rdo. del ejercicio ÷ Ventas</td><td class="num mono">'+NUM(margenNeto)+' %</td><td>Qué porcentaje de cada euro vendido acaba siendo beneficio final.</td></tr>'+
+      '<tr><td><strong>ROA</strong></td><td class="mono" style="font-size:11px">Rdo. ÷ Activo total</td><td class="num mono">'+NUM(roa)+' %</td><td>Rentabilidad generada por cada euro invertido en la empresa, sin importar cómo se financia.</td></tr>'+
+      '<tr><td><strong>ROE</strong></td><td class="mono" style="font-size:11px">Rdo. ÷ Patrimonio neto</td><td class="num mono">'+NUM(roe)+' %</td><td>Rentabilidad que obtienen específicamente los socios sobre su inversión.</td></tr>'+
+      '<tr><td><strong>Rotación de activos</strong></td><td class="mono" style="font-size:11px">Ventas ÷ Activo total</td><td class="num mono">'+NUM(rotacionActivos)+'</td><td>Cuántos euros de venta genera cada euro de activo. A más rotación, más eficiencia.</td></tr>'+
+      '</tbody></table></div></div>';
   }
 
   return h;
