@@ -680,6 +680,22 @@ function saldosCuentas(hasta){
 }
 function saldoCta(cod){ const s=saldosCuentas()[cod]; return s?s.d-s.h:0; }
 
+/* Masas patrimoniales del balance oficial (PGC, RD 1514/2007, modelo abreviado) */
+const CTAS_AMORTIZ_ACUM = ['280','281','282']; // contra-activo: resta del inmovilizado
+function masaPatrimonial(cod){
+  const raiz3 = cod.slice(0,3);
+  const t = tipoCta(cod);
+  if (t==='gasto' || t==='ingreso') return null; // cuentas de P&G: no forman parte del balance
+  if (CTAS_AMORTIZ_ACUM.includes(raiz3)) return 'ANC'; // amortización acumulada: resta del activo no corriente
+  if (raiz3==='100' || raiz3==='120' || raiz3==='129') return 'PN';   // Patrimonio Neto
+  if (raiz3==='170') return 'PNC';                    // Pasivo No Corriente (deudas L/P)
+  if (cod.charAt(0)==='2') return 'ANC';              // Activo No Corriente (inmovilizado)
+  if (t==='activo') return 'AC';  // Activo Corriente (existencias, deudores, tesorería)
+  if (t==='pasivo') return 'PC';  // Pasivo Corriente (acreedores, HP, SS a c/p)
+  return 'PN';
+}
+const MASA_LABEL = {ANC:'A) ACTIVO NO CORRIENTE', AC:'B) ACTIVO CORRIENTE', PN:'A) PATRIMONIO NETO', PNC:'B) PASIVO NO CORRIENTE', PC:'C) PASIVO CORRIENTE'};
+
 /* ---------- Almacén: kardex y precio medio ponderado ---------- */
 function movimientoStock(artId,tipo,cant,precio,doc,fecha){
   const p=art(artId); if(!p) return;
@@ -1580,7 +1596,7 @@ ROUTES.diario=function(){
   const lista=all.filter(a=>hit(a.concepto+' '+a.n+' '+a.apuntes.map(p=>p.cta+' '+nomCta(p.cta)).join(' ')));
   const td=lista.reduce((s,a)=>s+a.apuntes.reduce((x,p)=>x+(p.d||0),0),0);
   let h=head('Libro diario',all.length+' asientos del ejercicio '+EJERCICIO,
-    '<button class="btn ghost" onclick="exportarDiario()">Descargar CSV</button><button class="btn" onclick="formAsiento()">Asiento manual</button>');
+    '<button class="btn ghost" onclick="exportarDiario()">CSV</button><button class="btn ghost" onclick="exportarDiarioOficialPDF()">📄 PDF oficial</button><button class="btn" onclick="formAsiento()">Asiento manual</button>');
   h+=buscador('Buscar por concepto, cuenta o número de asiento…',all.length,lista.length);
   let rows=[];
   lista.forEach(a=>{
@@ -1652,7 +1668,7 @@ ROUTES.mayor=function(){
   const usadas=Object.keys(s).sort();
   if(!CTA_SEL||!s[CTA_SEL]) CTA_SEL=usadas[0];
   let h=head('Libro mayor','Movimientos y saldo corriente de cada cuenta',
-    '<button class="btn ghost" onclick="exportarMayor()">Descargar CSV</button>');
+    '<button class="btn ghost" onclick="exportarMayor()">CSV</button><button class="btn ghost" onclick="exportarMayorOficialPDF()">📄 PDF oficial</button>');
   h+='<div class="toolbar"><label class="flabel" style="margin:0 6px 0 0">Cuenta</label>'+
     '<select style="min-width:340px" onchange="verMayor(this.value)">'+
     usadas.map(c=>'<option value="'+c+'"'+(c===CTA_SEL?' selected':'')+'>'+c+' · '+esc(nomCta(c))+'</option>').join('')+'</select></div>';
@@ -1694,7 +1710,7 @@ ROUTES.sumas=function(){
   });
   rows.push('<tr class="total"><td></td><td>TOTALES</td><td class="num mono">'+NUM(T.d)+'</td><td class="num mono">'+NUM(T.h)+'</td><td class="num mono">'+NUM(T.sd)+'</td><td class="num mono">'+NUM(T.sh)+'</td></tr>');
   const cuadra=Math.abs(T.d-T.h)<0.01;
-  let h=head('Balance de sumas y saldos','Comprobación de la partida doble a fecha de corte','<button class="btn ghost" onclick="exportarSumas()">Descargar CSV</button>'+selectorFechaCorte());
+  let h=head('Balance de sumas y saldos','Comprobación de la partida doble a fecha de corte','<button class="btn ghost" onclick="exportarSumas()">CSV</button><button class="btn ghost" onclick="exportarSumasOficialPDF()">📄 PDF oficial</button>'+selectorFechaCorte());
   h+='<div class="card" style="margin-bottom:14px"><div class="cardbody" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
     (cuadra?'<span class="tag t-ok">Cuadra</span><span style="font-size:13px">Debe y haber coinciden en '+EUR(T.d)+', y los saldos deudores igualan a los acreedores.</span>'
            :'<span class="tag t-late">Descuadre</span><span style="font-size:13px">Diferencia de '+EUR(T.d-T.h)+'.</span>')+'</div></div>';
@@ -1727,17 +1743,11 @@ ROUTES.resultados=function(){
   const gastos  =porTipo('gasto'  ).map(c=>[c, saldo(c)]).filter(x=>Math.abs(x[1])>0.005);
   const totIng=ingresos.reduce((a,x)=>a+x[1],0), totGas=gastos.reduce((a,x)=>a+x[1],0);
   const resultado=totIng-totGas;
-  const activo=porTipo('activo').map(c=>[c,saldo(c)]).filter(x=>x[1]>0.005);
-  const pasivo=porTipo('pasivo').map(c=>[c,-saldo(c)]).filter(x=>x[1]>0.005);
-  const neto  =porTipo('pn').map(c=>[c,-saldo(c)]).filter(x=>Math.abs(x[1])>0.005);
-  const totAct=activo.reduce((a,x)=>a+x[1],0);
-  const totPas=pasivo.reduce((a,x)=>a+x[1],0);
-  const totNet=neto.reduce((a,x)=>a+x[1],0)+resultado;
 
   const lineas=arr=>arr.sort((a,b)=>a[0].localeCompare(b[0])).map(x=>
     '<div class="l"><span><span class="mono">'+x[0]+'</span> '+esc(nomCta(x[0]))+'</span><span>'+EUR(x[1])+'</span></div>').join('');
 
-  let h=head('Balance y cuenta de resultados','Situación acumulada a fecha de corte', selectorFechaCorte());
+  let h=head('Balance y cuenta de resultados','Situación acumulada a fecha de corte', '<button class="btn ghost" onclick="exportarBalanceOficialPDF()">📄 Balance oficial (PDF)</button>'+selectorFechaCorte());
   h+='<div class="grid g3" style="margin-bottom:16px">'+
     kpi('Ingresos de explotación',EUR(totIng),'grupo 7','teal')+
     kpi('Gastos de explotación',EUR(totGas),'grupo 6','amber')+
@@ -1753,17 +1763,27 @@ ROUTES.resultados=function(){
       '<div class="tot" style="font-size:17px"><span>'+(resultado>=0?'Beneficio':'Pérdida')+'</span><span class="'+(resultado>=0?'pos':'neg')+'">'+EUR(resultado)+'</span></div>'+
     '</div><p style="margin-top:12px;font-size:12px;color:var(--ink-2)">No se ha registrado la variación de existencias ni el impuesto sobre beneficios: es un resultado de gestión, no el definitivo del cierre.</p></div></div>';
 
-  h+='<div class="card"><h3>Balance de situación</h3><div class="cardbody"><div class="rec">'+
-      '<div class="sec">Activo</div>'+lineas(activo)+
-      '<div class="tot"><span>Total activo</span><span>'+EUR(totAct)+'</span></div>'+
-      '<div class="sec">Patrimonio neto</div>'+lineas(neto)+
-      '<div class="l"><span>Resultado del ejercicio</span><span>'+EUR(resultado)+'</span></div>'+
-      '<div class="sec">Pasivo</div>'+lineas(pasivo)+
-      '<div class="tot"><span>Total patrimonio neto y pasivo</span><span>'+EUR(totNet+totPas)+'</span></div>'+
+  const bal = balanceAgrupadoOficial();
+  const lineasM = arr => arr.length ? arr.sort((a,b)=>a[0].localeCompare(b[0])).map(x=>
+    '<div class="l"><span><span class="mono">'+x[0]+'</span> '+esc(nomCta(x[0]))+'</span><span>'+EUR(x[1])+'</span></div>').join('') : '<div class="l"><span style="color:var(--ink-2)">Sin saldo</span><span>0,00 €</span></div>';
+  h+='<div class="card"><h3>Balance de situación abreviado <span class="tag t-neu" style="margin-left:8px;font-size:10px">PGC · RD 1514/2007</span></h3><div class="cardbody"><div class="rec">'+
+      '<div class="sec">'+MASA_LABEL.ANC+'</div>'+lineasM(bal.grupos.ANC)+
+      '<div class="l" style="font-weight:600"><span>Total A) Activo no corriente</span><span>'+EUR(bal.totales.ANC)+'</span></div>'+
+      '<div class="sec">'+MASA_LABEL.AC+'</div>'+lineasM(bal.grupos.AC)+
+      '<div class="l" style="font-weight:600"><span>Total B) Activo corriente</span><span>'+EUR(bal.totales.AC)+'</span></div>'+
+      '<div class="tot"><span>TOTAL ACTIVO (A + B)</span><span>'+EUR(bal.totalActivo)+'</span></div>'+
+      '<div class="sec">'+MASA_LABEL.PN+'</div>'+lineasM(bal.grupos.PN)+
+      '<div class="l"><span>Resultado del ejercicio</span><span>'+EUR(bal.resultado)+'</span></div>'+
+      '<div class="l" style="font-weight:600"><span>Total A) Patrimonio neto</span><span>'+EUR(bal.totales.PN)+'</span></div>'+
+      '<div class="sec">'+MASA_LABEL.PNC+'</div>'+lineasM(bal.grupos.PNC)+
+      '<div class="l" style="font-weight:600"><span>Total B) Pasivo no corriente</span><span>'+EUR(bal.totales.PNC)+'</span></div>'+
+      '<div class="sec">'+MASA_LABEL.PC+'</div>'+lineasM(bal.grupos.PC)+
+      '<div class="l" style="font-weight:600"><span>Total C) Pasivo corriente</span><span>'+EUR(bal.totales.PC)+'</span></div>'+
+      '<div class="tot"><span>TOTAL PATRIMONIO NETO Y PASIVO (A+B+C)</span><span>'+EUR(bal.totalPasivoNeto)+'</span></div>'+
     '</div>'+
-    (Math.abs(totAct-(totNet+totPas))<0.01
+    (Math.abs(bal.totalActivo-bal.totalPasivoNeto)<0.01
       ? '<p style="margin-top:12px;font-size:12.5px"><span class="tag t-ok">Cuadra</span> Activo = Patrimonio neto + Pasivo.</p>'
-      : '<p style="margin-top:12px;font-size:12.5px"><span class="tag t-late">Descuadre</span> Diferencia de '+EUR(totAct-(totNet+totPas))+'.</p>')+
+      : '<p style="margin-top:12px;font-size:12.5px"><span class="tag t-late">Descuadre</span> Diferencia de '+EUR(bal.totalActivo-bal.totalPasivoNeto)+'.</p>')+
     '</div></div></div>';
   h += panelPlegable('Ver indicadores financieros (ratios y ciclo de caja)', ROUTES.panelfinanciero());
   return h;
@@ -4098,6 +4118,28 @@ function saldosCuentas2025PreCierre(){
 let VISTA2025 = 'diario';
 let CTA2025_SEL = null;
 
+function balanceAgrupado2025(){
+  const s = saldosCuentas2025PreCierre();
+  const saldo = c => ((s[c]||{d:0}).d-(s[c]||{h:0}).h);
+  const cuentasConSaldo = Object.keys(s).filter(c=>Math.abs(saldo(c))>0.005);
+  const grupos = {ANC:[], AC:[], PN:[], PNC:[], PC:[]};
+  cuentasConSaldo.forEach(c=>{
+    const m = masaPatrimonial(c);
+    if (!m) return;
+    const t = tipoCta(c);
+    const esContraActivo = CTAS_AMORTIZ_ACUM.includes(c.slice(0,3));
+    const importe = (t==='activo' || esContraActivo) ? saldo(c) : -saldo(c);
+    if (Math.abs(importe) > 0.005) grupos[m].push([c, importe]);
+  });
+  const resultado = resultado2025();
+  const totales = {};
+  Object.keys(grupos).forEach(k=>{ totales[k] = grupos[k].reduce((a,x)=>a+x[1],0); });
+  totales.PN += resultado;
+  const totalActivo = totales.ANC + totales.AC;
+  const totalPasivoNeto = totales.PN + totales.PNC + totales.PC;
+  return {grupos, totales, resultado, totalActivo, totalPasivoNeto};
+}
+
 function resultado2025(){
   // Se excluyen solo los dos asientos puramente mecánicos de cierre (regularización y cierre
   // de balance), que ya trasladan el resultado a la cuenta 129 y ponen todo a cero. Los ajustes
@@ -4142,7 +4184,7 @@ function resultadoDetalle2025(){
 }
 
 function tabs2025(){
-  const tabs = [['diario','Libro diario'],['mayor','Libro mayor'],['sumas','Sumas y saldos'],['balance','Balance de situación'],['pyg','Pérdidas y ganancias'],['isoc','Impuesto de Sociedades']];
+  const tabs = [['diario','Libro diario'],['mayor','Libro mayor'],['sumas','Sumas y saldos'],['balance','Balance de situación'],['pyg','Pérdidas y ganancias'],['isoc','Impuesto de Sociedades'],['analisisfin','Análisis financiero'],['analisiseco','Análisis económico']];
   return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center">' +
     tabs.map(t=>'<button class="btn '+(VISTA2025===t[0]?'':'ghost')+' sm" onclick="irA2025(\''+t[0]+'\')">'+t[1]+'</button>').join('') +
     '<button class="btn ghost sm" style="margin-left:auto" onclick="exportarPDF2025()">⬇ Descargar PDF</button>'+
@@ -4283,8 +4325,225 @@ ROUTES.ejercicio2025 = function(){
       '</div></div>';
   }
 
+  if(VISTA2025==='analisisfin'){
+    const bal = balanceAgrupado2025();
+    const activoCorriente = bal.totales.AC;
+    const pasivoCorriente = bal.totales.PC;
+    const pasivoTotal = bal.totales.PNC + bal.totales.PC;
+    const patrimonioNeto = bal.totales.PN;
+    const existencias = (function(){
+      const s = saldosCuentas2025PreCierre();
+      const saldo = c => ((s[c]||{d:0}).d-(s[c]||{h:0}).h);
+      return ['300','310','350'].reduce((a,c)=>a+Math.max(0,saldo(c)),0);
+    })();
+    const ratioLiquidez = pasivoCorriente ? activoCorriente/pasivoCorriente : 0;
+    const pruebaAcida = pasivoCorriente ? (activoCorriente-existencias)/pasivoCorriente : 0;
+    const fondoManiobra = activoCorriente - pasivoCorriente;
+    const endeudamiento = patrimonioNeto ? pasivoTotal/patrimonioNeto : 0;
+    const autonomia = pasivoTotal ? patrimonioNeto/pasivoTotal : 0;
+    const garantia = pasivoTotal ? bal.totalActivo/pasivoTotal : 0;
+
+    h += '<div class="card" style="margin-bottom:16px;border-left:3px solid var(--gold)"><div class="cardbody" style="font-size:13px">'+
+      'Análisis financiero (equilibrio, liquidez y solvencia) del ejercicio 2025, calculado sobre el balance de situación a 31/12/2025.'+
+      '</div></div>';
+    h += '<div class="grid g4" style="margin-bottom:16px">'+
+      kpi('Ratio de liquidez', NUM(ratioLiquidez), 'activo corriente ÷ pasivo corriente', ratioLiquidez>=1.5?'teal':ratioLiquidez>=1?'amber':'red')+
+      kpi('Prueba ácida', NUM(pruebaAcida), '(AC − existencias) ÷ pasivo corriente', pruebaAcida>=1?'teal':'amber')+
+      kpi('Fondo de maniobra', EUR(fondoManiobra), 'activo corriente − pasivo corriente', fondoManiobra>=0?'teal':'red')+
+      kpi('Ratio de garantía', NUM(garantia), 'activo total ÷ pasivo total', garantia>=1.5?'teal':garantia>=1?'amber':'red')+
+    '</div>';
+    h += '<div class="grid g2" style="margin-bottom:16px">'+
+      kpi('Endeudamiento', NUM(endeudamiento), 'pasivo total ÷ patrimonio neto', endeudamiento<=1?'teal':endeudamiento<=2?'amber':'red')+
+      kpi('Autonomía financiera', NUM(autonomia*100)+' %', 'patrimonio neto ÷ pasivo total', autonomia>=0.5?'teal':'amber')+
+    '</div>';
+    h += '<div class="card"><h3>Cómo se leen estos ratios</h3><div class="cardbody" style="font-size:13px;line-height:1.9">'+
+      '<div class="rec">'+
+        '<div class="l"><span>Ratio de liquidez (ideal 1,5–2)</span><span>'+NUM(ratioLiquidez)+'</span></div>'+
+        '<div class="l"><span>Prueba ácida — liquidez sin depender del stock (ideal ≈1)</span><span>'+NUM(pruebaAcida)+'</span></div>'+
+        '<div class="l"><span>Fondo de maniobra — colchón de seguridad a corto plazo</span><span>'+EUR(fondoManiobra)+'</span></div>'+
+        '<div class="l"><span>Endeudamiento — cuánta deuda hay por cada euro propio (ideal &lt;1,5)</span><span>'+NUM(endeudamiento)+'</span></div>'+
+        '<div class="l"><span>Autonomía financiera — % del negocio financiado con recursos propios</span><span>'+NUM(autonomia*100)+' %</span></div>'+
+        '<div class="l"><span>Ratio de garantía — capacidad del activo de cubrir toda la deuda</span><span>'+NUM(garantia)+'</span></div>'+
+      '</div></div></div>';
+  }
+
+  if(VISTA2025==='analisiseco'){
+    const r = resultadoDetalle2025();
+    const bal = balanceAgrupado2025();
+    const ventas = r.importeNeto || 1;
+    const margenExplotacion = r.resultadoExplotacion/ventas*100;
+    const margenNeto = r.resultadoEjercicio/ventas*100;
+    const roa = bal.totalActivo ? r.resultadoEjercicio/bal.totalActivo*100 : 0;
+    const roe = bal.totales.PN ? r.resultadoEjercicio/bal.totales.PN*100 : 0;
+
+    h += '<div class="card" style="margin-bottom:16px;border-left:3px solid var(--gold)"><div class="cardbody" style="font-size:13px">'+
+      'Análisis económico (rentabilidad y estructura de costes) del ejercicio 2025, calculado sobre la cuenta de pérdidas y ganancias.'+
+      '</div></div>';
+    h += '<div class="grid g4" style="margin-bottom:16px">'+
+      kpi('Margen de explotación', NUM(margenExplotacion)+' %', 'resultado explotación ÷ ventas', margenExplotacion>=0?'teal':'red')+
+      kpi('Margen neto', NUM(margenNeto)+' %', 'resultado del ejercicio ÷ ventas', margenNeto>=0?'teal':'red')+
+      kpi('ROA · rentabilidad económica', NUM(roa)+' %', 'resultado ÷ activo total', roa>=0?'teal':'red')+
+      kpi('ROE · rentabilidad financiera', NUM(roe)+' %', 'resultado ÷ patrimonio neto', roe>=0?'teal':'red')+
+    '</div>';
+
+    const linea = (label,val)=>{
+      const pct = ventas ? (val/ventas*100) : 0;
+      return '<div class="l"><span>'+label+'</span><span><span class="mono" style="color:var(--ink-2);margin-right:10px">'+NUM(pct)+' %</span>'+EUR(val)+'</span></div>';
+    };
+    h += '<div class="card"><h3>Estructura de la cuenta de resultados (% sobre ventas)</h3><div class="cardbody"><div class="rec">'+
+      linea('Importe neto de la cifra de negocios', r.importeNeto)+
+      linea('− Aprovisionamientos', -r.aprovisionamientos)+
+      linea('− Gastos de personal', -r.gastosPersonal)+
+      linea('− Otros gastos de explotación', -r.otrosGastosExplotacion)+
+      linea('− Amortización', -r.amortizacion)+
+      '<div class="l tot"><span>Resultado de explotación</span><span>'+EUR(r.resultadoExplotacion)+'</span></div>'+
+      linea('− Gastos financieros', -r.gastosFinancieros)+
+      '<div class="l tot" style="font-size:15px"><span>Resultado del ejercicio</span><span class="'+(r.resultadoEjercicio>=0?'pos':'neg')+'">'+EUR(r.resultadoEjercicio)+'</span></div>'+
+      '</div>'+
+      '<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">El ROA mide cuánto beneficio genera cada euro invertido en la empresa (sea cual sea su financiación); el ROE mide cuánto beneficio obtienen específicamente los socios sobre su aportación. Un ROE muy superior al ROA indica que el apalancamiento (deuda) está amplificando el resultado para el accionista, en positivo o en negativo.</p>'+
+      '</div></div>';
+  }
+
   return h;
 };
+/* =========================================================
+   LIBROS OFICIALES DEL EJERCICIO EN CURSO
+   Estructura y nomenclatura conforme al Código de Comercio
+   (art. 25-33) y al Plan General de Contabilidad (RD 1514/2007).
+   La legalización formal ante el Registro Mercantil se realiza
+   telemáticamente; este documento reproduce fielmente el
+   contenido y formato exigido para dicho depósito.
+   ========================================================= */
+function abrirPDFOficial(titulo, cuerpo){
+  const w = window.open('', '_blank');
+  if(!w){ toast('El navegador ha bloqueado la ventana. Permite las ventanas emergentes para descargar el PDF.'); return; }
+  const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+esc(titulo)+' · HIGIENEX S.L.</title>'+
+    '<style>'+
+    'body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:28px;font-size:12px}'+
+    'h1{font-size:19px;margin:0 0 2px 0}'+
+    '.sub{font-size:11px;color:#3C5063;margin-bottom:4px}'+
+    '.legalbox{font-size:10px;color:#556;border:1px solid #D7E0E7;background:#F7FAFC;padding:8px 10px;border-radius:6px;margin:14px 0 18px}'+
+    'table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:14px}'+
+    'th,td{border:1px solid #D7E0E7;padding:4px 7px;text-align:left}'+
+    'th{background:#0F1D2B;color:#fff}'+
+    'td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}'+
+    'tr.total td{font-weight:700;border-top:2px solid #0F1D2B;background:#F7FAFC}'+
+    'h2{font-size:13px;margin:18px 0 6px 0;color:#0F1D2B;page-break-after:avoid}'+
+    '.masa{font-size:12.5px;font-weight:700;margin:16px 0 6px;color:#0B3D6B;border-bottom:1.5px solid #0B3D6B;padding-bottom:3px}'+
+    '.rec .l{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #EEF2F5}'+
+    '.rec .tot{font-weight:700;border-top:2px solid #0F1D2B;border-bottom:none;margin-top:4px;padding-top:6px}'+
+    '.footlegal{margin-top:26px;font-size:9.5px;color:#7A8896;border-top:1px solid #D7E0E7;padding-top:8px}'+
+    '.pagefoot{position:fixed;bottom:10mm;left:28px;right:28px;font-size:9px;color:#9AA6B1;display:flex;justify-content:space-between}'+
+    '@media print{ @page{margin:15mm} }'+
+    '</style></head><body>'+
+    '<h1>HIGIENEX S.L. — '+esc(titulo)+'</h1>'+
+    '<div class="sub">CIF B00000000 · Av. de les Corts Valencianes 1, 46015 València</div>'+
+    '<div class="sub">Ejercicio '+EJERCICIO+' · Generado el '+new Date().toLocaleString('es-ES')+'</div>'+
+    '<div class="legalbox">Documento elaborado conforme al Código de Comercio (arts. 25 a 33) y al Plan General de Contabilidad aprobado por Real Decreto 1514/2007, de 16 de noviembre (BOE núm. 278, de 20 de noviembre de 2007), y sus adaptaciones posteriores. Para su legalización ante el Registro Mercantil debe presentarse telemáticamente junto con el resto de libros del ejercicio, dentro de los cuatro meses siguientes al cierre.</div>'+
+    cuerpo+
+    '<div class="footlegal">HIGIENEX S.L. — Documento generado por el sistema de gestión interna. La responsabilidad sobre la exactitud de los datos contables corresponde al órgano de administración de la sociedad (art. 253 LSC).</div>'+
+    '</body></html>';
+  w.document.open(); w.document.write(html); w.document.close();
+  w.focus();
+  setTimeout(()=>{ try{ w.print(); }catch(e){} }, 350);
+}
+
+function pdfBodyDiarioOficial(){
+  const asientos = DB.asientos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)||a.n-b.n);
+  let rows='', td=0, th=0;
+  asientos.forEach(a=>{
+    a.apuntes.forEach((p,i)=>{
+      td+=(p.d||0); th+=(p.h||0);
+      rows += '<tr><td>'+(i===0?a.n:'')+'</td><td>'+(i===0?FD(a.fecha):'')+'</td><td>'+p.cta+'</td><td>'+esc(nomCta(p.cta))+(i===0?' — '+esc(a.concepto):'')+'</td><td class="num">'+(p.d?NUM(p.d):'')+'</td><td class="num">'+(p.h?NUM(p.h):'')+'</td></tr>';
+    });
+  });
+  rows += '<tr class="total"><td colspan="4">TOTAL LIBRO DIARIO ('+asientos.length+' asientos)</td><td class="num">'+NUM(td)+'</td><td class="num">'+NUM(th)+'</td></tr>';
+  return '<table><thead><tr><th>Nº</th><th>Fecha</th><th>Cuenta</th><th>Denominación</th><th class="num">Debe</th><th class="num">Haber</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function pdfBodyMayorOficial(){
+  const cuentas = Object.keys(saldosCuentas()).sort();
+  let out='';
+  cuentas.forEach(c=>{
+    let saldo=0, rows='';
+    DB.asientos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(a=>{
+      a.apuntes.forEach(p=>{
+        if(p.cta===c){
+          saldo += (p.d-p.h);
+          rows += '<tr><td>'+FD(a.fecha)+'</td><td>'+esc(a.concepto)+'</td><td class="num">'+(p.d?NUM(p.d):'')+'</td><td class="num">'+(p.h?NUM(p.h):'')+'</td><td class="num">'+NUM(saldo)+'</td></tr>';
+        }
+      });
+    });
+    if (!rows) return;
+    out += '<h2>'+c+' · '+esc(nomCta(c))+'</h2><table><thead><tr><th>Fecha</th><th>Concepto</th><th class="num">Debe</th><th class="num">Haber</th><th class="num">Saldo</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  });
+  return out;
+}
+function pdfBodySumasOficial(){
+  const s = saldosCuentas(FECHA_CORTE);
+  const ks = Object.keys(s).sort();
+  let rows=''; const T={d:0,h:0,sd:0,sh:0};
+  ks.forEach(k=>{
+    const d=s[k].d, hh=s[k].h, sd=Math.max(0,d-hh), sh=Math.max(0,hh-d);
+    T.d+=d; T.h+=hh; T.sd+=sd; T.sh+=sh;
+    rows += '<tr><td>'+k+'</td><td>'+esc(nomCta(k))+'</td><td class="num">'+NUM(d)+'</td><td class="num">'+NUM(hh)+'</td><td class="num">'+(sd?NUM(sd):'')+'</td><td class="num">'+(sh?NUM(sh):'')+'</td></tr>';
+  });
+  rows += '<tr class="total"><td colspan="2">TOTALES</td><td class="num">'+NUM(T.d)+'</td><td class="num">'+NUM(T.h)+'</td><td class="num">'+NUM(T.sd)+'</td><td class="num">'+NUM(T.sh)+'</td></tr>';
+  return '<table><thead><tr><th>Cuenta</th><th>Denominación</th><th class="num">Suma Debe</th><th class="num">Suma Haber</th><th class="num">Saldo Deudor</th><th class="num">Saldo Acreedor</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function balanceAgrupadoOficial(){
+  const s = saldosCuentas(FECHA_CORTE);
+  const saldo = c => ((s[c]||{d:0}).d-(s[c]||{h:0}).h);
+  const cuentasConSaldo = Object.keys(s).filter(c=>Math.abs(saldo(c))>0.005);
+  const grupos = {ANC:[], AC:[], PN:[], PNC:[], PC:[]};
+  cuentasConSaldo.forEach(c=>{
+    const m = masaPatrimonial(c);
+    if (!m) return; // cuentas de gasto/ingreso: no van en el balance
+    const t = tipoCta(c);
+    const esContraActivo = CTAS_AMORTIZ_ACUM.includes(c.slice(0,3));
+    // Las cuentas de activo (y sus contra-cuentas, que restan) muestran su saldo natural (deudor +).
+    // Las de pasivo/PN muestran el signo invertido (su saldo natural es acreedor).
+    const importe = (t==='activo' || esContraActivo) ? saldo(c) : -saldo(c);
+    if (Math.abs(importe) > 0.005) grupos[m].push([c, importe]);
+  });
+  const resultado = (function(){
+    const porTipo = t => Object.keys(s).filter(c=>tipoCta(c)===t);
+    const ingresos = porTipo('ingreso').reduce((a,c)=>a-saldo(c),0);
+    const gastos   = porTipo('gasto').reduce((a,c)=>a+saldo(c),0);
+    return ingresos - gastos;
+  })();
+  const totales = {};
+  Object.keys(grupos).forEach(k=>{ totales[k] = grupos[k].reduce((a,x)=>a+x[1],0); });
+  totales.PN += resultado;
+  const totalActivo = totales.ANC + totales.AC;
+  const totalPasivoNeto = totales.PN + totales.PNC + totales.PC;
+  return {grupos, totales, resultado, totalActivo, totalPasivoNeto};
+}
+function pdfBodyBalanceOficial(){
+  const {grupos, totales, resultado, totalActivo, totalPasivoNeto} = balanceAgrupadoOficial();
+  const lineas = arr => arr.length
+    ? arr.sort((a,b)=>a[0].localeCompare(b[0])).map(x=>'<div class="l"><span>'+x[0]+' '+esc(nomCta(x[0]))+'</span><span>'+EUR(x[1])+'</span></div>').join('')
+    : '<div class="l"><span>Sin saldo</span><span>0,00 €</span></div>';
+  let h = '<div class="masa">BALANCE — ACTIVO</div><div class="rec">';
+  h += '<h2>'+MASA_LABEL.ANC+'</h2>'+lineas(grupos.ANC)+'<div class="l tot"><span>Total activo no corriente</span><span>'+EUR(totales.ANC)+'</span></div>';
+  h += '<h2>'+MASA_LABEL.AC+'</h2>'+lineas(grupos.AC)+'<div class="l tot"><span>Total activo corriente</span><span>'+EUR(totales.AC)+'</span></div>';
+  h += '<div class="l tot" style="font-size:13px;border-top:2.5px double #0F1D2B"><span>TOTAL ACTIVO (A + B)</span><span>'+EUR(totalActivo)+'</span></div></div>';
+  h += '<div class="masa">BALANCE — PATRIMONIO NETO Y PASIVO</div><div class="rec">';
+  h += '<h2>'+MASA_LABEL.PN+'</h2>'+lineas(grupos.PN)+'<div class="l"><span>Resultado del ejercicio</span><span>'+EUR(resultado)+'</span></div>'+
+       '<div class="l tot"><span>Total patrimonio neto</span><span>'+EUR(totales.PN)+'</span></div>';
+  h += '<h2>'+MASA_LABEL.PNC+'</h2>'+lineas(grupos.PNC)+'<div class="l tot"><span>Total pasivo no corriente</span><span>'+EUR(totales.PNC)+'</span></div>';
+  h += '<h2>'+MASA_LABEL.PC+'</h2>'+lineas(grupos.PC)+'<div class="l tot"><span>Total pasivo corriente</span><span>'+EUR(totales.PC)+'</span></div>';
+  h += '<div class="l tot" style="font-size:13px;border-top:2.5px double #0F1D2B"><span>TOTAL PATRIMONIO NETO Y PASIVO (A + B + C)</span><span>'+EUR(totalPasivoNeto)+'</span></div></div>';
+  const cuadra = Math.abs(totalActivo-totalPasivoNeto)<0.01;
+  h += '<p style="margin-top:14px;font-size:11px">'+(cuadra
+    ? '<strong>Balance cuadrado:</strong> el total del activo coincide con el total del patrimonio neto y pasivo.'
+    : '<strong>Descuadre de '+EUR(totalActivo-totalPasivoNeto)+':</strong> revisa los asientos antes de presentar este balance.')+'</p>';
+  return h;
+}
+function exportarDiarioOficialPDF(){ abrirPDFOficial('Libro Diario', pdfBodyDiarioOficial()); }
+function exportarMayorOficialPDF(){ abrirPDFOficial('Libro Mayor', pdfBodyMayorOficial()); }
+function exportarSumasOficialPDF(){ abrirPDFOficial('Balance de Comprobación (Sumas y Saldos)', pdfBodySumasOficial()); }
+function exportarBalanceOficialPDF(){ abrirPDFOficial('Balance de Situación Abreviado', pdfBodyBalanceOficial()); }
+
 function abrirPDF2025(titulo, cuerpo){
   const w = window.open('', '_blank');
   if(!w){ toast('El navegador ha bloqueado la ventana. Permite las ventanas emergentes para descargar el PDF.'); return; }
