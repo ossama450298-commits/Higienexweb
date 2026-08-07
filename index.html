@@ -10763,15 +10763,18 @@ window.openAdminPanel = function() {
 // ════════════ COOKIES ════════════
 function hgInitCookies() {
   // Sempre mostrar el modal quan l'usuari entra a la web (no es persisteix l'elecció)
+  window._hgCookiesPending = true;
   var m = document.getElementById('hgCookieModal');
   if (m) m.classList.add('active');
   document.body.style.overflow = 'hidden';
 }
 function hgAcceptCookies() {
+  window._hgCookiesPending = false;
   var m = document.getElementById('hgCookieModal'); if (m) m.classList.remove('active');
   document.body.style.overflow = '';
 }
 function hgRejectCookies() {
+  window._hgCookiesPending = false;
   // Tanca el modal i torna a la pantalla principal (splash)
   var m = document.getElementById('hgCookieModal'); if (m) m.classList.remove('active');
   var splash = document.getElementById('splashScreen');
@@ -10784,7 +10787,10 @@ function hgRejectCookies() {
   window.scrollTo(0, 0);
 }
 function hgGoCookiesPolicy() {
-  hgAcceptCookies();
+  // Només tanquem el modal per poder llegir la política — NO acceptem les
+  // cookies. Quan l'usuari torni (botó "Tornar" de la pàgina legal),
+  // l'avís de cookies ha de tornar a sortir igualment.
+  var m = document.getElementById('hgCookieModal'); if (m) m.classList.remove('active');
   legalOpen('page-cookies');
 }
 window.hgAcceptCookies = hgAcceptCookies;
@@ -10811,6 +10817,14 @@ function legalClose() {
   var pages = document.querySelectorAll('.legal-page');
   for (var i=0; i<pages.length; i++) pages[i].classList.remove('active');
   document.body.style.overflow = '';
+  // Si l'usuari ha entrat a llegir la política de cookies sense haver
+  // acceptat/rebutjat encara de veritat, en tornar a la web li hem de
+  // tornar a mostrar l'avís perquè no pugui saltar-se'l.
+  var cookieModal = document.getElementById('hgCookieModal');
+  if (cookieModal && window._hgCookiesPending) {
+    cookieModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
 }
 window.legalOpen = legalOpen;
 window.legalClose = legalClose;
