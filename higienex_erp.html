@@ -2717,6 +2717,77 @@ button,.navitem,.btn,a{min-height:32px}
   .qa-btn{flex:1 1 100%}
 }
 
+/* CHATBOT INTERN — reutilitza l'estil del xat de la web pública */
+#hxChatLauncher {
+  position: fixed; bottom: 1.5rem; left: 1.5rem; z-index: 9998;
+  width: 58px; height: 58px; border-radius: 50%;
+  background: linear-gradient(135deg, #0B3D6B, #1565A8); color: white; border: none;
+  box-shadow: 0 4px 20px rgba(11,61,107,0.45), 0 2px 8px rgba(0,0,0,0.2);
+  font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: transform 0.25s ease;
+}
+#hxChatLauncher:hover { transform: scale(1.12); }
+#hxChatBadge {
+  position: absolute; top: -2px; right: -2px; background: #F2A900; color: #1A1A1A;
+  font-size: 0.68rem; font-weight: 800; border-radius: 50%; min-width: 19px; height: 19px;
+  display: flex; align-items: center; justify-content: center; border: 2px solid white;
+  font-family: Arial, sans-serif;
+}
+#hxChatBadge.hidden { display: none; }
+#hxChatWindow {
+  position: fixed; bottom: 6.2rem; left: 1.5rem; z-index: 9999;
+  width: 360px; max-width: calc(100vw - 2rem); height: 520px; max-height: calc(100vh - 8rem);
+  background: white; border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(11,61,107,0.28), 0 4px 16px rgba(0,0,0,0.12);
+  display: none; flex-direction: column; overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  opacity: 0; transform: translateY(16px) scale(0.97);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+#hxChatWindow.open { display: flex; opacity: 1; transform: translateY(0) scale(1); }
+#hxChatHeader {
+  background: linear-gradient(135deg, #0B3D6B, #1565A8); color: white; padding: 0.9rem 1rem;
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+#hxChatHeaderInfo { display: flex; align-items: center; gap: 0.7rem; }
+#hxChatAvatar {
+  width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+}
+#hxChatTitle { font-weight: 700; font-size: 0.92rem; }
+#hxChatStatus { font-size: 0.72rem; color: #DEEEFB; display: flex; align-items: center; gap: 0.35rem; }
+#hxChatDot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; display: inline-block; }
+#hxChatClose {
+  background: rgba(255,255,255,0.15); border: none; color: white; width: 28px; height: 28px;
+  border-radius: 50%; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;
+}
+#hxChatClose:hover { background: rgba(255,255,255,0.28); }
+#hxChatBody { flex: 1; overflow-y: auto; padding: 1rem; background: #F5FAFF; display: flex; flex-direction: column; gap: 0.6rem; }
+.hxMsg { max-width: 82%; font-size: 0.86rem; line-height: 1.45; padding: 0.6rem 0.85rem; border-radius: 14px; white-space: pre-line; }
+.hxMsg.bot { align-self: flex-start; background: white; color: #1A1A1A; border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(11,61,107,0.08); }
+.hxMsg.user { align-self: flex-end; background: linear-gradient(135deg,#0B3D6B,#1565A8); color: white; border-bottom-right-radius: 4px; }
+.hxMsg a { color: inherit; text-decoration: underline; }
+.hxTyping { align-self: flex-start; display: flex; gap: 4px; padding: 0.7rem 0.9rem; background: white; border-radius: 14px; border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(11,61,107,0.08); }
+.hxTyping span { width: 6px; height: 6px; border-radius: 50%; background: #B3D9F5; animation: hxBounce 1.2s infinite; }
+.hxTyping span:nth-child(2) { animation-delay: 0.15s; }
+.hxTyping span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes hxBounce { 0%,60%,100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-5px); opacity: 1; } }
+#hxChatQuickReplies { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 1rem 0.7rem; flex-shrink: 0; }
+.hxQuickBtn {
+  background: white; border: 1.3px solid #B3D9F5; color: #0B3D6B; font-size: 0.76rem; font-weight: 600;
+  padding: 0.4rem 0.7rem; border-radius: 20px; cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+}
+.hxQuickBtn:hover { background: #0B3D6B; color: white; }
+#hxChatForm { display: flex; gap: 0.5rem; padding: 0.75rem; border-top: 1px solid #EEF2F5; flex-shrink: 0; background: white; }
+#hxChatInput { flex: 1; border: 1.5px solid #DEEEFB; border-radius: 22px; padding: 0.6rem 1rem; font-size: 0.86rem; outline: none; font-family: inherit; }
+#hxChatInput:focus { border-color: #1565A8; }
+#hxChatSendBtn {
+  width: 40px; height: 40px; border-radius: 50%; border: none; background: linear-gradient(135deg,#0B3D6B,#1565A8);
+  color: white; font-size: 1rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+}
+#hxChatSendBtn:hover { opacity: 0.9; }
+@media (max-width: 480px) { #hxChatWindow { right: 1rem; left: 1rem; width: auto; bottom: 5.6rem; } }
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
@@ -9214,6 +9285,235 @@ function exportarPDF2025(){
 
 function verMayor2025(cod){ CTA2025_SEL=cod; refresh(); }
 
+</script>
+
+<!-- ═══════════ CHATBOT INTERN HIGIENEX ═══════════ -->
+<div id="hxChatWindow">
+  <div id="hxChatHeader">
+    <div id="hxChatHeaderInfo">
+      <div id="hxChatAvatar">🧴</div>
+      <div>
+        <div id="hxChatTitle">Assistent Mònica</div>
+        <div id="hxChatStatus"><span id="hxChatDot"></span>En línia</div>
+      </div>
+    </div>
+    <button id="hxChatClose" onclick="toggleHxChat(false)" aria-label="Tancar xat" type="button">✕</button>
+  </div>
+  <div id="hxChatBody"></div>
+  <div id="hxChatQuickReplies"></div>
+  <form id="hxChatForm" onsubmit="return hxChatSend(event)">
+    <input id="hxChatInput" type="text" placeholder="Escriu la teva pregunta..." autocomplete="off">
+    <button type="submit" id="hxChatSendBtn" aria-label="Enviar">➤</button>
+  </form>
+</div>
+<button id="hxChatLauncher" onclick="toggleHxChat()" aria-label="Obrir xat" type="button">
+  <span id="hxChatLauncherIcon">💬</span>
+  <span id="hxChatBadge">1</span>
+</button>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CHATBOT INTERN — mateix motor que la web pública, però amb
+// context de dades reals del panell (empleats, clients,
+// proveïdors, estoc, absències). Deliberadament NO s'envien
+// contrasenyes, DNI, sou ni IBAN: no calen per respondre
+// preguntes internes habituals i és una bona pràctica no
+// enviar-los a un servei d'IA extern encara que les dades
+// siguin fictícies.
+var HX_CHAT_OPENED = false;
+var HX_CHAT_HISTORY = [];
+var HX_WORKER_URL = 'https://higienexchat.ossama450298.workers.dev';
+
+var HX_CHAT_INTENTS = [
+  {
+    keys: ['hola','bon dia','bona tarda','ei','hey','hi','buenas','hello'],
+    reply: 'Hola! 👋 Sóc la Mònica. Puc buscar informació al panell: empleats, clients, proveïdors, estoc d\'articles o absències. En què et puc ajudar?'
+  },
+  {
+    keys: ['gracies','gràcies','merci','thanks','perfecte','genial','ok val'],
+    reply: 'De res! 😊 Si necessites qualsevol altra cosa, aquí estic.'
+  }
+];
+
+var HX_CHAT_FALLBACK = 'No he pogut trobar això a les dades del panell 🤔 Pots preguntar-me sobre empleats, clients, proveïdors, estoc o absències, per exemple.';
+
+var HX_QUICK_REPLIES = [
+  { label: '👥 Empleats', text: 'Quants empleats tenim i en quins departaments?' },
+  { label: '📦 Estoc baix', text: 'Quins articles tenen estoc per sota del mínim?' },
+  { label: '🏢 Clients', text: 'Quins clients tenim?' },
+  { label: '🌴 Absències', text: 'Hi ha alguna absència activa ara mateix?' }
+];
+
+function hxNormalize(s){
+  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,' ').trim();
+}
+
+function hxFindReply(userText){
+  var norm = hxNormalize(userText);
+  var words = norm.split(/\s+/).filter(Boolean);
+  for (var i=0; i<HX_CHAT_INTENTS.length; i++) {
+    var intent = HX_CHAT_INTENTS[i];
+    for (var j=0; j<intent.keys.length; j++) {
+      var keyNorm = hxNormalize(intent.keys[j]);
+      if (keyNorm.indexOf(' ') !== -1) {
+        if ((' ' + norm + ' ').indexOf(' ' + keyNorm.split(' ').join(' ') + ' ') !== -1 || norm.indexOf(keyNorm) !== -1) return intent;
+      } else {
+        if (words.indexOf(keyNorm) !== -1) return intent;
+      }
+    }
+  }
+  return null;
+}
+
+function hxAddMessage(text, who){
+  var body = document.getElementById('hxChatBody');
+  if (!body) return;
+  var div = document.createElement('div');
+  div.className = 'hxMsg ' + who;
+  div.textContent = text;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+  HX_CHAT_HISTORY.push({who: who, text: text});
+}
+
+function hxShowTyping(){
+  var body = document.getElementById('hxChatBody');
+  if (!body) return;
+  var div = document.createElement('div');
+  div.className = 'hxTyping';
+  div.id = 'hxTypingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+function hxHideTyping(){
+  var t = document.getElementById('hxTypingIndicator');
+  if (t) t.remove();
+}
+
+// ── Context en viu del panell: només camps no sensibles ──
+function hxBuildContext(){
+  try{
+    if (typeof DB === 'undefined') return '';
+    var empleadosPorId = {};
+    (DB.empleados||[]).forEach(function(e){ empleadosPorId[e.id] = e.nom; });
+    return JSON.stringify({
+      empleados: (DB.empleados||[]).map(function(e){
+        return { nom: e.nom, categoria: e.cat, departamento: e.depto, contrato: e.contrato, alta: e.alta };
+      }),
+      clientes: (DB.clientes||[]).map(function(c){
+        return { nom: c.nom, poblacion: c.pob, telefono: c.tel, condicionPagoDias: c.cond };
+      }),
+      proveedores: (DB.proveedores||[]).map(function(p){
+        return { nom: p.nom, poblacion: p.pob, condicionPagoDias: p.cond };
+      }),
+      articulos: (DB.articulos||[]).map(function(a){
+        return { nom: a.nom, familia: a.fam, stock: a.stock, minimo: a.min, pvp: a.pvp, ubicacion: a.ubi, bajoMinimo: a.stock < a.min };
+      }),
+      ausencias: (DB.ausencias||[]).map(function(a){
+        return { empleado: empleadosPorId[a.emp] || a.emp, tipo: a.tipo, desde: a.desde, hasta: a.hasta, dias: a.dias };
+      })
+    });
+  } catch(e){ return ''; }
+}
+
+function hxAskAI(userText){
+  if (!HX_WORKER_URL) {
+    hxHideTyping();
+    hxAddMessage(HX_CHAT_FALLBACK, 'bot');
+    return;
+  }
+  var historyForApi = HX_CHAT_HISTORY.slice(-10).map(function(m){
+    return { role: m.who === 'user' ? 'user' : 'assistant', content: m.text };
+  });
+  fetch(HX_WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: userText, history: historyForApi, context: hxBuildContext() })
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(data){
+    hxHideTyping();
+    if (data && data.reply) {
+      hxAddMessage(data.reply, 'bot');
+    } else {
+      hxAddMessage(HX_CHAT_FALLBACK, 'bot');
+    }
+  })
+  .catch(function(err){
+    console.warn('Error connectant amb l\'assistent IA:', err);
+    hxHideTyping();
+    hxAddMessage('Ho sento, ara mateix no puc connectar amb l\'assistent. Torna-ho a provar en un moment.', 'bot');
+  });
+}
+
+function hxRespond(userText){
+  hxShowTyping();
+  var intent = hxFindReply(userText);
+  if (intent) {
+    var delay = 400 + Math.random()*300;
+    setTimeout(function(){
+      hxHideTyping();
+      var replyText = typeof intent.reply === 'function' ? intent.reply() : intent.reply;
+      hxAddMessage(replyText, 'bot');
+    }, delay);
+  } else {
+    hxAskAI(userText);
+  }
+}
+
+function hxChatSend(ev){
+  if (ev) ev.preventDefault();
+  var input = document.getElementById('hxChatInput');
+  if (!input) return false;
+  var text = input.value.trim();
+  if (!text) return false;
+  hxAddMessage(text, 'user');
+  input.value = '';
+  hxRespond(text);
+  return false;
+}
+window.hxChatSend = hxChatSend;
+
+function hxQuickReply(text){
+  hxAddMessage(text, 'user');
+  hxRespond(text);
+}
+window.hxQuickReply = hxQuickReply;
+
+function hxRenderQuickReplies(){
+  var box = document.getElementById('hxChatQuickReplies');
+  if (!box) return;
+  box.innerHTML = '';
+  HX_QUICK_REPLIES.forEach(function(q){
+    var btn = document.createElement('button');
+    btn.className = 'hxQuickBtn';
+    btn.textContent = q.label;
+    btn.onclick = function(){ hxQuickReply(q.text); };
+    box.appendChild(btn);
+  });
+}
+
+function toggleHxChat(force){
+  var win = document.getElementById('hxChatWindow');
+  if (!win) return;
+  var shouldOpen = (force !== undefined) ? force : !win.classList.contains('open');
+  if (shouldOpen) {
+    win.classList.add('open');
+    var badge = document.getElementById('hxChatBadge');
+    if (badge) badge.classList.add('hidden');
+    if (!HX_CHAT_OPENED) {
+      HX_CHAT_OPENED = true;
+      hxAddMessage('Hola! 👋 Sóc la Mònica. Puc buscar informació al panell: empleats, clients, proveïdors, estoc d\'articles o absències. En què et puc ajudar?', 'bot');
+      hxRenderQuickReplies();
+    }
+    var input = document.getElementById('hxChatInput');
+    if (input) setTimeout(function(){ input.focus(); }, 260);
+  } else {
+    win.classList.remove('open');
+  }
+}
+window.toggleHxChat = toggleHxChat;
 </script>
 </body>
 </html>

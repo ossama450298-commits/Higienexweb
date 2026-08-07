@@ -7956,6 +7956,23 @@ function hxHideTyping(){
 // la IA només entra quan cap intent conegut coincideix amb el missatge.
 var HX_WORKER_URL = 'https://higienexchat.ossama450298.workers.dev';
 
+// ── Context en viu que s'envia amb cada pregunta a la IA ──
+// A la web pública enviem el catàleg de productes actual (amb
+// disponibilitat), perquè la IA respongui amb dades reals i no
+// desactualitzades si el catàleg canvia.
+function hxBuildContext(){
+  try{
+    if (typeof PRODUCTS !== 'undefined') {
+      return JSON.stringify({
+        productes: PRODUCTS.filter(function(p){ return p.active; }).map(function(p){
+          return { nom: p.name, preu: p.price, unitat: p.unit, disponibilitat: p.stock };
+        })
+      });
+    }
+  } catch(e){}
+  return '';
+}
+
 function hxAskAI(userText){
   if (!HX_WORKER_URL) {
     hxHideTyping();
@@ -7968,7 +7985,7 @@ function hxAskAI(userText){
   fetch(HX_WORKER_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: userText, history: historyForApi })
+    body: JSON.stringify({ message: userText, history: historyForApi, context: hxBuildContext() })
   })
   .then(function(res){ return res.json(); })
   .then(function(data){
