@@ -1578,6 +1578,139 @@ footer ul a:hover { color: var(--green-light); }
   50% { box-shadow: 0 4px 20px rgba(37,211,102,0.45), 0 0 0 10px rgba(37,211,102,0); }
 }
 
+/* CHATBOT */
+#hxChatLauncher {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 6rem;
+  z-index: 9998;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0B3D6B, #1565A8);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 20px rgba(11,61,107,0.45), 0 2px 8px rgba(0,0,0,0.2);
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+}
+#hxChatLauncher:hover { transform: scale(1.12); }
+#hxChatBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #F2A900;
+  color: #1A1A1A;
+  font-size: 0.68rem;
+  font-weight: 800;
+  border-radius: 50%;
+  min-width: 19px;
+  height: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  font-family: Arial, sans-serif;
+}
+#hxChatBadge.hidden { display: none; }
+
+#hxChatWindow {
+  position: fixed;
+  bottom: 6.2rem;
+  right: 1.5rem;
+  z-index: 9999;
+  width: 360px;
+  max-width: calc(100vw - 2rem);
+  height: 520px;
+  max-height: calc(100vh - 8rem);
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(11,61,107,0.28), 0 4px 16px rgba(0,0,0,0.12);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  opacity: 0;
+  transform: translateY(16px) scale(0.97);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+#hxChatWindow.open {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+#hxChatHeader {
+  background: linear-gradient(135deg, #0B3D6B, #1565A8);
+  color: white;
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+#hxChatHeaderInfo { display: flex; align-items: center; gap: 0.7rem; }
+#hxChatAvatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+}
+#hxChatTitle { font-weight: 700; font-size: 0.92rem; }
+#hxChatStatus { font-size: 0.72rem; color: #DEEEFB; display: flex; align-items: center; gap: 0.35rem; }
+#hxChatDot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; display: inline-block; }
+#hxChatClose {
+  background: rgba(255,255,255,0.15); border: none; color: white;
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 0.85rem;
+  display: flex; align-items: center; justify-content: center;
+}
+#hxChatClose:hover { background: rgba(255,255,255,0.28); }
+#hxChatBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #F5FAFF;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.hxMsg { max-width: 82%; font-size: 0.86rem; line-height: 1.45; padding: 0.6rem 0.85rem; border-radius: 14px; white-space: pre-line; }
+.hxMsg.bot { align-self: flex-start; background: white; color: #1A1A1A; border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(11,61,107,0.08); }
+.hxMsg.user { align-self: flex-end; background: linear-gradient(135deg,#0B3D6B,#1565A8); color: white; border-bottom-right-radius: 4px; }
+.hxMsg a { color: inherit; text-decoration: underline; }
+.hxTyping { align-self: flex-start; display: flex; gap: 4px; padding: 0.7rem 0.9rem; background: white; border-radius: 14px; border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(11,61,107,0.08); }
+.hxTyping span { width: 6px; height: 6px; border-radius: 50%; background: #B3D9F5; animation: hxBounce 1.2s infinite; }
+.hxTyping span:nth-child(2) { animation-delay: 0.15s; }
+.hxTyping span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes hxBounce { 0%,60%,100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-5px); opacity: 1; } }
+#hxChatQuickReplies { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 1rem 0.7rem; flex-shrink: 0; }
+.hxQuickBtn {
+  background: white; border: 1.3px solid #B3D9F5; color: #0B3D6B;
+  font-size: 0.76rem; font-weight: 600; padding: 0.4rem 0.7rem; border-radius: 20px;
+  cursor: pointer; transition: all 0.15s ease; white-space: nowrap;
+}
+.hxQuickBtn:hover { background: #0B3D6B; color: white; }
+#hxChatForm { display: flex; gap: 0.5rem; padding: 0.75rem; border-top: 1px solid #EEF2F5; flex-shrink: 0; background: white; }
+#hxChatInput {
+  flex: 1; border: 1.5px solid #DEEEFB; border-radius: 22px; padding: 0.6rem 1rem;
+  font-size: 0.86rem; outline: none; font-family: inherit;
+}
+#hxChatInput:focus { border-color: #1565A8; }
+#hxChatSendBtn {
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg,#0B3D6B,#1565A8); color: white;
+  font-size: 1rem; cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+#hxChatSendBtn:hover { opacity: 0.9; }
+@media (max-width: 480px) {
+  #hxChatWindow { right: 1rem; left: 1rem; width: auto; bottom: 5.6rem; }
+  #hxChatLauncher { right: 5.2rem; }
+}
+
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .sobre-grid, .digital-grid, .innov-cols, .log-grid, .int-grid, .contact-grid { grid-template-columns: 1fr; }
@@ -1852,7 +1985,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HIGIENEX">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='38' fill='%230B3D6B'/%3E%3Ctext x='90' y='122' font-family='Georgia,serif' font-size='92' font-weight='bold' fill='%23F2A900' text-anchor='middle'%3EX%3C/text%3E%3C/svg%3E">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
@@ -6911,6 +7043,30 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   </div>
 </footer>
 
+<!-- ═══════════ CHATBOT HIGIENEX ═══════════ -->
+<div id="hxChatWindow">
+  <div id="hxChatHeader">
+    <div id="hxChatHeaderInfo">
+      <div id="hxChatAvatar">🧴</div>
+      <div>
+        <div id="hxChatTitle">Assistent HIGIENEX</div>
+        <div id="hxChatStatus"><span id="hxChatDot"></span>En línia</div>
+      </div>
+    </div>
+    <button id="hxChatClose" onclick="toggleHxChat(false)" aria-label="Tancar xat">✕</button>
+  </div>
+  <div id="hxChatBody"></div>
+  <div id="hxChatQuickReplies"></div>
+  <form id="hxChatForm" onsubmit="return hxChatSend(event)">
+    <input id="hxChatInput" type="text" placeholder="Escriu la teva pregunta..." autocomplete="off">
+    <button type="submit" id="hxChatSendBtn" aria-label="Enviar">➤</button>
+  </form>
+</div>
+<button id="hxChatLauncher" onclick="toggleHxChat()" aria-label="Obrir xat">
+  <span id="hxChatLauncherIcon">💬</span>
+  <span id="hxChatBadge">1</span>
+</button>
+
 <a href="https://wa.me/34645678901?text=Hola%20HIGIENEX" id="whatsappBtn" target="_blank"><svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#25D366"/><path d="M34.5 13.5C32.1 11.1 28.9 9.75 25.5 9.75C18.45 9.75 12.75 15.45 12.75 22.5C12.75 24.75 13.35 26.85 14.4 28.65L12.75 34.5L18.75 32.85C20.55 33.75 22.5 34.35 24.6 34.35H24.75C31.8 34.35 37.35 28.65 37.35 21.6C37.35 18.15 35.85 15.15 34.5 13.5Z" fill="white"/><path d="M25.5 32.25H25.35C23.55 32.25 21.75 31.65 20.25 30.75L19.95 30.6L16.05 31.65L17.1 27.9L16.8 27.6C15.75 26.1 15.15 24.15 15.15 22.2C15.15 16.5 19.65 12 25.35 12C28.2 12 30.75 13.05 32.7 15C34.65 16.95 35.85 19.5 35.7 22.35C35.85 28.2 31.2 32.25 25.5 32.25Z" fill="#25D366"/></svg></a>
 
 <script>
@@ -6952,7 +7108,7 @@ function enviarNotificacioEmail(opts) {
     console.warn('EmailJS no està configurat: revisa EMAILJS_PUBLIC_KEY / SERVICE_ID / TEMPLATE_ID al principi del <script>.');
     return;
   }
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+  var params = {
     title: opts.title || '',
     name: opts.name || '',
     message: opts.message || '',
@@ -6961,7 +7117,8 @@ function enviarNotificacioEmail(opts) {
     badge: opts.badge || 'NOU AVÍS',
     subtitle: opts.subtitle || 'S\'ha registrat automàticament aquesta informació des de la web.',
     detail_label: opts.detailLabel || 'Detall'
-  }).then(function(){
+  };
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params).then(function(){
     console.log('Notificació enviada per email.');
   }).catch(function(err){
     console.warn('No s\'ha pogut enviar la notificació per email:', err);
@@ -7629,6 +7786,273 @@ var STOCK_INFO = {
   order: { label:'📦 Sota comanda',      color:'#0B3D6B', bg:'#E7EEF6' }
 };
 
+// ═══════════════════════════════════════════════════════════
+// CHATBOT HIGIENEX — motor de respostes per paraules clau
+// (sense servidor: funciona 100% al navegador, sense cap cost)
+// ═══════════════════════════════════════════════════════════
+var HX_CHAT_OPENED = false;
+var HX_CHAT_HISTORY = [];
+
+var HX_CHAT_INTENTS = [
+  {
+    keys: ['hola','bon dia','bona tarda','ei','hey','hi','buenas','hello'],
+    reply: 'Hola! 👋 Sóc l\'assistent virtual d\'HIGIENEX. Puc ajudar-te amb informació sobre els nostres productes, preus, horaris, enviaments o posar-te en contacte amb el nostre equip. En què et puc ajudar?'
+  },
+  {
+    keys: ['producte','productes','catàleg','cataleg','què veneu','que veneu','gamma'],
+    reply: function(){
+      var list = PRODUCTS.map(function(p){ return '• ' + p.name + ' — ' + p.price.toFixed(2).replace('.',',') + ' € / ' + p.unit; }).join('\n');
+      return 'Aquest és el nostre catàleg actual:\n\n' + list + '\n\nSi vols, puc portar-te directament al catàleg per afegir-los al cistell.';
+    },
+    action: { label: '🧴 Veure catàleg', fn: 'navTo(\'productes\')' }
+  },
+  {
+    keys: ['preu','preus','quant costa','cuanto cuesta','cost'],
+    reply: function(){
+      var list = PRODUCTS.map(function(p){ return '• ' + p.name + ': ' + p.price.toFixed(2).replace('.',',') + ' € / ' + p.unit; }).join('\n');
+      return 'Aquests són els preus actuals (IVA no inclòs):\n\n' + list + '\n\nRecorda que a partir de 5 unitats del mateix producte s\'aplica un descompte automàtic per volum.';
+    }
+  },
+  {
+    keys: ['descompte','descomptes','volum','oferta','ofertes'],
+    reply: '🎉 Tenim descomptes automàtics per volum: -5% a partir de 5 unitats, -10% a partir de 10, i -15% a partir de 20 unitats del mateix producte. S\'apliquen automàticament al cistell, sense necessitat de cap codi.'
+  },
+  {
+    keys: ['horari','horaris','obert','tancat','quan obriu'],
+    reply: '🕒 El nostre horari és de dilluns a divendres, de 8:00 a 17:30.\nPer a hospitals i centres crítics oferim urgències 24/7.'
+  },
+  {
+    keys: ['telefon','teléfono','trucar','contactar','contacte','contactar-vos'],
+    reply: '📞 Pots contactar-nos per telèfon al 963 123 456 (o mòbil d\'atenció 645 678 901), per email a contacto@higienexvalencia.es, o directament per WhatsApp amb el botó verd de la cantonada.'
+  },
+  {
+    keys: ['email','correu','e-mail','mail'],
+    reply: '✉️ El nostre email de contacte és contacto@higienexvalencia.es. Per a temes d\'administració/facturació: administracion@higienexvalencia.es.'
+  },
+  {
+    keys: ['adreça','adreca','direccio','dirección','on esteu','ubicacio','ubicación'],
+    reply: '📍 Estem a Carrer de la Indústria, 25, 46010 València, Espanya.'
+  },
+  {
+    keys: ['enviament','enviaments','envio','envios','transport','portes','entrega'],
+    reply: '🚚 Fem enviaments a tota la península. El termini estimat és de 5 dies laborables des de la confirmació de la comanda. El cost de transport es calcula al finalitzar la comanda.'
+  },
+  {
+    keys: ['pagament','pagar','com pago','forma de pago','métodes de pagament'],
+    reply: 'Un cop tramitada la comanda des de la web, el nostre equip et contactarà en menys de 24h per confirmar-la i indicar-te com formalitzar el pagament.'
+  },
+  {
+    keys: ['comanda','comandes','pedido','pedidos','historial'],
+    reply: 'Pots fer una comanda directament des del catàleg: afegeix productes al cistell i prem "Tramitar comanda". Cal iniciar sessió per finalitzar-la. Un cop feta, rebràs un email de confirmació amb tots els detalls, i podràs consultar el teu historial de comandes des de la teva zona de client.',
+    action: { label: '🛒 Anar al cistell', fn: 'openCartDrawer()' }
+  },
+  {
+    keys: ['iso','certificat','certificacio','certificación','ecològic','ecologic','biodegradable'],
+    reply: '🌿 Els nostres productes compleixen certificació ISO 14001 i tenim línia ECO concentrada i biodegradable. Alguns productes específics (com el Desinfectant HOSP-V) compten amb registre de biocida UE.'
+  },
+  {
+    keys: ['empresa','qui sou','sobre vosaltres','historia','història'],
+    reply: 'HIGIENEX S.L. va néixer el 2015 a València, fabricant i distribuint productes d\'higiene professional sostenible per a hospitals, hotels, indústria alimentària i oficines. Actualment som 30 professionals amb 19 patents pròpies.'
+  },
+  {
+    keys: ['gracies','gràcies','merci','thanks','perfecte','genial','ok val'],
+    reply: 'De res! 😊 Si tens qualsevol altre dubte, aquí estic. I si prefereixes parlar amb una persona, tens el botó de WhatsApp just al costat.'
+  },
+  {
+    keys: ['humà','humano','persona','parlar amb algú','ajuda real'],
+    reply: 'Cap problema, t\'ajudo a contactar amb el nostre equip humà per WhatsApp ara mateix.',
+    action: { label: '💬 Obrir WhatsApp', fn: "window.open('https://wa.me/34645678901?text=Hola%20HIGIENEX','_blank')" }
+  }
+];
+
+var HX_CHAT_FALLBACK = 'No estic segur d\'haver entès bé la teva pregunta 🤔 Puc ajudar-te amb: productes i preus, descomptes, horaris, contacte, enviaments o comandes. També pots parlar directament amb el nostre equip per WhatsApp.';
+
+var HX_QUICK_REPLIES = [
+  { label: '🧴 Productes', text: 'Quins productes teniu?' },
+  { label: '💰 Preus', text: 'Quins són els preus?' },
+  { label: '🚚 Enviaments', text: 'Com funcionen els enviaments?' },
+  { label: '📞 Contacte', text: 'Com puc contactar-vos?' }
+];
+
+function hxNormalize(s){
+  return (s||'').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // treu accents
+    .replace(/[^a-z0-9\s]/g,' ')
+    .trim();
+}
+
+function hxFindReply(userText){
+  var norm = hxNormalize(userText);
+  var words = norm.split(/\s+/).filter(Boolean);
+  for (var i=0; i<HX_CHAT_INTENTS.length; i++) {
+    var intent = HX_CHAT_INTENTS[i];
+    for (var j=0; j<intent.keys.length; j++) {
+      var keyNorm = hxNormalize(intent.keys[j]);
+      if (keyNorm.indexOf(' ') !== -1) {
+        // Frase de diverses paraules: comprovem que la frase sencera hi sigui present
+        if ((' ' + norm + ' ').indexOf(' ' + keyNorm.split(' ').join(' ') + ' ') !== -1 || norm.indexOf(keyNorm) !== -1) {
+          return intent;
+        }
+      } else {
+        // Paraula única: només fem match si apareix com a paraula sencera (no com a subcadena d'una altra)
+        if (words.indexOf(keyNorm) !== -1) {
+          return intent;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function hxAddMessage(text, who){
+  var body = document.getElementById('hxChatBody');
+  if (!body) return;
+  var div = document.createElement('div');
+  div.className = 'hxMsg ' + who;
+  div.textContent = text;
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+  HX_CHAT_HISTORY.push({who: who, text: text});
+}
+
+function hxAddAction(action){
+  var body = document.getElementById('hxChatBody');
+  if (!body || !action) return;
+  var btn = document.createElement('button');
+  btn.className = 'hxQuickBtn';
+  btn.style.alignSelf = 'flex-start';
+  btn.textContent = action.label;
+  btn.onclick = function(){
+    try { (new Function(action.fn))(); } catch(e) { console.warn(e); }
+  };
+  body.appendChild(btn);
+  body.scrollTop = body.scrollHeight;
+}
+
+function hxShowTyping(){
+  var body = document.getElementById('hxChatBody');
+  if (!body) return;
+  var div = document.createElement('div');
+  div.className = 'hxTyping';
+  div.id = 'hxTypingIndicator';
+  div.innerHTML = '<span></span><span></span><span></span>';
+  body.appendChild(div);
+  body.scrollTop = body.scrollHeight;
+}
+function hxHideTyping(){
+  var t = document.getElementById('hxTypingIndicator');
+  if (t) t.remove();
+}
+
+// ── Connexió opcional amb l'assistent d'IA (Claude) via el Worker intermedi ──
+// Deixa-ho buit ('') per fer servir NOMÉS el motor de respostes per paraules
+// clau (gratuït i sense dependències). Un cop desplegat el teu Worker de
+// Cloudflare, enganxa aquí la seva URL per activar respostes lliures amb IA
+// quan el motor de regles no reconegui la pregunta.
+var HX_WORKER_URL = ''; // p. ex. 'https://higienex-chat.el-teu-usuari.workers.dev'
+
+function hxAskAI(userText){
+  if (!HX_WORKER_URL) {
+    hxHideTyping();
+    hxAddMessage(HX_CHAT_FALLBACK, 'bot');
+    return;
+  }
+  var historyForApi = HX_CHAT_HISTORY.slice(-10).map(function(m){
+    return { role: m.who === 'user' ? 'user' : 'assistant', content: m.text };
+  });
+  fetch(HX_WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: userText, history: historyForApi })
+  })
+  .then(function(res){ return res.json(); })
+  .then(function(data){
+    hxHideTyping();
+    if (data && data.reply) {
+      hxAddMessage(data.reply, 'bot');
+    } else {
+      hxAddMessage(HX_CHAT_FALLBACK, 'bot');
+    }
+  })
+  .catch(function(err){
+    console.warn('Error connectant amb l\'assistent IA:', err);
+    hxHideTyping();
+    hxAddMessage('Ho sento, ara mateix no puc connectar amb l\'assistent. Prova de nou en un moment, o parla amb nosaltres per WhatsApp.', 'bot');
+  });
+}
+
+function hxRespond(userText){
+  hxShowTyping();
+  var intent = hxFindReply(userText);
+  if (intent) {
+    var delay = 500 + Math.random()*500;
+    setTimeout(function(){
+      hxHideTyping();
+      var replyText = typeof intent.reply === 'function' ? intent.reply() : intent.reply;
+      hxAddMessage(replyText, 'bot');
+      if (intent.action) hxAddAction(intent.action);
+    }, delay);
+  } else {
+    // El motor de paraules clau no ha reconegut la pregunta: si hi ha
+    // Worker configurat, la enviem a l'assistent d'IA per a una resposta
+    // lliure; si no, mostrem el missatge de fallback habitual.
+    hxAskAI(userText);
+  }
+}
+
+function hxChatSend(ev){
+  if (ev) ev.preventDefault();
+  var input = document.getElementById('hxChatInput');
+  if (!input) return false;
+  var text = input.value.trim();
+  if (!text) return false;
+  hxAddMessage(text, 'user');
+  input.value = '';
+  hxRespond(text);
+  return false;
+}
+window.hxChatSend = hxChatSend;
+
+function hxQuickReply(text){
+  hxAddMessage(text, 'user');
+  hxRespond(text);
+}
+window.hxQuickReply = hxQuickReply;
+
+function hxRenderQuickReplies(){
+  var box = document.getElementById('hxChatQuickReplies');
+  if (!box) return;
+  box.innerHTML = '';
+  HX_QUICK_REPLIES.forEach(function(q){
+    var btn = document.createElement('button');
+    btn.className = 'hxQuickBtn';
+    btn.textContent = q.label;
+    btn.onclick = function(){ hxQuickReply(q.text); };
+    box.appendChild(btn);
+  });
+}
+
+function toggleHxChat(force){
+  var win = document.getElementById('hxChatWindow');
+  if (!win) return;
+  var shouldOpen = (force !== undefined) ? force : !win.classList.contains('open');
+  if (shouldOpen) {
+    win.classList.add('open');
+    var badge = document.getElementById('hxChatBadge');
+    if (badge) badge.classList.add('hidden');
+    if (!HX_CHAT_OPENED) {
+      HX_CHAT_OPENED = true;
+      hxAddMessage('Hola! 👋 Sóc l\'assistent virtual d\'HIGIENEX. Puc ajudar-te amb informació sobre productes, preus, horaris, enviaments o contacte. En què et puc ajudar?', 'bot');
+      hxRenderQuickReplies();
+    }
+    var input = document.getElementById('hxChatInput');
+    if (input) setTimeout(function(){ input.focus(); }, 260);
+  } else {
+    win.classList.remove('open');
+  }
+}
+window.toggleHxChat = toggleHxChat;
+
 function forgotPassword() {
   var emailInput = document.getElementById('loginEmail');
   var val = (emailInput ? emailInput.value : '').trim();
@@ -7979,171 +8403,15 @@ function generateComanda() {
   var iva       = parseFloat((subtotal * IVA_PCT).toFixed(2));
   var total     = parseFloat((subtotal + iva).toFixed(2));
 
-  function fmt(n){ return n.toFixed(2).replace('.', ','); }
-
-  // ──────────────────────────────────────────
-  // GENERACIÓN PDF (jsPDF)
-  // ──────────────────────────────────────────
-  var jsPDFCtor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
-  if (!jsPDFCtor) {
-    alert('No s\'ha pogut carregar el generador de PDF. Comprova la connexió a internet i torna-ho a provar.');
-    return null;
-  }
-  var doc  = new jsPDFCtor('p','mm','a4');
-  var W    = 210;
-  var BLUE  = [11, 112, 200];
-  var TEXT  = [40, 40, 40];
-  var MUTED = [110, 110, 110];
-  var LINE  = [200, 216, 236];
-  var SHADE = [243, 247, 251];
-
-  // Cabecera
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(34);
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('Comanda', 20, 32);
-  // Logo HIGIENEX con la X en dorado
-  doc.setFontSize(22);
-  var hlW = doc.getTextWidth('HIGIENE');
-  var xLW = doc.getTextWidth('X');
-  var totalLogoW = hlW + xLW;
-  var logoStart = W - 20 - totalLogoW;
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('HIGIENE', logoStart, 32);
-  doc.setTextColor(242,169,0);
-  doc.text('X', logoStart + hlW, 32);
-
-  // Datos generales
-  var y = 48;
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(9);
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('Data de la comanda:',   20,  y);
-  doc.text('Número de comanda:',    85,  y);
-  doc.text('Lliurament estimat:',   145, y);
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(10);
-  doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]);
-  doc.text(dateStr,     20,  y+6);
-  doc.text(comandaNum,  85,  y+6);
-  doc.text(entregaStr,  145, y+6);
-
-  doc.setDrawColor(LINE[0],LINE[1],LINE[2]);
-  doc.setLineWidth(0.5);
-  doc.line(20, y+11, W-20, y+11);
-
-  // Bloques emisor / receptor
-  y = y + 22;
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(11);
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  // Nombre destacado de la empresa (HIGIENE en azul, X en dorado, S.L. en azul)
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(13);
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('HIGIENE', 20, y);
-  var wHig = doc.getTextWidth('HIGIENE');
-  doc.setTextColor(242,169,0);
-  doc.text('X', 20 + wHig, y);
-  var wX = doc.getTextWidth('X');
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text(' S.L.', 20 + wHig + wX, y);
-
-  // Nombre del cliente
-  doc.setTextColor(20,20,20);
-  doc.text(clientInfo.company || clientInfo.name, W/2+5, y);
-
-  y += 7;
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(9);
-  doc.setTextColor(MUTED[0],MUTED[1],MUTED[2]);
-  doc.text('Dirección: Carrer de la Indústria, 25', 20,    y);
-  doc.text('Dirección: ' + clientInfo.dir,           W/2+5, y);
-  doc.text('NIF: B12345678',                          20,    y+6);
-  doc.text('CIF: ' + clientInfo.cif,                  W/2+5, y+6);
-  doc.text('CP y ciudad: 46010 Valencia',             20,    y+12);
-  doc.text('CP y ciudad: ' + clientInfo.cp,           W/2+5, y+12);
-  doc.text('Email: contacto@higienexvalencia.es',     20,    y+18);
-  doc.text('Email: ' + clientInfo.email,              W/2+5, y+18);
-  if (clientInfo.company) {
-    doc.text('Contacto: ' + clientInfo.name,         W/2+5, y+24);
-  }
-
-  // Tabla de productos
-  y = y + (clientInfo.company ? 38 : 32);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(10);
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('Descripción',         20,  y);
-  doc.text('Unidades',             95,  y, {align:'center'});
-  doc.text('Precio Unitario (€)', 140, y, {align:'center'});
-  doc.text('Precio (€)',          W-20, y, {align:'right'});
-  doc.setDrawColor(LINE[0],LINE[1],LINE[2]);
-  doc.setLineWidth(0.7);
-  doc.line(20, y+2, W-20, y+2);
-
-  y += 9;
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(10);
-  doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]);
-  function _row(desc, qty, unit, price) {
-    doc.setFillColor(SHADE[0],SHADE[1],SHADE[2]);
-    doc.rect(82, y-5, 26, 7, 'F');
-    doc.text(String(desc), 20, y);
-    doc.text(String(qty),  95, y, {align:'center'});
-    doc.text(fmt(unit),    140, y, {align:'center'});
-    doc.text(fmt(price),   W-20, y, {align:'right'});
-    doc.setDrawColor(240,240,240);
-    doc.setLineWidth(0.2);
-    doc.line(20, y+3, W-20, y+3);
-    y += 9;
-  }
-  keys.forEach(function(k){ _row(k, cart[k].qty, cart[k].price, cart[k].total); });
-  if (TRANSPORT && TRANSPORT > 0) _row('Gastos de transporte', 1, TRANSPORT, TRANSPORT);
-
-  // Totales
-  y += 12;
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(10);
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('SUBTOTAL:', 150, y, {align:'right'});
-  doc.setFont('helvetica','normal');
-  doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]);
-  doc.text(fmt(subtotal) + ' €', W-20, y, {align:'right'});
-
-  y += 7;
-  doc.setFont('helvetica','bold');
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('IVA (' + Math.round(IVA_PCT*100) + '%):', 150, y, {align:'right'});
-  doc.setFont('helvetica','normal');
-  doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]);
-  doc.text(fmt(iva) + ' €', W-20, y, {align:'right'});
-
-  y += 14;
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(12);
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('TOTAL:', 150, y, {align:'right'});
-  doc.setFontSize(18);
-  doc.setTextColor(15,15,15);
-  doc.text('€' + fmt(total), W-20, y, {align:'right'});
-
-  // Comentarios
-  y += 24;
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(11);
-  doc.setTextColor(BLUE[0],BLUE[1],BLUE[2]);
-  doc.text('Estat de la comanda:', 20, y);
-  y += 8;
-  doc.setFont('helvetica','normal');
-  doc.setFontSize(10);
-  doc.setTextColor(TEXT[0],TEXT[1],TEXT[2]);
-  doc.text('Pendent de confirmació. El nostre equip et contactarà en menys de 24h', 20, y);
-  y += 6;
-  doc.text('per confirmar la comanda i indicar-te com formalitzar el pagament.', 20, y);
-
-  doc.save('Comanda_' + comandaNum + '.pdf');
-  return { invoiceNum: comandaNum, total: total, email: (clientInfo.email && clientInfo.email !== '-') ? clientInfo.email : '' };
+  // Ja no es genera cap PDF: nomes calculem les dades de la comanda per a
+  // l'historial i per al cos de l'email de confirmació que rep el client.
+  return {
+    invoiceNum: comandaNum,
+    total: total,
+    email: (clientInfo.email && clientInfo.email !== '-') ? clientInfo.email : '',
+    dateStr: dateStr,
+    entregaStr: entregaStr
+  };
 }
 
 // ── HISTORIAL DE COMANDES (per usuari, localStorage) ──────────────
@@ -8203,7 +8471,7 @@ function sendOrder() {
   var keys = Object.keys(cart);
   if (!keys.length) { alert('Afegeix almenys un producte.'); return; }
 
-  // Generate and download the order confirmation as PDF
+  // Generate the order confirmation PDF (no longer force-downloaded; it travels as an email attachment)
   var inv;
   try {
     inv = generateComanda();
@@ -8219,7 +8487,7 @@ function sendOrder() {
   var historyItems = keys.map(function(k){ return { name: k, qty: cart[k].qty, total: cart[k].total }; });
   saveOrderToHistory(inv, historyItems);
 
-  // Enviar avís per email amb el detall de la comanda (en HTML amb estil HIGIENEX)
+  // Enviar al client un email de confirmació amb el detall complet de la comanda
   try {
     var userName = (document.getElementById('userName') || {}).textContent || 'Client no identificat';
     var filesHTML = keys.map(function(k){
@@ -8238,15 +8506,17 @@ function sendOrder() {
       '</table>' +
       '<table style="width:100%;margin-top:14px;font-size:14px;">' +
         '<tr><td style="padding:3px 4px;color:#888;">Comanda</td><td style="padding:3px 4px;text-align:right;font-weight:600;color:#333;">' + escHtml(inv.invoiceNum) + '</td></tr>' +
+        '<tr><td style="padding:3px 4px;color:#888;">Data de la comanda</td><td style="padding:3px 4px;text-align:right;color:#333;">' + escHtml(inv.dateStr || '') + '</td></tr>' +
+        '<tr><td style="padding:3px 4px;color:#888;">Lliurament estimat</td><td style="padding:3px 4px;text-align:right;color:#333;">' + escHtml(inv.entregaStr || '') + '</td></tr>' +
         '<tr><td style="padding:8px 4px 3px;color:#0B3D6B;font-size:16px;font-weight:700;">Total</td><td style="padding:8px 4px 3px;text-align:right;font-size:18px;font-weight:800;color:#0B3D6B;">' + inv.total.toFixed(2) + ' €</td></tr>' +
       '</table>';
     enviarNotificacioEmail({
-      title: 'Nova comanda ' + inv.invoiceNum + ' — HIGIENEX',
+      title: 'Confirmació de la teva comanda ' + inv.invoiceNum + ' — HIGIENEX',
       name: userName,
       message: cos,
       email: inv.email,
-      badge: 'NOVA COMANDA',
-      subtitle: 'S\'ha registrat una nova comanda a través de la web.',
+      badge: 'COMANDA CONFIRMADA',
+      subtitle: 'Gràcies per la teva comanda a HIGIENEX. Aquest és el detall complet.',
       detailLabel: 'Detall de la comanda'
     });
   } catch(e) { console.warn('No s\'ha pogut preparar l\'email de la comanda:', e); }
@@ -8256,8 +8526,8 @@ function sendOrder() {
   if (s) {
     s.style.display = 'block';
     s.innerHTML = '<strong>✅ Comanda enviada!</strong><br>' +
-      'Comanda <strong>' + inv.invoiceNum + '</strong> descarregada · Total: <strong>' + inv.total.toFixed(2) + ' €</strong><br>' +
-      '<span style="font-size:0.82rem;color:#555;">El nostre equip et contactara en menys de 24h</span>';
+      'Comanda <strong>' + inv.invoiceNum + '</strong> · Total: <strong>' + inv.total.toFixed(2) + ' €</strong><br>' +
+      '<span style="font-size:0.82rem;color:#555;">T\'hem enviat un email de confirmació amb el detall de la comanda. El nostre equip et contactarà en menys de 24h</span>';
   }
   cart = {};
   renderCart();
