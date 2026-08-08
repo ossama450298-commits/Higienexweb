@@ -2,6 +2,8 @@
 <html lang="ca">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://images.unsplash.com; font-src 'self' data:; connect-src 'self' https://higienexchat.ossama450298.workers.dev https://api.emailjs.com; frame-src https://www.google.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <title>HIGIENEX S.L. – Higiene Professional Sostenible</title>
 <meta name="description" content="HIGIENEX S.L. — productes d'higiene professional sostenible per a hospitals, hotels, indústria alimentària i oficines. Desinfecció, neteja ecològica i subministrament recurrent a València.">
@@ -1952,7 +1954,11 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 }
 
 .nav-backdrop {
-  position: fixed; inset: 0;
+  /* Comença just per sota de la barra superior (70px), no per darrere:
+     si cobrís tota la pantalla (inset:0), el "backdrop-filter: blur"
+     de #mainNav captava aquest negre i la barra es tornava fosca i
+     costava clicar-hi mentre el menú estava obert. */
+  position: fixed; top: 70px; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.45);
   opacity: 0;
   pointer-events: none;
@@ -1964,6 +1970,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   pointer-events: auto;
 }
 </style>
+
   <!-- PWA -->
   <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22HIGIENEX%22%2C%22short_name%22%3A%22HIGIENEX%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%230B3D6B%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%2520viewBox%3D%270%25200%2520192%2520192%27%253E%253Crect%2520width%3D%27192%27%2520height%3D%27192%27%2520rx%3D%2740%27%2520fill%3D%27%25230B3D6B%27%2F%253E%253Ctext%2520x%3D%2796%27%2520y%3D%27130%27%2520font-family%3D%27Georgia%2Cserif%27%2520font-size%3D%27100%27%2520font-weight%3D%27bold%27%2520fill%3D%27%2523F2A900%27%2520text-anchor%3D%27middle%27%253EX%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
   <meta name="theme-color" content="#0B3D6B">
@@ -4014,6 +4021,68 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
 }
 #productPopupBox .popup-btn:hover { background: #1565A8; }
 
+/* Popup de subscripció a la newsletter (apareix als 30s) */
+#newsletterPopup {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999998;
+  background: rgba(4,17,31,0.6);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+#newsletterPopup.open { display: flex; }
+#newsletterPopupBox {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  width: min(420px, 92vw);
+  box-shadow: 0 32px 80px rgba(11,61,107,0.25);
+  animation: toastIn 0.3s ease;
+  position: relative;
+  text-align: center;
+}
+#newsletterPopupBox .popup-close {
+  position: absolute;
+  top: 1rem; right: 1rem;
+  background: #F0F0F0;
+  border: none;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+}
+#newsletterPopupBox .popup-close:hover { background: #E0E0E0; }
+#newsletterPopupBox .popup-emoji { font-size: 2.6rem; margin-bottom: 0.6rem; }
+#newsletterPopupBox h3 { color: #0B3D6B; font-size: 1.2rem; margin-bottom: 0.5rem; }
+#newsletterPopupBox p { font-size: 0.85rem; color: #666; line-height: 1.6; margin-bottom: 1.2rem; }
+#newsletterPopupBox form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+#newsletterPopupBox input[type="email"] {
+  flex: 1; min-width: 180px;
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid #DEEEFB;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-family: inherit;
+}
+#newsletterPopupBox input[type="email"]:focus { outline: none; border-color: #1565A8; }
+#newsletterPopupBox button[type="submit"] {
+  padding: 0.7rem 1.2rem;
+  background: #0B3D6B;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#newsletterPopupBox button[type="submit"]:hover { background: #1565A8; }
+#newsletterPopupSuccess { display:none; background:#E8F5E9; border-radius:8px; padding:0.8rem 1rem; color:#2E7D32; font-size:0.85rem; }
+
 /* Product card hover effect */
 .pedido-card-new {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -4168,6 +4237,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
       <a class="dditem" onclick="navTo('productes')">🧴 Productes i Innovació</a>
       <a class="dditem" onclick="navTo('operacions')">🏭 Operacions</a>
       <a class="dditem" onclick="navTo('compromis')">♻️ Compromís i Mercat</a>
+      <a class="dditem" onclick="navTo('newsletter')">📰 Newsletter</a>
       <a class="dditem" onclick="navTo('contacte')">📞 Ajuda i Contacte</a>
     </div>
   </div>
@@ -6840,6 +6910,52 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
      ═══════════════════════════════════════ -->
 </div><!-- /g-compromis -->
 
+<div class="hg-page" id="g-newsletter">
+<!-- ═══════════════════════════════════════
+     CATEGORY: NEWSLETTER
+     ═══════════════════════════════════════ -->
+<section id="newsletter-hero">
+  <div class="container">
+    <span class="section-tag">📰 Newsletter</span>
+    <h2>Newsletter</h2>
+    <p>Un recull de novetats, normativa i tendències de laboratoris i fabricants de productes de neteja i desinfecció. Rep-ho directament al teu correu cada mes.</p>
+  </div>
+</section>
+
+<section id="newsletter-noticies">
+  <div class="container">
+    <span class="section-tag">Últimes novetats</span>
+    <h2>Del laboratori al sector</h2>
+    <div class="blog-grid fade-in">
+      <div class="blog-card">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Laboratori d'anàlisi" class="blog-img">
+        <div class="blog-content"><div class="section-tag" style="margin-bottom:0.5rem;">Laboratori</div><h3 class="blog-title">Nous tensioactius d'origen vegetal: menys residu, mateixa eficàcia bactericida</h3><p style="font-size:0.8rem;color:#888;margin-top:0.5rem;">Els laboratoris europeus de formulació avancen cap a tensioactius biodegradables de coco i blat de moro que igualen el rendiment dels derivats del petroli en assajos EN 1276.</p></div>
+      </div>
+      <div class="blog-card">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1614308457932-e6d3d1a3a1e3?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Normativa europea" class="blog-img">
+        <div class="blog-content"><div class="section-tag" style="margin-bottom:0.5rem;">Normativa</div><h3 class="blog-title">Reglament de Biocides (BPR): què canvia per a fabricants de desinfectants el 2026</h3><p style="font-size:0.8rem;color:#888;margin-top:0.5rem;">L'ECHA revisa els terminis d'aprovació de substàncies actives per a productes tipus 2 i 4, amb impacte directe en la gamma hospitalària i alimentària del sector.</p></div>
+      </div>
+      <div class="blog-card">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1581093458791-9d2b11e0a0f2?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Envasos reciclats" class="blog-img">
+        <div class="blog-content"><div class="section-tag" style="margin-bottom:0.5rem;">Sostenibilitat</div><h3 class="blog-title">El sector de la neteja professional accelera cap a l'envàs 100% reciclat</h3><p style="font-size:0.8rem;color:#888;margin-top:0.5rem;">Grans fabricants europeus anuncien plans per eliminar el plàstic verge dels garrafons a partir de 2027, seguint la mateixa línia que la gamma ECO d'HIGIENEX.</p></div>
+      </div>
+      <div class="blog-card">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Robot de neteja" class="blog-img">
+        <div class="blog-content"><div class="section-tag" style="margin-bottom:0.5rem;">Innovació</div><h3 class="blog-title">Dosificació intel·ligent: com els sensors IoT redueixen fins a un 30% el consum de producte</h3><p style="font-size:0.8rem;color:#888;margin-top:0.5rem;">Els dispensadors connectats ajusten automàticament la dosi segons l'ús real, una tendència que ja explora la gamma WorkSafe d'HIGIENEX.</p></div>
+      </div>
+      <div class="blog-card">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1584362917165-526a968579e8?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Control de qualitat alimentària" class="blog-img">
+        <div class="blog-content"><div class="section-tag" style="margin-bottom:0.5rem;">Indústria alimentària</div><h3 class="blog-title">HACCP i desinfecció: les auditories del 2026 posen el focus en la traçabilitat del producte</h3><p style="font-size:0.8rem;color:#888;margin-top:0.5rem;">Cada vegada més auditors demanen codis de lot i fitxes tècniques digitals dels desinfectants emprats en superfícies de contacte alimentari.</p></div>
+      </div>
+      <div class="blog-card">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1584515933487-779824d29309?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Formació professional" class="blog-img">
+        <div class="blog-content"><div class="section-tag" style="margin-bottom:0.5rem;">Formació</div><h3 class="blog-title">Per què cada vegada més hospitals formen el seu personal de neteja en bioseguretat avançada</h3><p style="font-size:0.8rem;color:#888;margin-top:0.5rem;">Els protocols post-pandèmia han fet de la formació contínua un requisit habitual en contractes de neteja hospitalària a tot Europa.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+</div><!-- /g-newsletter -->
+
 <div class="hg-page" id="g-contacte">
 <!-- ═══════════════════════════════════════
      CATEGORY: AJUDA I CONTACTE
@@ -7081,6 +7197,9 @@ var EMAILJS_PUBLIC_KEY  = 'EITy91aX6QkGA4ppG';
 var EMAILJS_SERVICE_ID  = 'service_x8etty8';
 var EMAILJS_TEMPLATE_ID = 'template_dae7cth';
 var NOTIFY_EMAIL = 'ossama450298@gmail.com'; // ja fixat com a "To Email" dins de la plantilla d'EmailJS
+// URL del panell intern (ERP). Actualitza-la quan migris el panell a
+// Cloudflare Pages amb el seu propi domini protegit.
+var HX_ERP_URL = 'higienex_erp.html';
 
 (function(){
   if (window.emailjs && EMAILJS_PUBLIC_KEY !== 'LA_TEVA_PUBLIC_KEY') {
@@ -7102,7 +7221,11 @@ function enviarNotificacioEmail(opts) {
     time: new Date().toLocaleString('ca-ES'),
     badge: opts.badge || 'NOU AVÍS',
     subtitle: opts.subtitle || 'S\'ha registrat automàticament aquesta informació des de la web.',
-    detail_label: opts.detailLabel || 'Detall'
+    detail_label: opts.detailLabel || 'Detall',
+    // Botó d'acció opcional (HTML complet d'un <table><tr><td>...bloc, o
+    // cadena buida). S'insereix tal qual dins la plantilla d'EmailJS —
+    // cada tipus d'email hi passa el botó que li pertoca (o cap).
+    cta_button_html: opts.ctaButtonHtml || ''
   };
   emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params).then(function(){
     console.log('Notificació enviada per email.');
@@ -7111,6 +7234,19 @@ function enviarNotificacioEmail(opts) {
   });
 }
 window.enviarNotificacioEmail = enviarNotificacioEmail;
+
+// Genera el bloc HTML d'un botó d'acció per als emails (mateix estil que
+// la plantilla d'EmailJS espera). 'style' és 'gold' (respondre a un lead)
+// o 'blue' (accions internes, com gestionar una comanda al panell).
+function hxEmailCtaButton(label, url, style) {
+  var bg = style === 'blue' ? '#0B3D6B' : '#F2A900';
+  var color = style === 'blue' ? '#ffffff' : '#1A1A1A';
+  var shadow = style === 'blue' ? 'rgba(11,61,107,0.35)' : 'rgba(242,169,0,0.35)';
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 34px;">' +
+    '<tr><td style="background-color:' + bg + ';border-radius:12px;box-shadow:0 10px 24px ' + shadow + ';">' +
+    '<a href="' + url + '" style="display:inline-block;padding:14px 30px;font-size:14px;font-weight:800;color:' + color + ';text-decoration:none;">' + label + '</a>' +
+    '</td></tr></table>';
+}
 
 // Petita utilitat per evitar que text escrit per l'usuari (formulari de
 // contacte) trenqui l'HTML de l'email o hi injecti codi.
@@ -7259,6 +7395,9 @@ function navTo(id) {
     document.body.setAttribute('data-view', 'page');
     page.classList.add('hg-page-active');
     window.scrollTo({ top: 0, behavior: 'auto' });
+    if (id === 'newsletter' && typeof hxMaybeShowNewsletterPopup === 'function') {
+      hxMaybeShowNewsletterPopup();
+    }
     return;
   }
 
@@ -7432,7 +7571,8 @@ function submitForm(e) {
       email: email,
       badge: 'NOVA CONSULTA',
       subtitle: 'Algú ha enviat una nova consulta des del formulari de contacte.',
-      detailLabel: 'Missatge'
+      detailLabel: 'Missatge',
+      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold')
     });
   } catch(err) { console.warn('No s\'ha pogut preparar l\'email de contacte:', err); }
 
@@ -7719,6 +7859,21 @@ window.submitForm = submitForm;
   </div>
 </div>
 
+<!-- NEWSLETTER POPUP -->
+<div id="newsletterPopup">
+  <div id="newsletterPopupBox">
+    <button class="popup-close" onclick="closeNewsletterPopup()" type="button" aria-label="Tancar finestra de subscripció">✕</button>
+    <div class="popup-emoji">📰</div>
+    <h3>No et perdis res del sector</h3>
+    <p>Rep al teu correu novetats de laboratoris, normativa i tendències de la higiene professional. Sense spam, cancel·lació en un clic.</p>
+    <form onsubmit="submitNewsletterPopup(event)">
+      <input type="email" id="newsletterPopupEmail" required placeholder="tunom@empresa.com">
+      <button type="submit">Subscriu-me</button>
+    </form>
+    <div id="newsletterPopupSuccess">✅ Fet! Ja estàs subscrit.</div>
+  </div>
+</div>
+
 <script>
 // HIGIENEX Auth, Login, Cart, Admin
 
@@ -7735,6 +7890,71 @@ document.addEventListener('DOMContentLoaded', function() {
   if (ef) ef.addEventListener('input', clearLoginErrorOnEdit);
   if (pf) pf.addEventListener('input', clearLoginErrorOnEdit);
   if (typeof renderCart === 'function') renderCart();
+});
+
+// ── POPUP DE SUBSCRIPCIÓ A LA NEWSLETTER (als 30 segons) ──
+var HX_NEWSLETTER_KEY = 'hx_newsletter_status'; // 'subscribed' | timestamp de l'últim tancament
+function hxMarkNewsletterSubscribed() {
+  try { localStorage.setItem(HX_NEWSLETTER_KEY, 'subscribed'); } catch(e){}
+  closeNewsletterPopup();
+}
+function closeNewsletterPopup() {
+  var p = document.getElementById('newsletterPopup');
+  if (p) p.classList.remove('open');
+  try {
+    if (localStorage.getItem(HX_NEWSLETTER_KEY) !== 'subscribed') {
+      localStorage.setItem(HX_NEWSLETTER_KEY, String(Date.now()));
+    }
+  } catch(e){}
+}
+window.closeNewsletterPopup = closeNewsletterPopup;
+
+function submitNewsletterPopup(e) {
+  e.preventDefault();
+  var input = document.getElementById('newsletterPopupEmail');
+  var email = input ? input.value.trim() : '';
+  if (!email) return;
+  try {
+    enviarNotificacioEmail({
+      title: 'Nova subscripció a la newsletter — HIGIENEX',
+      name: email,
+      email: email,
+      badge: 'NOVA SUBSCRIPCIÓ',
+      subtitle: 'Algú s\'ha subscrit a la newsletter des del pop-up.',
+      detailLabel: 'Subscriptor',
+      message: 'Email: ' + email
+    });
+  } catch(err) { console.warn('No s\'ha pogut registrar la subscripció:', err); }
+  var s = document.getElementById('newsletterPopupSuccess');
+  var f = e.target;
+  if (s) s.style.display = 'block';
+  if (f) f.style.display = 'none';
+  setTimeout(hxMarkNewsletterSubscribed, 1400);
+}
+window.submitNewsletterPopup = submitNewsletterPopup;
+
+function hxMaybeShowNewsletterPopup() {
+  var DAYS_ABANS_DE_TORNAR_A_PREGUNTAR = 7;
+  try {
+    var status = localStorage.getItem(HX_NEWSLETTER_KEY);
+    if (status === 'subscribed') return;
+    if (status) {
+      var elapsedDays = (Date.now() - parseInt(status, 10)) / 86400000;
+      if (elapsedDays < DAYS_ABANS_DE_TORNAR_A_PREGUNTAR) return;
+    }
+    // No mostrar si ja hi ha un altre popup obert (auth, producte...)
+    var authOpen = document.getElementById('authModal');
+    var prodOpen = document.getElementById('productPopup');
+    if ((authOpen && authOpen.classList.contains('open')) ||
+        (prodOpen && prodOpen.classList.contains('open'))) return;
+    var p = document.getElementById('newsletterPopup');
+    if (p) p.classList.add('open');
+  } catch(e){}
+}
+window.hxMaybeShowNewsletterPopup = hxMaybeShowNewsletterPopup;
+
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(hxMaybeShowNewsletterPopup, 30000);
 });
 
 var _authModalOpenedAt = 0;
@@ -7771,7 +7991,7 @@ window.loginWithGoogle = loginWithGoogle;
 var REGISTERED_USERS = {};
 var USERS = {
   'edu@higienex.es':   { password: 'Higienex2025', name: 'Edu',     role: 'client', company: 'Institut Les Salines', cif: '' },
-  'admin@higienex.es': { password: 'Ob4583vv',     name: 'Oussama', role: 'admin',  company: 'HIGIENEX S.L.',         cif: 'B12345678' },
+  'admin@higienex.es': { password: 'Demo#2026!',     name: 'Oussama', role: 'admin',  company: 'HIGIENEX S.L.',         cif: 'B12345678' },
   'ari@higienex.es':   { password: 'Ari2025',       name: 'Ari',     role: 'admin',  company: 'HIGIENEX S.L.',         cif: 'B12345678' },
   'lucia@higienex.es': { password: 'Lucia2025',    name: 'Lucia',   role: 'admin',  company: 'HIGIENEX S.L.',         cif: 'B12345678' }
 };
@@ -8151,7 +8371,8 @@ function registerUser() {
     name: name,
     email: email,
     detailLabel: 'Dades del registre',
-    message: 'Nom: ' + name + '\nEmail: ' + email + (company ? ('\nEmpresa: ' + company) : '') + (cif ? ('\nCIF: ' + cif) : '') + (sector ? ('\nSector: ' + sector) : '')
+    message: 'Nom: ' + name + '\nEmail: ' + email + (company ? ('\nEmpresa: ' + company) : '') + (cif ? ('\nCIF: ' + cif) : '') + (sector ? ('\nSector: ' + sector) : ''),
+    ctaButtonHtml: hxEmailCtaButton('Donar la benvinguda →', 'mailto:' + email, 'gold')
   });
   closeAuthModal(); setLoggedInUser(name,'','client',email); showWelcome(name,false);
 }
@@ -8532,6 +8753,8 @@ function sendOrder() {
         '<tr><td style="padding:3px 4px;color:#888;">Lliurament estimat</td><td style="padding:3px 4px;text-align:right;color:#333;">' + escHtml(inv.entregaStr || '') + '</td></tr>' +
         '<tr><td style="padding:8px 4px 3px;color:#0B3D6B;font-size:16px;font-weight:700;">Total</td><td style="padding:8px 4px 3px;text-align:right;font-size:18px;font-weight:800;color:#0B3D6B;">' + inv.total.toFixed(2) + ' €</td></tr>' +
       '</table>';
+    // 1) Email de confirmació al client — sense botó intern (el client
+    //    no té accés al panell).
     enviarNotificacioEmail({
       title: 'Confirmació de la teva comanda ' + inv.invoiceNum + ' — HIGIENEX',
       name: userName,
@@ -8540,6 +8763,20 @@ function sendOrder() {
       badge: 'COMANDA CONFIRMADA',
       subtitle: 'Gràcies per la teva comanda a HIGIENEX. Aquest és el detall complet.',
       detailLabel: 'Detall de la comanda'
+    });
+    // 2) Avís intern a l'equip — amb botó directe cap al panell per
+    //    gestionar la comanda. Sense això, ningú de l'equip s'assabentava
+    //    que havia entrat una comanda nova (l'email anterior només
+    //    arribava al client).
+    enviarNotificacioEmail({
+      title: 'Nova comanda rebuda: ' + inv.invoiceNum + ' — ' + inv.total.toFixed(2) + ' €',
+      name: userName,
+      message: cos,
+      email: inv.email,
+      badge: 'NOVA COMANDA',
+      subtitle: 'Un client acaba de fer una comanda a la web. Gestiona-la des del panell.',
+      detailLabel: 'Detall de la comanda',
+      ctaButtonHtml: hxEmailCtaButton('Gestionar la comanda al panell →', HX_ERP_URL, 'blue')
     });
   } catch(e) { console.warn('No s\'ha pogut preparar l\'email de la comanda:', e); }
 
