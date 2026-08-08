@@ -4027,7 +4027,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
   position: fixed;
   inset: 0;
   z-index: 9999998;
-  background: rgba(4,17,31,0.6);
+  background: rgba(4,17,31,0.65);
   backdrop-filter: blur(4px);
   align-items: center;
   justify-content: center;
@@ -4036,52 +4036,133 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
 #newsletterPopup.open { display: flex; }
 #newsletterPopupBox {
   background: white;
-  border-radius: 20px;
-  padding: 2rem;
-  width: min(420px, 92vw);
-  box-shadow: 0 32px 80px rgba(11,61,107,0.25);
-  animation: toastIn 0.3s ease;
+  border-radius: 24px;
+  width: min(440px, 92vw);
+  box-shadow: 0 40px 90px rgba(11,61,107,0.32);
+  animation: toastIn 0.35s cubic-bezier(0.2,0.9,0.3,1.2);
   position: relative;
+  overflow: hidden;
+}
+#newsletterPopupBanner {
+  background: linear-gradient(135deg, #0B3D6B 0%, #1565A8 55%, #2E86C7 100%);
+  padding: 2.2rem 2rem 4.2rem;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+#newsletterPopupBanner::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -40px;
+  width: 180px; height: 180px;
+  background: rgba(242,169,0,0.18);
+  border-radius: 50%;
+}
+#newsletterPopupBanner::after {
+  content: '';
+  position: absolute;
+  bottom: -50px; left: -30px;
+  width: 140px; height: 140px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 50%;
+}
+#newsletterPopupBanner .nl-icon {
+  position: relative;
+  width: 64px; height: 64px;
+  margin: 0 auto 0.9rem;
+  background: rgba(255,255,255,0.16);
+  border: 1.5px solid rgba(255,255,255,0.35);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.18);
+}
+#newsletterPopupBanner h3 {
+  position: relative;
+  color: white;
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+}
+#newsletterPopupBanner p {
+  position: relative;
+  color: #DEEEFB;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  max-width: 320px;
+  margin: 0 auto;
 }
 #newsletterPopupBox .popup-close {
   position: absolute;
   top: 1rem; right: 1rem;
-  background: #F0F0F0;
+  z-index: 2;
+  background: rgba(255,255,255,0.22);
   border: none;
   width: 32px; height: 32px;
   border-radius: 50%;
   cursor: pointer;
   font-size: 1rem;
+  color: white;
   display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
 }
-#newsletterPopupBox .popup-close:hover { background: #E0E0E0; }
-#newsletterPopupBox .popup-emoji { font-size: 2.6rem; margin-bottom: 0.6rem; }
-#newsletterPopupBox h3 { color: #0B3D6B; font-size: 1.2rem; margin-bottom: 0.5rem; }
-#newsletterPopupBox p { font-size: 0.85rem; color: #666; line-height: 1.6; margin-bottom: 1.2rem; }
+#newsletterPopupBox .popup-close:hover { background: rgba(255,255,255,0.38); }
+#newsletterPopupBody {
+  padding: 0 1.8rem 1.8rem;
+  margin-top: -2.4rem;
+  position: relative;
+  text-align: center;
+}
+#newsletterPopupCard {
+  background: white;
+  border-radius: 18px;
+  padding: 1.4rem 1.4rem 1.2rem;
+  box-shadow: 0 14px 40px rgba(11,61,107,0.16);
+}
+#newsletterPopupBox .nl-perks {
+  display: flex;
+  justify-content: center;
+  gap: 1.1rem;
+  margin-bottom: 1.1rem;
+  flex-wrap: wrap;
+}
+#newsletterPopupBox .nl-perk {
+  font-size: 0.72rem;
+  color: #0B3D6B;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
 #newsletterPopupBox form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 #newsletterPopupBox input[type="email"] {
   flex: 1; min-width: 180px;
-  padding: 0.7rem 0.9rem;
+  padding: 0.8rem 1rem;
   border: 1.5px solid #DEEEFB;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 0.88rem;
   font-family: inherit;
+  background: #F5FAFF;
 }
-#newsletterPopupBox input[type="email"]:focus { outline: none; border-color: #1565A8; }
+#newsletterPopupBox input[type="email"]:focus { outline: none; border-color: #1565A8; background: white; }
 #newsletterPopupBox button[type="submit"] {
-  padding: 0.7rem 1.2rem;
-  background: #0B3D6B;
-  color: white;
+  padding: 0.8rem 1.3rem;
+  background: linear-gradient(135deg, #F2A900, #E09600);
+  color: #1A1A1A;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
   white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(242,169,0,0.35);
+  transition: transform 0.15s;
 }
-#newsletterPopupBox button[type="submit"]:hover { background: #1565A8; }
-#newsletterPopupSuccess { display:none; background:#E8F5E9; border-radius:8px; padding:0.8rem 1rem; color:#2E7D32; font-size:0.85rem; }
+#newsletterPopupBox button[type="submit"]:hover { transform: translateY(-1px); }
+#newsletterPopupBox .nl-fineprint { font-size: 0.7rem; color: #999; margin-top: 0.8rem; }
+#newsletterPopupSuccess { display:none; background:#E8F5E9; border-radius:12px; padding:1rem; color:#2E7D32; font-size:0.88rem; font-weight:600; }
+
 
 /* Product card hover effect */
 .pedido-card-new {
@@ -7863,14 +7944,26 @@ window.submitForm = submitForm;
 <div id="newsletterPopup">
   <div id="newsletterPopupBox">
     <button class="popup-close" onclick="closeNewsletterPopup()" type="button" aria-label="Tancar finestra de subscripció">✕</button>
-    <div class="popup-emoji">📰</div>
-    <h3>No et perdis res del sector</h3>
-    <p>Rep al teu correu novetats de laboratoris, normativa i tendències de la higiene professional. Sense spam, cancel·lació en un clic.</p>
-    <form onsubmit="submitNewsletterPopup(event)">
-      <input type="email" id="newsletterPopupEmail" required placeholder="tunom@empresa.com">
-      <button type="submit">Subscriu-me</button>
-    </form>
-    <div id="newsletterPopupSuccess">✅ Fet! Ja estàs subscrit.</div>
+    <div id="newsletterPopupBanner">
+      <div class="nl-icon">📰</div>
+      <h3>No et perdis res del sector</h3>
+      <p>Novetats de laboratoris, normativa i tendències de la higiene professional, directes al teu correu.</p>
+    </div>
+    <div id="newsletterPopupBody">
+      <div id="newsletterPopupCard">
+        <div class="nl-perks">
+          <span class="nl-perk">✅ Sense spam</span>
+          <span class="nl-perk">📅 Un cop al mes</span>
+          <span class="nl-perk">🚫 Baixa en 1 clic</span>
+        </div>
+        <form onsubmit="submitNewsletterPopup(event)">
+          <input type="email" id="newsletterPopupEmail" required placeholder="tunom@empresa.com">
+          <button type="submit">Subscriu-me</button>
+        </form>
+        <div id="newsletterPopupSuccess">✅ Fet! Ja estàs subscrit.</div>
+        <p class="nl-fineprint">Pots donar-te de baixa quan vulguis.</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -8602,6 +8695,70 @@ function renderCart() {
   if (tot) tot.style.display = 'flex';
   if (totAmt) totAmt.innerHTML = '<strong style="font-size:1.1rem;">' + total.toFixed(2) + ' €</strong>';
 }
+// ── DOCUMENT IMPRIMIBLE / DESCARREGABLE DE LA COMANDA ──────────────
+// Mateix patró que ja fas servir al ERP per a les factures: s'obre una
+// finestra nova amb l'HTML de la comanda i es llança el diàleg
+// d'impressió del navegador — triant "Desar com a PDF" el client obté
+// el PDF descarregat, sense dependre de cap llibreria externa.
+function abrirImprimibleComanda(titol, html) {
+  var w = window.open('', '_blank');
+  if (!w) { alert('El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per descarregar la comanda.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+  w.focus();
+  setTimeout(function(){ try { w.print(); } catch(e){} }, 350);
+}
+
+function htmlComanda(inv, items, clientInfo) {
+  var filesHTML = items.map(function(it){
+    return '<tr><td>' + escHtml(it.name) + '</td><td class="num">' + it.qty + '</td><td class="num">' +
+      (it.total / it.qty).toFixed(2) + ' €</td><td class="num">' + it.total.toFixed(2) + ' €</td></tr>';
+  }).join('');
+  var subtotal = items.reduce(function(s,i){ return s + i.total; }, 0);
+  var transport = TRANSPORT || 0;
+  var base = subtotal + transport;
+  var iva = base * IVA_PCT;
+  return '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Comanda ' + escHtml(inv.invoiceNum) + ' · HIGIENEX S.L.</title>' +
+    '<style>' +
+    '*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:13px}' +
+    '.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0B3D6B;padding-bottom:18px;margin-bottom:24px}' +
+    '.brand{font-size:24px;font-weight:800;color:#0B3D6B;font-family:Georgia,\'Times New Roman\',serif}.brand span{color:#F2A900}' +
+    '.brand-sub{font-size:11px;color:#4A5A6A;margin-top:4px;line-height:1.5}' +
+    '.doc{text-align:right}.doc h1{font-size:20px;margin:0 0 4px 0;color:#0B3D6B}' +
+    '.doc .num{font-size:15px;font-weight:700;font-family:monospace}' +
+    '.meta{display:flex;justify-content:space-between;gap:24px;margin-bottom:26px}' +
+    '.box{flex:1;border:1px solid #D9E5F0;border-radius:8px;padding:12px 14px}' +
+    '.box h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#4A5A6A;margin:0 0 6px 0}' +
+    '.box p{margin:0;line-height:1.5}' +
+    'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:20px}' +
+    'th,td{border:1px solid #D9E5F0;padding:7px 9px;text-align:left}' +
+    'th{background:#0B3D6B;color:#fff;font-weight:600}' +
+    'td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}' +
+    '.totbox{margin-left:auto;width:280px}' +
+    '.totbox .l{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #EFF6FC}' +
+    '.totbox .tot{font-weight:800;font-size:16px;border-top:2px solid #0B3D6B;border-bottom:none;margin-top:4px;padding-top:8px;color:#0B3D6B}' +
+    '.foot{margin-top:36px;font-size:10.5px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:12px}' +
+    '@media print{ @page{margin:15mm} }' +
+    '</style></head><body>' +
+    '<div class="top">' +
+      '<div><div class="brand">HIGIENE<span>X</span></div>' +
+      '<div class="brand-sub">HIGIENEX S.L. · CIF B12345678<br>Carrer de la Indústria, 25, 46010 València<br>contacto@higienexvalencia.es · 963 123 456</div></div>' +
+      '<div class="doc"><h1>COMANDA</h1><div class="num">' + escHtml(inv.invoiceNum) + '</div></div>' +
+    '</div>' +
+    '<div class="meta">' +
+      '<div class="box"><h3>Client</h3><p><strong>' + escHtml(clientInfo.name || '') + '</strong>' +
+        (clientInfo.company ? ('<br>' + escHtml(clientInfo.company)) : '') +
+        (clientInfo.email ? ('<br>' + escHtml(clientInfo.email)) : '') + '</p></div>' +
+      '<div class="box"><h3>Detalls</h3><p>Data de la comanda: ' + escHtml(inv.dateStr) + '<br>Lliurament estimat: ' + escHtml(inv.entregaStr) + '<br>Estat: Pendent de confirmació</p></div>' +
+    '</div>' +
+    '<table><thead><tr><th>Producte</th><th class="num">Uds.</th><th class="num">Preu</th><th class="num">Import</th></tr></thead><tbody>' + filesHTML + '</tbody></table>' +
+    '<div class="totbox"><div class="l"><span>Subtotal productes</span><span>' + subtotal.toFixed(2) + ' €</span></div>' +
+    (transport ? ('<div class="l"><span>Transport</span><span>' + transport.toFixed(2) + ' €</span></div>') : '') +
+    '<div class="l"><span>IVA (' + Math.round(IVA_PCT*100) + '%)</span><span>' + iva.toFixed(2) + ' €</span></div>' +
+    '<div class="l tot"><span>Total</span><span>' + inv.total.toFixed(2) + ' €</span></div></div>' +
+    '<div class="foot">Comanda generada el ' + new Date().toLocaleString('ca-ES') + ' des de la web d\'HIGIENEX. Aquest document és un justificant de comanda, no una factura oficial — la rebràs un cop confirmat el pagament.</div>' +
+    '</body></html>';
+}
+
 function generateComanda() {
   var keys = Object.keys(cart);
   if (!keys.length) return null;
@@ -8730,6 +8887,25 @@ function sendOrder() {
   var historyItems = keys.map(function(k){ return { name: k, qty: cart[k].qty, total: cart[k].total }; });
   saveOrderToHistory(inv, historyItems);
 
+  // Obrir el diàleg d'impressió amb la comanda (el client pot desar-la
+  // com a PDF directament) — mateix mecanisme que ja fas servir al ERP.
+  try {
+    var userNameForPdf = (document.getElementById('userName') || {}).textContent || 'Client no identificat';
+    var clientInfoPdf = { name: userNameForPdf, email: inv.email, company: '' };
+    var fuPdf = (function(){
+      var srcs = [USERS, REGISTERED_USERS];
+      for (var i=0; i<srcs.length; i++) {
+        var ks = Object.keys(srcs[i]);
+        for (var j=0; j<ks.length; j++) {
+          if (srcs[i][ks[j]].name === userNameForPdf) return srcs[i][ks[j]];
+        }
+      }
+      return null;
+    })();
+    if (fuPdf && fuPdf.company) clientInfoPdf.company = fuPdf.company;
+    abrirImprimibleComanda('Comanda ' + inv.invoiceNum, htmlComanda(inv, historyItems, clientInfoPdf));
+  } catch(err) { console.warn('No s\'ha pogut obrir el PDF de la comanda:', err); }
+
   // Enviar al client un email de confirmació amb el detall complet de la comanda
   try {
     var userName = (document.getElementById('userName') || {}).textContent || 'Client no identificat';
@@ -8786,7 +8962,7 @@ function sendOrder() {
     s.style.display = 'block';
     s.innerHTML = '<strong>✅ Comanda enviada!</strong><br>' +
       'Comanda <strong>' + inv.invoiceNum + '</strong> · Total: <strong>' + inv.total.toFixed(2) + ' €</strong><br>' +
-      '<span style="font-size:0.82rem;color:#555;">T\'hem enviat un email de confirmació amb el detall de la comanda. El nostre equip et contactarà en menys de 24h</span>';
+      '<span style="font-size:0.82rem;color:#555;">T\'hem enviat un email de confirmació i s\'ha obert el justificant en PDF (tria "Desar com a PDF" al diàleg d\'impressió). El nostre equip et contactarà en menys de 24h</span>';
   }
   cart = {};
   renderCart();
