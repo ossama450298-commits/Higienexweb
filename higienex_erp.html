@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://higienexchat.ossama450298.workers.dev https://api.emailjs.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HIGIENEX · Gestión interna</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2719,11 +2721,15 @@ button,.navitem,.btn,a{min-height:32px}
 
 /* CHATBOT INTERN — reutilitza l'estil del xat de la web pública */
 #hxChatLauncher {
+  /* Ocult deliberadament al panell intern: el motor de context (hxBuildContext,
+     usat per la web pública) es manté per si es vol reactivar, però l'accés
+     visual queda desactivat aquí. */
+  display: none !important;
   position: fixed; bottom: 1.5rem; left: 1.5rem; z-index: 9998;
   width: 58px; height: 58px; border-radius: 50%;
   background: linear-gradient(135deg, #0B3D6B, #1565A8); color: white; border: none;
   box-shadow: 0 4px 20px rgba(11,61,107,0.45), 0 2px 8px rgba(0,0,0,0.2);
-  font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; cursor: pointer; align-items: center; justify-content: center;
   transition: transform 0.25s ease;
 }
 #hxChatLauncher:hover { transform: scale(1.12); }
@@ -4674,7 +4680,7 @@ const tipoCta = c => (CUENTAS[c]||{}).tipo || 'activo';
 
 /* ---------- Usuarios ---------- */
 const USERS = [
-  {id:'U1',nom:'Oussama',alias:'oussama',emp:'E01',mail:'admin@higienex.es',pass:'Ob4583vv',    rol:'Dirección',     perms:'all'},
+  {id:'U1',nom:'Oussama',alias:'oussama',emp:'E01',mail:'admin@higienex.es',pass:'450298',    rol:'Dirección',     perms:'all'},
   {id:'U2',nom:'Ariadna',   alias:'ari',    emp:'E02',mail:'ari@higienex.es',  pass:'Ari2025',     rol:'Administración',perms:'admin'},
   {id:'U3',nom:'Lucía',    alias:'lucia',  emp:'E03',mail:'lucia@higienex.es',pass:'Lucia2025',   rol:'Comercial',     perms:'comercial'},
   {id:'U4',nom:'Marc',       alias:'marc',   emp:'E04',mail:'marc@higienex.es', pass:'Marc2025',    rol:'Logística',     perms:'logistica'}
@@ -8283,12 +8289,12 @@ DB.bancos.push(
   {fecha:"2026-07-20", concepto:"Venta a FoodClean Iberia S.L. (segundo pedido del año)", origen:"FE:FE-2026-006", apuntes:[{cta:"430",d:18513,h:0},{cta:"701",d:0,h:15300},{cta:"477",d:0,h:3213}]},
 ].forEach(a=>nuevoAsiento(a.fecha, a.concepto, a.apuntes, a.origen));
 DB.facturasE.push(
-  {num:"FE-2026-001", fecha:"2026-01-22", cli:"NC01", lineas:[], base:28500, cuota:5985, total:34485, estado:"Cobrada", venc:"2026-02-21"},
-  {num:"FE-2026-002", fecha:"2026-02-10", cli:"NC02", lineas:[], base:19200, cuota:4032, total:23232, estado:"Cobrada", venc:"2026-03-12"},
-  {num:"FE-2026-003", fecha:"2026-03-05", cli:"NC03", lineas:[], base:24000, cuota:5040, total:29040, estado:"Pendiente", venc:"2026-05-04"},
-  {num:"FE-2026-004", fecha:"2026-04-18", cli:"NC04", lineas:[], base:26800, cuota:5628, total:32428, estado:"Cobrada", venc:"2026-05-18"},
-  {num:"FE-2026-005", fecha:"2026-06-09", cli:"NC05", lineas:[], base:21500, cuota:4515, total:26015, estado:"Cobrada", venc:"2026-07-09"},
-  {num:"FE-2026-006", fecha:"2026-07-20", cli:"NC01", lineas:[], base:15300, cuota:3213, total:18513, estado:"Pendiente", venc:"2026-08-19"}
+  {num:"FE-2026-001", fecha:"2026-01-22", cli:"NC01", lineas:[{art:'A03',cant:22,precio:24.75},{art:'A01',cant:1180,precio:14.50},{art:'A05',cant:1090,precio:9.95}], base:28500, cuota:5985, total:34485, estado:"Cobrada", venc:"2026-02-21"},
+  {num:"FE-2026-002", fecha:"2026-02-10", cli:"NC02", lineas:[{art:'A04',cant:333,precio:12.30},{art:'A05',cant:318,precio:9.95},{art:'A02',cant:600,precio:19.90}], base:19200, cuota:4032, total:23232, estado:"Cobrada", venc:"2026-03-12"},
+  {num:"FE-2026-003", fecha:"2026-03-05", cli:"NC03", lineas:[{art:'A05',cant:18,precio:9.95},{art:'A06',cant:447,precio:39.00},{art:'A02',cant:321,precio:19.90}], base:24000, cuota:5040, total:29040, estado:"Pendiente", venc:"2026-05-04"},
+  {num:"FE-2026-004", fecha:"2026-04-18", cli:"NC04", lineas:[{art:'A04',cant:10,precio:12.30},{art:'A03',cant:376,precio:24.75},{art:'A01',cant:1198,precio:14.50}], base:26800, cuota:5628, total:32428, estado:"Cobrada", venc:"2026-05-18"},
+  {num:"FE-2026-005", fecha:"2026-06-09", cli:"NC05", lineas:[{art:'A01',cant:28,precio:14.50},{art:'A02',cant:460,precio:19.90},{art:'A05',cant:1200,precio:9.95}], base:21500, cuota:4515, total:26015, estado:"Cobrada", venc:"2026-07-09"},
+  {num:"FE-2026-006", fecha:"2026-07-20", cli:"NC01", lineas:[{art:'A03',cant:150,precio:24.75},{art:'A01',cant:375,precio:14.50},{art:'A04',cant:500,precio:12.30}], base:15300, cuota:3213, total:18513, estado:"Pendiente", venc:"2026-08-19"}
 );
 DB.facturasR.push(
   {num:"F-2026-001", fecha:"2026-01-20", prov:"NP01", concepto:"F-2026-001", lineas:[], base:22000, cuota:4620, total:26620, cuenta:"601", estado:"Pagada", venc:"2026-02-19"},
@@ -9340,7 +9346,7 @@ var HX_CHAT_FALLBACK = 'No he pogut trobar això a les dades del panell 🤔 Pot
 var HX_QUICK_REPLIES = [
   { label: '👥 Empleats', text: 'Quants empleats tenim i en quins departaments?' },
   { label: '📦 Estoc baix', text: 'Quins articles tenen estoc per sota del mínim?' },
-  { label: '🏢 Clients', text: 'Quins clients tenim?' },
+  { label: '🏆 Més venut', text: 'Quin és el producte més venut?' },
   { label: '🌴 Absències', text: 'Hi ha alguna absència activa ara mateix?' }
 ];
 
@@ -9397,6 +9403,24 @@ function hxBuildContext(){
     if (typeof DB === 'undefined') return '';
     var empleadosPorId = {};
     (DB.empleados||[]).forEach(function(e){ empleadosPorId[e.id] = e.nom; });
+    var productosPorId = {};
+    (DB.productos||[]).forEach(function(a){ productosPorId[a.id] = a.nom; });
+
+    // Ranking de vendes: sumem unitats i import de totes les línies de
+    // totes les factures de venda (DB.facturasE), agrupat per producte.
+    var vendasPorProducto = {};
+    (DB.facturasE||[]).forEach(function(f){
+      (f.lineas||[]).forEach(function(l){
+        var nom = productosPorId[l.art] || l.art;
+        if (!vendasPorProducto[nom]) vendasPorProducto[nom] = { unidades: 0, importe: 0 };
+        vendasPorProducto[nom].unidades += l.cant;
+        vendasPorProducto[nom].importe += Math.round(l.cant * l.precio * 100) / 100;
+      });
+    });
+    var rankingVentas = Object.keys(vendasPorProducto)
+      .map(function(nom){ return { producto: nom, unidadesVendidas: vendasPorProducto[nom].unidades, importeVendido: Math.round(vendasPorProducto[nom].importe*100)/100 }; })
+      .sort(function(a,b){ return b.unidadesVendidas - a.unidadesVendidas; });
+
     return JSON.stringify({
       empleados: (DB.empleados||[]).map(function(e){
         return { nom: e.nom, categoria: e.cat, departamento: e.depto, contrato: e.contrato, alta: e.alta };
@@ -9407,12 +9431,13 @@ function hxBuildContext(){
       proveedores: (DB.proveedores||[]).map(function(p){
         return { nom: p.nom, poblacion: p.pob, condicionPagoDias: p.cond };
       }),
-      articulos: (DB.articulos||[]).map(function(a){
+      articulos: (DB.productos||[]).map(function(a){
         return { nom: a.nom, familia: a.fam, stock: a.stock, minimo: a.min, pvp: a.pvp, ubicacion: a.ubi, bajoMinimo: a.stock < a.min };
       }),
       ausencias: (DB.ausencias||[]).map(function(a){
         return { empleado: empleadosPorId[a.emp] || a.emp, tipo: a.tipo, desde: a.desde, hasta: a.hasta, dias: a.dias };
-      })
+      }),
+      rankingVentas: rankingVentas
     });
   } catch(e){ return ''; }
 }
