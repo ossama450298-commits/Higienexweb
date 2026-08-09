@@ -5101,13 +5101,15 @@ const NAV=[
  {g:'Comercial',items:[['clientes','Clientes','comercial'],['pipeline','Oportunidades','comercial'],['actividad','Actividad','comercial']]},
  {g:'Compras',items:[['proveedores','Proveedores','logistica'],['compras','Pedidos y aprovisionamiento','logistica']]},
  {g:'Facturación',items:[['femitidas','Facturas emitidas','comercial'],['frecibidas','Facturas recibidas','admin']]},
- {g:'Finanzas',items:[['diario','Libro diario','admin'],['mayor','Libro mayor','admin'],['sumas','Sumas y saldos','admin'],['resultados','Balance y resultados','admin'],['bancos','Cuentas y movimientos','admin'],['concilia','Conciliación','admin'],['ejercicio2025','Ejercicio 2025 (archivo)','admin']]},
+ {g:'Contabilidad',items:[['diario','Libro diario','admin'],['mayor','Libro mayor','admin'],['sumas','Sumas y saldos','admin'],['resultados','Balance y resultados','admin'],['ejercicio2025','Ejercicio 2025 (archivo)','admin']]},
+ {g:'Bancos',items:[['bancos','Cuentas y movimientos','admin'],['concilia','Conciliación','admin']]},
  {g:'Logística',items:[
    ['almacen','Artículos y stock','logistica'],
    ['almacenes','Almacenes','logistica'],['transportistas','Transportistas','logistica'],
    ['expediciones','Expediciones','logistica']]},
  {g:'Fabricación',items:[['materias','Materias primas','logistica'],['formulas','Fórmulas y escandallos','logistica'],['produccion','Órdenes de fabricación','logistica'],['lotes','Lotes y trazabilidad','logistica'],['calidad','Control de calidad','logistica']]},
- {g:'Personas',items:[['fichajes','Control de fichajes','all'],['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh']]},
+ {g:'Personas',items:[['fichajes','Control de fichajes','all']]},
+ {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh']]},
  {g:'Sistema',items:[['automat','Automatizaciones','admin'],['auditoria','Registro de auditoría','admin']]},
  {g:'Dirección',items:[['sistema','Administración del sistema','super']]}
 ];
@@ -5126,11 +5128,7 @@ const NAV_ICONS={
 function can(area){
   if(!ME) return false;
   if(area==='super') return ME.perms==='all';
-  if(ME.perms==='all'||area==='all') return true;
-  if(ME.perms==='admin')     return ['admin','comercial','rrhh','logistica'].includes(area);
-  if(ME.perms==='comercial') return area==='comercial';
-  if(ME.perms==='logistica') return area==='logistica';
-  return false;
+  return true; // pàgina de prova: tots els rols veuen totes les altres seccions
 }
 const isAdmin = () => !!ME && ME.perms==='all';
 function avisos(v){
@@ -5145,8 +5143,8 @@ function avisos(v){
 }
 const NAV_GROUP_ICONS={
   'Comercial':'handshake', 'Compras':'shopping-cart', 'Facturación':'file-text',
-  'Finanzas':'landmark', 'Logística':'truck', 'Fabricación':'flask-conical',
-  'Personas':'users', 'Sistema':'settings', 'Dirección':'shield'
+  'Contabilidad':'book-open', 'Bancos':'landmark', 'Logística':'truck', 'Fabricación':'flask-conical',
+  'Personas':'clock', 'RRHH':'users', 'Sistema':'settings', 'Dirección':'shield'
 };
 function buildTopNav(){
   let h='<button class="topnavitem'+(!ACTIVE_GROUP?' on':'')+'" onclick="go(\'panel\')"><i data-lucide="layout-dashboard"></i><span>Panel</span></button>';
