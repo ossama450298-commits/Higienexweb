@@ -2492,6 +2492,12 @@ aside .sideLogo{display:block;width:calc(100% - 8px);margin:2px 4px 12px;padding
 .shell.collapsed aside .sideLogo{width:38px;margin:2px auto 12px;padding:6px}
 .shell.collapsed aside .logo{text-align:center;padding:2px 0}
 .navitem:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.topnav{background:color-mix(in srgb,var(--paper) 72%,transparent);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line);padding:0 32px;display:flex;align-items:center;gap:4px;position:sticky;top:57px;z-index:19;overflow-x:auto}
+.topnav::-webkit-scrollbar{height:0}
+.topnavitem{display:flex;align-items:center;gap:7px;padding:11px 14px;border:0;background:none;color:var(--ink-2);font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;border-bottom:2.5px solid transparent;transition:color .15s,border-color .15s}
+.topnavitem:hover{color:var(--ink)}
+.topnavitem.on{color:var(--blue);border-bottom-color:var(--blue)}
+.topnavitem svg{width:14.5px;height:14.5px;opacity:.85}
 
 main{min-width:0;display:flex;flex-direction:column}
 .topbar{background:color-mix(in srgb,var(--paper) 72%,transparent);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line);padding:14px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:20}
@@ -2708,6 +2714,7 @@ button,.navitem,.btn,a{min-height:32px}
   .sidetoggle{display:none}
   .wrap{padding:18px 14px 50px}
   .topbar{padding:12px 16px}
+  .topnav{padding:0 16px;top:49px}
   .qa-bar{gap:8px}
   .qa-btn{flex:1 1 44%;justify-content:center}
   .goalring{flex-direction:column;text-align:center}
@@ -4600,6 +4607,7 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
         <button class="btn ghost sm" onclick="logout()">Salir</button>
       </div>
     </div>
+    <nav id="topnav" class="topnav"></nav>
     <div class="wrap" id="view"></div>
   </main>
 </div>
@@ -4683,7 +4691,8 @@ const USERS = [
   {id:'U1',nom:'Oussama',alias:'oussama',emp:'E01',mail:'admin@higienex.es',pass:'450298',    rol:'Dirección',     perms:'all'},
   {id:'U2',nom:'Ariadna',   alias:'ari',    emp:'E02',mail:'ari@higienex.es',  pass:'Ari2025',     rol:'Administración',perms:'admin'},
   {id:'U3',nom:'Lucía',    alias:'lucia',  emp:'E03',mail:'lucia@higienex.es',pass:'Lucia2025',   rol:'Comercial',     perms:'comercial'},
-  {id:'U4',nom:'Marc',       alias:'marc',   emp:'E04',mail:'marc@higienex.es', pass:'Marc2025',    rol:'Logística',     perms:'logistica'}
+  {id:'U4',nom:'Marc',       alias:'marc',   emp:'E04',mail:'marc@higienex.es', pass:'Marc2025',    rol:'Logística',     perms:'logistica'},
+  {id:'U5',nom:'Edu',        alias:'edu',    emp:'E07',mail:'edu@higienex.es',  pass:'Higienex2025', rol:'Logística',     perms:'logistica'}
 ];
 let ME = null;
 
@@ -4716,7 +4725,8 @@ empleados:[
  {id:'E03',nom:'Lucía',dni:'44556677M',cat:'Responsable comercial',contrato:'Indefinido',alta:'2019-02-11',brutoAnual:29400,pagas:14,irpf:16,depto:'Comercial'},
  {id:'E04',nom:'Marc',dni:'25334411F',cat:'Jefe de almacén',contrato:'Indefinido',alta:'2018-06-04',brutoAnual:26600,pagas:14,irpf:14,depto:'Logística'},
  {id:'E05',nom:'Nadia',dni:'X8123456R',cat:'Técnica de laboratorio',contrato:'Indefinido',alta:'2021-01-18',brutoAnual:27300,pagas:14,irpf:15,depto:'I+D'},
- {id:'E06',nom:'Sergi',dni:'52887744T',cat:'Operario de producción',contrato:'Temporal',alta:'2025-10-01',brutoAnual:21800,pagas:14,irpf:9,depto:'Producción'}
+ {id:'E06',nom:'Sergi',dni:'52887744T',cat:'Operario de producción',contrato:'Temporal',alta:'2025-10-01',brutoAnual:21800,pagas:14,irpf:9,depto:'Producción'},
+ {id:'E07',nom:'Edu',dni:'39887766P',cat:'Técnico de logística',contrato:'Indefinido',alta:'2026-08-01',brutoAnual:24500,pagas:14,irpf:12,depto:'Logística'}
 ],
 ausencias:[
  {id:'AU1',emp:'E06',tipo:'Baja por IT (común)',desde:'2026-06-02',hasta:'2026-06-13',dias:10},
@@ -5133,9 +5143,27 @@ function avisos(v){
   if(v==='automat')  return typeof evaluarReglas==='function'?evaluarReglas().length:0;
   return 0;
 }
+const NAV_GROUP_ICONS={
+  'Comercial':'handshake', 'Compras':'shopping-cart', 'Facturación':'file-text',
+  'Finanzas':'landmark', 'Logística':'truck', 'Fabricación':'flask-conical',
+  'Personas':'users', 'Sistema':'settings', 'Dirección':'shield'
+};
+function buildTopNav(){
+  let h='<button class="topnavitem'+(!ACTIVE_GROUP?' on':'')+'" onclick="go(\'panel\')"><i data-lucide="layout-dashboard"></i><span>Panel</span></button>';
+  NAV.forEach(sec=>{
+    if(!sec.g) return; // el grup sense nom ('Panel') ja té botó propi més amunt
+    const vis=sec.items.filter(i=>can(i[2]));
+    if(!vis.length) return;
+    const icon=NAV_GROUP_ICONS[sec.g]||'circle';
+    h+='<button class="topnavitem'+(ACTIVE_GROUP===sec.g?' on':'')+'" onclick="go(\''+vis[0][0]+'\')"><i data-lucide="'+icon+'"></i><span>'+sec.g+'</span></button>';
+  });
+  const topnav=document.getElementById('topnav');
+  if(topnav) topnav.innerHTML=h;
+}
 function buildNav(){
   let h='';
   NAV.forEach(sec=>{
+    if(sec.g!==ACTIVE_GROUP) return; // el lateral només mostra els subapartats de la categoria activa
     const vis=sec.items.filter(i=>can(i[2]));
     if(!vis.length) return;
     if(sec.g) h+='<div class="navgroup">'+sec.g+'</div>';
@@ -5145,6 +5173,7 @@ function buildNav(){
   });
   document.getElementById('nav').innerHTML=h;
   document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('on',b.dataset.v===VIEW));
+  buildTopNav();
   renderExtras();
 }
 function toggleSidebar(){
@@ -5286,6 +5315,11 @@ function svgGauge(pct, color, label){
 }
 
 let VIEW='panel';const ROUTES={};
+let ACTIVE_GROUP=null; // categoria activa mostrada al menú superior / lateral
+function groupOfView(v){
+  for(const sec of NAV){ if(sec.items.some(i=>i[0]===v)) return sec.g; }
+  return null;
+}
 function viewPermArea(v){
   const label = NAV.flatMap(s=>s.items).find(i=>i[0]===v);
   return label ? label[2] : 'all';
@@ -5297,6 +5331,7 @@ function go(v,keepQ){
   }
   if(v!==VIEW && !keepQ) Q='';
   VIEW=v;
+  ACTIVE_GROUP=groupOfView(v);
   document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   const label=NAV.flatMap(s=>s.items).find(i=>i[0]===v);
   document.getElementById('crumb').textContent=label?label[1]:'Panel';
