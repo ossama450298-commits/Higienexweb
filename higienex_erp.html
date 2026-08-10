@@ -2484,7 +2484,7 @@ aside .sideLogo{display:block;width:calc(100% - 8px);margin:2px 4px 12px;padding
 .navitem{display:flex;justify-content:flex-start;align-items:center;gap:12px;width:100%;text-align:left;padding:9px 12px;margin:1px 0;border:0;border-radius:11px;background:none;color:var(--side-ink);cursor:pointer;font-size:13.5px;font-weight:600;transition:background .15s,color .15s,transform .1s}
 .navitem:hover{background:var(--side-h);color:#fff}
 .navitem.on{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;box-shadow:0 4px 14px rgba(74,85,255,.35)}
-.navitem svg{width:16.5px;height:16.5px;flex-shrink:0;opacity:.9}
+.navitem svg,.navitem .navicon{width:16.5px;flex-shrink:0;opacity:.9;font-size:15px;line-height:1}
 .navitem span.navlabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:left}
 .navitem .badge{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--red);color:#fff;border-radius:20px;padding:1.5px 7px;font-weight:700}
 .shell.collapsed .navitem{justify-content:center;padding:11px}
@@ -2492,12 +2492,12 @@ aside .sideLogo{display:block;width:calc(100% - 8px);margin:2px 4px 12px;padding
 .shell.collapsed aside .sideLogo{width:38px;margin:2px auto 12px;padding:6px}
 .shell.collapsed aside .logo{text-align:center;padding:2px 0}
 .navitem:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
-.topnav{background:color-mix(in srgb,var(--paper) 72%,transparent);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line);padding:0 32px;display:flex;align-items:center;gap:4px;position:sticky;top:57px;z-index:19;overflow-x:auto}
+.topnav{background:var(--side);border-bottom:1px solid var(--side-line);padding:0 10px;display:flex;align-items:stretch;gap:2px;position:sticky;top:57px;z-index:19;overflow-x:auto}
 .topnav::-webkit-scrollbar{height:0}
-.topnavitem{display:flex;align-items:center;gap:7px;padding:11px 14px;border:0;background:none;color:var(--ink-2);font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;border-bottom:2.5px solid transparent;transition:color .15s,border-color .15s}
-.topnavitem:hover{color:var(--ink)}
-.topnavitem.on{color:var(--blue);border-bottom-color:var(--blue)}
-.topnavitem svg{width:14.5px;height:14.5px;opacity:.85}
+.topnavitem{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 14px 7px;border:0;background:none;color:var(--side-ink-2);font-size:10.5px;font-weight:600;letter-spacing:.01em;cursor:pointer;white-space:nowrap;border-radius:8px 8px 0 0;transition:background .15s,color .15s}
+.topnavitem:hover{background:var(--side-h);color:#fff}
+.topnavitem.on{background:var(--side-h);color:#fff;box-shadow:inset 0 -2.5px 0 var(--blue)}
+.topnavitem svg,.topnavitem .topnavicon{font-size:18px;line-height:1;opacity:.95}
 
 main{min-width:0;display:flex;flex-direction:column}
 .topbar{background:color-mix(in srgb,var(--paper) 72%,transparent);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line);padding:14px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:20}
@@ -5114,16 +5114,16 @@ const NAV=[
  {g:'Dirección',items:[['sistema','Administración del sistema','super']]}
 ];
 const NAV_ICONS={
-  panel:'layout-dashboard', clientes:'users', pipeline:'target', actividad:'activity',
-  proveedores:'truck', compras:'shopping-cart',
-  femitidas:'file-text', frecibidas:'receipt',
-  diario:'book-open', mayor:'book', sumas:'scale', resultados:'pie-chart', bancos:'landmark',
-  concilia:'git-compare', ejercicio2025:'archive',
-  almacen:'package', almacenes:'warehouse', transportistas:'truck', expediciones:'send',
-  materias:'flask-conical', formulas:'beaker', produccion:'factory', lotes:'boxes', calidad:'badge-check',
-  fichajes:'clock', rrhh:'contact', nominas:'wallet',
-  automat:'zap', auditoria:'shield-check',
-  sistema:'settings'
+  panel:'📊', clientes:'👥', pipeline:'🎯', actividad:'📈',
+  proveedores:'🚚', compras:'🛒',
+  femitidas:'📄', frecibidas:'🧾',
+  diario:'📖', mayor:'📚', sumas:'⚖️', resultados:'📊', bancos:'🏦',
+  concilia:'🔄', ejercicio2025:'🗄️',
+  almacen:'📦', almacenes:'🏬', transportistas:'🚚', expediciones:'📤',
+  materias:'🧪', formulas:'⚗️', produccion:'🏭', lotes:'📦', calidad:'✅',
+  fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
+  automat:'⚡', auditoria:'🛡️',
+  sistema:'⚙️'
 };
 function can(area){
   if(!ME) return false;
@@ -5142,23 +5142,22 @@ function avisos(v){
   return 0;
 }
 const NAV_GROUP_ICONS={
-  'Comercial':'handshake', 'Compras':'shopping-cart', 'Facturación':'file-text',
-  'Contabilidad':'book-open', 'Bancos':'landmark', 'Logística':'truck', 'Fabricación':'flask-conical',
-  'Personas':'clock', 'RRHH':'users', 'Sistema':'settings', 'Dirección':'shield'
+  'Comercial':'🤝', 'Compras':'🛒', 'Facturación':'🧾',
+  'Contabilidad':'📖', 'Bancos':'🏦', 'Logística':'🚚', 'Fabricación':'🧪',
+  'Personas':'⏱️', 'RRHH':'👥', 'Sistema':'⚙️', 'Dirección':'🛡️'
 };
 function buildTopNav(){
-  let h='<button class="topnavitem'+(!ACTIVE_GROUP?' on':'')+'" onclick="go(\'panel\')"><i data-lucide="layout-dashboard"></i><span>Panel</span></button>';
+  let h='<button class="topnavitem'+(!ACTIVE_GROUP?' on':'')+'" onclick="go(\'panel\')"><span class="topnavicon">📊</span><span>Panel</span></button>';
   NAV.forEach(sec=>{
     if(!sec.g) return; // el grup sense nom ('Panel') ja té botó propi més amunt
     const vis=sec.items.filter(i=>can(i[2]));
     if(!vis.length) return;
-    const icon=NAV_GROUP_ICONS[sec.g]||'circle';
-    h+='<button class="topnavitem'+(ACTIVE_GROUP===sec.g?' on':'')+'" onclick="go(\''+vis[0][0]+'\')"><i data-lucide="'+icon+'"></i><span>'+sec.g+'</span></button>';
+    const icon=NAV_GROUP_ICONS[sec.g]||'🔹';
+    h+='<button class="topnavitem'+(ACTIVE_GROUP===sec.g?' on':'')+'" onclick="go(\''+vis[0][0]+'\')"><span class="topnavicon">'+icon+'</span><span>'+sec.g+'</span></button>';
   });
   const topnav=document.getElementById('topnav');
   if(topnav) topnav.innerHTML=h;
-}
-function buildNav(){
+}function buildNav(){
   let h='';
   NAV.forEach(sec=>{
     if(sec.g!==ACTIVE_GROUP) return; // el lateral només mostra els subapartats de la categoria activa
@@ -5166,8 +5165,8 @@ function buildNav(){
     if(!vis.length) return;
     if(sec.g) h+='<div class="navgroup">'+sec.g+'</div>';
     vis.forEach(i=>{ const n=avisos(i[0]);
-      const icon=NAV_ICONS[i[0]]||'circle';
-      h+='<button class="navitem" data-v="'+i[0]+'" title="'+i[1]+'" onclick="go(\''+i[0]+'\')"><i data-lucide="'+icon+'"></i><span class="navlabel">'+i[1]+'</span>'+(n?'<span class="badge">'+n+'</span>':'')+'</button>'; });
+      const icon=NAV_ICONS[i[0]]||'🔹';
+      h+='<button class="navitem" data-v="'+i[0]+'" title="'+i[1]+'" onclick="go(\''+i[0]+'\')"><span class="navicon">'+icon+'</span><span class="navlabel">'+i[1]+'</span>'+(n?'<span class="badge">'+n+'</span>':'')+'</button>'; });
   });
   document.getElementById('nav').innerHTML=h;
   document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('on',b.dataset.v===VIEW));
