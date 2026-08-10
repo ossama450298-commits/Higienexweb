@@ -7,6 +7,14 @@
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HIGIENEX · Gestión interna</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest-erp.json">
+<meta name="theme-color" content="#0F1D2B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HIGIENEX ERP">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-erp.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -4636,6 +4644,7 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
       <button class="searchbtn" onclick="openPalette()" type="button"><span class="lbl">Buscar en todo el ERP…</span><span class="kbd">Ctrl K</span></button>
       <div class="who">
         <button class="btn ghost sm" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">Modo oscuro</button>
+        <button class="btn ghost sm" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ Instal·lar</button>
         <span class="exercise">Ejercicio 2026</span>
         <div style="position:relative">
           <button class="btn ghost sm" id="hxNotifBell" onclick="hxToggleNotifPanel()" title="Notificacions" aria-label="Notificacions" type="button" style="position:relative">
@@ -5259,6 +5268,37 @@ function hxConsultarPortalCliente(){
   document.getElementById('hxPortalResult').style.display='block';
 }
 window.hxConsultarPortalCliente=hxConsultarPortalCliente;
+
+// ── PWA: registre del Service Worker + botó d'instal·lació ───────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw-erp.js').catch(function(err) {
+      console.warn('No s\'ha pogut registrar el Service Worker:', err);
+    });
+  });
+}
+let _hxInstallPromptErp = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _hxInstallPromptErp = e;
+  const btn = document.getElementById('hxInstallBtnErp');
+  if (btn) btn.style.display = 'inline-flex';
+});
+function hxInstallAppErp() {
+  if (!_hxInstallPromptErp) return;
+  _hxInstallPromptErp.prompt();
+  _hxInstallPromptErp.userChoice.then(function() {
+    _hxInstallPromptErp = null;
+    const btn = document.getElementById('hxInstallBtnErp');
+    if (btn) btn.style.display = 'none';
+  });
+}
+window.hxInstallAppErp = hxInstallAppErp;
+window.addEventListener('appinstalled', function() {
+  const btn = document.getElementById('hxInstallBtnErp');
+  if (btn) btn.style.display = 'none';
+});
+
 
 /* Navegación */
 const NAV=[

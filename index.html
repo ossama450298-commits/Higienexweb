@@ -2083,13 +2083,13 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 </style>
 
   <!-- PWA -->
-  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22HIGIENEX%22%2C%22short_name%22%3A%22HIGIENEX%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%230B3D6B%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%2520viewBox%3D%270%25200%2520192%2520192%27%253E%253Crect%2520width%3D%27192%27%2520height%3D%27192%27%2520rx%3D%2740%27%2520fill%3D%27%25230B3D6B%27%2F%253E%253Ctext%2520x%3D%2796%27%2520y%3D%27130%27%2520font-family%3D%27Georgia%2Cserif%27%2520font-size%3D%27100%27%2520font-weight%3D%27bold%27%2520fill%3D%27%2523F2A900%27%2520text-anchor%3D%27middle%27%253EX%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+  <link rel="manifest" href="manifest-web.json">
   <meta name="theme-color" content="#0B3D6B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HIGIENEX">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='38' fill='%230B3D6B'/%3E%3Ctext x='90' y='122' font-family='Georgia,serif' font-size='92' font-weight='bold' fill='%23F2A900' text-anchor='middle'%3EX%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon-web.png">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
@@ -4419,6 +4419,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
     </button>
     <div id="navRightGroup" style="display:flex;align-items:center;gap:1rem;margin-left:auto;">
       <button id="langToggleBtn" onclick="hxToggleLang()" type="button" title="Canviar idioma" aria-label="Canviar idioma" style="background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 0.75rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;">CA/ES</button>
+      <button id="hxInstallBtn" onclick="hxInstallApp()" type="button" title="Instal·lar l'app" aria-label="Instal·lar l'app" style="display:none;align-items:center;gap:0.4rem;background:var(--accent);border:none;color:#1A1A1A;padding:0.45rem 0.9rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;white-space:nowrap;">⬇️ Instal·lar app</button>
       <div id="authBtns" style="display:flex;gap:0.5rem;">
         <button onclick="openAuthModal();switchTab('login')" style="display:flex;align-items:center;gap:0.4rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 1rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.82rem;font-weight:600;transition:all 0.2s;white-space:nowrap;" type="button">
           Accedir
@@ -9603,6 +9604,36 @@ document.addEventListener('DOMContentLoaded', function() {
     var saved = localStorage.getItem(HX_LANG_KEY);
     if (saved === 'es') hxApplyLang('es');
   } catch(e){}
+});
+
+// ── PWA: registre del Service Worker + botó d'instal·lació ───────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw-web.js').catch(function(err) {
+      console.warn('No s\'ha pogut registrar el Service Worker:', err);
+    });
+  });
+}
+var _hxInstallPromptEvent = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  _hxInstallPromptEvent = e;
+  var btn = document.getElementById('hxInstallBtn');
+  if (btn) btn.style.display = 'inline-flex';
+});
+function hxInstallApp() {
+  if (!_hxInstallPromptEvent) return;
+  _hxInstallPromptEvent.prompt();
+  _hxInstallPromptEvent.userChoice.then(function() {
+    _hxInstallPromptEvent = null;
+    var btn = document.getElementById('hxInstallBtn');
+    if (btn) btn.style.display = 'none';
+  });
+}
+window.hxInstallApp = hxInstallApp;
+window.addEventListener('appinstalled', function() {
+  var btn = document.getElementById('hxInstallBtn');
+  if (btn) btn.style.display = 'none';
 });
 
 function closeWelcome(){var m=document.getElementById('welcomeMsg');if(m)m.style.display='none';}
