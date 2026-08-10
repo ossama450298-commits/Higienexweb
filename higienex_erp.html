@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <style>
 /* ==========================================================================
    HIGIENEX — Sistema de diseño 2026
@@ -2498,7 +2499,20 @@ aside .sideLogo{display:block;width:calc(100% - 8px);margin:2px 4px 12px;padding
 .topnavitem{flex:0 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 6px 6px;border:0;background:none;color:var(--side-ink-2);font-size:10px;font-weight:600;letter-spacing:.01em;cursor:pointer;white-space:nowrap;border-radius:8px 8px 0 0;transition:background .15s,color .15s;min-width:52px;max-width:96px}
 .topnavitem:hover{background:var(--side-h);color:#fff}
 .topnavitem.on{background:var(--side-h);color:#fff;box-shadow:inset 0 -3px 0 var(--blue)}
-.topnavitem svg,.topnavitem .topnavicon{font-size:17px;line-height:1;opacity:.95}
+.topnavitem svg,.topnavitem .topnavicon{font-size:17px;line-height:1;opacity:.85;transition:transform .15s,opacity .15s}
+.topnavitem:hover .topnavicon{transform:translateY(-1px);opacity:1}
+.topnavitem.on .topnavicon{opacity:1}
+
+/* Centre de notificacions */
+.hx-notif-panel{display:none;position:absolute;top:calc(100% + 10px);right:0;width:340px;max-height:420px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);z-index:60;padding:6px}
+.hx-notif-panel.on{display:block}
+.hx-notif-item{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--ink);line-height:1.4;transition:background .12s}
+.hx-notif-item:hover{background:var(--hover)}
+.hx-notif-ic{font-size:16px;flex-shrink:0}
+.hx-notif-danger{border-left:3px solid var(--red)}
+.hx-notif-warn{border-left:3px solid var(--gold)}
+.hx-notif-info{border-left:3px solid var(--blue)}
+.hx-notif-empty{padding:24px 16px;text-align:center;color:var(--ink-2);font-size:13px}
 
 main{min-width:0;display:flex;flex-direction:column}
 .topbar{background:color-mix(in srgb,var(--paper) 72%,transparent);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line);padding:14px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:20}
@@ -3713,6 +3727,27 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
     <div class="field"><label for="lp">Contraseña</label><input id="lp" type="password" autocomplete="current-password" placeholder="••••••••"></div>
     <button class="btn block" onclick="doLogin()" type="button">Entrar</button>
     <div class="hint" style="text-align:center">¿No recuerdas tu contraseña? Pide a Dirección que te la facilite o te la restablezca.</div>
+    <div class="hint" style="text-align:center;margin-top:6px"><button class="btn ghost sm" onclick="hxAbrirPortalCliente()" type="button">👤 Ets client? Consulta les teves factures</button></div>
+  </div>
+  <div class="box" id="hx2faBox" style="display:none">
+    <span class="eyebrow" style="text-align:center;display:block;margin-bottom:14px">🔐 Verificació en dos passos</span>
+    <p style="font-size:13px;color:var(--ink-2);text-align:center;margin-bottom:16px" id="hx2faMsg">Introdueix el codi de 6 dígits.</p>
+    <div class="field"><label for="hx2faCode">Codi de verificació</label><input id="hx2faCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" style="letter-spacing:6px;text-align:center;font-size:20px;font-family:'IBM Plex Mono',monospace"></div>
+    <div class="err" id="hx2faErr" style="display:none">Codi incorrecte. Torna-ho a provar.</div>
+    <button class="btn block" onclick="hxVerify2FA()" type="button">Verificar i entrar</button>
+    <div class="hint" style="text-align:center"><button class="btn ghost sm" onclick="hx2faVolver()" type="button">← Tornar</button></div>
+  </div>
+  <div class="box" id="hxPortalCliente" style="display:none">
+    <span class="eyebrow" style="text-align:center;display:block;margin-bottom:14px">👤 Portal de client</span>
+    <p style="font-size:12.5px;color:var(--ink-2);text-align:center;margin-bottom:16px">Consulta ràpida i informativa de les teves factures. No requereix contrasenya — no s'hi mostren dades de pagament ni documents interns.</p>
+    <div id="hxPortalForm">
+      <div class="field"><label for="hxPortalNif">NIF de l'empresa</label><input id="hxPortalNif" placeholder="B12345678" style="text-transform:uppercase"></div>
+      <div class="field"><label for="hxPortalMail">Email registrat</label><input id="hxPortalMail" type="email" placeholder="contacte@empresa.com"></div>
+      <div class="err" id="hxPortalErr" style="display:none">No hem trobat cap client amb aquestes dades.</div>
+      <button class="btn block" onclick="hxConsultarPortalCliente()" type="button">Consultar</button>
+    </div>
+    <div id="hxPortalResult" style="display:none"></div>
+    <div class="hint" style="text-align:center"><button class="btn ghost sm" onclick="hxCerrarPortalCliente()" type="button">← Tornar a l'accés intern</button></div>
   </div>
 </div>
 
@@ -4602,8 +4637,17 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
       <div class="who">
         <button class="btn ghost sm" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">Modo oscuro</button>
         <span class="exercise">Ejercicio 2026</span>
+        <div style="position:relative">
+          <button class="btn ghost sm" id="hxNotifBell" onclick="hxToggleNotifPanel()" title="Notificacions" aria-label="Notificacions" type="button" style="position:relative">
+            🔔<span id="hxNotifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:20px;min-width:16px;height:16px;align-items:center;justify-content:center;padding:0 3px">0</span>
+          </button>
+          <div id="hxNotifPanel" class="hx-notif-panel"></div>
+        </div>
         <span id="whoName"></span>
         <span class="avatar" id="whoAv"></span>
+        <button class="btn ghost sm" title="Descarrega totes les dades del panell en un fitxer .json" onclick="hxBackupDB()" type="button">💾 Còpia de seguretat</button>
+        <button class="btn ghost sm" title="Restaura dades des d'un fitxer .json de còpia de seguretat" onclick="document.getElementById('hxRestoreInput').click()" type="button">📂 Restaurar</button>
+        <input type="file" id="hxRestoreInput" accept="application/json" style="display:none" onchange="hxRestoreDB(event)">
         <button class="btn ghost sm" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()" type="button">Restablecer datos</button>
         <button class="btn ghost sm" onclick="logout()" type="button">Salir</button>
       </div>
@@ -4779,6 +4823,58 @@ function restablecerDatosEjemplo(){
   location.reload();
 }
 window.restablecerDatosEjemplo = restablecerDatosEjemplo;
+
+// ── CÒPIA DE SEGURETAT / RESTAURACIÓ ──────────────────────
+// Com que totes les dades viuen només al localStorage del navegador,
+// això és l'única manera de no perdre-les si canvies de dispositiu,
+// esborres la memòria cau, o simplement vols tenir un punt de restauració.
+function hxBackupDB(){
+  try{
+    const payload = {
+      _meta: { app: 'HIGIENEX ERP', exportedAt: new Date().toISOString(), version: 1 },
+      DB: DB
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = 'higienex-backup-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    if (typeof toast === 'function') toast('💾 Còpia de seguretat descarregada');
+  }catch(e){
+    alert('No s\'ha pogut generar la còpia de seguretat: ' + e.message);
+  }
+}
+window.hxBackupDB = hxBackupDB;
+
+function hxRestoreDB(ev){
+  const file = ev.target.files && ev.target.files[0];
+  ev.target.value = ''; // permet tornar a triar el mateix fitxer després
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(){
+    let parsed;
+    try{ parsed = JSON.parse(reader.result); }
+    catch(e){ alert('Aquest fitxer no és un JSON vàlid.'); return; }
+    const data = parsed && parsed.DB ? parsed.DB : parsed; // accepta amb o sense embolcall _meta
+    if (!data || typeof data !== 'object') { alert('El fitxer no té el format esperat d\'una còpia de seguretat de HIGIENEX.'); return; }
+    if (!confirm('Això substituirà TOTES les dades actuals del panell (clients, factures, empleats, estoc…) per les del fitxer triat. Aquesta acció no es pot desfer. Vols continuar?')) return;
+    try{
+      localStorage.setItem(HX_DB_KEY, JSON.stringify(data));
+      if (typeof toast === 'function') toast('✅ Dades restaurades, recarregant…');
+      setTimeout(()=>location.reload(), 800);
+    }catch(e){
+      alert('No s\'ha pogut restaurar la còpia: ' + e.message);
+    }
+  };
+  reader.onerror = function(){ alert('No s\'ha pogut llegir el fitxer.'); };
+  reader.readAsText(file);
+}
+window.hxRestoreDB = hxRestoreDB;
 
 /* ---------- Alta de subcuentas ---------- */
 function abrirSubcuentas(){
@@ -5079,13 +5175,45 @@ function setQ(v){
 const hit = txt => !Q || String(txt).toLowerCase().includes(Q.toLowerCase());
 
 /* Acceso */
+let _hx2faCode=null, _hx2faUser=null;
 function doLogin(){
   const u=val('lu').trim().toLowerCase(), p=val('lp');
   const found=USERS.find(x=>[x.mail,x.alias,x.nom,x.nom.split(' ')[0]].some(v=>v.toLowerCase()===u)&&x.pass===p);
   if(!found){document.getElementById('loginErr').style.display='block';return;}
+  document.getElementById('loginErr').style.display='none';
+  // Verificació en dos passos: generem un codi de 6 dígits. Com que és un
+  // projecte de prova sense servidor de correu/SMS real, el mostrem
+  // directament a la pantalla (en un cas real s'enviaria per email o SMS).
+  _hx2faUser=found;
+  _hx2faCode=String(Math.floor(100000+Math.random()*900000));
+  document.querySelectorAll('#login .box')[0].style.display='none';
+  const box=document.getElementById('hx2faBox'); box.style.display='block';
+  document.getElementById('hx2faMsg').innerHTML='Hem enviat un codi a <strong>'+esc(found.mail)+'</strong>.<br><span style="color:var(--ink-2);font-size:11.5px">(Demo sense servidor real — el codi és: <strong style="font-family:\'IBM Plex Mono\',monospace">'+_hx2faCode+'</strong>)</span>';
+  document.getElementById('hx2faErr').style.display='none';
+  document.getElementById('hx2faCode').value='';
+  setTimeout(()=>document.getElementById('hx2faCode').focus(),100);
+}
+function hx2faVolver(){
+  document.getElementById('hx2faBox').style.display='none';
+  document.querySelectorAll('#login .box')[0].style.display='block';
+  _hx2faCode=null; _hx2faUser=null;
+}
+window.hx2faVolver=hx2faVolver;
+function hxVerify2FA(){
+  const code=document.getElementById('hx2faCode').value.trim();
+  if(!_hx2faUser || code!==_hx2faCode){
+    document.getElementById('hx2faErr').style.display='block';
+    return;
+  }
+  completeLogin(_hx2faUser);
+  _hx2faCode=null; _hx2faUser=null;
+}
+window.hxVerify2FA=hxVerify2FA;
+function completeLogin(found){
   ME=found;
   cargarDB();
   document.getElementById('login').style.display='none';
+  document.getElementById('hx2faBox').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('whoName').textContent=ME.nom+' · '+ME.rol;
   document.getElementById('whoAv').textContent=ME.nom.split(' ').map(w=>w[0]).slice(0,2).join('');
@@ -5093,7 +5221,44 @@ function doLogin(){
   try{ if(localStorage.getItem('hx_sidebar_collapsed')==='1') document.querySelector('.shell').classList.add('collapsed'); }catch(e){}
   toast('Sesión iniciada. Bienvenido, '+ME.nom.split(' ')[0]+'.');
 }
-function logout(){ME=null;document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex';document.getElementById('lp').value='';document.getElementById('loginErr').style.display='none';}
+function logout(){ME=null;document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex';document.querySelectorAll('#login .box')[0].style.display='block';document.getElementById('hx2faBox').style.display='none';document.getElementById('hxPortalCliente').style.display='none';document.getElementById('lp').value='';document.getElementById('loginErr').style.display='none';}
+
+// ── PORTAL DE CLIENT ───────────────────────────────────────
+// Consulta informativa i de només lectura: NO és un accés amb contrasenya
+// real, ni mostra dades sensibles (sous, contrasenyes, marges, adjunts
+// interns) — només les seves pròpies factures emeses. Per a un ús real
+// caldria autenticació de veritat (p. ex. enllaç únic per email).
+function hxAbrirPortalCliente(){
+  document.querySelectorAll('#login .box')[0].style.display='none';
+  document.getElementById('hxPortalCliente').style.display='block';
+  document.getElementById('hxPortalForm').style.display='block';
+  document.getElementById('hxPortalResult').style.display='none';
+  document.getElementById('hxPortalErr').style.display='none';
+}
+window.hxAbrirPortalCliente=hxAbrirPortalCliente;
+function hxCerrarPortalCliente(){
+  document.getElementById('hxPortalCliente').style.display='none';
+  document.querySelectorAll('#login .box')[0].style.display='block';
+}
+window.hxCerrarPortalCliente=hxCerrarPortalCliente;
+function hxConsultarPortalCliente(){
+  const nif=(document.getElementById('hxPortalNif').value||'').trim().toUpperCase();
+  const mail=(document.getElementById('hxPortalMail').value||'').trim().toLowerCase();
+  if(!nif||!mail){ document.getElementById('hxPortalErr').textContent='Omple els dos camps.'; document.getElementById('hxPortalErr').style.display='block'; return; }
+  const c=DB.clientes.find(x=>x.nif===nif && (x.mail||'').toLowerCase()===mail);
+  if(!c){ document.getElementById('hxPortalErr').textContent='No hem trobat cap client amb aquestes dades.'; document.getElementById('hxPortalErr').style.display='block'; return; }
+  document.getElementById('hxPortalErr').style.display='none';
+  const fac=DB.facturasE.filter(f=>f.cli===c.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const rows=fac.map(f=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px">'+
+    '<span>'+esc(f.num)+' · '+FD(f.fecha)+'</span><span class="mono">'+EUR(f.total)+' · '+f.estado+'</span></div>').join('');
+  document.getElementById('hxPortalResult').innerHTML =
+    '<p style="font-size:13px;margin-bottom:10px"><strong>'+esc(c.nom)+'</strong><br><span style="color:var(--ink-2);font-size:12px">Saldo pendent: '+EUR(saldoCliente(c.id))+'</span></p>'+
+    (rows || '<p style="color:var(--ink-2);font-size:12.5px">Encara no hi ha factures registrades.</p>')+
+    '<button class="btn ghost sm block" style="margin-top:12px" onclick="hxAbrirPortalCliente()" type="button">← Nova consulta</button>';
+  document.getElementById('hxPortalForm').style.display='none';
+  document.getElementById('hxPortalResult').style.display='block';
+}
+window.hxConsultarPortalCliente=hxConsultarPortalCliente;
 
 /* Navegación */
 const NAV=[
@@ -5141,6 +5306,53 @@ function avisos(v){
   if(v==='automat')  return typeof evaluarReglas==='function'?evaluarReglas().length:0;
   return 0;
 }
+
+// ── CENTRE DE NOTIFICACIONS ────────────────────────────────
+// Consolida en un sol lloc els avisos que abans només es veien com a
+// numerets solts al menú (estoc baix, factures vençudes, moviments
+// bancaris sense conciliar, lots en quarantena...).
+function hxNotificaciones(){
+  const items=[];
+  const stockBaix=(DB.productos||[]).filter(p=>p.stock<p.min);
+  if(stockBaix.length) items.push({icon:'📦',text:stockBaix.length+' article'+(stockBaix.length>1?'s':'')+' amb estoc per sota del mínim',v:'almacen',sev:'warn'});
+  const materiesBaix=(DB.materias||[]).filter(m=>m.stock<m.min);
+  if(materiesBaix.length) items.push({icon:'🧪',text:materiesBaix.length+' matèria'+(materiesBaix.length>1?'es':'')+' primera amb estoc baix',v:'materias',sev:'warn'});
+  const facVencudes=(DB.facturasE||[]).filter(f=>f.estado==='Pendiente'&&f.venc<TODAY);
+  if(facVencudes.length) items.push({icon:'🧾',text:facVencudes.length+' factura'+(facVencudes.length>1?'es':'')+' de client vençuda'+(facVencudes.length>1?'es':'')+' sense cobrar',v:'femitidas',sev:'danger'});
+  const noConciliats=(DB.movimientos||[]).filter(m=>!m.conc);
+  if(noConciliats.length) items.push({icon:'🏦',text:noConciliats.length+' moviment'+(noConciliats.length>1?'s':'')+' bancari'+(noConciliats.length>1?'s':'')+' sense conciliar',v:'concilia',sev:'info'});
+  const quarantena=(DB.lotes||[]).filter(l=>l.estado==='Cuarentena');
+  if(quarantena.length) items.push({icon:'⚗️',text:quarantena.length+' lot'+(quarantena.length>1?'s':'')+' en quarantena pendent de validar',v:'calidad',sev:'warn'});
+  const noConf=(DB.noconf||[]).filter(n=>n.estado==='Abierta');
+  if(noConf.length) items.push({icon:'⚠️',text:noConf.length+' no-conformitat'+(noConf.length>1?'s':'')+' oberta'+(noConf.length>1?'s':''),v:'calidad',sev:'danger'});
+  const sinExpedir=(typeof facturasSinExpedir==='function')?facturasSinExpedir():[];
+  if(sinExpedir.length) items.push({icon:'🚚',text:sinExpedir.length+' comanda'+(sinExpedir.length>1?'es':'')+' pendent'+(sinExpedir.length>1?'s':'')+' d\'expedir',v:'expediciones',sev:'warn'});
+  return items;
+}
+function hxRenderNotifBell(){
+  const bell=document.getElementById('hxNotifBell'); if(!bell) return;
+  const n=hxNotificaciones();
+  const badge=document.getElementById('hxNotifBadge');
+  if(badge){ badge.textContent=n.length; badge.style.display=n.length?'flex':'none'; }
+}
+function hxToggleNotifPanel(){
+  let p=document.getElementById('hxNotifPanel');
+  const open = p && p.classList.contains('on');
+  document.querySelectorAll('.hx-notif-panel.on').forEach(x=>x.classList.remove('on'));
+  if(!p) return;
+  if(!open){
+    const items=hxNotificaciones();
+    p.innerHTML = items.length
+      ? items.map(it=>'<div class="hx-notif-item hx-notif-'+it.sev+'" onclick="hxToggleNotifPanel();go(\''+it.v+'\')"><span class="hx-notif-ic">'+it.icon+'</span><span>'+it.text+'</span></div>').join('')
+      : '<div class="hx-notif-empty">✅ Tot al dia, sense avisos pendents.</div>';
+    p.classList.add('on');
+  }
+}
+window.hxToggleNotifPanel = hxToggleNotifPanel;
+document.addEventListener('click', function(e){
+  const p=document.getElementById('hxNotifPanel'), b=document.getElementById('hxNotifBell');
+  if(p && p.classList.contains('on') && !p.contains(e.target) && b && !b.contains(e.target)) p.classList.remove('on');
+});
 const NAV_GROUP_ICONS={
   'Comercial':'🤝', 'Compras':'🛒', 'Facturación':'🧾',
   'Contabilidad':'📖', 'Bancos':'🏦', 'Logística':'🚚', 'Fabricación':'🧪',
@@ -5181,6 +5393,7 @@ function toggleSidebar(){
 }
 function renderExtras(){
   try{ if(window.lucide && typeof lucide.createIcons==='function') lucide.createIcons(); }catch(e){}
+  try{ hxRenderNotifBell(); }catch(e){}
 }
 let HX_SALES_CHART=null;
 function initDashboardChart(){
@@ -5406,6 +5619,33 @@ ROUTES.panel=function(){
       :'<p style="font-size:12.5px;color:var(--ink-2)">Todavía no hay actividad registrada en esta sesión.</p>')+
     '</div></div></div>';
 
+  // Top clientes per facturació
+  const factPerCli={};
+  DB.facturasE.forEach(f=>{ factPerCli[f.cli]=(factPerCli[f.cli]||0)+f.base; });
+  const topClientes=Object.keys(factPerCli).map(id=>({label:nomCli(id),value:factPerCli[id]}))
+    .sort((a,b)=>b.value-a.value).slice(0,5)
+    .map((it,i)=>({label:it.label,value:it.value,valueLabel:EUR(it.value),color:['#1565A8','#2E86C7','#4FA6E8','#74C69D','#B3D9F5'][i]||'#9CC3E8'}));
+  // Marge estimat per família de producte (PVP mitjà − cost mitjà, ponderat per unitats venudes)
+  const margePerFamilia={};
+  (DB.facturasE||[]).forEach(f=>(f.lineas||[]).forEach(l=>{
+    const p=DB.productos.find(x=>x.id===l.art); if(!p) return;
+    const fam=p.fam||'Altres';
+    const marge=(l.precio-(p.coste||0))*l.cant;
+    margePerFamilia[fam]=(margePerFamilia[fam]||0)+marge;
+  }));
+  const topMarges=Object.keys(margePerFamilia).map((fam,i)=>({label:fam,value:margePerFamilia[fam],valueLabel:EUR(margePerFamilia[fam]),color:['#1565A8','#2E86C7','#4FA6E8','#74C69D','#B3D9F5','#F2A900'][i%6]}))
+    .sort((a,b)=>b.value-a.value);
+
+  h+='<div class="grid g2" style="margin-bottom:16px">';
+  h+='<div class="card"><h3>Top 5 clientes por facturación</h3><div class="cardbody">'+
+    (topClientes.length ? svgHBarChart(topClientes,{width:480}) : '<p style="font-size:12.5px;color:var(--ink-2)">Encara no hi ha factures registrades.</p>')+
+    '</div></div>';
+  h+='<div class="card"><h3>Marge estimat per família de producte</h3><div class="cardbody">'+
+    (topMarges.length ? svgHBarChart(topMarges,{width:480}) : '<p style="font-size:12.5px;color:var(--ink-2)">Encara no hi ha línies de venda amb dades de cost.</p>')+
+    '</div></div>';
+  h+='</div>';
+
+
   const ventasMes=mes.reduce((a,f)=>a+f.base,0);
   const objetivo=Math.max(Math.ceil(ventasMes*1.15/1000)*1000,20000);
   const pctObj=Math.min(100,Math.round(ventasMes/objetivo*100));
@@ -5458,6 +5698,7 @@ function fichaCliente(id){
   const fac=DB.facturasE.filter(f=>f.cli===id);
   const act=DB.actividades.filter(a=>a.cli===id);
   const ops=DB.oportunidades.filter(o=>o.cli===id);
+  const adj=c.adjuntos||[];
   openModal('Ficha de '+esc(c.nom),
     '<div class="frow f3" style="margin-bottom:18px">'+
       info('Subcuenta contable',c.cta)+info('NIF',c.nif)+info('Alta',FD(c.alta))+
@@ -5472,12 +5713,49 @@ function fichaCliente(id){
     (ops.length?'<div class="eyebrow" style="display:block;margin:18px 0 8px">Oportunidades</div>'+
       ops.map(o=>'<div style="padding:8px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between"><span>'+esc(o.nom)+' <span class="tag t-blue">'+o.fase+'</span></span><span class="mono">'+EUR(o.valor)+'</span></div>').join(''):'')+
     '<div class="eyebrow" style="display:block;margin:18px 0 8px">Anotaciones</div>'+
-    (act.length?act.map(a=>'<div style="padding:8px 0;border-bottom:1px solid var(--line)"><span class="mono" style="font-size:11.5px;color:var(--ink-2)">'+FD(a.fecha)+'</span><br>'+esc(a.txt)+'</div>').join(''):'<p style="color:var(--ink-2);font-size:13px">Sin anotaciones.</p>'),
+    (act.length?act.map(a=>'<div style="padding:8px 0;border-bottom:1px solid var(--line)"><span class="mono" style="font-size:11.5px;color:var(--ink-2)">'+FD(a.fecha)+'</span><br>'+esc(a.txt)+'</div>').join(''):'<p style="color:var(--ink-2);font-size:13px">Sin anotaciones.</p>')+
+    '<div class="eyebrow" style="display:block;margin:18px 0 8px">Documentos adjuntos</div>'+
+    '<div id="hxAdjList">'+hxRenderAdjuntos(id)+'</div>'+
+    '<label class="btn ghost sm" style="display:inline-flex;margin-top:8px;cursor:pointer">📎 Adjuntar documento<input type="file" style="display:none" onchange="hxAdjuntarDocumento(\''+id+'\',event)"></label>'+
+    '<p style="font-size:11px;color:var(--ink-2);margin-top:4px">Màxim 2 MB per fitxer — es guarda al navegador junt amb la resta de dades.</p>',
     '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
     '<button class="btn ghost" onclick="closeModal();verMayor(\''+c.cta+'\')" type="button">Ver su mayor</button>'+
     '<button class="btn ghost" onclick="formCliente(\''+id+'\')" type="button">Editar</button>'+
     '<button class="btn" onclick="closeModal();formFacturaE(\''+id+'\')" type="button">Emitir factura</button>',true);
 }
+function hxRenderAdjuntos(clienteId){
+  const c=cli(clienteId); const adj=c.adjuntos||[];
+  if(!adj.length) return '<p style="color:var(--ink-2);font-size:13px">Sense documents adjunts.</p>';
+  return adj.map((a,i)=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-size:12.5px">'+
+    '<a href="'+a.dataUrl+'" download="'+esc(a.name)+'" style="color:var(--blue);text-decoration:none">📄 '+esc(a.name)+' <span style="color:var(--ink-2)">('+Math.round(a.size/1024)+' KB)</span></a>'+
+    '<button class="btn ghost sm" onclick="hxEliminarAdjunto(\''+clienteId+'\','+i+')" type="button">Eliminar</button></div>').join('');
+}
+function hxAdjuntarDocumento(clienteId, ev){
+  const file=ev.target.files&&ev.target.files[0]; ev.target.value='';
+  if(!file) return;
+  if(file.size>2*1024*1024){ toast('El fitxer supera els 2 MB.'); return; }
+  const reader=new FileReader();
+  reader.onload=function(){
+    const c=cli(clienteId);
+    if(!c.adjuntos) c.adjuntos=[];
+    c.adjuntos.push({name:file.name,size:file.size,type:file.type,dataUrl:reader.result,addedAt:new Date().toISOString()});
+    guardarDBDebounced();
+    const box=document.getElementById('hxAdjList');
+    if(box) box.innerHTML=hxRenderAdjuntos(clienteId);
+    toast('Document adjuntat.');
+  };
+  reader.onerror=function(){ toast('No s\'ha pogut llegir el fitxer.'); };
+  reader.readAsDataURL(file);
+}
+window.hxAdjuntarDocumento = hxAdjuntarDocumento;
+function hxEliminarAdjunto(clienteId, idx){
+  const c=cli(clienteId);
+  if(c.adjuntos) c.adjuntos.splice(idx,1);
+  guardarDBDebounced();
+  const box=document.getElementById('hxAdjList');
+  if(box) box.innerHTML=hxRenderAdjuntos(clienteId);
+}
+window.hxEliminarAdjunto = hxEliminarAdjunto;
 function formCliente(id){
   const c=id?cli(id):{};
   openModal(id?'Editar cliente':'Nuevo cliente',
@@ -5863,7 +6141,7 @@ ROUTES.diario=function(){
   const lista=all.filter(a=>hit(a.concepto+' '+a.n+' '+a.apuntes.map(p=>p.cta+' '+nomCta(p.cta)).join(' ')));
   const td=lista.reduce((s,a)=>s+a.apuntes.reduce((x,p)=>x+(p.d||0),0),0);
   let h=head('Libro diario',all.length+' asientos del ejercicio '+EJERCICIO,
-    '<button class="btn ghost" onclick="exportarDiario()" type="button">CSV</button><button class="btn ghost" onclick="exportarDiarioOficialPDF()" type="button">📄 PDF oficial</button><button class="btn" onclick="formAsiento()" type="button">Asiento manual</button>');
+    '<button class="btn ghost" onclick="exportarDiario()" type="button">CSV</button><button class="btn ghost" onclick="exportarDiarioXLSX()" type="button">📊 Excel</button><button class="btn ghost" onclick="exportarDiarioOficialPDF()" type="button">📄 PDF oficial</button><button class="btn" onclick="formAsiento()" type="button">Asiento manual</button>');
   h+=buscador('Buscar por concepto, cuenta o número de asiento…',all.length,lista.length);
   let rows=[];
   lista.forEach(a=>{
@@ -5919,6 +6197,12 @@ function exportarDiario(){
     filas.push([a.n,a.fecha,p.cta,nomCta(p.cta),a.concepto,(p.d||0).toFixed(2).replace('.',','),(p.h||0).toFixed(2).replace('.',',')])));
   descargarCSV(filas,'libro_diario_HIGIENEX_'+EJERCICIO+'.csv');
 }
+function exportarDiarioXLSX(){
+  const filas=[['Asiento','Fecha','Cuenta','Denominación','Concepto','Debe','Haber']];
+  DB.asientos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(a=>a.apuntes.forEach(p=>
+    filas.push([a.n,a.fecha,p.cta,nomCta(p.cta),a.concepto,p.d||0,p.h||0])));
+  descargarXLSX(filas,'libro_diario_HIGIENEX_'+EJERCICIO+'.xlsx','Libro diario');
+}
 function descargarCSV(filas,nombre){
   const csv=filas.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\r\n');
   const a=document.createElement('a');
@@ -5926,6 +6210,18 @@ function descargarCSV(filas,nombre){
   a.download=nombre; document.body.appendChild(a); a.click(); document.body.removeChild(a);
   toast('Archivo descargado.');
 }
+// Excel real (.xlsx), amb el mateix format de files que ja s'usa per al CSV.
+function descargarXLSX(filas, nombre, hoja){
+  if (!window.XLSX) { toast('Encara es carrega el mòdul d\'Excel, torna-ho a provar en un segon.'); return; }
+  try{
+    const ws = XLSX.utils.aoa_to_sheet(filas);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, (hoja||'Dades').slice(0,31));
+    XLSX.writeFile(wb, nombre);
+    toast('Excel descarregat.');
+  }catch(e){ toast('No s\'ha pogut generar l\'Excel.'); }
+}
+window.descargarXLSX = descargarXLSX;
 
 /* Libro mayor */
 let CTA_SEL=null;
@@ -5935,7 +6231,7 @@ ROUTES.mayor=function(){
   const usadas=Object.keys(s).sort();
   if(!CTA_SEL||!s[CTA_SEL]) CTA_SEL=usadas[0];
   let h=head('Libro mayor','Movimientos y saldo corriente de cada cuenta',
-    '<button class="btn ghost" onclick="exportarMayor()" type="button">CSV</button><button class="btn ghost" onclick="exportarMayorOficialPDF()" type="button">📄 PDF oficial</button>');
+    '<button class="btn ghost" onclick="exportarMayor()" type="button">CSV</button><button class="btn ghost" onclick="exportarMayorXLSX()" type="button">📊 Excel</button><button class="btn ghost" onclick="exportarMayorOficialPDF()" type="button">📄 PDF oficial</button>');
   h+='<div class="toolbar"><label class="flabel" style="margin:0 6px 0 0">Cuenta</label>'+
     '<select style="min-width:340px" onchange="verMayor(this.value)">'+
     usadas.map(c=>'<option value="'+c+'"'+(c===CTA_SEL?' selected':'')+'>'+c+' · '+esc(nomCta(c))+'</option>').join('')+'</select></div>';
@@ -5963,6 +6259,13 @@ function exportarMayor(){
   }));
   descargarCSV(filas,'mayor_'+CTA_SEL+'_HIGIENEX.csv');
 }
+function exportarMayorXLSX(){
+  const filas=[['Cuenta','Denominación','Asiento','Fecha','Concepto','Debe','Haber']];
+  DB.asientos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(a=>a.apuntes.filter(p=>p.cta===CTA_SEL).forEach(p=>{
+    filas.push([CTA_SEL,nomCta(CTA_SEL),a.n,a.fecha,a.concepto,p.d||0,p.h||0]);
+  }));
+  descargarXLSX(filas,'mayor_'+CTA_SEL+'_HIGIENEX.xlsx','Libro mayor');
+}
 
 /* Sumas y saldos */
 ROUTES.sumas=function(){
@@ -5977,7 +6280,7 @@ ROUTES.sumas=function(){
   });
   rows.push('<tr class="total"><td></td><td>TOTALES</td><td class="num mono">'+NUM(T.d)+'</td><td class="num mono">'+NUM(T.h)+'</td><td class="num mono">'+NUM(T.sd)+'</td><td class="num mono">'+NUM(T.sh)+'</td></tr>');
   const cuadra=Math.abs(T.d-T.h)<0.01;
-  let h=head('Balance de sumas y saldos','Comprobación de la partida doble a fecha de corte','<button class="btn ghost" onclick="exportarSumas()" type="button">CSV</button><button class="btn ghost" onclick="exportarSumasOficialPDF()" type="button">📄 PDF oficial</button>'+selectorFechaCorte());
+  let h=head('Balance de sumas y saldos','Comprobación de la partida doble a fecha de corte','<button class="btn ghost" onclick="exportarSumas()" type="button">CSV</button><button class="btn ghost" onclick="exportarSumasXLSX()" type="button">📊 Excel</button><button class="btn ghost" onclick="exportarSumasOficialPDF()" type="button">📄 PDF oficial</button>'+selectorFechaCorte());
   h+='<div class="card" style="margin-bottom:14px"><div class="cardbody" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
     (cuadra?'<span class="tag t-ok">Cuadra</span><span style="font-size:13px">Debe y haber coinciden en '+EUR(T.d)+', y los saldos deudores igualan a los acreedores.</span>'
            :'<span class="tag t-late">Descuadre</span><span style="font-size:13px">Diferencia de '+EUR(T.d-T.h)+'.</span>')+'</div></div>';
@@ -5999,6 +6302,13 @@ function exportarSumas(){
     filas.push([k,nomCta(k),d.toFixed(2).replace('.',','),h.toFixed(2).replace('.',','),
       Math.max(0,d-h).toFixed(2).replace('.',','),Math.max(0,h-d).toFixed(2).replace('.',',')]);});
   descargarCSV(filas,'sumas_y_saldos_HIGIENEX_'+EJERCICIO+'.csv');
+}
+function exportarSumasXLSX(){
+  const s=saldosCuentas(FECHA_CORTE);
+  const filas=[['Cuenta','Denominación','Suma debe','Suma haber','Saldo deudor','Saldo acreedor']];
+  Object.keys(s).sort().forEach(k=>{const d=s[k].d,h=s[k].h;
+    filas.push([k,nomCta(k),d,h,Math.max(0,d-h),Math.max(0,h-d)]);});
+  descargarXLSX(filas,'sumas_y_saldos_HIGIENEX_'+EJERCICIO+'.xlsx','Sumas y saldos');
 }
 
 /* Balance y cuenta de resultados */

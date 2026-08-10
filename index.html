@@ -27,6 +27,12 @@
   --shadow: 0 4px 32px rgba(11,61,107,0.10);
   --shadow-lg: 0 16px 64px rgba(11,61,107,0.18);
 }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
+textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 2.5px solid var(--green-bright);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: auto; }
@@ -1325,7 +1331,9 @@ tbody tr:hover td { background: var(--green-cream); }
   width: 100%;
   aspect-ratio: 16/9;
   object-fit: cover;
+  transition: transform 0.4s ease;
 }
+.blog-card:hover .blog-img { transform: scale(1.05); }
 .blog-content { padding: 1.5rem; }
 .blog-title { font-size: 1rem; color: var(--charcoal); margin-bottom: 0.6rem; line-height: 1.4; }
 
@@ -1342,8 +1350,11 @@ tbody tr:hover td { background: var(--green-cream); }
   background: white; border-radius: 18px; overflow: hidden;
   box-shadow: var(--shadow-lg, 0 12px 32px rgba(11,61,107,0.12));
   margin-bottom: 2rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-.nl-featured img { width: 100%; height: 100%; min-height: 220px; object-fit: cover; }
+.nl-featured:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(11,61,107,0.18); }
+.nl-featured img { width: 100%; height: 100%; min-height: 220px; object-fit: cover; transition: transform 0.4s ease; }
+.nl-featured:hover img { transform: scale(1.04); }
 .nl-featured-content { padding: 1.8rem 2rem; display: flex; flex-direction: column; justify-content: center; }
 .nl-featured-content h3 { font-size: 1.25rem; color: var(--charcoal); line-height: 1.35; margin: 0.6rem 0 0.7rem; }
 .nl-featured-content p { font-size: 0.85rem; color: #777; line-height: 1.6; }
@@ -1413,6 +1424,73 @@ tbody tr:hover td { background: var(--green-cream); }
   color: var(--green-bright);
   line-height: 1;
 }
+
+.fp-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 3rem; align-items: center; }
+.fp-imgwrap {
+  aspect-ratio: 1; background: var(--warm-white); border-radius: 20px;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.fp-imgwrap img { width: 100%; height: 100%; object-fit: contain; padding: 2rem; }
+.fp-price { font-family: Georgia, 'Times New Roman', serif; font-size: 2rem; color: var(--accent); margin: 0.8rem 0; }
+.fp-desc { font-size: 0.95rem; color: #555; line-height: 1.7; margin-bottom: 1.6rem; }
+.fp-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+.btn-fp-outline {
+  background: white; border: 1.5px solid var(--green-deep); color: var(--green-deep);
+  padding: 0.85rem 1.5rem; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-fp-outline:hover { background: var(--warm-white); }
+@media (max-width: 800px) { .fp-grid { grid-template-columns: 1fr; } }
+
+/* Cookie / RGPD banner */
+#cookieBanner {
+  display: none;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 9999997;
+  background: #0B1622; color: #fff;
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.25);
+}
+#cookieBanner.open { display: block; animation: cookieSlideUp 0.35s ease; }
+@keyframes cookieSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+#cookieBannerInner {
+  max-width: 1100px; margin: 0 auto; padding: 1.1rem 1.5rem;
+  display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+}
+#cookieBannerInner p { flex: 1; min-width: 240px; font-size: 0.82rem; line-height: 1.55; color: #D9E2EC; margin: 0; }
+#cookieBannerInner a { color: #64B5E8; text-decoration: underline; }
+#cookieBannerBtns { display: flex; gap: 0.6rem; flex-shrink: 0; }
+.cookie-btn {
+  padding: 0.65rem 1.2rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; white-space: nowrap; border: 1.5px solid transparent;
+  background: var(--accent); color: #1A1A1A;
+}
+.cookie-btn:hover { opacity: 0.9; }
+.cookie-btn.ghost { background: transparent; border-color: rgba(255,255,255,0.3); color: #fff; }
+.cookie-btn.ghost:hover { background: rgba(255,255,255,0.08); }
+@media (max-width: 560px) { #cookieBannerBtns { width: 100%; } .cookie-btn { flex: 1; } }
+
+/* Testimonis */
+#testimonis { background: var(--warm-white); }
+.testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem; }
+.testi-card {
+  background: white; border-radius: 14px; padding: 2rem 1.8rem 1.6rem;
+  box-shadow: var(--shadow); position: relative; transition: transform .3s, box-shadow .3s;
+}
+.testi-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.testi-quote {
+  font-family: Georgia, 'Times New Roman', serif; font-size: 3.5rem; line-height: 1;
+  color: var(--green-pale); margin-bottom: -0.5rem;
+}
+.testi-text { font-size: 0.88rem; color: #444; line-height: 1.65; font-style: italic; margin-bottom: 1.4rem; }
+.testi-author { display: flex; align-items: center; gap: 0.8rem; }
+.testi-avatar {
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--green-deep), var(--green-mid));
+  color: white; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.82rem;
+}
+.testi-author div strong { display: block; font-size: 0.86rem; color: var(--charcoal); }
+.testi-author div span { display: block; font-size: 0.74rem; color: #888; margin-top: 0.1rem; }
+@media (max-width: 900px) { .testi-grid { grid-template-columns: 1fr; } }
 
 /* FAQ */
 #faq { background: var(--warm-white); }
@@ -4055,6 +4133,30 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
 }
 #productPopupBox .popup-btn:hover { background: #1565A8; }
 
+/* Popup de mostra gratuïta */
+#samplePopup {
+  display: none; position: fixed; inset: 0; z-index: 9999996;
+  background: rgba(4,17,31,0.6); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center; padding: 1rem;
+}
+#samplePopup.open { display: flex; }
+#samplePopupBox {
+  background: white; border-radius: 20px; padding: 2rem;
+  width: min(440px, 92vw); max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(11,61,107,0.25);
+  animation: toastIn 0.3s ease; position: relative; text-align: center;
+}
+#samplePopupBox .popup-close {
+  position: absolute; top: 1rem; right: 1rem; background: #F0F0F0; border: none;
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+}
+#samplePopupBox .popup-close:hover { background: #E0E0E0; }
+#samplePopupBox .popup-emoji { font-size: 2.6rem; margin-bottom: 0.5rem; }
+#samplePopupBox h3 { color: #0B3D6B; font-size: 1.15rem; margin-bottom: 0.4rem; }
+#samplePopupBox > p { font-size: 0.85rem; color: #666; line-height: 1.5; margin-bottom: 1.2rem; }
+#samplePopupBox .form-field { margin-bottom: 0.85rem; }
+
 /* Popup de subscripció a la newsletter (apareix als 30s) */
 #newsletterPopup {
   display: none;
@@ -4316,6 +4418,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
       <span id="menuIcon">☰</span> Menú
     </button>
     <div id="navRightGroup" style="display:flex;align-items:center;gap:1rem;margin-left:auto;">
+      <button id="langToggleBtn" onclick="hxToggleLang()" type="button" title="Canviar idioma" aria-label="Canviar idioma" style="background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 0.75rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;">CA/ES</button>
       <div id="authBtns" style="display:flex;gap:0.5rem;">
         <button onclick="openAuthModal();switchTab('login')" style="display:flex;align-items:center;gap:0.4rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 1rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.82rem;font-weight:600;transition:all 0.2s;white-space:nowrap;" type="button">
           Accedir
@@ -4347,13 +4450,13 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
       <span class="side-panel-tag">Higiene professional ECO</span>
     </div>
     <div class="dd-inner">
-      <a class="dditem" onclick="navTo('home')">🏠 Inici</a>
-      <a class="dditem" onclick="navTo('empresa')">🏢 Empresa</a>
-      <a class="dditem" onclick="navTo('productes')">🧴 Productes i Innovació</a>
-      <a class="dditem" onclick="navTo('operacions')">🏭 Operacions</a>
-      <a class="dditem" onclick="navTo('compromis')">♻️ Compromís i Mercat</a>
-      <a class="dditem" onclick="navTo('newsletter')">📰 Newsletter</a>
-      <a class="dditem" onclick="navTo('contacte')">📞 Ajuda i Contacte</a>
+      <a class="dditem" onclick="navTo('home')" data-i18n><span data-ca="🏠 Inici" data-es="🏠 Inicio">🏠 Inici</span></a>
+      <a class="dditem" onclick="navTo('empresa')" data-i18n><span data-ca="🏢 Empresa" data-es="🏢 Empresa">🏢 Empresa</span></a>
+      <a class="dditem" onclick="navTo('productes')" data-i18n><span data-ca="🧴 Productes i Innovació" data-es="🧴 Productos e Innovación">🧴 Productes i Innovació</span></a>
+      <a class="dditem" onclick="navTo('operacions')" data-i18n><span data-ca="🏭 Operacions" data-es="🏭 Operaciones">🏭 Operacions</span></a>
+      <a class="dditem" onclick="navTo('compromis')" data-i18n><span data-ca="♻️ Compromís i Mercat" data-es="♻️ Compromiso y Mercado">♻️ Compromís i Mercat</span></a>
+      <a class="dditem" onclick="navTo('newsletter')" data-i18n><span data-ca="📰 Newsletter" data-es="📰 Newsletter">📰 Newsletter</span></a>
+      <a class="dditem" onclick="navTo('contacte')" data-i18n><span data-ca="📞 Ajuda i Contacte" data-es="📞 Ayuda y Contacto">📞 Ajuda i Contacte</span></a>
     </div>
   </div>
 </nav>
@@ -4364,16 +4467,16 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
     <div class="hero-left">
       <div class="hero-eyebrow">Líders en Higiene Professional ECO</div>
       <h1 class="hero-title">HIGIENE<span class="highlight">X</span></h1>
-      <p class="hero-slogan">Higiene impecable, futur sostenible</p>
-      <p class="hero-desc">Des de 2015 fabricant i distribuint productes de neteja i higiene professional per a hospitals, hotels i indústria.</p>
+      <p class="hero-slogan" data-i18n data-ca="Higiene impecable, futur sostenible" data-es="Higiene impecable, futuro sostenible">Higiene impecable, futur sostenible</p>
+      <p class="hero-desc" data-i18n data-ca="Des de 2015 fabricant i distribuint productes de neteja i higiene professional per a hospitals, hotels i indústria." data-es="Desde 2015 fabricando y distribuyendo productos de limpieza e higiene profesional para hospitales, hoteles e industria.">Des de 2015 fabricant i distribuint productes de neteja i higiene professional per a hospitals, hotels i indústria.</p>
       <div class="hero-btns">
-        <a href="#" onclick="navTo('empresa');return false;" class="btn-primary">Descobreix HIGIENEX →</a>
-        <a href="#" onclick="navTo('contacte');return false;" class="btn-outline">Contactar Ara</a>
+        <a href="#" onclick="navTo('empresa');return false;" class="btn-primary" data-i18n data-ca="Descobreix HIGIENEX →" data-es="Descubre HIGIENEX →">Descobreix HIGIENEX →</a>
+        <a href="#" onclick="navTo('contacte');return false;" class="btn-outline" data-i18n data-ca="Contactar Ara" data-es="Contactar Ahora">Contactar Ara</a>
       </div>
       <div class="hero-stats">
-        <div class="stat-card"><span class="stat-num">30</span><span class="stat-lbl">Treballadors</span></div>
-        <div class="stat-card"><span class="stat-num">19</span><span class="stat-lbl">Patentes</span></div>
-        <div class="stat-card"><span class="stat-num">2015</span><span class="stat-lbl">Fundació</span></div>
+        <div class="stat-card"><span class="stat-num">30</span><span class="stat-lbl" data-i18n data-ca="Treballadors" data-es="Trabajadores">Treballadors</span></div>
+        <div class="stat-card"><span class="stat-num">19</span><span class="stat-lbl" data-i18n data-ca="Patentes" data-es="Patentes">Patentes</span></div>
+        <div class="stat-card"><span class="stat-num">2015</span><span class="stat-lbl" data-i18n data-ca="Fundació" data-es="Fundación">Fundació</span></div>
       </div>
     </div>
   </div>
@@ -4386,8 +4489,8 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
   <div class="cat-banner-inner">
     <span class="cat-num">02</span>
     <div>
-      <h2>Empresa</h2>
-      <p>Història, missió i equip humà</p>
+      <h2 data-i18n data-ca="Empresa" data-es="Empresa">Empresa</h2>
+      <p data-i18n data-ca="Història, missió i equip humà" data-es="Historia, misión y equipo humano">Història, missió i equip humà</p>
     </div>
   </div>
 </div>
@@ -4541,6 +4644,39 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
     </div>
   </div>
 </section>
+
+<section id="testimonis">
+  <div class="container">
+    <span class="section-tag">Testimonis</span>
+    <h2>El que diuen els nostres clients</h2>
+    <div class="testi-grid fade-in">
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <p class="testi-text">Vam canviar tota la gamma de desinfecció de les tres plantes de l'hospital sense cap incidència. El servei tècnic respon en hores, no en dies — això marca la diferència quan parlem d'higiene sanitària.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">MR</div>
+          <div><strong>Marta Roig</strong><span>Responsable de Compres · Hospital Comarcal</span></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <p class="testi-text">Els concentrats ECO ens han reduït l'espai d'emmagatzematge a la meitat i els nostres clients valoren molt el compromís ambiental. La transició va ser més senzilla del que esperàvem.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">JP</div>
+          <div><strong>Jordi Puig</strong><span>Director d'Operacions · Cadena Hotelera</span></div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <p class="testi-text">Portem cinc anys treballant amb HIGIENEX a la nostra planta de producció alimentària. La traçabilitat per lot dels seus desinfectants ens facilita moltíssim les auditories HACCP.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">SL</div>
+          <div><strong>Sara López</strong><span>Cap de Qualitat · Indústria Alimentària</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 <!-- ═══════════════════════════════════════
      CATEGORY: PRODUCTES I INNOVACIÓ
      ═══════════════════════════════════════ -->
@@ -4554,8 +4690,8 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
   <div class="cat-banner-inner">
     <span class="cat-num">03</span>
     <div>
-      <h2>Productes i Innovació</h2>
-      <p>Catàleg, R+D i transformació digital</p>
+      <h2 data-i18n data-ca="Productes i Innovació" data-es="Productos e Innovación">Productes i Innovació</h2>
+      <p data-i18n data-ca="Catàleg, R+D i transformació digital" data-es="Catálogo, I+D y transformación digital">Catàleg, R+D i transformació digital</p>
     </div>
   </div>
 </div>
@@ -6792,6 +6928,17 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     </div>
   </div>
 </section>
+
+<section id="mostra-gratuita" style="background:linear-gradient(135deg,#0B3D6B,#1565A8);position:relative;overflow:hidden;">
+  <div style="position:absolute;top:-60px;right:-40px;width:220px;height:220px;background:rgba(242,169,0,0.14);border-radius:50%;"></div>
+  <div class="container" style="position:relative;text-align:center;">
+    <span class="section-tag" style="background:rgba(255,255,255,0.16);color:#fff;">🎁 Prova'l abans de decidir</span>
+    <h2 style="color:#fff;">Sol·licita una mostra gratuïta</h2>
+    <p style="color:#DEEEFB;max-width:560px;margin:0.8rem auto 1.6rem;">Envia'ns les teves dades i et fem arribar una mostra sense cost del producte que més t'interessi, perquè el provis abans de fer la primera comanda.</p>
+    <button type="button" class="btn-primary" onclick="openSamplePopup()" style="background:var(--accent);color:#1A1A1A;border:none;">Demanar mostra gratuïta →</button>
+  </div>
+</section>
+
 <!-- ═══════════════════════════════════════
      CATEGORY: OPERACIONS
      ═══════════════════════════════════════ -->
@@ -6805,8 +6952,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   <div class="cat-banner-inner">
     <span class="cat-num">04</span>
     <div>
-      <h2>Operacions</h2>
-      <p>Producció, logística i internacionalització</p>
+      <h2 data-i18n data-ca="Operacions" data-es="Operaciones">Operacions</h2>
+      <p data-i18n data-ca="Producció, logística i internacionalització" data-es="Producción, logística e internacionalización">Producció, logística i internacionalització</p>
     </div>
   </div>
 </div>
@@ -6893,8 +7040,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   <div class="cat-banner-inner">
     <span class="cat-num">05</span>
     <div>
-      <h2>Compromís i Mercat</h2>
-      <p>Sostenibilitat, RSC, clients i màrqueting</p>
+      <h2 data-i18n data-ca="Compromís i Mercat" data-es="Compromiso y Mercado">Compromís i Mercat</h2>
+      <p data-i18n data-ca="Sostenibilitat, RSC, clients i màrqueting" data-es="Sostenibilidad, RSC, clientes y marketing">Sostenibilitat, RSC, clients i màrqueting</p>
     </div>
   </div>
 </div>
@@ -7025,6 +7172,39 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
      ═══════════════════════════════════════ -->
 </div><!-- /g-compromis -->
 
+<div class="hg-page" id="g-fitxaproducte">
+<!-- ═══════════════════════════════════════
+     FITXA DE PRODUCTE (contingut generat dinàmicament
+     per obrirFitxaProducte() a partir de PRODUCT_INFO)
+     ═══════════════════════════════════════ -->
+<section id="fitxa-producte-sec">
+  <div class="container">
+    <button type="button" onclick="navTo('productes')" style="background:none;border:none;color:var(--green-mid);font-size:0.85rem;font-weight:700;cursor:pointer;margin-bottom:1.2rem;display:flex;align-items:center;gap:0.4rem;">← Tornar al catàleg</button>
+    <div class="fp-grid">
+      <div class="fp-imgwrap">
+        <img id="fpImg" src="" alt="" style="display:none;">
+        <div id="fpEmoji" style="font-size:6rem;"></div>
+      </div>
+      <div class="fp-info">
+        <span class="section-tag" id="fpBadge">Producte</span>
+        <h2 id="fpName">Nom del producte</h2>
+        <div class="fp-price" id="fpPrice">0,00 €</div>
+        <p id="fpDesc" class="fp-desc">Descripció.</p>
+        <div class="fp-actions">
+          <button type="button" class="btn-primary" id="fpAddBtn" onclick="fpAddToCart()">🛒 Afegeix al cistell</button>
+          <button type="button" class="btn-fp-outline" onclick="fpDescarregarFitxaTecnica()">📄 Fitxa tècnica (PDF)</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:3rem;">
+      <span class="section-tag">Et pot interessar</span>
+      <h2>Altres productes</h2>
+      <div class="blog-grid fade-in" id="fpRelacionats" style="margin-top:1.5rem;"></div>
+    </div>
+  </div>
+</section>
+</div><!-- /g-fitxaproducte -->
+
 <div class="hg-page" id="g-newsletter">
 <!-- ═══════════════════════════════════════
      CATEGORY: NEWSLETTER
@@ -7107,11 +7287,26 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   <div class="cat-banner-inner">
     <span class="cat-num">06</span>
     <div>
-      <h2>Ajuda i Contacte</h2>
-      <p>Preguntes freqüents i com contactar</p>
+      <h2 data-i18n data-ca="Ajuda i Contacte" data-es="Ayuda y Contacto">Ajuda i Contacte</h2>
+      <p data-i18n data-ca="Preguntes freqüents i com contactar" data-es="Preguntas frecuentes y cómo contactar">Preguntes freqüents i com contactar</p>
     </div>
   </div>
 </div>
+
+<!-- SEGUIMENT DE COMANDA -->
+<section id="seguiment-comanda">
+  <div class="container">
+    <span class="section-tag">📦 Seguiment</span>
+    <h2>On està la meva comanda?</h2>
+    <p style="max-width:560px;">Introdueix el teu email i el número de comanda (el trobes al PDF que et vam generar en confirmar-la) per veure l'estat.</p>
+    <form onsubmit="return hxTrackOrder(event)" style="max-width:560px;display:flex;gap:0.6rem;flex-wrap:wrap;margin-top:1.2rem;">
+      <div class="form-field" style="flex:1;min-width:180px;margin:0;"><label for="trackEmail">Email</label><input id="trackEmail" type="email" required autocomplete="email" placeholder="tunom@empresa.com"></div>
+      <div class="form-field" style="flex:1;min-width:160px;margin:0;"><label for="trackNum">Núm. de comanda</label><input id="trackNum" type="text" required placeholder="FE-2026-001"></div>
+      <button type="submit" class="btn-submit" style="align-self:flex-end;">Consultar →</button>
+    </form>
+    <div id="trackResult" style="max-width:560px;margin-top:1.2rem;"></div>
+  </div>
+</section>
 
 <!-- 21. FAQ -->
 <section id="faq">
@@ -8007,6 +8202,18 @@ window.submitForm = submitForm;
     <button class="popup-btn" onclick="addProductFromPopup()" type="button">
       🛒 Afegeix-lo al cistell
     </button>
+    <button type="button" onclick="closeProductPopup();obrirFitxaProducte(document.getElementById('popupName').textContent)" style="background:none;border:none;color:var(--green-mid);font-size:0.82rem;font-weight:700;cursor:pointer;margin-top:0.7rem;">Veure fitxa completa i tècnica →</button>
+  </div>
+</div>
+
+<!-- COOKIE / RGPD BANNER -->
+<div id="cookieBanner" role="dialog" aria-label="Consentiment de cookies">
+  <div id="cookieBannerInner">
+    <p>🍪 Fem servir cookies pròpies i de tercers per millorar la teva experiència i mesurar l'ús de la web. Pots acceptar-les totes o només les tècniques necessàries. Més informació a la nostra <a href="#" onclick="navTo('contacte');return false;">política de privacitat</a>.</p>
+    <div id="cookieBannerBtns">
+      <button type="button" class="cookie-btn ghost" onclick="hxCookieChoice('rejected')">Només necessàries</button>
+      <button type="button" class="cookie-btn" onclick="hxCookieChoice('accepted')">Acceptar totes</button>
+    </div>
   </div>
 </div>
 
@@ -8034,6 +8241,34 @@ window.submitForm = submitForm;
         <p class="nl-fineprint">Pots donar-te de baixa quan vulguis.</p>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- MOSTRA GRATUÏTA POPUP -->
+<div id="samplePopup">
+  <div id="samplePopupBox">
+    <button class="popup-close" onclick="closeSamplePopup()" type="button" aria-label="Tancar finestra de mostra gratuïta">✕</button>
+    <div class="popup-emoji">🎁</div>
+    <h3>Demana la teva mostra gratuïta</h3>
+    <p>T'enviem una mostra sense cost per provar el producte abans de comprar.</p>
+    <form onsubmit="submitSamplePopup(event)" style="text-align:left;">
+      <div class="form-field"><label for="samNom">Nom i cognoms</label><input id="samNom" type="text" required autocomplete="name" placeholder="Maria Garcia"></div>
+      <div class="form-field"><label for="samEmail">Email</label><input id="samEmail" type="email" required autocomplete="email" placeholder="maria@empresa.com"></div>
+      <div class="form-field"><label for="samEmpresa">Empresa</label><input id="samEmpresa" type="text" autocomplete="organization" placeholder="Hotel Costa Daurada S.L."></div>
+      <div class="form-field"><label for="samProducte">Producte que t'interessa</label>
+        <select id="samProducte">
+          <option>ECO Concentrat Pro</option>
+          <option>Desinfectant HOSP-V</option>
+          <option>Detergent ALIM-PRO</option>
+          <option>Net HOSTAL Premium</option>
+          <option>Gamma Superfícies QR</option>
+          <option>WorkSafe Antimicrobial</option>
+          <option>No ho tinc clar, aconselleu-me</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-submit" style="width:100%;">Sol·licitar mostra →</button>
+    </form>
+    <div id="samplePopupSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:0.9rem 1rem;margin-top:1rem;color:#2E7D32;font-size:0.85rem;">✅ Rebut! Et contactarem en menys de 48h per enviar-te la mostra.</div>
   </div>
 </div>
 
@@ -8095,6 +8330,61 @@ function submitNewsletterPopup(e) {
   setTimeout(hxMarkNewsletterSubscribed, 1400);
 }
 window.submitNewsletterPopup = submitNewsletterPopup;
+
+// ── BANNER DE COOKIES (RGPD) ──────────────────────────────
+var HX_COOKIE_KEY = 'hx_cookie_consent';
+function hxCookieChoice(choice) {
+  try { localStorage.setItem(HX_COOKIE_KEY, choice); } catch(e){}
+  var b = document.getElementById('cookieBanner');
+  if (b) b.classList.remove('open');
+}
+window.hxCookieChoice = hxCookieChoice;
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    if (!localStorage.getItem(HX_COOKIE_KEY)) {
+      var b = document.getElementById('cookieBanner');
+      if (b) setTimeout(function(){ b.classList.add('open'); }, 600);
+    }
+  } catch(e){}
+});
+
+// ── POPUP DE MOSTRA GRATUÏTA ──────────────────────────────
+function openSamplePopup() {
+  var p = document.getElementById('samplePopup');
+  if (p) p.classList.add('open');
+}
+window.openSamplePopup = openSamplePopup;
+function closeSamplePopup() {
+  var p = document.getElementById('samplePopup');
+  if (p) p.classList.remove('open');
+}
+window.closeSamplePopup = closeSamplePopup;
+function submitSamplePopup(e) {
+  e.preventDefault();
+  var nom = document.getElementById('samNom').value.trim();
+  var email = document.getElementById('samEmail').value.trim();
+  var empresa = document.getElementById('samEmpresa').value.trim();
+  var producte = document.getElementById('samProducte').value;
+  if (!nom || !email) return;
+  try {
+    enviarNotificacioEmail({
+      title: 'Sol·licitud de mostra gratuïta: ' + producte,
+      name: nom,
+      email: email,
+      badge: 'MOSTRA GRATUÏTA',
+      subtitle: 'Algú ha sol·licitat una mostra gratuïta des de la web.',
+      detailLabel: 'Sol·licitud',
+      message: 'Nom: ' + escHtml(nom) + '<br>Email: ' + escHtml(email) + (empresa ? ('<br>Empresa: ' + escHtml(empresa)) : '') + '<br>Producte: ' + escHtml(producte),
+      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold')
+    });
+  } catch(err) { console.warn('No s\'ha pogut enviar la sol·licitud de mostra:', err); }
+  var s = document.getElementById('samplePopupSuccess');
+  var f = e.target;
+  if (s) s.style.display = 'block';
+  if (f) f.style.display = 'none';
+  setTimeout(closeSamplePopup, 2200);
+}
+window.submitSamplePopup = submitSamplePopup;
 
 function hxMaybeShowNewsletterPopup() {
   var DAYS_ABANS_DE_TORNAR_A_PREGUNTAR = 7;
@@ -9183,6 +9473,137 @@ function addProductFromPopup(){
   openCartDrawer();
 }
 window.addProductFromPopup = addProductFromPopup;
+
+// ── FITXA DE PRODUCTE COMPLETA ────────────────────────────
+function obrirFitxaProducte(name) {
+  var info = PRODUCT_INFO[name]; if (!info) return;
+  var prod = null;
+  for (var i=0; i<PRODUCTS.length; i++) { if (PRODUCTS[i].name === name) { prod = PRODUCTS[i]; break; } }
+  document.getElementById('fpName').textContent = name;
+  document.getElementById('fpPrice').textContent = info.price;
+  document.getElementById('fpDesc').textContent = info.desc;
+  document.getElementById('fpBadge').textContent = prod ? prod.unit : 'Producte';
+  var img = document.getElementById('fpImg'), emo = document.getElementById('fpEmoji');
+  var cardImg = document.querySelector('img.prod-img[alt="' + name + '"]');
+  if (img && cardImg) { img.src = cardImg.src; img.alt = name; img.style.display = 'block'; if (emo) emo.style.display = 'none'; }
+  else { if (emo) { emo.textContent = info.emoji; emo.style.display = 'block'; } if (img) img.style.display = 'none'; }
+  var addBtn = document.getElementById('fpAddBtn');
+  if (addBtn) addBtn.setAttribute('data-name', name);
+  // Productes relacionats: la resta del catàleg actiu
+  var rel = document.getElementById('fpRelacionats');
+  if (rel) {
+    rel.innerHTML = PRODUCTS.filter(function(p){ return p.active && p.name !== name; }).map(function(p){
+      var pi = PRODUCT_INFO[p.name] || {};
+      return '<div class="blog-card" onclick="obrirFitxaProducte(\'' + p.name.replace(/'/g,"\\'") + '\')" style="cursor:pointer;">' +
+        '<div style="aspect-ratio:16/9;background:var(--warm-white);display:flex;align-items:center;justify-content:center;font-size:2.4rem;">' + (pi.emoji||'🧴') + '</div>' +
+        '<div class="blog-content"><h3 class="blog-title">' + escHtml(p.name) + '</h3><p style="color:var(--accent);font-weight:700;font-size:0.9rem;margin-top:0.4rem;">' + (pi.price||'') + '</p></div></div>';
+    }).join('');
+  }
+  navTo('fitxaproducte');
+}
+window.obrirFitxaProducte = obrirFitxaProducte;
+
+function fpAddToCart() {
+  var name = document.getElementById('fpName').textContent;
+  var prod = null;
+  for (var i=0; i<PRODUCTS.length; i++) { if (PRODUCTS[i].name === name) { prod = PRODUCTS[i]; break; } }
+  if (!prod) return;
+  if (cart[name]) { cart[name].qty += 1; } else { cart[name] = { qty: 1, price: prod.price }; }
+  recalcCartLine(name);
+  renderCart();
+  showToast(name + ' afegit al cistell!', '✅');
+  openCartDrawer();
+}
+window.fpAddToCart = fpAddToCart;
+
+// Fitxa de dades de seguretat (FDS) simplificada, generada com a document
+// imprimible — mateix mecanisme que el PDF de comandes (window.print()).
+function fpDescarregarFitxaTecnica() {
+  var name = document.getElementById('fpName').textContent;
+  var info = PRODUCT_INFO[name] || {};
+  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Fitxa tècnica ' + escHtml(name) + ' · HIGIENEX</title>' +
+    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:13px;max-width:760px;margin:0 auto}' +
+    '.top{border-bottom:3px solid #0B3D6B;padding-bottom:16px;margin-bottom:22px}' +
+    '.brand{font-size:22px;font-weight:800;color:#0B3D6B;font-family:Georgia,serif}.brand span{color:#F2A900}' +
+    'h1{font-size:19px;color:#0B3D6B;margin:4px 0 0}' +
+    'h2{font-size:13px;color:#0B3D6B;border-bottom:1px solid #D9E5F0;padding-bottom:5px;margin:22px 0 10px}' +
+    'table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px}td{border:1px solid #D9E5F0;padding:6px 9px}' +
+    'td.k{background:#F5FAFF;font-weight:700;width:220px}.foot{margin-top:32px;font-size:10px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:10px}' +
+    '@media print{@page{margin:15mm}}</style></head><body>' +
+    '<div class="top"><div class="brand">HIGIENE<span>X</span></div><h1>Fitxa tècnica: ' + escHtml(name) + '</h1></div>' +
+    '<h2>1. Identificació del producte</h2>' +
+    '<table><tr><td class="k">Nom comercial</td><td>' + escHtml(name) + '</td></tr>' +
+    '<tr><td class="k">Fabricant</td><td>HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València</td></tr>' +
+    '<tr><td class="k">Preu de referència</td><td>' + escHtml(info.price||'—') + '</td></tr></table>' +
+    '<h2>2. Descripció</h2><table><tr><td>' + escHtml(info.desc||'—') + '</td></tr></table>' +
+    '<h2>3. Mode d\'ús recomanat</h2>' +
+    '<table><tr><td>Diluir segons superfície a tractar. Aplicar amb pols polvoritzador, mopa o bayeta microfibra. Deixar actuar el temps de contacte indicat a l\'etiqueta abans d\'aclarir si escau. Ventilar l\'espai durant l\'aplicació.</td></tr></table>' +
+    '<h2>4. Precaucions i emmagatzematge</h2>' +
+    '<table><tr><td>Mantenir fora de l\'abast dels infants. Emmagatzemar en lloc fresc i sec, protegit de la llum directa. No barrejar amb altres productes químics. Usar guants en manipulació concentrada. Consultar la fitxa de seguretat completa (FDS) abans del primer ús industrial.</td></tr></table>' +
+    '<div class="foot">Document generat automàticament des de la web d\'HIGIENEX el ' + new Date().toLocaleDateString('ca-ES') + '. Aquesta fitxa és orientativa; per a la Fitxa de Dades de Seguretat (FDS) oficial reglamentària, contacta amb el nostre equip tècnic.</div>' +
+    '</body></html>';
+  abrirImprimibleComanda('Fitxa tècnica ' + name, html);
+}
+window.fpDescarregarFitxaTecnica = fpDescarregarFitxaTecnica;
+
+// ── SEGUIMENT DE COMANDA ──────────────────────────────────
+// Com que no hi ha servidor real, cerca dins l'historial que ja es guarda
+// al navegador per a l'email indicat (funciona des del mateix dispositiu
+// on es va fer la comanda).
+function hxTrackOrder(e) {
+  e.preventDefault();
+  var email = document.getElementById('trackEmail').value.trim().toLowerCase();
+  var num = document.getElementById('trackNum').value.trim().toUpperCase();
+  var box = document.getElementById('trackResult');
+  if (!box) return false;
+  var list = [];
+  try {
+    var raw = localStorage.getItem('hx_orders_' + email);
+    list = raw ? JSON.parse(raw) : [];
+  } catch(err) { list = []; }
+  var found = list.find(function(o){ return (o.invoiceNum||'').toUpperCase() === num; });
+  if (!found) {
+    box.innerHTML = '<div style="background:#FFF3E0;border-radius:10px;padding:1rem;color:#B8621B;font-size:0.85rem;">' +
+      '⚠️ No hem trobat cap comanda amb aquestes dades en aquest dispositiu. Si vas fer la comanda des d\'un altre mòbil o ordinador, contacta amb nosaltres per WhatsApp i t\'ajudem directament.</div>';
+    return false;
+  }
+  var itemsTxt = found.items.map(function(it){ return escHtml(it.name) + ' ×' + it.qty; }).join(', ');
+  box.innerHTML = '<div style="background:#E8F5E9;border-radius:10px;padding:1.2rem;color:#2E7D32;">' +
+    '<strong>✅ Comanda ' + escHtml(found.invoiceNum) + '</strong><br>' +
+    '<span style="font-size:0.85rem;">Data: ' + escHtml(found.date) + ' · Total: ' + found.total.toFixed(2) + ' €<br>' +
+    'Estat: <strong>' + escHtml(found.status) + '</strong><br>Productes: ' + itemsTxt + '</span></div>';
+  return false;
+}
+window.hxTrackOrder = hxTrackOrder;
+
+// ── SELECTOR D'IDIOMA (CA/ES) ─────────────────────────────
+// Abast honest: tradueix el menú, l'hero i les capçaleres de secció (el
+// que es llegeix primer). Els paràgrafs llargs de contingut queden en
+// català — traduir-los tots amb garanties requeriria una revisió a part.
+var HX_LANG_KEY = 'hx_lang';
+function hxApplyLang(lang) {
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var txt = el.getAttribute('data-' + lang);
+    if (txt) el.textContent = txt;
+  });
+  document.documentElement.setAttribute('lang', lang === 'es' ? 'es' : 'ca');
+  var btn = document.getElementById('langToggleBtn');
+  if (btn) btn.textContent = lang === 'es' ? 'ES/CA' : 'CA/ES';
+}
+function hxToggleLang() {
+  var current = 'ca';
+  try { current = localStorage.getItem(HX_LANG_KEY) || 'ca'; } catch(e){}
+  var next = current === 'ca' ? 'es' : 'ca';
+  try { localStorage.setItem(HX_LANG_KEY, next); } catch(e){}
+  hxApplyLang(next);
+}
+window.hxToggleLang = hxToggleLang;
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    var saved = localStorage.getItem(HX_LANG_KEY);
+    if (saved === 'es') hxApplyLang('es');
+  } catch(e){}
+});
 
 function closeWelcome(){var m=document.getElementById('welcomeMsg');if(m)m.style.display='none';}
 window.closeWelcome=closeWelcome;
