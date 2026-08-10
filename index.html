@@ -2007,6 +2007,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <!-- PWA -->
   <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22HIGIENEX%22%2C%22short_name%22%3A%22HIGIENEX%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%230B3D6B%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%2520viewBox%3D%270%25200%2520192%2520192%27%253E%253Crect%2520width%3D%27192%27%2520height%3D%27192%27%2520rx%3D%2740%27%2520fill%3D%27%25230B3D6B%27%2F%253E%253Ctext%2520x%3D%2796%27%2520y%3D%27130%27%2520font-family%3D%27Georgia%2Cserif%27%2520font-size%3D%27100%27%2520font-weight%3D%27bold%27%2520fill%3D%27%2523F2A900%27%2520text-anchor%3D%27middle%27%253EX%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
   <meta name="theme-color" content="#0B3D6B">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HIGIENEX">
@@ -7050,11 +7051,11 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     <h2>Del laboratori al sector</h2>
 
     <div id="nlFilters" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:1.2rem 0 2rem;">
-      <button type="button" class="nl-filter-btn active" onclick="hxFilterNewsletter('tots', this)">Totes</button>
-      <button type="button" class="nl-filter-btn" onclick="hxFilterNewsletter('Laboratori', this)">🧪 Laboratori</button>
-      <button type="button" class="nl-filter-btn" onclick="hxFilterNewsletter('Normativa', this)">📋 Normativa</button>
-      <button type="button" class="nl-filter-btn" onclick="hxFilterNewsletter('Sostenibilitat', this)">♻️ Sostenibilitat</button>
-      <button type="button" class="nl-filter-btn" onclick="hxFilterNewsletter('Innovació', this)">💡 Innovació</button>
+      <button type="button" class="nl-filter-btn active" aria-pressed="true" onclick="hxFilterNewsletter('tots', this)">Totes</button>
+      <button type="button" class="nl-filter-btn" aria-pressed="false" onclick="hxFilterNewsletter('Laboratori', this)">🧪 Laboratori</button>
+      <button type="button" class="nl-filter-btn" aria-pressed="false" onclick="hxFilterNewsletter('Normativa', this)">📋 Normativa</button>
+      <button type="button" class="nl-filter-btn" aria-pressed="false" onclick="hxFilterNewsletter('Sostenibilitat', this)">♻️ Sostenibilitat</button>
+      <button type="button" class="nl-filter-btn" aria-pressed="false" onclick="hxFilterNewsletter('Innovació', this)">💡 Innovació</button>
     </div>
 
     <!-- Article destacat -->
@@ -7139,7 +7140,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         <div class="contact-item"><div class="contact-icon">✉️</div><div><h4>Email</h4><a href="mailto:contacto@higienexvalencia.es">contacto@higienexvalencia.es</a><br><a href="mailto:administracion@higienexvalencia.es" style="font-size:0.82rem;color:#888;">administracion@higienexvalencia.es</a></div></div>
         <div class="contact-item"><div class="contact-icon">🕒</div><div><h4>Horari</h4><p>Dilluns – Divendres: 8:00 – 17:30<br><span style="font-size:0.8rem;color:#888;">Urgències 24/7 per a hospitals i centres crítics</span></p></div></div>
       </div>
-      <div><form class="contact-form" onsubmit="submitForm(event)"><div class="form-row"><div class="form-field"><label>Nom i Cognoms *</label><input type="text" name="nom" required placeholder="Maria Garcia López"></div><div class="form-field"><label>Empresa *</label><input type="text" name="empresa" required placeholder="Hospital Sant Josep"></div></div><div class="form-row"><div class="form-field"><label>Email *</label><input type="email" name="email" required placeholder="maria@hospital.com"></div><div class="form-field"><label>Telèfon</label><input type="tel" name="telefon" placeholder="600 000 000"></div></div><div class="form-field"><label>Sector</label><select name="sector"><option>Selecciona el teu sector...</option><option>Sanitari / Hospitals</option><option>Hotels / Turisme</option><option>Indústria Alimentària</option><option>Oficines / Empreses</option><option>Administració Pública</option><option>Altres</option></select></div><div class="form-field"><label>Missatge *</label><textarea name="missatge" required placeholder="Explica'ns les teves necessitats d'higiene professional..."></textarea></div><button type="submit" class="btn-submit">Enviar Missatge →</button></form><div id="formSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;">✅ Missatge enviat correctament! Us contactarem en menys de 24 hores.</div></div>
+      <div><form class="contact-form" onsubmit="submitForm(event)"><div class="form-row"><div class="form-field"><label for="ctNom">Nom i Cognoms *</label><input id="ctNom" type="text" name="nom" required autocomplete="name" placeholder="Maria Garcia López"></div><div class="form-field"><label for="ctEmpresa">Empresa *</label><input id="ctEmpresa" type="text" name="empresa" required autocomplete="organization" placeholder="Hospital Sant Josep"></div></div><div class="form-row"><div class="form-field"><label for="ctEmail">Email *</label><input id="ctEmail" type="email" name="email" required autocomplete="email" placeholder="maria@hospital.com"></div><div class="form-field"><label for="ctTelefon">Telèfon</label><input id="ctTelefon" type="tel" name="telefon" autocomplete="tel" placeholder="600 000 000"></div></div><div class="form-field"><label for="ctSector">Sector</label><select id="ctSector" name="sector"><option>Selecciona el teu sector...</option><option>Sanitari / Hospitals</option><option>Hotels / Turisme</option><option>Indústria Alimentària</option><option>Oficines / Empreses</option><option>Administració Pública</option><option>Altres</option></select></div><div class="form-field"><label for="ctMissatge">Missatge *</label><textarea id="ctMissatge" name="missatge" required placeholder="Explica'ns les teves necessitats d'higiene professional..."></textarea></div><button type="submit" class="btn-submit">Enviar Missatge →</button></form><div id="formSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;">✅ Missatge enviat correctament! Us contactarem en menys de 24 hores.</div></div>
     </div>
   </div>
   <iframe class="map-embed" loading="lazy" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3079.5!2d-0.3769!3d39.4738!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd6048a0eefcb0a9%3A0x1a5c5f3d0b6b7f5e!2sCalle%20de%20la%20Industria%2C%2025%2C%2046010%20Valencia!5e0!3m2!1sca!2ses!4v1" allowfullscreen loading="lazy" allowfullscreen></iframe>
@@ -7371,7 +7372,7 @@ function enviarNotificacioEmail(opts) {
   };
   var templateId = opts.templateId || EMAILJS_TEMPLATE_ID;
   emailjs.send(EMAILJS_SERVICE_ID, templateId, params).then(function(){
-    console.log('Notificació enviada per email.');
+    // Notificació enviada correctament
   }).catch(function(err){
     console.warn('No s\'ha pogut enviar la notificació per email:', err);
   });
@@ -7684,6 +7685,13 @@ window.toggleFaq = toggleFaq;
 function submitForm(e) {
   e.preventDefault();
   var f = e.target;
+  // Evita l'enviament doble si algú clica dues vegades seguides
+  var submitBtn = f.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    if (submitBtn.disabled) return false;
+    submitBtn.disabled = true;
+    setTimeout(function(){ submitBtn.disabled = false; }, 4000);
+  }
   var val = function(name){ var el = f.elements[name]; return el ? el.value.trim() : ''; };
   var nom      = val('nom');
   var empresa  = val('empresa');
@@ -7796,32 +7804,32 @@ window.submitForm = submitForm;
       <p style="margin-bottom:1.2rem;">Registra't per accedir a la zona de clients</p>
 
       <div style="text-align:left;margin-bottom:0.7rem;">
-        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Nom i cognoms</label>
-        <input id="regName" type="text" placeholder="Maria Garcia"
+        <label for="regName" style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Nom i cognoms</label>
+        <input id="regName" type="text" required autocomplete="name" placeholder="Maria Garcia"
           style="width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;box-sizing:border-box;">
       </div>
       <div style="text-align:left;margin-bottom:0.7rem;">
-        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Empresa</label>
-        <input id="regCompany" type="text" placeholder="Hotel Costa Daurada S.L."
+        <label for="regCompany" style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Empresa</label>
+        <input id="regCompany" type="text" autocomplete="organization" placeholder="Hotel Costa Daurada S.L."
           style="width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;box-sizing:border-box;">
       </div>
       <div style="text-align:left;margin-bottom:0.7rem;">
-        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">CIF</label>
-        <input id="regCif" type="text" placeholder="B12345678"
+        <label for="regCif" style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">CIF</label>
+        <input id="regCif" type="text" autocomplete="off" placeholder="B12345678"
           style="width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;box-sizing:border-box;">
       </div>
       <div style="text-align:left;margin-bottom:0.7rem;">
-        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Email</label>
-        <input id="regEmail" type="email" placeholder="correu@empresa.com"
+        <label for="regEmail" style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Email</label>
+        <input id="regEmail" type="email" required autocomplete="email" placeholder="correu@empresa.com"
           style="width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;box-sizing:border-box;">
       </div>
       <div style="text-align:left;margin-bottom:0.7rem;">
-        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Contrasenya</label>
-        <input id="regPassword" type="password" placeholder="Mínim 6 caràcters"
+        <label for="regPassword" style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Contrasenya</label>
+        <input id="regPassword" type="password" required minlength="6" autocomplete="new-password" placeholder="Mínim 6 caràcters"
           style="width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;box-sizing:border-box;">
       </div>
       <div style="text-align:left;margin-bottom:1.2rem;">
-        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Sector</label>
+        <label for="regSector" style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Sector</label>
         <select id="regSector" style="width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;box-sizing:border-box;background:white;">
           <option>Sanitari / Hospitals</option>
           <option>Hotels / Turisme</option>
@@ -8019,7 +8027,7 @@ window.submitForm = submitForm;
           <span class="nl-perk">🚫 Baixa en 1 clic</span>
         </div>
         <form onsubmit="submitNewsletterPopup(event)">
-          <input type="email" id="newsletterPopupEmail" required placeholder="tunom@empresa.com">
+          <input type="email" id="newsletterPopupEmail" required autocomplete="email" aria-label="Correu electrònic" placeholder="tunom@empresa.com">
           <button type="submit">Subscriu-me</button>
         </form>
         <div id="newsletterPopupSuccess">✅ Fet! Ja estàs subscrit.</div>
@@ -8103,7 +8111,7 @@ function hxMaybeShowNewsletterPopup() {
     if ((authOpen && authOpen.classList.contains('open')) ||
         (prodOpen && prodOpen.classList.contains('open'))) return;
     var p = document.getElementById('newsletterPopup');
-    if (p) p.classList.add('open');
+    if (p && !p.classList.contains('open')) p.classList.add('open');
   } catch(e){}
 }
 window.hxMaybeShowNewsletterPopup = hxMaybeShowNewsletterPopup;
@@ -8115,8 +8123,8 @@ function hxFilterNewsletter(cat, btnEl) {
     c.style.display = show ? '' : 'none';
   });
   var btns = document.querySelectorAll('.nl-filter-btn');
-  btns.forEach(function(b) { b.classList.remove('active'); });
-  if (btnEl) btnEl.classList.add('active');
+  btns.forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
+  if (btnEl) { btnEl.classList.add('active'); btnEl.setAttribute('aria-pressed', 'true'); }
 }
 window.hxFilterNewsletter = hxFilterNewsletter;
 
@@ -8147,8 +8155,6 @@ function switchTab(tab) {
   if(tR){tR.style.background=isLogin?'white':'#0B3D6B'; tR.style.color=isLogin?'#666':'white';}
 }
 window.switchTab = switchTab;
-function openTab(tab) { openAuthModal(); setTimeout(function(){ switchTab(tab); }, 50); }
-window.openTab = openTab;
 
 function loginWithApple()  { alert('Apple login estara disponible al servidor.'); }
 function loginWithGoogle() { alert('Google login estara disponible al servidor.'); }
@@ -8519,7 +8525,9 @@ function loginWithEmail() {
 }
 window.loginWithEmail = loginWithEmail;
 
+var _registerInFlight = false;
 function registerUser() {
+  if (_registerInFlight) return;
   var name=document.getElementById('regName').value.trim();
   var email=document.getElementById('regEmail').value.trim();
   var password=document.getElementById('regPassword').value;
@@ -8530,6 +8538,7 @@ function registerUser() {
   if (!name||!email||!password) { alert('Omple tots els camps obligatoris.'); return; }
   if (password.length<6) { alert('La contrasenya ha de tenir minim 6 caracters.'); return; }
   if (USERS[email]) { alert('Email ja registrat.'); switchTab('login'); return; }
+  _registerInFlight = true;
   REGISTERED_USERS[email] = {name:name, company:company, cif:cif, password:password, sector:sector};
   enviarNotificacioEmail({
     title: 'Nou usuari registrat a la web',
@@ -8542,6 +8551,7 @@ function registerUser() {
     ctaButtonHtml: hxEmailCtaButton('Donar la benvinguda →', 'mailto:' + email, 'gold')
   });
   closeAuthModal(); setLoggedInUser(name,'','client',email); showWelcome(name,false);
+  _registerInFlight = false;
 }
 window.registerUser = registerUser;
 
@@ -8590,9 +8600,6 @@ function setLoggedInUser(name, avatar, role, email) {
     exBtn.textContent=(role==='admin'?'⚙️ ':'👤 ') + name.split(' ')[0] + (role==='admin'?' (Admin)':'');
   }
 }
-
-function loginDemo() { closeAuthModal(); setLoggedInUser('Demo','','client','demo@higienex.es'); showWelcome('Demo',false); }
-window.loginDemo = loginDemo;
 
 function logout() {
   window.HX_USER = null;
@@ -8941,20 +8948,26 @@ function renderOrderHistory() {
 }
 window.renderOrderHistory = renderOrderHistory;
 
+var _orderInFlight = false;
 function sendOrder() {
   var keys = Object.keys(cart);
   if (!keys.length) { alert('Afegeix almenys un producte.'); return; }
+  if (_orderInFlight) return; // evita duplicar la comanda amb un doble clic
+  _orderInFlight = true;
+  setTimeout(function(){ _orderInFlight = false; }, 5000);
 
-  // Generate the order confirmation PDF (no longer force-downloaded; it travels as an email attachment)
+  // Genera el PDF de la comanda (s'obre en una finestra d'impressió perquè
+  // el client el desi ell mateix — no s'envia com a adjunt per email).
   var inv;
   try {
     inv = generateComanda();
   } catch(err) {
-    console.log('PDF error:', err);
+    console.warn('Error generant el PDF de la comanda:', err);
     inv = null;
   }
   if (!inv) {
     // PDF generation failed — abort sending the order
+    _orderInFlight = false;
     return;
   }
 
