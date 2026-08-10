@@ -3737,14 +3737,6 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
     <div class="hint" style="text-align:center">¿No recuerdas tu contraseña? Pide a Dirección que te la facilite o te la restablezca.</div>
     <div class="hint" style="text-align:center;margin-top:6px"><button class="btn ghost sm" onclick="hxAbrirPortalCliente()" type="button">👤 Ets client? Consulta les teves factures</button></div>
   </div>
-  <div class="box" id="hx2faBox" style="display:none">
-    <span class="eyebrow" style="text-align:center;display:block;margin-bottom:14px">🔐 Verificació en dos passos</span>
-    <p style="font-size:13px;color:var(--ink-2);text-align:center;margin-bottom:16px" id="hx2faMsg">Introdueix el codi de 6 dígits.</p>
-    <div class="field"><label for="hx2faCode">Codi de verificació</label><input id="hx2faCode" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" style="letter-spacing:6px;text-align:center;font-size:20px;font-family:'IBM Plex Mono',monospace"></div>
-    <div class="err" id="hx2faErr" style="display:none">Codi incorrecte. Torna-ho a provar.</div>
-    <button class="btn block" onclick="hxVerify2FA()" type="button">Verificar i entrar</button>
-    <div class="hint" style="text-align:center"><button class="btn ghost sm" onclick="hx2faVolver()" type="button">← Tornar</button></div>
-  </div>
   <div class="box" id="hxPortalCliente" style="display:none">
     <span class="eyebrow" style="text-align:center;display:block;margin-bottom:14px">👤 Portal de client</span>
     <p style="font-size:12.5px;color:var(--ink-2);text-align:center;margin-bottom:16px">Consulta ràpida i informativa de les teves factures. No requereix contrasenya — no s'hi mostren dades de pagament ni documents interns.</p>
@@ -5184,45 +5176,17 @@ function setQ(v){
 const hit = txt => !Q || String(txt).toLowerCase().includes(Q.toLowerCase());
 
 /* Acceso */
-let _hx2faCode=null, _hx2faUser=null;
 function doLogin(){
   const u=val('lu').trim().toLowerCase(), p=val('lp');
   const found=USERS.find(x=>[x.mail,x.alias,x.nom,x.nom.split(' ')[0]].some(v=>v.toLowerCase()===u)&&x.pass===p);
   if(!found){document.getElementById('loginErr').style.display='block';return;}
   document.getElementById('loginErr').style.display='none';
-  // Verificació en dos passos: generem un codi de 6 dígits. Com que és un
-  // projecte de prova sense servidor de correu/SMS real, el mostrem
-  // directament a la pantalla (en un cas real s'enviaria per email o SMS).
-  _hx2faUser=found;
-  _hx2faCode=String(Math.floor(100000+Math.random()*900000));
-  document.querySelectorAll('#login .box')[0].style.display='none';
-  const box=document.getElementById('hx2faBox'); box.style.display='block';
-  document.getElementById('hx2faMsg').innerHTML='Hem enviat un codi a <strong>'+esc(found.mail)+'</strong>.<br><span style="color:var(--ink-2);font-size:11.5px">(Demo sense servidor real — el codi és: <strong style="font-family:\'IBM Plex Mono\',monospace">'+_hx2faCode+'</strong>)</span>';
-  document.getElementById('hx2faErr').style.display='none';
-  document.getElementById('hx2faCode').value='';
-  setTimeout(()=>document.getElementById('hx2faCode').focus(),100);
+  completeLogin(found);
 }
-function hx2faVolver(){
-  document.getElementById('hx2faBox').style.display='none';
-  document.querySelectorAll('#login .box')[0].style.display='block';
-  _hx2faCode=null; _hx2faUser=null;
-}
-window.hx2faVolver=hx2faVolver;
-function hxVerify2FA(){
-  const code=document.getElementById('hx2faCode').value.trim();
-  if(!_hx2faUser || code!==_hx2faCode){
-    document.getElementById('hx2faErr').style.display='block';
-    return;
-  }
-  completeLogin(_hx2faUser);
-  _hx2faCode=null; _hx2faUser=null;
-}
-window.hxVerify2FA=hxVerify2FA;
 function completeLogin(found){
   ME=found;
   cargarDB();
   document.getElementById('login').style.display='none';
-  document.getElementById('hx2faBox').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('whoName').textContent=ME.nom+' · '+ME.rol;
   document.getElementById('whoAv').textContent=ME.nom.split(' ').map(w=>w[0]).slice(0,2).join('');
@@ -5230,7 +5194,7 @@ function completeLogin(found){
   try{ if(localStorage.getItem('hx_sidebar_collapsed')==='1') document.querySelector('.shell').classList.add('collapsed'); }catch(e){}
   toast('Sesión iniciada. Bienvenido, '+ME.nom.split(' ')[0]+'.');
 }
-function logout(){ME=null;document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex';document.querySelectorAll('#login .box')[0].style.display='block';document.getElementById('hx2faBox').style.display='none';document.getElementById('hxPortalCliente').style.display='none';document.getElementById('lp').value='';document.getElementById('loginErr').style.display='none';}
+function logout(){ME=null;document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex';document.querySelectorAll('#login .box')[0].style.display='block';document.getElementById('hxPortalCliente').style.display='none';document.getElementById('lp').value='';document.getElementById('loginErr').style.display='none';}
 
 // ── PORTAL DE CLIENT ───────────────────────────────────────
 // Consulta informativa i de només lectura: NO és un accés amb contrasenya
