@@ -1842,6 +1842,14 @@ footer ul a:hover { color: var(--green-light); }
   #navRightGroup::-webkit-scrollbar { display: none; }
   #navRightGroup #authBtns button { padding: 0.4rem 0.7rem !important; font-size: 0.76rem !important; }
   #navCartBtn, #navRightGroup a[href="higienex_erp.html"] { flex-shrink: 0; }
+  /* El desplegable d'idioma s'escapa del contenidor amb scroll horitzontal
+     (si no, quedava tallat / invisible en obrir-se al mòbil) */
+  #langDropdownMenu {
+    position: fixed !important;
+    top: 4.4rem !important;
+    right: 1rem !important;
+    left: auto !important;
+  }
 }
 
 /* ── SECCIONS AMB FONS SÒLID (evita que la imatge del hero es vegi darrere) ── */
