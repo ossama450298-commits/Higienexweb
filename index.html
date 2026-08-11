@@ -1832,6 +1832,9 @@ footer ul a:hover { color: var(--green-light); }
   .form-row { grid-template-columns: 1fr; }
   .hero-stats { gap: 0.8rem; }
   .hero-btns { flex-direction: column; align-items: center; }
+  #langToggleBtn, #hxInstallBtn { padding: 0.4rem 0.55rem !important; font-size: 0.7rem !important; }
+  #hxInstallBtn .hxInstallLabel { display: none; }
+  #navRightGroup { gap: 0.5rem !important; }
 }
 
 /* ── SECCIONS AMB FONS SÒLID (evita que la imatge del hero es vegi darrere) ── */
@@ -4419,7 +4422,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
     </button>
     <div id="navRightGroup" style="display:flex;align-items:center;gap:1rem;margin-left:auto;">
       <button id="langToggleBtn" onclick="hxToggleLang()" type="button" title="Canviar idioma" aria-label="Canviar idioma" style="background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 0.75rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;">CA/ES</button>
-      <button id="hxInstallBtn" onclick="hxInstallApp()" type="button" title="Instal·lar l'app" aria-label="Instal·lar l'app" style="display:none;align-items:center;gap:0.4rem;background:var(--accent);border:none;color:#1A1A1A;padding:0.45rem 0.9rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;white-space:nowrap;">⬇️ Instal·lar app</button>
+      <button id="hxInstallBtn" onclick="hxInstallApp()" type="button" title="Instal·lar l'app" aria-label="Instal·lar l'app" style="display:none;align-items:center;gap:0.4rem;background:var(--accent);border:none;color:#1A1A1A;padding:0.45rem 0.9rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;white-space:nowrap;">⬇️ <span class="hxInstallLabel">Instal·lar app</span></button>
       <div id="authBtns" style="display:flex;gap:0.5rem;">
         <button onclick="openAuthModal();switchTab('login')" style="display:flex;align-items:center;gap:0.4rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 1rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.82rem;font-weight:600;transition:all 0.2s;white-space:nowrap;" type="button">
           Accedir
@@ -9615,8 +9618,13 @@ if ('serviceWorker' in navigator) {
   });
 }
 var _hxInstallPromptEvent = null;
+function hxIsStandalone() {
+  return window.matchMedia && window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true; // Safari iOS
+}
 window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
+  if (hxIsStandalone()) return; // ja instal·lada i oberta com a app: no cal oferir-ho
   _hxInstallPromptEvent = e;
   var btn = document.getElementById('hxInstallBtn');
   if (btn) btn.style.display = 'inline-flex';

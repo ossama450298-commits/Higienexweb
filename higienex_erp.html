@@ -2747,6 +2747,7 @@ button,.navitem,.btn,a{min-height:32px}
   .pagehead .actions{margin-left:0;width:100%}
   .grid.g4,.grid.g3,.grid.g2{grid-template-columns:1fr}
   .qa-btn{flex:1 1 100%}
+  .hx-notif-panel{width:min(340px, calc(100vw - 32px));right:-10px}
 }
 
 /* CHATBOT INTERN — reutilitza l'estil del xat de la web pública */
@@ -5242,8 +5243,13 @@ if ('serviceWorker' in navigator) {
   });
 }
 let _hxInstallPromptErp = null;
+function hxIsStandaloneErp() {
+  return window.matchMedia && window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+}
 window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
+  if (hxIsStandaloneErp()) return;
   _hxInstallPromptErp = e;
   const btn = document.getElementById('hxInstallBtnErp');
   if (btn) btn.style.display = 'inline-flex';
