@@ -1832,9 +1832,23 @@ footer ul a:hover { color: var(--green-light); }
   .form-row { grid-template-columns: 1fr; }
   .hero-stats { gap: 0.8rem; }
   .hero-btns { flex-direction: column; align-items: center; }
+  /* Deixa espai perquè les bombolles flotants (xat + WhatsApp) no tapin
+     els enllaços del peu de pàgina en pantalles petites */
+  footer { padding-bottom: 5.5rem; }
+  .footer-legal-row { padding-bottom: 4.5rem; }
   #langToggleBtn, #hxInstallBtn { padding: 0.4rem 0.55rem !important; font-size: 0.7rem !important; }
   #hxInstallBtn .hxInstallLabel { display: none; }
-  #navRightGroup { gap: 0.5rem !important; }
+  #navRightGroup {
+    gap: 0.4rem !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-right: 0.2rem;
+    max-width: calc(100vw - 130px); /* deixa espai fix per al botó "Menú" de l'esquerra */
+  }
+  #navRightGroup::-webkit-scrollbar { display: none; }
+  #navRightGroup #authBtns button { padding: 0.4rem 0.7rem !important; font-size: 0.76rem !important; }
+  #navCartBtn, #navRightGroup a[href="higienex_erp.html"] { flex-shrink: 0; }
 }
 
 /* ── SECCIONS AMB FONS SÒLID (evita que la imatge del hero es vegi darrere) ── */
