@@ -2741,9 +2741,11 @@ button,.navitem,.btn,a{min-height:32px}
   aside{position:static;height:auto;margin:12px;border-radius:var(--radius-lg)}
   .sidetoggle{display:none}
   .wrap{padding:18px 14px 50px}
-  .topbar{padding:12px 16px;flex-wrap:wrap;row-gap:10px}
+  .topbar{padding:12px 16px;flex-wrap:wrap;row-gap:12px;align-items:center}
+  .topbar .searchbtn{margin-left:auto}
   .topbar .who{
-    margin-left:0;width:100%;
+    margin-left:auto;width:100%;
+    display:flex;justify-content:flex-end;align-items:center;
     overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
     padding-bottom:2px;
   }
@@ -2753,7 +2755,8 @@ button,.navitem,.btn,a{min-height:32px}
      instal·lar) es col·lapsen dins del botó "⋮" en lloc d'anar totes soltes */
   .hx-admin-tool{display:none !important}
   .exercise{display:none} /* ja es veu al selector d'exercici dins de cada secció */
-  .topnav{padding:0 16px;top:calc(49px + 46px)}
+  #hxNotifBell, .avatar{box-shadow:0 2px 8px rgba(11,61,107,0.14)}
+  .topnav{padding:0 16px;top:calc(49px + 50px);box-shadow:0 6px 14px -6px rgba(0,0,0,0.18)}
   .qa-bar{gap:8px}
   .qa-btn{flex:1 1 44%;justify-content:center}
   .qa-btn .qk{display:none}
