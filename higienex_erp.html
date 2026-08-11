@@ -2526,8 +2526,10 @@ button.hx-notif-item{width:100%;text-align:left;border:none;background:none;font
 main{min-width:0;display:flex;flex-direction:column}
 .topbar{background:color-mix(in srgb,var(--paper) 72%,transparent);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line);padding:14px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:20}
 .topbar .who{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:12.5px;color:var(--ink-2);font-weight:600}
-#hxMoreWrap{display:none} /* el botó "⋮" només es mostra al mòbil (veure media query) */
-.avatar{width:32px;height:32px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;font-family:'Plus Jakarta Sans';box-shadow:var(--shadow-sm)}
+.avatar{width:32px;height:32px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;font-family:'Plus Jakarta Sans';box-shadow:var(--shadow-sm);border:none;cursor:pointer;padding:0;transition:transform .15s}
+.avatar:hover{transform:scale(1.06)}
+#hxAvatarWrap{position:relative}
+#hxAvatarMenu{width:230px}
 .exercise{font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid var(--line-strong);padding:4px 10px;border-radius:20px;color:var(--ink-2);font-weight:600}
 .wrap{padding:32px 36px 76px;max-width:1480px;width:100%}
 .pagehead{display:flex;align-items:flex-end;gap:18px;margin-bottom:28px;flex-wrap:wrap}
@@ -2690,7 +2692,8 @@ tr.total td{background:var(--surface-2);font-weight:700;border-top:1px solid var
 .searchbtn{display:flex;align-items:center;gap:10px;padding:8px 14px;border:1px solid var(--line);background:var(--surface);border-radius:20px;color:var(--ink-2);cursor:pointer;font-size:12.5px;min-width:220px;font-weight:600;transition:border-color .15s,box-shadow .15s}
 .searchbtn:hover{border-color:var(--blue);color:var(--ink);box-shadow:var(--shadow-xs)}
 .searchbtn .kbd{margin-left:auto}
-@media(max-width:820px){.searchbtn{min-width:0}.searchbtn span.lbl{display:none}}
+@media(max-width:820px){.searchbtn{min-width:0}.searchbtn span.lbl,.searchbtn span.kbd{display:none}.searchbtn .search-ic{display:inline}}
+.searchbtn .search-ic{display:none;font-size:15px}
 
 /* ----------------------------------------------------- foldable panels -- */
 .panelfold{border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--surface);overflow:hidden;box-shadow:var(--shadow-sm)}
@@ -2749,7 +2752,6 @@ button,.navitem,.btn,a{min-height:32px}
   /* Al mòbil, les eines administratives (tema, còpia, restaurar, restablir,
      instal·lar) es col·lapsen dins del botó "⋮" en lloc d'anar totes soltes */
   .hx-admin-tool{display:none !important}
-  #hxMoreWrap{display:block}
   .exercise{display:none} /* ja es veu al selector d'exercici dins de cada secció */
   .topnav{padding:0 16px;top:calc(49px + 46px)}
   .qa-bar{gap:8px}
@@ -4648,7 +4650,7 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
   <main>
     <div class="topbar">
       <span class="eyebrow" id="crumb">Panel</span>
-      <button class="searchbtn" onclick="openPalette()" type="button"><span class="lbl">Buscar en todo el ERP…</span><span class="kbd">Ctrl K</span></button>
+      <button class="searchbtn" onclick="openPalette()" type="button"><span class="search-ic">🔍</span><span class="lbl">Buscar en todo el ERP…</span><span class="kbd">Ctrl K</span></button>
       <div class="who">
         <button class="btn ghost sm hx-admin-tool" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">🌓 <span class="lbl">Modo oscuro</span></button>
         <button class="btn ghost sm hx-admin-tool" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ <span class="lbl">Instal·lar</span></button>
@@ -4659,23 +4661,24 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
           </button>
           <div id="hxNotifPanel" class="hx-notif-panel"></div>
         </div>
-        <span id="whoName"></span>
-        <span class="avatar" id="whoAv"></span>
+        <span id="whoName" class="hx-admin-tool"></span>
         <button class="btn ghost sm hx-admin-tool" id="hxBackupBtn" title="Descarrega totes les dades del panell en un fitxer .json" onclick="hxBackupDB()" type="button">💾 <span class="lbl">Còpia de seguretat</span></button>
         <button class="btn ghost sm hx-admin-tool" id="hxRestoreBtn" title="Restaura dades des d'un fitxer .json de còpia de seguretat" onclick="document.getElementById('hxRestoreInput').click()" type="button">📂 <span class="lbl">Restaurar</span></button>
         <input type="file" id="hxRestoreInput" accept="application/json" style="display:none" onchange="hxRestoreDB(event)">
         <button class="btn ghost sm hx-admin-tool" id="hxResetBtn" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()" type="button">♻️ <span class="lbl">Restablecer datos</span></button>
-        <div style="position:relative" id="hxMoreWrap">
-          <button class="btn ghost sm" id="hxMoreBtn" onclick="hxToggleMoreMenu()" title="Més opcions" aria-label="Més opcions" type="button">⋮</button>
-          <div id="hxMoreMenu" class="hx-notif-panel">
-            <button class="hx-notif-item" onclick="hxToggleMoreMenu();toggleTema()" type="button"><span class="hx-notif-ic">🌓</span><span>Cambiar tema</span></button>
-            <button class="hx-notif-item" id="hxMoreInstall" onclick="hxToggleMoreMenu();hxInstallAppErp()" type="button" style="display:none"><span class="hx-notif-ic">⬇️</span><span>Instal·lar l'app</span></button>
-            <button class="hx-notif-item" onclick="hxToggleMoreMenu();hxBackupDB()" type="button"><span class="hx-notif-ic">💾</span><span>Còpia de seguretat</span></button>
-            <button class="hx-notif-item" onclick="hxToggleMoreMenu();document.getElementById('hxRestoreInput').click()" type="button"><span class="hx-notif-ic">📂</span><span>Restaurar còpia</span></button>
-            <button class="hx-notif-item" onclick="hxToggleMoreMenu();restablecerDatosEjemplo()" type="button"><span class="hx-notif-ic">♻️</span><span>Restablecer datos</span></button>
+        <button class="btn ghost sm hx-admin-tool" onclick="logout()" type="button">Salir</button>
+        <div style="position:relative" id="hxAvatarWrap">
+          <button id="whoAv" class="avatar" onclick="hxToggleAvatarMenu()" type="button" aria-label="Cuenta y ajustes"></button>
+          <div id="hxAvatarMenu" class="hx-notif-panel">
+            <div id="hxAvatarMenuName" style="padding:10px 12px 6px;font-size:12.5px;font-weight:700;color:var(--ink);border-bottom:1px solid var(--line);margin-bottom:6px"></div>
+            <button class="hx-notif-item" onclick="hxToggleAvatarMenu();toggleTema()" type="button"><span class="hx-notif-ic">🌓</span><span>Cambiar tema</span></button>
+            <button class="hx-notif-item" id="hxAvatarInstall" onclick="hxToggleAvatarMenu();hxInstallAppErp()" type="button" style="display:none"><span class="hx-notif-ic">⬇️</span><span>Instal·lar l'app</span></button>
+            <button class="hx-notif-item" onclick="hxToggleAvatarMenu();hxBackupDB()" type="button"><span class="hx-notif-ic">💾</span><span>Còpia de seguretat</span></button>
+            <button class="hx-notif-item" onclick="hxToggleAvatarMenu();document.getElementById('hxRestoreInput').click()" type="button"><span class="hx-notif-ic">📂</span><span>Restaurar còpia</span></button>
+            <button class="hx-notif-item" onclick="hxToggleAvatarMenu();restablecerDatosEjemplo()" type="button"><span class="hx-notif-ic">♻️</span><span>Restablecer datos</span></button>
+            <button class="hx-notif-item" onclick="hxToggleAvatarMenu();logout()" type="button" style="border-top:1px solid var(--line);margin-top:4px;padding-top:12px;color:var(--red)"><span class="hx-notif-ic">🚪</span><span>Salir</span></button>
           </div>
         </div>
-        <button class="btn ghost sm" onclick="logout()" type="button">Salir</button>
       </div>
     </div>
     <nav id="topnav" class="topnav"></nav>
@@ -5277,7 +5280,7 @@ window.addEventListener('beforeinstallprompt', function(e) {
   _hxInstallPromptErp = e;
   const btn = document.getElementById('hxInstallBtnErp');
   if (btn) btn.style.display = 'inline-flex';
-  const moreBtn = document.getElementById('hxMoreInstall');
+  const moreBtn = document.getElementById('hxAvatarInstall');
   if (moreBtn) moreBtn.style.display = 'flex';
 });
 function hxInstallAppErp() {
@@ -5389,16 +5392,20 @@ document.addEventListener('click', function(e){
   const p=document.getElementById('hxNotifPanel'), b=document.getElementById('hxNotifBell');
   if(p && p.classList.contains('on') && !p.contains(e.target) && b && !b.contains(e.target)) p.classList.remove('on');
 });
-function hxToggleMoreMenu(){
-  const p=document.getElementById('hxMoreMenu');
+function hxToggleAvatarMenu(){
+  const p=document.getElementById('hxAvatarMenu');
   if(!p) return;
   const open=p.classList.contains('on');
   document.querySelectorAll('.hx-notif-panel.on').forEach(x=>x.classList.remove('on'));
-  if(!open) p.classList.add('on');
+  if(!open){
+    const nameEl=document.getElementById('hxAvatarMenuName');
+    if(nameEl && ME) nameEl.textContent=ME.nom+' · '+ME.rol;
+    p.classList.add('on');
+  }
 }
-window.hxToggleMoreMenu = hxToggleMoreMenu;
+window.hxToggleAvatarMenu = hxToggleAvatarMenu;
 document.addEventListener('click', function(e){
-  const p=document.getElementById('hxMoreMenu'), b=document.getElementById('hxMoreBtn');
+  const p=document.getElementById('hxAvatarMenu'), b=document.getElementById('whoAv');
   if(p && p.classList.contains('on') && !p.contains(e.target) && b && !b.contains(e.target)) p.classList.remove('on');
 });
 const NAV_GROUP_ICONS={
