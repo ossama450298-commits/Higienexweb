@@ -4,13 +4,23 @@
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://higienexchat.ossama450298.workers.dev https://api.emailjs.com; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HIGIENEX · Gestión interna</title>
+<!-- PWA -->
+<link rel="manifest" href="manifest-erp.json">
+<meta name="theme-color" content="#0F1D2B">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HIGIENEX ERP">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-erp.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <style>
 /* ==========================================================================
    HIGIENEX — Sistema de diseño 2026
@@ -2484,7 +2494,7 @@ aside .sideLogo{display:block;width:calc(100% - 8px);margin:2px 4px 12px;padding
 .navitem{display:flex;justify-content:flex-start;align-items:center;gap:12px;width:100%;text-align:left;padding:9px 12px;margin:1px 0;border:0;border-radius:11px;background:none;color:var(--side-ink);cursor:pointer;font-size:13.5px;font-weight:600;transition:background .15s,color .15s,transform .1s}
 .navitem:hover{background:var(--side-h);color:#fff}
 .navitem.on{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;box-shadow:0 4px 14px rgba(74,85,255,.35)}
-.navitem svg{width:16.5px;height:16.5px;flex-shrink:0;opacity:.9}
+.navitem svg,.navitem .navicon{width:16.5px;flex-shrink:0;opacity:.9;font-size:15px;line-height:1}
 .navitem span.navlabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:left}
 .navitem .badge{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--red);color:#fff;border-radius:20px;padding:1.5px 7px;font-weight:700}
 .shell.collapsed .navitem{justify-content:center;padding:11px}
@@ -2492,11 +2502,34 @@ aside .sideLogo{display:block;width:calc(100% - 8px);margin:2px 4px 12px;padding
 .shell.collapsed aside .sideLogo{width:38px;margin:2px auto 12px;padding:6px}
 .shell.collapsed aside .logo{text-align:center;padding:2px 0}
 .navitem:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
+.topnav{background:var(--side);border-bottom:1px solid var(--side-line);padding:0 10px;display:flex;align-items:stretch;justify-content:flex-start;gap:6px;position:sticky;top:57px;z-index:19;overflow-x:auto}
+.topnav::-webkit-scrollbar{height:0}
+.topnavitem{flex:0 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 8px 6px;border:0;background:none;color:var(--side-ink-2);font-size:10px;font-weight:600;letter-spacing:.01em;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:8px 8px 0 0;transition:background .15s,color .15s;min-width:52px;max-width:96px}
+.topnavitem:hover{background:var(--side-h);color:#fff}
+.topnavitem.on{background:var(--side-h);color:#fff;box-shadow:inset 0 -3px 0 var(--blue)}
+.topnavitem svg,.topnavitem .topnavicon{font-size:17px;line-height:1;opacity:.85;transition:transform .15s,opacity .15s}
+.topnavitem:hover .topnavicon{transform:translateY(-1px);opacity:1}
+.topnavitem.on .topnavicon{opacity:1}
+
+/* Centre de notificacions */
+.hx-notif-panel{display:none;position:absolute;top:calc(100% + 10px);right:0;width:340px;max-height:420px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);z-index:60;padding:6px}
+.hx-notif-panel.on{display:block}
+.hx-notif-item{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--ink);line-height:1.4;transition:background .12s}
+button.hx-notif-item{width:100%;text-align:left;border:none;background:none;font-family:inherit}
+.hx-notif-item:hover{background:var(--hover)}
+.hx-notif-ic{font-size:16px;flex-shrink:0}
+.hx-notif-danger{border-left:3px solid var(--red)}
+.hx-notif-warn{border-left:3px solid var(--gold)}
+.hx-notif-info{border-left:3px solid var(--blue)}
+.hx-notif-empty{padding:24px 16px;text-align:center;color:var(--ink-2);font-size:13px}
 
 main{min-width:0;display:flex;flex-direction:column}
 .topbar{background:color-mix(in srgb,var(--paper) 72%,transparent);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line);padding:14px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:20}
 .topbar .who{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:12.5px;color:var(--ink-2);font-weight:600}
-.avatar{width:32px;height:32px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;font-family:'Plus Jakarta Sans';box-shadow:var(--shadow-sm)}
+.avatar{width:32px;height:32px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;font-family:'Plus Jakarta Sans';box-shadow:var(--shadow-sm);border:none;cursor:pointer;padding:0;transition:transform .15s}
+.avatar:hover{transform:scale(1.06)}
+#hxAvatarWrap{position:relative}
+#hxAvatarMenu{width:230px}
 .exercise{font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid var(--line-strong);padding:4px 10px;border-radius:20px;color:var(--ink-2);font-weight:600}
 .wrap{padding:32px 36px 76px;max-width:1480px;width:100%}
 .pagehead{display:flex;align-items:flex-end;gap:18px;margin-bottom:28px;flex-wrap:wrap}
@@ -2659,7 +2692,8 @@ tr.total td{background:var(--surface-2);font-weight:700;border-top:1px solid var
 .searchbtn{display:flex;align-items:center;gap:10px;padding:8px 14px;border:1px solid var(--line);background:var(--surface);border-radius:20px;color:var(--ink-2);cursor:pointer;font-size:12.5px;min-width:220px;font-weight:600;transition:border-color .15s,box-shadow .15s}
 .searchbtn:hover{border-color:var(--blue);color:var(--ink);box-shadow:var(--shadow-xs)}
 .searchbtn .kbd{margin-left:auto}
-@media(max-width:820px){.searchbtn{min-width:0}.searchbtn span.lbl{display:none}}
+.searchbtn .search-ic{display:none;font-size:15px}
+@media(max-width:820px){.searchbtn{min-width:0;padding:9px;border-radius:50%;width:38px;height:38px;justify-content:center;gap:0}.searchbtn span.lbl,.searchbtn span.kbd{display:none}.searchbtn .search-ic{display:inline}}
 
 /* ----------------------------------------------------- foldable panels -- */
 .panelfold{border:1px solid var(--line);border-radius:var(--radius-lg);background:var(--surface);overflow:hidden;box-shadow:var(--shadow-sm)}
@@ -2707,9 +2741,25 @@ button,.navitem,.btn,a{min-height:32px}
   aside{position:static;height:auto;margin:12px;border-radius:var(--radius-lg)}
   .sidetoggle{display:none}
   .wrap{padding:18px 14px 50px}
-  .topbar{padding:12px 16px}
+  .topbar{padding:12px 16px;flex-wrap:wrap;row-gap:12px;align-items:center}
+  .topbar .searchbtn{margin-left:auto}
+  .topbar .who{
+    margin-left:auto;width:100%;
+    display:flex;justify-content:flex-end;align-items:center;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+    padding-bottom:2px;
+  }
+  .topbar .who::-webkit-scrollbar{display:none}
+  .topbar .who > *{flex-shrink:0}
+  /* Al mòbil, les eines administratives (tema, còpia, restaurar, restablir,
+     instal·lar) es col·lapsen dins del botó "⋮" en lloc d'anar totes soltes */
+  .hx-admin-tool{display:none !important}
+  .exercise{display:none} /* ja es veu al selector d'exercici dins de cada secció */
+  #hxNotifBell, .avatar{box-shadow:0 2px 8px rgba(11,61,107,0.14)}
+  .topnav{padding:0 16px;top:calc(49px + 50px);box-shadow:0 6px 14px -6px rgba(0,0,0,0.18)}
   .qa-bar{gap:8px}
   .qa-btn{flex:1 1 44%;justify-content:center}
+  .qa-btn .qk{display:none}
   .goalring{flex-direction:column;text-align:center}
 }
 @media(max-width:560px){
@@ -2717,6 +2767,7 @@ button,.navitem,.btn,a{min-height:32px}
   .pagehead .actions{margin-left:0;width:100%}
   .grid.g4,.grid.g3,.grid.g2{grid-template-columns:1fr}
   .qa-btn{flex:1 1 100%}
+  .hx-notif-panel{width:min(340px, calc(100vw - 32px));right:-10px}
 }
 
 /* CHATBOT INTERN — reutilitza l'estil del xat de la web pública */
@@ -3703,8 +3754,21 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
     <div class="err" id="loginErr">Usuario o contraseña incorrectos.</div>
     <div class="field"><label for="lu">Usuario o correo</label><input id="lu" autocomplete="username" placeholder="tu.usuario@higienex.es"></div>
     <div class="field"><label for="lp">Contraseña</label><input id="lp" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-    <button class="btn block" onclick="doLogin()">Entrar</button>
+    <button class="btn block" onclick="doLogin()" type="button">Entrar</button>
     <div class="hint" style="text-align:center">¿No recuerdas tu contraseña? Pide a Dirección que te la facilite o te la restablezca.</div>
+    <div class="hint" style="text-align:center;margin-top:6px"><button class="btn ghost sm" onclick="hxAbrirPortalCliente()" type="button">👤 Ets client? Consulta les teves factures</button></div>
+  </div>
+  <div class="box" id="hxPortalCliente" style="display:none">
+    <span class="eyebrow" style="text-align:center;display:block;margin-bottom:14px">👤 Portal de client</span>
+    <p style="font-size:12.5px;color:var(--ink-2);text-align:center;margin-bottom:16px">Consulta ràpida i informativa de les teves factures. No requereix contrasenya — no s'hi mostren dades de pagament ni documents interns.</p>
+    <div id="hxPortalForm">
+      <div class="field"><label for="hxPortalNif">NIF de l'empresa</label><input id="hxPortalNif" placeholder="B12345678" style="text-transform:uppercase"></div>
+      <div class="field"><label for="hxPortalMail">Email registrat</label><input id="hxPortalMail" type="email" placeholder="contacte@empresa.com"></div>
+      <div class="err" id="hxPortalErr" style="display:none">No hem trobat cap client amb aquestes dades.</div>
+      <button class="btn block" onclick="hxConsultarPortalCliente()" type="button">Consultar</button>
+    </div>
+    <div id="hxPortalResult" style="display:none"></div>
+    <div class="hint" style="text-align:center"><button class="btn ghost sm" onclick="hxCerrarPortalCliente()" type="button">← Tornar a l'accés intern</button></div>
   </div>
 </div>
 
@@ -4584,22 +4648,44 @@ FARMwPLyKjIT1eLKsoSxDj5UMCRQFlSkCGrAEpvYRtPvhokTF68wViE6RN7JcGrlLDp5kpBmbHHfp0dN
 aUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jG
 NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa0xjH/wcw5CLzRV6yFAAAAABJRU5ErkJggg==" alt="HIGIENEX S.L.">
     <div class="sub">S.L.L. · Valencia</div>
-    <button class="sidetoggle" onclick="toggleSidebar()" title="Contraer / expandir menú" aria-label="Contraer menú"><i data-lucide="panel-left-close"></i></button>
+    <button class="sidetoggle" onclick="toggleSidebar()" title="Contraer / expandir menú" aria-label="Contraer menú" type="button"><i data-lucide="panel-left-close"></i></button>
     <nav id="nav"></nav>
   </aside>
   <main>
     <div class="topbar">
       <span class="eyebrow" id="crumb">Panel</span>
-      <button class="searchbtn" onclick="openPalette()"><span class="lbl">Buscar en todo el ERP…</span><span class="kbd">Ctrl K</span></button>
+      <button class="searchbtn" onclick="openPalette()" type="button"><span class="search-ic">🔍</span><span class="lbl">Buscar en todo el ERP…</span><span class="kbd">Ctrl K</span></button>
       <div class="who">
-        <button class="btn ghost sm" id="themeBtn" onclick="toggleTema()" title="Cambiar tema">Modo oscuro</button>
-        <span class="exercise">Ejercicio 2026</span>
-        <span id="whoName"></span>
-        <span class="avatar" id="whoAv"></span>
-        <button class="btn ghost sm" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()">Restablecer datos</button>
-        <button class="btn ghost sm" onclick="logout()">Salir</button>
+        <button class="btn ghost sm hx-admin-tool" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">🌓 <span class="lbl">Modo oscuro</span></button>
+        <button class="btn ghost sm hx-admin-tool" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ <span class="lbl">Instal·lar</span></button>
+        <span class="exercise hx-admin-tool">Ejercicio 2026</span>
+        <div style="position:relative">
+          <button class="btn ghost sm" id="hxNotifBell" onclick="hxToggleNotifPanel()" title="Notificacions" aria-label="Notificacions" type="button" style="position:relative">
+            🔔<span id="hxNotifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:20px;min-width:16px;height:16px;align-items:center;justify-content:center;padding:0 3px">0</span>
+          </button>
+          <div id="hxNotifPanel" class="hx-notif-panel"></div>
+        </div>
+        <span id="whoName" class="hx-admin-tool"></span>
+        <button class="btn ghost sm hx-admin-tool" id="hxBackupBtn" title="Descarrega totes les dades del panell en un fitxer .json" onclick="hxBackupDB()" type="button">💾 <span class="lbl">Còpia de seguretat</span></button>
+        <button class="btn ghost sm hx-admin-tool" id="hxRestoreBtn" title="Restaura dades des d'un fitxer .json de còpia de seguretat" onclick="document.getElementById('hxRestoreInput').click()" type="button">📂 <span class="lbl">Restaurar</span></button>
+        <input type="file" id="hxRestoreInput" accept="application/json" style="display:none" onchange="hxRestoreDB(event)">
+        <button class="btn ghost sm hx-admin-tool" id="hxResetBtn" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()" type="button">♻️ <span class="lbl">Restablecer datos</span></button>
+        <button class="btn ghost sm hx-admin-tool" onclick="logout()" type="button">Salir</button>
+        <div style="position:relative" id="hxAvatarWrap">
+          <button id="whoAv" class="avatar" onclick="hxToggleAvatarMenu()" type="button" aria-label="Cuenta y ajustes"></button>
+          <div id="hxAvatarMenu" class="hx-notif-panel">
+            <div id="hxAvatarMenuName" style="padding:10px 12px 6px;font-size:12.5px;font-weight:700;color:var(--ink);border-bottom:1px solid var(--line);margin-bottom:6px"></div>
+            <button class="hx-notif-item" onclick="hxToggleAvatarMenu();toggleTema()" type="button"><span class="hx-notif-ic">🌓</span><span>Cambiar tema</span></button>
+            <button class="hx-notif-item" id="hxAvatarInstall" onclick="hxToggleAvatarMenu();hxInstallAppErp()" type="button" style="display:none"><span class="hx-notif-ic">⬇️</span><span>Instal·lar l'app</span></button>
+            <button class="hx-notif-item" onclick="hxToggleAvatarMenu();hxBackupDB()" type="button"><span class="hx-notif-ic">💾</span><span>Còpia de seguretat</span></button>
+            <button class="hx-notif-item" onclick="hxToggleAvatarMenu();document.getElementById('hxRestoreInput').click()" type="button"><span class="hx-notif-ic">📂</span><span>Restaurar còpia</span></button>
+            <button class="hx-notif-item" onclick="hxToggleAvatarMenu();restablecerDatosEjemplo()" type="button"><span class="hx-notif-ic">♻️</span><span>Restablecer datos</span></button>
+            <button class="hx-notif-item" onclick="hxToggleAvatarMenu();logout()" type="button" style="border-top:1px solid var(--line);margin-top:4px;padding-top:12px;color:var(--red)"><span class="hx-notif-ic">🚪</span><span>Salir</span></button>
+          </div>
+        </div>
       </div>
     </div>
+    <nav id="topnav" class="topnav"></nav>
     <div class="wrap" id="view"></div>
   </main>
 </div>
@@ -4683,7 +4769,8 @@ const USERS = [
   {id:'U1',nom:'Oussama',alias:'oussama',emp:'E01',mail:'admin@higienex.es',pass:'450298',    rol:'Dirección',     perms:'all'},
   {id:'U2',nom:'Ariadna',   alias:'ari',    emp:'E02',mail:'ari@higienex.es',  pass:'Ari2025',     rol:'Administración',perms:'admin'},
   {id:'U3',nom:'Lucía',    alias:'lucia',  emp:'E03',mail:'lucia@higienex.es',pass:'Lucia2025',   rol:'Comercial',     perms:'comercial'},
-  {id:'U4',nom:'Marc',       alias:'marc',   emp:'E04',mail:'marc@higienex.es', pass:'Marc2025',    rol:'Logística',     perms:'logistica'}
+  {id:'U4',nom:'Marc',       alias:'marc',   emp:'E04',mail:'marc@higienex.es', pass:'Marc2025',    rol:'Logística',     perms:'logistica'},
+  {id:'U5',nom:'Edu',        alias:'edu',    emp:'E07',mail:'edu@higienex.es',  pass:'Higienex2025', rol:'Logística',     perms:'logistica'}
 ];
 let ME = null;
 
@@ -4716,7 +4803,8 @@ empleados:[
  {id:'E03',nom:'Lucía',dni:'44556677M',cat:'Responsable comercial',contrato:'Indefinido',alta:'2019-02-11',brutoAnual:29400,pagas:14,irpf:16,depto:'Comercial'},
  {id:'E04',nom:'Marc',dni:'25334411F',cat:'Jefe de almacén',contrato:'Indefinido',alta:'2018-06-04',brutoAnual:26600,pagas:14,irpf:14,depto:'Logística'},
  {id:'E05',nom:'Nadia',dni:'X8123456R',cat:'Técnica de laboratorio',contrato:'Indefinido',alta:'2021-01-18',brutoAnual:27300,pagas:14,irpf:15,depto:'I+D'},
- {id:'E06',nom:'Sergi',dni:'52887744T',cat:'Operario de producción',contrato:'Temporal',alta:'2025-10-01',brutoAnual:21800,pagas:14,irpf:9,depto:'Producción'}
+ {id:'E06',nom:'Sergi',dni:'52887744T',cat:'Operario de producción',contrato:'Temporal',alta:'2025-10-01',brutoAnual:21800,pagas:14,irpf:9,depto:'Producción'},
+ {id:'E07',nom:'Edu',dni:'39887766P',cat:'Técnico de logística',contrato:'Indefinido',alta:'2026-08-01',brutoAnual:24500,pagas:14,irpf:12,depto:'Logística'}
 ],
 ausencias:[
  {id:'AU1',emp:'E06',tipo:'Baja por IT (común)',desde:'2026-06-02',hasta:'2026-06-13',dias:10},
@@ -4769,6 +4857,58 @@ function restablecerDatosEjemplo(){
 }
 window.restablecerDatosEjemplo = restablecerDatosEjemplo;
 
+// ── CÒPIA DE SEGURETAT / RESTAURACIÓ ──────────────────────
+// Com que totes les dades viuen només al localStorage del navegador,
+// això és l'única manera de no perdre-les si canvies de dispositiu,
+// esborres la memòria cau, o simplement vols tenir un punt de restauració.
+function hxBackupDB(){
+  try{
+    const payload = {
+      _meta: { app: 'HIGIENEX ERP', exportedAt: new Date().toISOString(), version: 1 },
+      DB: DB
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = 'higienex-backup-' + stamp + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    if (typeof toast === 'function') toast('💾 Còpia de seguretat descarregada');
+  }catch(e){
+    alert('No s\'ha pogut generar la còpia de seguretat: ' + e.message);
+  }
+}
+window.hxBackupDB = hxBackupDB;
+
+function hxRestoreDB(ev){
+  const file = ev.target.files && ev.target.files[0];
+  ev.target.value = ''; // permet tornar a triar el mateix fitxer després
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(){
+    let parsed;
+    try{ parsed = JSON.parse(reader.result); }
+    catch(e){ alert('Aquest fitxer no és un JSON vàlid.'); return; }
+    const data = parsed && parsed.DB ? parsed.DB : parsed; // accepta amb o sense embolcall _meta
+    if (!data || typeof data !== 'object') { alert('El fitxer no té el format esperat d\'una còpia de seguretat de HIGIENEX.'); return; }
+    if (!confirm('Això substituirà TOTES les dades actuals del panell (clients, factures, empleats, estoc…) per les del fitxer triat. Aquesta acció no es pot desfer. Vols continuar?')) return;
+    try{
+      localStorage.setItem(HX_DB_KEY, JSON.stringify(data));
+      if (typeof toast === 'function') toast('✅ Dades restaurades, recarregant…');
+      setTimeout(()=>location.reload(), 800);
+    }catch(e){
+      alert('No s\'ha pogut restaurar la còpia: ' + e.message);
+    }
+  };
+  reader.onerror = function(){ alert('No s\'ha pogut llegir el fitxer.'); };
+  reader.readAsText(file);
+}
+window.hxRestoreDB = hxRestoreDB;
+
 /* ---------- Alta de subcuentas ---------- */
 function abrirSubcuentas(){
   DB.clientes.forEach((c,i)=>{ c.cta = defCta('430'+pad(i+1,4), c.nom, 'activo'); });
@@ -4817,7 +4957,6 @@ function saldosCuentas(hasta){
   }));
   return m;
 }
-function saldoCta(cod){ const s=saldosCuentas()[cod]; return s?s.d-s.h:0; }
 
 /* Masas patrimoniales del balance oficial (PGC, RD 1514/2007, modelo abreviado) */
 const CTAS_AMORTIZ_ACUM = ['280','281','282']; // contra-activo: resta del inmovilizado
@@ -5022,7 +5161,7 @@ function exportFacturasRCSV(){
 function openModal(title,body,footer,wide){
   document.getElementById('modalBox').className='box'+(wide?' wide':'');
   document.getElementById('modalBox').innerHTML=
-    '<div class="mh"><h3>'+title+'</h3><button onclick="closeModal()" aria-label="Cerrar">×</button></div>'+
+    '<div class="mh"><h3>'+title+'</h3><button onclick="closeModal()" aria-label="Cerrar" type="button">×</button></div>'+
     '<div class="mb">'+body+'</div>'+(footer?'<div class="mf">'+footer+'</div>':'');
   document.getElementById('modal').classList.add('on');
 }
@@ -5073,6 +5212,10 @@ function doLogin(){
   const u=val('lu').trim().toLowerCase(), p=val('lp');
   const found=USERS.find(x=>[x.mail,x.alias,x.nom,x.nom.split(' ')[0]].some(v=>v.toLowerCase()===u)&&x.pass===p);
   if(!found){document.getElementById('loginErr').style.display='block';return;}
+  document.getElementById('loginErr').style.display='none';
+  completeLogin(found);
+}
+function completeLogin(found){
   ME=found;
   cargarDB();
   document.getElementById('login').style.display='none';
@@ -5083,7 +5226,82 @@ function doLogin(){
   try{ if(localStorage.getItem('hx_sidebar_collapsed')==='1') document.querySelector('.shell').classList.add('collapsed'); }catch(e){}
   toast('Sesión iniciada. Bienvenido, '+ME.nom.split(' ')[0]+'.');
 }
-function logout(){ME=null;document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex';document.getElementById('lp').value='';document.getElementById('loginErr').style.display='none';}
+function logout(){ME=null;document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex';document.querySelectorAll('#login .box')[0].style.display='block';document.getElementById('hxPortalCliente').style.display='none';document.getElementById('lp').value='';document.getElementById('loginErr').style.display='none';}
+
+// ── PORTAL DE CLIENT ───────────────────────────────────────
+// Consulta informativa i de només lectura: NO és un accés amb contrasenya
+// real, ni mostra dades sensibles (sous, contrasenyes, marges, adjunts
+// interns) — només les seves pròpies factures emeses. Per a un ús real
+// caldria autenticació de veritat (p. ex. enllaç únic per email).
+function hxAbrirPortalCliente(){
+  document.querySelectorAll('#login .box')[0].style.display='none';
+  document.getElementById('hxPortalCliente').style.display='block';
+  document.getElementById('hxPortalForm').style.display='block';
+  document.getElementById('hxPortalResult').style.display='none';
+  document.getElementById('hxPortalErr').style.display='none';
+}
+window.hxAbrirPortalCliente=hxAbrirPortalCliente;
+function hxCerrarPortalCliente(){
+  document.getElementById('hxPortalCliente').style.display='none';
+  document.querySelectorAll('#login .box')[0].style.display='block';
+}
+window.hxCerrarPortalCliente=hxCerrarPortalCliente;
+function hxConsultarPortalCliente(){
+  const nif=(document.getElementById('hxPortalNif').value||'').trim().toUpperCase();
+  const mail=(document.getElementById('hxPortalMail').value||'').trim().toLowerCase();
+  if(!nif||!mail){ document.getElementById('hxPortalErr').textContent='Omple els dos camps.'; document.getElementById('hxPortalErr').style.display='block'; return; }
+  const c=DB.clientes.find(x=>x.nif===nif && (x.mail||'').toLowerCase()===mail);
+  if(!c){ document.getElementById('hxPortalErr').textContent='No hem trobat cap client amb aquestes dades.'; document.getElementById('hxPortalErr').style.display='block'; return; }
+  document.getElementById('hxPortalErr').style.display='none';
+  const fac=DB.facturasE.filter(f=>f.cli===c.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const rows=fac.map(f=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px">'+
+    '<span>'+esc(f.num)+' · '+FD(f.fecha)+'</span><span class="mono">'+EUR(f.total)+' · '+f.estado+'</span></div>').join('');
+  document.getElementById('hxPortalResult').innerHTML =
+    '<p style="font-size:13px;margin-bottom:10px"><strong>'+esc(c.nom)+'</strong><br><span style="color:var(--ink-2);font-size:12px">Saldo pendent: '+EUR(saldoCliente(c.id))+'</span></p>'+
+    (rows || '<p style="color:var(--ink-2);font-size:12.5px">Encara no hi ha factures registrades.</p>')+
+    '<button class="btn ghost sm block" style="margin-top:12px" onclick="hxAbrirPortalCliente()" type="button">← Nova consulta</button>';
+  document.getElementById('hxPortalForm').style.display='none';
+  document.getElementById('hxPortalResult').style.display='block';
+}
+window.hxConsultarPortalCliente=hxConsultarPortalCliente;
+
+// ── PWA: registre del Service Worker + botó d'instal·lació ───────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('sw-erp.js').catch(function(err) {
+      console.warn('No s\'ha pogut registrar el Service Worker:', err);
+    });
+  });
+}
+let _hxInstallPromptErp = null;
+function hxIsStandaloneErp() {
+  return window.matchMedia && window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+}
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  if (hxIsStandaloneErp()) return;
+  _hxInstallPromptErp = e;
+  const btn = document.getElementById('hxInstallBtnErp');
+  if (btn) btn.style.display = 'inline-flex';
+  const moreBtn = document.getElementById('hxAvatarInstall');
+  if (moreBtn) moreBtn.style.display = 'flex';
+});
+function hxInstallAppErp() {
+  if (!_hxInstallPromptErp) return;
+  _hxInstallPromptErp.prompt();
+  _hxInstallPromptErp.userChoice.then(function() {
+    _hxInstallPromptErp = null;
+    const btn = document.getElementById('hxInstallBtnErp');
+    if (btn) btn.style.display = 'none';
+  });
+}
+window.hxInstallAppErp = hxInstallAppErp;
+window.addEventListener('appinstalled', function() {
+  const btn = document.getElementById('hxInstallBtnErp');
+  if (btn) btn.style.display = 'none';
+});
+
 
 /* Navegación */
 const NAV=[
@@ -5091,36 +5309,34 @@ const NAV=[
  {g:'Comercial',items:[['clientes','Clientes','comercial'],['pipeline','Oportunidades','comercial'],['actividad','Actividad','comercial']]},
  {g:'Compras',items:[['proveedores','Proveedores','logistica'],['compras','Pedidos y aprovisionamiento','logistica']]},
  {g:'Facturación',items:[['femitidas','Facturas emitidas','comercial'],['frecibidas','Facturas recibidas','admin']]},
- {g:'Finanzas',items:[['diario','Libro diario','admin'],['mayor','Libro mayor','admin'],['sumas','Sumas y saldos','admin'],['resultados','Balance y resultados','admin'],['bancos','Cuentas y movimientos','admin'],['concilia','Conciliación','admin'],['ejercicio2025','Ejercicio 2025 (archivo)','admin']]},
+ {g:'Contabilidad',items:[['diario','Libro diario','admin'],['mayor','Libro mayor','admin'],['sumas','Sumas y saldos','admin'],['resultados','Balance y resultados','admin'],['ejercicio2025','Ejercicio 2025 (archivo)','admin']]},
+ {g:'Bancos',items:[['bancos','Cuentas y movimientos','admin'],['concilia','Conciliación','admin']]},
  {g:'Logística',items:[
    ['almacen','Artículos y stock','logistica'],
    ['almacenes','Almacenes','logistica'],['transportistas','Transportistas','logistica'],
    ['expediciones','Expediciones','logistica']]},
  {g:'Fabricación',items:[['materias','Materias primas','logistica'],['formulas','Fórmulas y escandallos','logistica'],['produccion','Órdenes de fabricación','logistica'],['lotes','Lotes y trazabilidad','logistica'],['calidad','Control de calidad','logistica']]},
- {g:'Personas',items:[['fichajes','Control de fichajes','all'],['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh']]},
+ {g:'Personas',items:[['fichajes','Control de fichajes','all']]},
+ {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh']]},
  {g:'Sistema',items:[['automat','Automatizaciones','admin'],['auditoria','Registro de auditoría','admin']]},
  {g:'Dirección',items:[['sistema','Administración del sistema','super']]}
 ];
 const NAV_ICONS={
-  panel:'layout-dashboard', clientes:'users', pipeline:'target', actividad:'activity',
-  proveedores:'truck', compras:'shopping-cart',
-  femitidas:'file-text', frecibidas:'receipt',
-  diario:'book-open', mayor:'book', sumas:'scale', resultados:'pie-chart', bancos:'landmark',
-  concilia:'git-compare', ejercicio2025:'archive',
-  almacen:'package', almacenes:'warehouse', transportistas:'truck', expediciones:'send',
-  materias:'flask-conical', formulas:'beaker', produccion:'factory', lotes:'boxes', calidad:'badge-check',
-  fichajes:'clock', rrhh:'contact', nominas:'wallet',
-  automat:'zap', auditoria:'shield-check',
-  sistema:'settings'
+  panel:'📊', clientes:'👥', pipeline:'🎯', actividad:'📈',
+  proveedores:'🚚', compras:'🛒',
+  femitidas:'📄', frecibidas:'🧾',
+  diario:'📖', mayor:'📚', sumas:'⚖️', resultados:'📊', bancos:'🏦',
+  concilia:'🔄', ejercicio2025:'🗄️',
+  almacen:'📦', almacenes:'🏬', transportistas:'🚚', expediciones:'📤',
+  materias:'🧪', formulas:'⚗️', produccion:'🏭', lotes:'📦', calidad:'✅',
+  fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
+  automat:'⚡', auditoria:'🛡️',
+  sistema:'⚙️'
 };
 function can(area){
   if(!ME) return false;
   if(area==='super') return ME.perms==='all';
-  if(ME.perms==='all'||area==='all') return true;
-  if(ME.perms==='admin')     return ['admin','comercial','rrhh','logistica'].includes(area);
-  if(ME.perms==='comercial') return area==='comercial';
-  if(ME.perms==='logistica') return area==='logistica';
-  return false;
+  return true; // pàgina de prova: tots els rols veuen totes les altres seccions
 }
 const isAdmin = () => !!ME && ME.perms==='all';
 function avisos(v){
@@ -5133,18 +5349,99 @@ function avisos(v){
   if(v==='automat')  return typeof evaluarReglas==='function'?evaluarReglas().length:0;
   return 0;
 }
-function buildNav(){
+
+// ── CENTRE DE NOTIFICACIONS ────────────────────────────────
+// Consolida en un sol lloc els avisos que abans només es veien com a
+// numerets solts al menú (estoc baix, factures vençudes, moviments
+// bancaris sense conciliar, lots en quarantena...).
+function hxNotificaciones(){
+  const items=[];
+  const stockBaix=(DB.productos||[]).filter(p=>p.stock<p.min);
+  if(stockBaix.length) items.push({icon:'📦',text:stockBaix.length+' article'+(stockBaix.length>1?'s':'')+' amb estoc per sota del mínim',v:'almacen',sev:'warn'});
+  const materiesBaix=(DB.materias||[]).filter(m=>m.stock<m.min);
+  if(materiesBaix.length) items.push({icon:'🧪',text:materiesBaix.length+' matèria'+(materiesBaix.length>1?'es':'')+' primera amb estoc baix',v:'materias',sev:'warn'});
+  const facVencudes=(DB.facturasE||[]).filter(f=>f.estado==='Pendiente'&&f.venc<TODAY);
+  if(facVencudes.length) items.push({icon:'🧾',text:facVencudes.length+' factura'+(facVencudes.length>1?'es':'')+' de client vençuda'+(facVencudes.length>1?'es':'')+' sense cobrar',v:'femitidas',sev:'danger'});
+  const noConciliats=(DB.movimientos||[]).filter(m=>!m.conc);
+  if(noConciliats.length) items.push({icon:'🏦',text:noConciliats.length+' moviment'+(noConciliats.length>1?'s':'')+' bancari'+(noConciliats.length>1?'s':'')+' sense conciliar',v:'concilia',sev:'info'});
+  const quarantena=(DB.lotes||[]).filter(l=>l.estado==='Cuarentena');
+  if(quarantena.length) items.push({icon:'⚗️',text:quarantena.length+' lot'+(quarantena.length>1?'s':'')+' en quarantena pendent de validar',v:'calidad',sev:'warn'});
+  const noConf=(DB.noconf||[]).filter(n=>n.estado==='Abierta');
+  if(noConf.length) items.push({icon:'⚠️',text:noConf.length+' no-conformitat'+(noConf.length>1?'s':'')+' oberta'+(noConf.length>1?'s':''),v:'calidad',sev:'danger'});
+  const sinExpedir=(typeof facturasSinExpedir==='function')?facturasSinExpedir():[];
+  if(sinExpedir.length) items.push({icon:'🚚',text:sinExpedir.length+' comanda'+(sinExpedir.length>1?'es':'')+' pendent'+(sinExpedir.length>1?'s':'')+' d\'expedir',v:'expediciones',sev:'warn'});
+  return items;
+}
+function hxRenderNotifBell(){
+  const bell=document.getElementById('hxNotifBell'); if(!bell) return;
+  const n=hxNotificaciones();
+  const badge=document.getElementById('hxNotifBadge');
+  if(badge){ badge.textContent=n.length; badge.style.display=n.length?'flex':'none'; }
+}
+function hxToggleNotifPanel(){
+  let p=document.getElementById('hxNotifPanel');
+  const open = p && p.classList.contains('on');
+  document.querySelectorAll('.hx-notif-panel.on').forEach(x=>x.classList.remove('on'));
+  if(!p) return;
+  if(!open){
+    const items=hxNotificaciones();
+    p.innerHTML = items.length
+      ? items.map(it=>'<div class="hx-notif-item hx-notif-'+it.sev+'" onclick="hxToggleNotifPanel();go(\''+it.v+'\')"><span class="hx-notif-ic">'+it.icon+'</span><span>'+it.text+'</span></div>').join('')
+      : '<div class="hx-notif-empty">✅ Tot al dia, sense avisos pendents.</div>';
+    p.classList.add('on');
+  }
+}
+window.hxToggleNotifPanel = hxToggleNotifPanel;
+document.addEventListener('click', function(e){
+  const p=document.getElementById('hxNotifPanel'), b=document.getElementById('hxNotifBell');
+  if(p && p.classList.contains('on') && !p.contains(e.target) && b && !b.contains(e.target)) p.classList.remove('on');
+});
+function hxToggleAvatarMenu(){
+  const p=document.getElementById('hxAvatarMenu');
+  if(!p) return;
+  const open=p.classList.contains('on');
+  document.querySelectorAll('.hx-notif-panel.on').forEach(x=>x.classList.remove('on'));
+  if(!open){
+    const nameEl=document.getElementById('hxAvatarMenuName');
+    if(nameEl && ME) nameEl.textContent=ME.nom+' · '+ME.rol;
+    p.classList.add('on');
+  }
+}
+window.hxToggleAvatarMenu = hxToggleAvatarMenu;
+document.addEventListener('click', function(e){
+  const p=document.getElementById('hxAvatarMenu'), b=document.getElementById('whoAv');
+  if(p && p.classList.contains('on') && !p.contains(e.target) && b && !b.contains(e.target)) p.classList.remove('on');
+});
+const NAV_GROUP_ICONS={
+  'Comercial':'🤝', 'Compras':'🛒', 'Facturación':'🧾',
+  'Contabilidad':'📖', 'Bancos':'🏦', 'Logística':'🚚', 'Fabricación':'🧪',
+  'Personas':'⏱️', 'RRHH':'👥', 'Sistema':'⚙️', 'Dirección':'🛡️'
+};
+function buildTopNav(){
+  let h='<button class="topnavitem'+(!ACTIVE_GROUP?' on':'')+'" onclick="go(\'panel\')" type="button" title="Panel"><span class="topnavicon">📊</span><span>Panel</span></button>';
+  NAV.forEach(sec=>{
+    if(!sec.g) return; // el grup sense nom ('Panel') ja té botó propi més amunt
+    const vis=sec.items.filter(i=>can(i[2]));
+    if(!vis.length) return;
+    const icon=NAV_GROUP_ICONS[sec.g]||'🔹';
+    h+='<button class="topnavitem'+(ACTIVE_GROUP===sec.g?' on':'')+'" onclick="go(\''+vis[0][0]+'\')" type="button" title="'+esc(sec.g)+'"><span class="topnavicon">'+icon+'</span><span>'+esc(sec.g)+'</span></button>';
+  });
+  const topnav=document.getElementById('topnav');
+  if(topnav) topnav.innerHTML=h;
+}function buildNav(){
   let h='';
   NAV.forEach(sec=>{
+    if(sec.g!==ACTIVE_GROUP) return; // el lateral només mostra els subapartats de la categoria activa
     const vis=sec.items.filter(i=>can(i[2]));
     if(!vis.length) return;
     if(sec.g) h+='<div class="navgroup">'+sec.g+'</div>';
     vis.forEach(i=>{ const n=avisos(i[0]);
-      const icon=NAV_ICONS[i[0]]||'circle';
-      h+='<button class="navitem" data-v="'+i[0]+'" title="'+i[1]+'" onclick="go(\''+i[0]+'\')"><i data-lucide="'+icon+'"></i><span class="navlabel">'+i[1]+'</span>'+(n?'<span class="badge">'+n+'</span>':'')+'</button>'; });
+      const icon=NAV_ICONS[i[0]]||'🔹';
+      h+='<button class="navitem" data-v="'+i[0]+'" title="'+i[1]+'" onclick="go(\''+i[0]+'\')" type="button"><span class="navicon">'+icon+'</span><span class="navlabel">'+i[1]+'</span>'+(n?'<span class="badge">'+n+'</span>':'')+'</button>'; });
   });
   document.getElementById('nav').innerHTML=h;
   document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('on',b.dataset.v===VIEW));
+  buildTopNav();
   renderExtras();
 }
 function toggleSidebar(){
@@ -5155,6 +5452,7 @@ function toggleSidebar(){
 }
 function renderExtras(){
   try{ if(window.lucide && typeof lucide.createIcons==='function') lucide.createIcons(); }catch(e){}
+  try{ hxRenderNotifBell(); }catch(e){}
 }
 let HX_SALES_CHART=null;
 function initDashboardChart(){
@@ -5286,6 +5584,11 @@ function svgGauge(pct, color, label){
 }
 
 let VIEW='panel';const ROUTES={};
+let ACTIVE_GROUP=null; // categoria activa mostrada al menú superior / lateral
+function groupOfView(v){
+  for(const sec of NAV){ if(sec.items.some(i=>i[0]===v)) return sec.g; }
+  return null;
+}
 function viewPermArea(v){
   const label = NAV.flatMap(s=>s.items).find(i=>i[0]===v);
   return label ? label[2] : 'all';
@@ -5297,6 +5600,7 @@ function go(v,keepQ){
   }
   if(v!==VIEW && !keepQ) Q='';
   VIEW=v;
+  ACTIVE_GROUP=groupOfView(v);
   document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   const label=NAV.flatMap(s=>s.items).find(i=>i[0]===v);
   document.getElementById('crumb').textContent=label?label[1]:'Panel';
@@ -5338,11 +5642,11 @@ ROUTES.panel=function(){
 
   let h=head('Panel de control','Situación a '+FD(TODAY)+' · ejercicio '+EJERCICIO);
   h+='<div class="qa-bar">'+
-    '<button class="qa-btn" onclick="openPalette()"><i data-lucide="search"></i>Buscar…<span class="qk">Ctrl K</span></button>'+
-    '<button class="qa-btn" onclick="go(\'clientes\')"><i data-lucide="user-plus"></i>Nuevo cliente</button>'+
-    '<button class="qa-btn" onclick="go(\'femitidas\')"><i data-lucide="file-plus"></i>Nueva factura</button>'+
-    '<button class="qa-btn" onclick="go(\'proveedores\')"><i data-lucide="truck"></i>Nuevo proveedor</button>'+
-    '<button class="qa-btn" onclick="go(\'diario\')"><i data-lucide="book-open"></i>Nuevo asiento</button>'+
+    '<button class="qa-btn" onclick="openPalette()" type="button"><i data-lucide="search"></i>Buscar…<span class="qk">Ctrl K</span></button>'+
+    '<button class="qa-btn" onclick="go(\'clientes\')" type="button"><i data-lucide="user-plus"></i>Nuevo cliente</button>'+
+    '<button class="qa-btn" onclick="go(\'femitidas\')" type="button"><i data-lucide="file-plus"></i>Nueva factura</button>'+
+    '<button class="qa-btn" onclick="go(\'proveedores\')" type="button"><i data-lucide="truck"></i>Nuevo proveedor</button>'+
+    '<button class="qa-btn" onclick="go(\'diario\')" type="button"><i data-lucide="book-open"></i>Nuevo asiento</button>'+
   '</div>';
   h+='<div class="grid g4" style="margin-bottom:16px">'+
     kpi('Ventas de julio',EUR(mes.reduce((a,f)=>a+f.base,0)),mes.length+' facturas emitidas','blue')+
@@ -5374,6 +5678,33 @@ ROUTES.panel=function(){
       :'<p style="font-size:12.5px;color:var(--ink-2)">Todavía no hay actividad registrada en esta sesión.</p>')+
     '</div></div></div>';
 
+  // Top clientes per facturació
+  const factPerCli={};
+  DB.facturasE.forEach(f=>{ factPerCli[f.cli]=(factPerCli[f.cli]||0)+f.base; });
+  const topClientes=Object.keys(factPerCli).map(id=>({label:nomCli(id),value:factPerCli[id]}))
+    .sort((a,b)=>b.value-a.value).slice(0,5)
+    .map((it,i)=>({label:it.label,value:it.value,valueLabel:EUR(it.value),color:['#1565A8','#2E86C7','#4FA6E8','#74C69D','#B3D9F5'][i]||'#9CC3E8'}));
+  // Marge estimat per família de producte (PVP mitjà − cost mitjà, ponderat per unitats venudes)
+  const margePerFamilia={};
+  (DB.facturasE||[]).forEach(f=>(f.lineas||[]).forEach(l=>{
+    const p=DB.productos.find(x=>x.id===l.art); if(!p) return;
+    const fam=p.fam||'Altres';
+    const marge=(l.precio-(p.coste||0))*l.cant;
+    margePerFamilia[fam]=(margePerFamilia[fam]||0)+marge;
+  }));
+  const topMarges=Object.keys(margePerFamilia).map((fam,i)=>({label:fam,value:margePerFamilia[fam],valueLabel:EUR(margePerFamilia[fam]),color:['#1565A8','#2E86C7','#4FA6E8','#74C69D','#B3D9F5','#F2A900'][i%6]}))
+    .sort((a,b)=>b.value-a.value);
+
+  h+='<div class="grid g2" style="margin-bottom:16px">';
+  h+='<div class="card"><h3>Top 5 clientes por facturación</h3><div class="cardbody">'+
+    (topClientes.length ? svgHBarChart(topClientes,{width:480}) : '<p style="font-size:12.5px;color:var(--ink-2)">Encara no hi ha factures registrades.</p>')+
+    '</div></div>';
+  h+='<div class="card"><h3>Marge estimat per família de producte</h3><div class="cardbody">'+
+    (topMarges.length ? svgHBarChart(topMarges,{width:480}) : '<p style="font-size:12.5px;color:var(--ink-2)">Encara no hi ha línies de venda amb dades de cost.</p>')+
+    '</div></div>';
+  h+='</div>';
+
+
   const ventasMes=mes.reduce((a,f)=>a+f.base,0);
   const objetivo=Math.max(Math.ceil(ventasMes*1.15/1000)*1000,20000);
   const pctObj=Math.min(100,Math.round(ventasMes/objetivo*100));
@@ -5381,7 +5712,7 @@ ROUTES.panel=function(){
   h+='<div class="grid g2">';
   h+='<div class="card"><h3>Qué hay que resolver</h3><div class="cardbody">'+
     (avisos.length?avisos.map(a=>
-      '<div class="feed-item"><span class="feed-dot" style="background:var(--amber)"></span><div style="flex:1"><div class="t1">'+a[0]+'</div><div class="t2">'+a[1]+'</div></div><button class="btn ghost sm" onclick="go(\''+a[2]+'\')">'+a[3]+'</button></div>').join('')
+      '<div class="feed-item"><span class="feed-dot" style="background:var(--amber)"></span><div style="flex:1"><div class="t1">'+a[0]+'</div><div class="t2">'+a[1]+'</div></div><button class="btn ghost sm" onclick="go(\''+a[2]+'\')" type="button">'+a[3]+'</button></div>').join('')
       :'<div class="empty" style="padding:20px 0"><strong>Todo al día</strong>No hay incidencias abiertas en ninguna área.</div>')+
     '</div></div>';
   h+='<div class="card"><h3>Objetivo del mes</h3><div class="cardbody">'+
@@ -5405,7 +5736,7 @@ ROUTES.panel=function(){
    ========================================================= */
 ROUTES.clientes=function(){
   const all=DB.clientes, lista=all.filter(c=>hit(c.nom+' '+c.nif+' '+c.pob+' '+c.cta));
-  let h=head('Clientes','Cada cliente tiene su subcuenta del grupo 430 en el libro mayor','<button class="btn" onclick="formCliente()">Nuevo cliente</button>');
+  let h=head('Clientes','Cada cliente tiene su subcuenta del grupo 430 en el libro mayor','<button class="btn" onclick="formCliente()" type="button">Nuevo cliente</button>');
   h+=buscador('Buscar por nombre, NIF, población o cuenta…',all.length,lista.length);
   const rows=lista.map(c=>{
     const fac=DB.facturasE.filter(f=>f.cli===c.id), deuda=saldoCliente(c.id);
@@ -5426,6 +5757,7 @@ function fichaCliente(id){
   const fac=DB.facturasE.filter(f=>f.cli===id);
   const act=DB.actividades.filter(a=>a.cli===id);
   const ops=DB.oportunidades.filter(o=>o.cli===id);
+  const adj=c.adjuntos||[];
   openModal('Ficha de '+esc(c.nom),
     '<div class="frow f3" style="margin-bottom:18px">'+
       info('Subcuenta contable',c.cta)+info('NIF',c.nif)+info('Alta',FD(c.alta))+
@@ -5440,12 +5772,49 @@ function fichaCliente(id){
     (ops.length?'<div class="eyebrow" style="display:block;margin:18px 0 8px">Oportunidades</div>'+
       ops.map(o=>'<div style="padding:8px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between"><span>'+esc(o.nom)+' <span class="tag t-blue">'+o.fase+'</span></span><span class="mono">'+EUR(o.valor)+'</span></div>').join(''):'')+
     '<div class="eyebrow" style="display:block;margin:18px 0 8px">Anotaciones</div>'+
-    (act.length?act.map(a=>'<div style="padding:8px 0;border-bottom:1px solid var(--line)"><span class="mono" style="font-size:11.5px;color:var(--ink-2)">'+FD(a.fecha)+'</span><br>'+esc(a.txt)+'</div>').join(''):'<p style="color:var(--ink-2);font-size:13px">Sin anotaciones.</p>'),
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button>'+
-    '<button class="btn ghost" onclick="closeModal();verMayor(\''+c.cta+'\')">Ver su mayor</button>'+
-    '<button class="btn ghost" onclick="formCliente(\''+id+'\')">Editar</button>'+
-    '<button class="btn" onclick="closeModal();formFacturaE(\''+id+'\')">Emitir factura</button>',true);
+    (act.length?act.map(a=>'<div style="padding:8px 0;border-bottom:1px solid var(--line)"><span class="mono" style="font-size:11.5px;color:var(--ink-2)">'+FD(a.fecha)+'</span><br>'+esc(a.txt)+'</div>').join(''):'<p style="color:var(--ink-2);font-size:13px">Sin anotaciones.</p>')+
+    '<div class="eyebrow" style="display:block;margin:18px 0 8px">Documentos adjuntos</div>'+
+    '<div id="hxAdjList">'+hxRenderAdjuntos(id)+'</div>'+
+    '<label class="btn ghost sm" style="display:inline-flex;margin-top:8px;cursor:pointer">📎 Adjuntar documento<input type="file" style="display:none" onchange="hxAdjuntarDocumento(\''+id+'\',event)"></label>'+
+    '<p style="font-size:11px;color:var(--ink-2);margin-top:4px">Màxim 2 MB per fitxer — es guarda al navegador junt amb la resta de dades.</p>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
+    '<button class="btn ghost" onclick="closeModal();verMayor(\''+c.cta+'\')" type="button">Ver su mayor</button>'+
+    '<button class="btn ghost" onclick="formCliente(\''+id+'\')" type="button">Editar</button>'+
+    '<button class="btn" onclick="closeModal();formFacturaE(\''+id+'\')" type="button">Emitir factura</button>',true);
 }
+function hxRenderAdjuntos(clienteId){
+  const c=cli(clienteId); const adj=c.adjuntos||[];
+  if(!adj.length) return '<p style="color:var(--ink-2);font-size:13px">Sense documents adjunts.</p>';
+  return adj.map((a,i)=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;font-size:12.5px">'+
+    '<a href="'+a.dataUrl+'" download="'+esc(a.name)+'" style="color:var(--blue);text-decoration:none">📄 '+esc(a.name)+' <span style="color:var(--ink-2)">('+Math.round(a.size/1024)+' KB)</span></a>'+
+    '<button class="btn ghost sm" onclick="hxEliminarAdjunto(\''+clienteId+'\','+i+')" type="button">Eliminar</button></div>').join('');
+}
+function hxAdjuntarDocumento(clienteId, ev){
+  const file=ev.target.files&&ev.target.files[0]; ev.target.value='';
+  if(!file) return;
+  if(file.size>2*1024*1024){ toast('El fitxer supera els 2 MB.'); return; }
+  const reader=new FileReader();
+  reader.onload=function(){
+    const c=cli(clienteId);
+    if(!c.adjuntos) c.adjuntos=[];
+    c.adjuntos.push({name:file.name,size:file.size,type:file.type,dataUrl:reader.result,addedAt:new Date().toISOString()});
+    guardarDBDebounced();
+    const box=document.getElementById('hxAdjList');
+    if(box) box.innerHTML=hxRenderAdjuntos(clienteId);
+    toast('Document adjuntat.');
+  };
+  reader.onerror=function(){ toast('No s\'ha pogut llegir el fitxer.'); };
+  reader.readAsDataURL(file);
+}
+window.hxAdjuntarDocumento = hxAdjuntarDocumento;
+function hxEliminarAdjunto(clienteId, idx){
+  const c=cli(clienteId);
+  if(c.adjuntos) c.adjuntos.splice(idx,1);
+  guardarDBDebounced();
+  const box=document.getElementById('hxAdjList');
+  if(box) box.innerHTML=hxRenderAdjuntos(clienteId);
+}
+window.hxEliminarAdjunto = hxEliminarAdjunto;
 function formCliente(id){
   const c=id?cli(id):{};
   openModal(id?'Editar cliente':'Nuevo cliente',
@@ -5457,7 +5826,7 @@ function formCliente(id){
       fSelect('Responsable comercial','nc_resp',USERS.map(u=>[u.id,u.nom]),c.resp||ME.id)+
     '</div>'+(id?'<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">Subcuenta contable <span class="mono">'+c.cta+'</span>. No se modifica al editar los datos.</p>'
                 :'<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">Al guardar se le abre automáticamente su subcuenta del grupo 430.</p>'),
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveCliente('+(id?'\''+id+'\'':'null')+')">Guardar</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveCliente('+(id?'\''+id+'\'':'null')+')" type="button">Guardar</button>');
 }
 function saveCliente(id){
   const nom=val('nc_nom').trim(), nif=val('nc_nif').trim().toUpperCase();
@@ -5480,7 +5849,7 @@ function saveCliente(id){
    ========================================================= */
 ROUTES.proveedores=function(){
   const all=DB.proveedores, lista=all.filter(p=>hit(p.nom+' '+p.nif+' '+p.pob+' '+p.ctaProv));
-  let h=head('Proveedores','Subcuentas del grupo 400 y cuenta de gasto por defecto de cada uno','<button class="btn" onclick="formProveedor()">Nuevo proveedor</button>');
+  let h=head('Proveedores','Subcuentas del grupo 400 y cuenta de gasto por defecto de cada uno','<button class="btn" onclick="formProveedor()" type="button">Nuevo proveedor</button>');
   h+=buscador('Buscar por nombre, NIF o población…',all.length,lista.length);
   const rows=lista.map(p=>{
     const fac=DB.facturasR.filter(f=>f.prov===p.id), deuda=saldoProv(p.id);
@@ -5521,10 +5890,10 @@ function fichaProveedor(id){
       ['Sin pedidos','No hay pedidos de compra a este proveedor.'])+
     (arts.length?'<div class="eyebrow" style="display:block;margin:18px 0 8px">Artículos que suministra</div>'+
       arts.map(a=>'<div style="padding:7px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between"><span><span class="mono">'+a.ref+'</span> '+esc(a.nom)+'</span><span class="mono">'+EUR(a.coste)+'</span></div>').join(''):''),
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button>'+
-    '<button class="btn ghost" onclick="closeModal();verMayor(\''+p.ctaProv+'\')">Ver su mayor</button>'+
-    '<button class="btn ghost" onclick="formProveedor(\''+id+'\')">Editar</button>'+
-    '<button class="btn" onclick="closeModal();formPedido(null,\''+id+'\')">Nuevo pedido</button>',true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
+    '<button class="btn ghost" onclick="closeModal();verMayor(\''+p.ctaProv+'\')" type="button">Ver su mayor</button>'+
+    '<button class="btn ghost" onclick="formProveedor(\''+id+'\')" type="button">Editar</button>'+
+    '<button class="btn" onclick="closeModal();formPedido(null,\''+id+'\')" type="button">Nuevo pedido</button>',true);
 }
 function formProveedor(id){
   const p=id?prov(id):{};
@@ -5537,7 +5906,7 @@ function formProveedor(id){
       fSelect('Cuenta de gasto habitual','np_cta',CTAS_GASTO.map(c=>[c,c+' · '+nomCta(c)]),p.cta||'600')+
     '</div>'+
     '<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">La cuenta de gasto se propone sola al registrar sus facturas, aunque siempre puedes cambiarla en cada una.</p>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveProveedor('+(id?'\''+id+'\'':'null')+')">Guardar</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveProveedor('+(id?'\''+id+'\'':'null')+')" type="button">Guardar</button>');
 }
 function saveProveedor(id){
   const nom=val('np_nom').trim(), nif=val('np_nif').trim().toUpperCase();
@@ -5560,13 +5929,13 @@ function saveProveedor(id){
    ========================================================= */
 const FASES=['Contacto','Propuesta','Negociación','Ganada'];
 ROUTES.pipeline=function(){
-  let h=head('Oportunidades','Valor en curso: '+EUR(DB.oportunidades.filter(o=>o.fase!=='Ganada').reduce((s,o)=>s+o.valor,0)),'<button class="btn" onclick="formOportunidad()">Nueva oportunidad</button>');
+  let h=head('Oportunidades','Valor en curso: '+EUR(DB.oportunidades.filter(o=>o.fase!=='Ganada').reduce((s,o)=>s+o.valor,0)),'<button class="btn" onclick="formOportunidad()" type="button">Nueva oportunidad</button>');
   h+='<div class="pipe">'+FASES.map(fase=>{
     const ops=DB.oportunidades.filter(o=>o.fase===fase);
     return '<div class="pipecol"><h4><span>'+fase+'</span><span class="mono" style="color:var(--ink-2)">'+EUR(ops.reduce((s,o)=>s+o.valor,0))+'</span></h4>'+
       (ops.length?ops.map(o=>'<div class="opp"><div class="n">'+esc(o.nom)+'</div><div class="c">'+esc(nomCli(o.cli))+'</div><div class="v">'+EUR(o.valor)+'</div>'+
-        (fase!=='Ganada'?'<div class="mv"><button class="btn ghost sm" onclick="avanzar(\''+o.id+'\')">Avanzar →</button><button class="btn ghost sm" onclick="perder(\''+o.id+'\')">Perder</button></div>':
-         '<div class="mv"><button class="btn sm" onclick="formFacturaE(\''+o.cli+'\')">Facturar</button></div>')+
+        (fase!=='Ganada'?'<div class="mv"><button class="btn ghost sm" onclick="avanzar(\''+o.id+'\')" type="button">Avanzar →</button><button class="btn ghost sm" onclick="perder(\''+o.id+'\')" type="button">Perder</button></div>':
+         '<div class="mv"><button class="btn sm" onclick="formFacturaE(\''+o.cli+'\')" type="button">Facturar</button></div>')+
         '</div>').join(''):'<div style="padding:16px;color:var(--ink-2);font-size:12.5px">Nada en esta fase.</div>')+'</div>';
   }).join('')+'</div>';
   h += panelPlegable('Ver indicadores comerciales (embudo, conversión y RFM)', ROUTES.panelcomercial());
@@ -5580,7 +5949,7 @@ function formOportunidad(){
       fSelect('Cliente','no_cli',DB.clientes.map(c=>[c.id,c.nom]))+
       fInput('Valor estimado (€)','no_val','number','0')+
       fSelect('Fase','no_fase',FASES.map(f=>[f,f]))+'</div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveOportunidad()">Crear</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveOportunidad()" type="button">Crear</button>');
 }
 function saveOportunidad(){
   const n=val('no_nom').trim();
@@ -5591,7 +5960,7 @@ function saveOportunidad(){
 ROUTES.actividad=function(){
   const all=DB.actividades.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const lista=all.filter(a=>hit(a.txt+' '+nomCli(a.cli)));
-  let h=head('Actividad comercial','Visitas, llamadas y acuerdos con clientes','<button class="btn" onclick="formActividad()">Anotar contacto</button>');
+  let h=head('Actividad comercial','Visitas, llamadas y acuerdos con clientes','<button class="btn" onclick="formActividad()" type="button">Anotar contacto</button>');
   h+=buscador('Buscar en las anotaciones…',all.length,lista.length);
   h+='<div class="card">'+tbl([['Fecha'],['Cliente'],['Anotación']],
     lista.map(a=>rowN([FD(a.fecha),esc(nomCli(a.cli)),esc(a.txt)],[0])),
@@ -5602,7 +5971,7 @@ function formActividad(){
   openModal('Anotar contacto',
     fSelect('Cliente','na_cli',DB.clientes.map(c=>[c.id,c.nom]))+
     '<div style="margin-top:14px"><label class="flabel" for="na_txt">Qué ha pasado</label><textarea id="na_txt" rows="4" placeholder="Visita, llamada, acuerdo alcanzado…"></textarea></div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveActividad()">Guardar</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveActividad()" type="button">Guardar</button>');
 }
 function saveActividad(){
   const t=val('na_txt').trim();
@@ -5618,7 +5987,7 @@ ROUTES.femitidas=function(){
   const all=DB.facturasE.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const lista=all.filter(f=>hit(f.num+' '+nomCli(f.cli)+' '+f.estado));
   let h=head('Facturas emitidas','Base '+EUR(all.reduce((s,f)=>s+f.base,0))+' · IVA repercutido '+EUR(all.reduce((s,f)=>s+f.cuota,0)),
-    '<button class="btn ghost" onclick="exportFacturasECSV()">⬇ Exportar CSV</button><button class="btn" onclick="formFacturaE()">Nueva factura</button>');
+    '<button class="btn ghost" onclick="exportFacturasECSV()" type="button">⬇ Exportar CSV</button><button class="btn" onclick="formFacturaE()" type="button">Nueva factura</button>');
   h+=buscador('Buscar por número, cliente o estado…',all.length,lista.length);
   const rows=lista.map(f=>rowN([
     '<strong>'+f.num+'</strong>',FD(f.fecha),esc(nomCli(f.cli)),EUR(f.base),EUR(f.cuota),'<strong>'+EUR(f.total)+'</strong>',FD(f.venc),estadoTag(f)
@@ -5642,9 +6011,9 @@ function verFacturaE(num){
         tbl([['Lote'],['Producto'],['Unidades','n'],['Caducidad']],ls.map(l=>{const d=l.destino.filter(x=>x.fact===num).reduce((s,x)=>s+x.cant,0);
           return rowN(['<span class="mono">'+l.lote+'</span>',esc(art(l.prod).nom),NUM(d),FD(l.cad)],[2]);})):'';})()+
     '<div class="eyebrow" style="display:block;margin:20px 0 8px">Asientos generados</div>'+asientoHTML(as)+(cob?'<div style="margin-top:10px">'+asientoHTML(cob)+'</div>':''),
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button>'+
-    '<button class="btn ghost" onclick="imprimirFacturaE(\''+num+'\')"><i data-lucide="download"></i> Descargar factura</button>'+
-    (f.estado==='Pendiente'?'<button class="btn" onclick="closeModal();go(\'concilia\')">Ir a conciliar el cobro</button>':''),true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
+    '<button class="btn ghost" onclick="imprimirFacturaE(\''+num+'\')" type="button"><i data-lucide="download"></i> Descargar factura</button>'+
+    (f.estado==='Pendiente'?'<button class="btn" onclick="closeModal();go(\'concilia\')" type="button">Ir a conciliar el cobro</button>':''),true);
 }
 
 /* ---------- Documento imprimible / descargable de la factura ---------- */
@@ -5709,7 +6078,7 @@ function formFacturaE(cliPre){
       fInput('Fecha','nf_fecha','date',TODAY)+
       '<div><label class="flabel">Vencimiento</label><input id="nf_venc" disabled value="según condiciones del cliente"></div>'+
     '</div><div id="linBox"></div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveFacturaE()">Emitir y contabilizar</button>',true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveFacturaE()" type="button">Emitir y contabilizar</button>',true);
   drawLin();
 }
 function drawLin(){
@@ -5722,14 +6091,14 @@ function drawLin(){
     '<td style="width:98px"><input type="number" step="0.01" value="'+l.precio+'" onchange="setLin('+i+',\'precio\',this.value)"></td>'+
     '<td class="num mono">'+EUR(l.cant*l.precio)+'</td>'+
     '<td class="num mono" style="color:var(--teal)">'+EUR(l.cant*(l.precio-p.pmp))+'</td>'+
-    '<td style="width:38px"><button class="btn ghost sm" onclick="delLin('+i+')">×</button></td></tr>';
+    '<td style="width:38px"><button class="btn ghost sm" onclick="delLin('+i+')" type="button">×</button></td></tr>';
   }).join('');
   const base=LIN.reduce((s,l)=>s+l.cant*l.precio,0);
   const margen=LIN.reduce((s,l)=>s+l.cant*(l.precio-art(l.art).pmp),0);
   document.getElementById('linBox').innerHTML=
     '<div class="eyebrow" style="display:block;margin-bottom:8px">Líneas de la factura</div>'+
     '<table class="lines"><thead><tr><th>Artículo</th><th>Cant.</th><th>Precio</th><th class="num">Importe</th><th class="num">Margen</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<button class="btn ghost sm" style="margin-top:10px" onclick="addLin()">+ Añadir línea</button>'+
+    '<button class="btn ghost sm" style="margin-top:10px" onclick="addLin()" type="button">+ Añadir línea</button>'+
     '<div class="totbox"><div><span>Base imponible</span><span>'+EUR(base)+'</span></div><div><span>IVA 21%</span><span>'+EUR(base*IVA)+'</span></div>'+
     '<div><span>Margen bruto</span><span>'+EUR(margen)+'</span></div><div><span>Total factura</span><span>'+EUR(base*1.21)+'</span></div></div>';
 }
@@ -5762,7 +6131,7 @@ ROUTES.frecibidas=function(){
   const all=DB.facturasR.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const lista=all.filter(f=>hit(f.num+' '+nomProv(f.prov)+' '+f.concepto+' '+f.estado));
   let h=head('Facturas recibidas','IVA soportado acumulado: '+EUR(all.reduce((s,f)=>s+f.cuota,0)),
-    '<button class="btn ghost" onclick="exportFacturasRCSV()">⬇ Exportar CSV</button><button class="btn" onclick="formFacturaR()">Registrar factura</button>');
+    '<button class="btn ghost" onclick="exportFacturasRCSV()" type="button">⬇ Exportar CSV</button><button class="btn" onclick="formFacturaR()" type="button">Registrar factura</button>');
   h+=buscador('Buscar por número, proveedor o concepto…',all.length,lista.length);
   const rows=lista.map(f=>rowN([
     '<strong>'+esc(f.num)+'</strong>',FD(f.fecha),esc(nomProv(f.prov)),esc(f.concepto),
@@ -5784,7 +6153,7 @@ function verFacturaR(num){
       '<p style="font-size:13px">'+esc(f.concepto)+'</p>')+
     '<div class="totbox"><div><span>Base imponible</span><span>'+EUR(f.base)+'</span></div><div><span>IVA 21%</span><span>'+EUR(f.cuota)+'</span></div><div><span>Total</span><span>'+EUR(f.total)+'</span></div></div>'+
     '<div class="eyebrow" style="display:block;margin:20px 0 8px">Asientos generados</div>'+asientoHTML(as)+(pg?'<div style="margin-top:10px">'+asientoHTML(pg)+'</div>':''),
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button>',true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>',true);
 }
 function formFacturaR(){
   const p0=DB.proveedores[0];
@@ -5798,7 +6167,7 @@ function formFacturaR(){
       fSelect('Cuenta de gasto','nr_cta',CTAS_GASTO.map(c=>[c,c+' · '+nomCta(c)]),p0.cta)+
     '</div>'+
     '<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">Se generará el asiento con el gasto, el IVA soportado al 21% y el saldo en la subcuenta del proveedor. El vencimiento sale de sus condiciones de pago.</p>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveFacturaR()">Registrar y contabilizar</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveFacturaR()" type="button">Registrar y contabilizar</button>');
 }
 function ctaPorProveedor(){
   const p=prov(val('nr_prov'));
@@ -5831,7 +6200,7 @@ ROUTES.diario=function(){
   const lista=all.filter(a=>hit(a.concepto+' '+a.n+' '+a.apuntes.map(p=>p.cta+' '+nomCta(p.cta)).join(' ')));
   const td=lista.reduce((s,a)=>s+a.apuntes.reduce((x,p)=>x+(p.d||0),0),0);
   let h=head('Libro diario',all.length+' asientos del ejercicio '+EJERCICIO,
-    '<button class="btn ghost" onclick="exportarDiario()">CSV</button><button class="btn ghost" onclick="exportarDiarioOficialPDF()">📄 PDF oficial</button><button class="btn" onclick="formAsiento()">Asiento manual</button>');
+    '<button class="btn ghost" onclick="exportarDiario()" type="button">CSV</button><button class="btn ghost" onclick="exportarDiarioXLSX()" type="button">📊 Excel</button><button class="btn ghost" onclick="exportarDiarioOficialPDF()" type="button">📄 PDF oficial</button><button class="btn" onclick="formAsiento()" type="button">Asiento manual</button>');
   h+=buscador('Buscar por concepto, cuenta o número de asiento…',all.length,lista.length);
   let rows=[];
   lista.forEach(a=>{
@@ -5853,7 +6222,7 @@ function formAsiento(){
   AP=[{cta:'572'+pad(1,4),d:0,h:0},{cta:'700',d:0,h:0}];
   openModal('Asiento manual',
     '<div class="frow" style="margin-bottom:16px">'+fInput('Fecha','as_f','date',TODAY)+fInput('Concepto','as_c')+'</div><div id="apBox"></div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" id="btnAs" onclick="saveAsiento()">Contabilizar</button>',true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" id="btnAs" onclick="saveAsiento()" type="button">Contabilizar</button>',true);
   drawAp();
 }
 function drawAp(){
@@ -5862,12 +6231,12 @@ function drawAp(){
     '<td><select onchange="setAp('+i+',\'cta\',this.value)">'+opts.map(o=>'<option value="'+o[0]+'"'+(o[0]===p.cta?' selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select></td>'+
     '<td style="width:120px"><input type="number" step="0.01" value="'+(p.d||'')+'" onchange="setAp('+i+',\'d\',this.value)"></td>'+
     '<td style="width:120px"><input type="number" step="0.01" value="'+(p.h||'')+'" onchange="setAp('+i+',\'h\',this.value)"></td>'+
-    '<td style="width:38px"><button class="btn ghost sm" onclick="delAp('+i+')">×</button></td></tr>').join('');
+    '<td style="width:38px"><button class="btn ghost sm" onclick="delAp('+i+')" type="button">×</button></td></tr>').join('');
   const d=AP.reduce((s,p)=>s+(p.d||0),0), hh=AP.reduce((s,p)=>s+(p.h||0),0), dif=d-hh;
   document.getElementById('apBox').innerHTML=
     '<div class="eyebrow" style="display:block;margin-bottom:8px">Apuntes</div>'+
     '<table class="lines"><thead><tr><th>Cuenta</th><th class="num">Debe</th><th class="num">Haber</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<button class="btn ghost sm" style="margin-top:10px" onclick="addAp()">+ Añadir apunte</button>'+
+    '<button class="btn ghost sm" style="margin-top:10px" onclick="addAp()" type="button">+ Añadir apunte</button>'+
     '<div class="totbox"><div><span>Suma del debe</span><span>'+EUR(d)+'</span></div><div><span>Suma del haber</span><span>'+EUR(hh)+'</span></div>'+
     '<div><span>'+(Math.abs(dif)<0.01?'Asiento cuadrado':'Descuadre')+'</span><span class="'+(Math.abs(dif)<0.01?'pos':'neg')+'">'+EUR(dif)+'</span></div></div>';
   const b=document.getElementById('btnAs'); if(b) b.disabled=!(Math.abs(dif)<0.01&&d>0);
@@ -5887,6 +6256,12 @@ function exportarDiario(){
     filas.push([a.n,a.fecha,p.cta,nomCta(p.cta),a.concepto,(p.d||0).toFixed(2).replace('.',','),(p.h||0).toFixed(2).replace('.',',')])));
   descargarCSV(filas,'libro_diario_HIGIENEX_'+EJERCICIO+'.csv');
 }
+function exportarDiarioXLSX(){
+  const filas=[['Asiento','Fecha','Cuenta','Denominación','Concepto','Debe','Haber']];
+  DB.asientos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(a=>a.apuntes.forEach(p=>
+    filas.push([a.n,a.fecha,p.cta,nomCta(p.cta),a.concepto,p.d||0,p.h||0])));
+  descargarXLSX(filas,'libro_diario_HIGIENEX_'+EJERCICIO+'.xlsx','Libro diario');
+}
 function descargarCSV(filas,nombre){
   const csv=filas.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\r\n');
   const a=document.createElement('a');
@@ -5894,6 +6269,18 @@ function descargarCSV(filas,nombre){
   a.download=nombre; document.body.appendChild(a); a.click(); document.body.removeChild(a);
   toast('Archivo descargado.');
 }
+// Excel real (.xlsx), amb el mateix format de files que ja s'usa per al CSV.
+function descargarXLSX(filas, nombre, hoja){
+  if (!window.XLSX) { toast('Encara es carrega el mòdul d\'Excel, torna-ho a provar en un segon.'); return; }
+  try{
+    const ws = XLSX.utils.aoa_to_sheet(filas);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, (hoja||'Dades').slice(0,31));
+    XLSX.writeFile(wb, nombre);
+    toast('Excel descarregat.');
+  }catch(e){ toast('No s\'ha pogut generar l\'Excel.'); }
+}
+window.descargarXLSX = descargarXLSX;
 
 /* Libro mayor */
 let CTA_SEL=null;
@@ -5903,7 +6290,7 @@ ROUTES.mayor=function(){
   const usadas=Object.keys(s).sort();
   if(!CTA_SEL||!s[CTA_SEL]) CTA_SEL=usadas[0];
   let h=head('Libro mayor','Movimientos y saldo corriente de cada cuenta',
-    '<button class="btn ghost" onclick="exportarMayor()">CSV</button><button class="btn ghost" onclick="exportarMayorOficialPDF()">📄 PDF oficial</button>');
+    '<button class="btn ghost" onclick="exportarMayor()" type="button">CSV</button><button class="btn ghost" onclick="exportarMayorXLSX()" type="button">📊 Excel</button><button class="btn ghost" onclick="exportarMayorOficialPDF()" type="button">📄 PDF oficial</button>');
   h+='<div class="toolbar"><label class="flabel" style="margin:0 6px 0 0">Cuenta</label>'+
     '<select style="min-width:340px" onchange="verMayor(this.value)">'+
     usadas.map(c=>'<option value="'+c+'"'+(c===CTA_SEL?' selected':'')+'>'+c+' · '+esc(nomCta(c))+'</option>').join('')+'</select></div>';
@@ -5931,6 +6318,13 @@ function exportarMayor(){
   }));
   descargarCSV(filas,'mayor_'+CTA_SEL+'_HIGIENEX.csv');
 }
+function exportarMayorXLSX(){
+  const filas=[['Cuenta','Denominación','Asiento','Fecha','Concepto','Debe','Haber']];
+  DB.asientos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(a=>a.apuntes.filter(p=>p.cta===CTA_SEL).forEach(p=>{
+    filas.push([CTA_SEL,nomCta(CTA_SEL),a.n,a.fecha,a.concepto,p.d||0,p.h||0]);
+  }));
+  descargarXLSX(filas,'mayor_'+CTA_SEL+'_HIGIENEX.xlsx','Libro mayor');
+}
 
 /* Sumas y saldos */
 ROUTES.sumas=function(){
@@ -5945,7 +6339,7 @@ ROUTES.sumas=function(){
   });
   rows.push('<tr class="total"><td></td><td>TOTALES</td><td class="num mono">'+NUM(T.d)+'</td><td class="num mono">'+NUM(T.h)+'</td><td class="num mono">'+NUM(T.sd)+'</td><td class="num mono">'+NUM(T.sh)+'</td></tr>');
   const cuadra=Math.abs(T.d-T.h)<0.01;
-  let h=head('Balance de sumas y saldos','Comprobación de la partida doble a fecha de corte','<button class="btn ghost" onclick="exportarSumas()">CSV</button><button class="btn ghost" onclick="exportarSumasOficialPDF()">📄 PDF oficial</button>'+selectorFechaCorte());
+  let h=head('Balance de sumas y saldos','Comprobación de la partida doble a fecha de corte','<button class="btn ghost" onclick="exportarSumas()" type="button">CSV</button><button class="btn ghost" onclick="exportarSumasXLSX()" type="button">📊 Excel</button><button class="btn ghost" onclick="exportarSumasOficialPDF()" type="button">📄 PDF oficial</button>'+selectorFechaCorte());
   h+='<div class="card" style="margin-bottom:14px"><div class="cardbody" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
     (cuadra?'<span class="tag t-ok">Cuadra</span><span style="font-size:13px">Debe y haber coinciden en '+EUR(T.d)+', y los saldos deudores igualan a los acreedores.</span>'
            :'<span class="tag t-late">Descuadre</span><span style="font-size:13px">Diferencia de '+EUR(T.d-T.h)+'.</span>')+'</div></div>';
@@ -5968,6 +6362,13 @@ function exportarSumas(){
       Math.max(0,d-h).toFixed(2).replace('.',','),Math.max(0,h-d).toFixed(2).replace('.',',')]);});
   descargarCSV(filas,'sumas_y_saldos_HIGIENEX_'+EJERCICIO+'.csv');
 }
+function exportarSumasXLSX(){
+  const s=saldosCuentas(FECHA_CORTE);
+  const filas=[['Cuenta','Denominación','Suma debe','Suma haber','Saldo deudor','Saldo acreedor']];
+  Object.keys(s).sort().forEach(k=>{const d=s[k].d,h=s[k].h;
+    filas.push([k,nomCta(k),d,h,Math.max(0,d-h),Math.max(0,h-d)]);});
+  descargarXLSX(filas,'sumas_y_saldos_HIGIENEX_'+EJERCICIO+'.xlsx','Sumas y saldos');
+}
 
 /* Balance y cuenta de resultados */
 ROUTES.resultados=function(){
@@ -5982,7 +6383,7 @@ ROUTES.resultados=function(){
   const lineas=arr=>arr.sort((a,b)=>a[0].localeCompare(b[0])).map(x=>
     '<div class="l"><span><span class="mono">'+x[0]+'</span> '+esc(nomCta(x[0]))+'</span><span>'+EUR(x[1])+'</span></div>').join('');
 
-  let h=head('Balance y cuenta de resultados','Situación acumulada a fecha de corte', '<button class="btn ghost" onclick="exportarBalanceOficialPDF()">📄 Balance oficial (PDF)</button>'+selectorFechaCorte());
+  let h=head('Balance y cuenta de resultados','Situación acumulada a fecha de corte', '<button class="btn ghost" onclick="exportarBalanceOficialPDF()" type="button">📄 Balance oficial (PDF)</button>'+selectorFechaCorte());
   h+='<div class="grid g3" style="margin-bottom:16px">'+
     kpi('Ingresos de explotación',EUR(totIng),'grupo 7','teal')+
     kpi('Gastos de explotación',EUR(totGas),'grupo 6','amber')+
@@ -6031,7 +6432,7 @@ ROUTES.bancos=function(){
   const all=DB.movimientos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const lista=all.filter(m=>hit(m.con+' '+(m.conc||'')));
   let h=head('Cuentas y movimientos','Tesorería total: '+EUR(tesoreria()),
-    '<button class="btn ghost" onclick="formMovimiento()">Registrar movimiento</button><button class="btn" onclick="go(\'concilia\')">Conciliar</button>');
+    '<button class="btn ghost" onclick="formMovimiento()" type="button">Registrar movimiento</button><button class="btn" onclick="go(\'concilia\')" type="button">Conciliar</button>');
   h+='<div class="grid g2" style="margin-bottom:16px">'+DB.bancos.map(b=>
     '<div class="kpi acc-blue"><div class="lbl">'+esc(b.nom)+'</div><div class="val">'+EUR(b.saldo)+'</div>'+
     '<div class="foot mono" style="font-size:11.5px">'+b.iban+' · cuenta '+b.cta+'</div></div>').join('')+'</div>';
@@ -6048,7 +6449,7 @@ function formMovimiento(){
   openModal('Registrar movimiento bancario',
     '<div class="frow">'+fSelect('Cuenta','nm_cta',DB.bancos.map(b=>[b.id,b.nom]))+fInput('Fecha','nm_f','date',TODAY)+
       fInput('Concepto','nm_c')+fInput('Importe (€, negativo si es cargo)','nm_i','number','0')+'</div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveMovimiento()">Registrar</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveMovimiento()" type="button">Registrar</button>');
 }
 function saveMovimiento(){
   const imp=+val('nm_i')||0;
@@ -6073,7 +6474,7 @@ ROUTES.concilia=function(){
       '<div class="amt '+(x.imp>0?'pos':'neg')+'">'+EUR(x.imp)+'</div></div>').join('')
       :'<div class="empty"><strong>Todo conciliado</strong>No queda ningún apunte bancario pendiente.</div>')+'</div></div>';
   h+='<div class="bridge'+(armed?' armed':'')+'"><div class="dot"></div><div class="link"></div><div class="dot"></div>'+
-    (armed?'<div class="delta '+(dif<0.01?'good':'bad')+'">'+(dif<0.01?'Importes iguales':'Difieren '+EUR(dif))+'</div><button class="btn sm" onclick="conciliar()">Conciliar</button>'
+    (armed?'<div class="delta '+(dif<0.01?'good':'bad')+'">'+(dif<0.01?'Importes iguales':'Difieren '+EUR(dif))+'</div><button class="btn sm" onclick="conciliar()" type="button">Conciliar</button>'
           :'<div class="delta">Elige un apunte y una factura</div>')+'</div>';
   h+='<div class="col"><h4>Facturas abiertas <span class="tag t-neu">'+docs.length+'</span></h4><div class="reconlist">'+
     (docs.length?docs.map(x=>'<div class="ritem'+(x.ref===SEL.doc?' sel':'')+'" onclick="pickDoc(\''+esc(x.ref)+'\')">'+
@@ -6104,10 +6505,10 @@ ROUTES.almacen=function(){
   const valor=all.reduce((s,p)=>s+p.valor,0);
   const bajos=all.filter(p=>p.stock<p.min);
   let h=head('Artículos y stock','Existencias valoradas a precio medio ponderado: '+EUR(valor),
-    '<button class="btn ghost" onclick="go(\'kardex\')">Ver kardex</button>'+
-    '<button class="btn ghost" onclick="formAjuste()">Ajuste de inventario</button>'+
-    '<button class="btn ghost" onclick="formArticulo()">Nuevo artículo</button>'+
-    '<button class="btn" onclick="proponerPedidos()">Reponer bajo mínimo</button>');
+    '<button class="btn ghost" onclick="go(\'kardex\')" type="button">Ver kardex</button>'+
+    '<button class="btn ghost" onclick="formAjuste()" type="button">Ajuste de inventario</button>'+
+    '<button class="btn ghost" onclick="formArticulo()" type="button">Nuevo artículo</button>'+
+    '<button class="btn" onclick="proponerPedidos()" type="button">Reponer bajo mínimo</button>');
   if(bajos.length) h+='<div class="card" style="margin-bottom:14px;border-left:3px solid var(--red)"><div class="cardbody" style="font-size:13px">'+
     '<strong>'+bajos.length+' artículos por debajo del mínimo:</strong> '+bajos.map(b=>esc(b.nom)).join(', ')+'. El botón «Reponer bajo mínimo» prepara los pedidos a cada proveedor.</div></div>';
   h+=buscador('Buscar por referencia, nombre, familia o proveedor…',all.length,lista.length);
@@ -6141,9 +6542,9 @@ function fichaArticulo(id){
       movs.map(m=>rowN([FD(m.fecha),esc(m.doc),
         m.tipo==='Entrada'?'<span class="tag t-ok">Entrada</span>':'<span class="tag t-blue">Salida</span>',
         (m.tipo==='Entrada'?'+':'−')+NUM(m.cant),EUR(m.precio),EUR(m.importe),NUM(m.saldoCant),EUR(m.saldoValor)],[3,4,5,6,7]))),
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button>'+
-    '<button class="btn ghost" onclick="formArticulo(\''+id+'\')">Editar</button>'+
-    '<button class="btn" onclick="closeModal();formPedido(null,\''+p.prov+'\',\''+id+'\')">Pedir al proveedor</button>',true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
+    '<button class="btn ghost" onclick="formArticulo(\''+id+'\')" type="button">Editar</button>'+
+    '<button class="btn" onclick="closeModal();formPedido(null,\''+p.prov+'\',\''+id+'\')" type="button">Pedir al proveedor</button>',true);
 }
 function formArticulo(id){
   const p=id?art(id):{};
@@ -6157,7 +6558,7 @@ function formArticulo(id){
       fInput('Precio de venta (€)','na_pvp','number',p.pvp!==undefined?p.pvp:0)+
       (id?'':fInput('Existencias iniciales','na_stock','number','0'))+
     '</div>'+(id?'<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">El stock y el precio medio ponderado no se tocan aquí: solo cambian con entradas, salidas o un ajuste de inventario.</p>':''),
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveArticulo('+(id?'\''+id+'\'':'null')+')">Guardar</button>',true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveArticulo('+(id?'\''+id+'\'':'null')+')" type="button">Guardar</button>',true);
 }
 function saveArticulo(id){
   const ref=val('na_ref').trim().toUpperCase(), nom=val('na_nom').trim();
@@ -6182,7 +6583,7 @@ function formAjuste(){
       fInput('Unidades contadas de más o de menos','aj_u','number','0')+
     '</div><div style="margin-top:14px">'+fInput('Motivo','aj_m',null,'Recuento de inventario')+'</div>'+
     '<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">Positivo si aparecen unidades y negativo si faltan. El movimiento queda anotado en el kardex con su motivo.</p>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveAjuste()">Aplicar ajuste</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveAjuste()" type="button">Aplicar ajuste</button>');
 }
 function saveAjuste(){
   const p=art(val('aj_a')), u=+val('aj_u')||0, m=val('aj_m').trim()||'Ajuste';
@@ -6196,7 +6597,7 @@ ROUTES.kardex=function(){
   const ent=all.filter(m=>m.tipo==='Entrada').reduce((s,m)=>s+m.importe,0);
   const sal=all.filter(m=>m.tipo==='Salida').reduce((s,m)=>s+m.importe,0);
   let h=head('Movimientos de almacén','Trazabilidad completa de entradas y salidas valoradas',
-    '<button class="btn ghost" onclick="exportarKardex()">Descargar CSV</button>');
+    '<button class="btn ghost" onclick="exportarKardex()" type="button">Descargar CSV</button>');
   h+='<div class="grid g3" style="margin-bottom:16px">'+
     kpi('Entradas valoradas',EUR(ent),all.filter(m=>m.tipo==='Entrada').length+' movimientos','teal')+
     kpi('Salidas a coste',EUR(sal),all.filter(m=>m.tipo==='Salida').length+' movimientos','amber')+
@@ -6224,7 +6625,7 @@ ROUTES.compras=function(){
   const all=DB.pedidos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const lista=all.filter(p=>hit(p.id+' '+nomProv(p.prov)+' '+p.estado));
   let h=head('Pedidos y aprovisionamiento','Del pedido a la recepción: al recibir se actualiza el stock y se registra la factura',
-    '<button class="btn" onclick="formPedido()">Nuevo pedido</button>');
+    '<button class="btn" onclick="formPedido()" type="button">Nuevo pedido</button>');
   h+=buscador('Buscar por pedido, proveedor o estado…',all.length,lista.length);
   const rows=lista.map(p=>{
     const tot=p.lineas.reduce((s,l)=>s+l.cant*l.precio,0);
@@ -6233,8 +6634,8 @@ ROUTES.compras=function(){
       p.lineas.map(l=>'<span class="mono">'+art(l.art).ref+'</span> × '+l.cant).join('<br>'),
       EUR(tot),EUR(tot*1.21),
       p.estado==='Recibido'?'<span class="tag t-ok">Recibido</span>':p.estado==='Enviado'?'<span class="tag t-blue">Enviado</span>':'<span class="tag t-neu">Borrador</span>',
-      p.estado==='Borrador'?'<button class="btn ghost sm" onclick="enviarPedido(\''+p.id+'\')">Enviar</button>':
-      p.estado==='Enviado'?'<button class="btn sm" onclick="recibirPedido(\''+p.id+'\')">Recibir</button>':'—'
+      p.estado==='Borrador'?'<button class="btn ghost sm" onclick="enviarPedido(\''+p.id+'\')" type="button">Enviar</button>':
+      p.estado==='Enviado'?'<button class="btn sm" onclick="recibirPedido(\''+p.id+'\')" type="button">Recibir</button>':'—'
     ],[4,5]);
   });
   h+='<div class="card">'+tbl([['Pedido'],['Fecha'],['Proveedor'],['Líneas'],['Base','n'],['Total','n'],['Estado'],['']],rows,
@@ -6243,7 +6644,7 @@ ROUTES.compras=function(){
   if(sug.length) h+='<div class="card" style="margin-top:16px"><h3>Propuesta de reposición</h3>'+
     tbl([['Artículo'],['Stock','n'],['Mínimo','n'],['A pedir','n'],['Proveedor'],['Coste estimado','n']],
       sug.map(p=>{const q=p.min*2-p.stock;return rowN(['<span class="mono">'+p.ref+'</span> '+esc(p.nom),NUM(p.stock),NUM(p.min),NUM(q),esc(nomProv(p.prov)),EUR(q*p.coste)],[1,2,3,5]);}))+
-    '<div class="cardbody" style="border-top:1px solid var(--line)"><button class="btn" onclick="proponerPedidos()">Generar pedidos automáticamente</button></div></div>';
+    '<div class="cardbody" style="border-top:1px solid var(--line)"><button class="btn" onclick="proponerPedidos()" type="button">Generar pedidos automáticamente</button></div></div>';
   h += panelPlegable('Ver indicadores de compras (lead time y cumplimiento)', ROUTES.panelcompras());
   return h;
 };
@@ -6267,7 +6668,7 @@ function formPedido(_,provPre,artPre){
     '<div class="frow" style="margin-bottom:16px">'+
       fSelect('Proveedor','np2_prov',DB.proveedores.map(p=>[p.id,p.nom]),provPre)+
       fInput('Fecha','np2_f','date',TODAY)+'</div><div id="plinBox"></div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="savePedido()">Crear pedido</button>',true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="savePedido()" type="button">Crear pedido</button>',true);
   drawPlin();
 }
 function drawPlin(){
@@ -6279,12 +6680,12 @@ function drawPlin(){
     '<td style="width:88px"><input type="number" min="1" value="'+l.cant+'" onchange="setPlin('+i+',\'cant\',this.value)"></td>'+
     '<td style="width:98px"><input type="number" step="0.01" value="'+l.precio+'" onchange="setPlin('+i+',\'precio\',this.value)"></td>'+
     '<td class="num mono">'+EUR(l.cant*l.precio)+'</td>'+
-    '<td style="width:38px"><button class="btn ghost sm" onclick="delPlin('+i+')">×</button></td></tr>';
+    '<td style="width:38px"><button class="btn ghost sm" onclick="delPlin('+i+')" type="button">×</button></td></tr>';
   }).join('');
   const base=PLIN.reduce((s,l)=>s+l.cant*l.precio,0);
   document.getElementById('plinBox').innerHTML='<div class="eyebrow" style="display:block;margin-bottom:8px">Líneas del pedido</div>'+
     '<table class="lines"><thead><tr><th>Artículo</th><th>Cant.</th><th>Coste</th><th class="num">Importe</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<button class="btn ghost sm" style="margin-top:10px" onclick="addPlin()">+ Añadir línea</button>'+
+    '<button class="btn ghost sm" style="margin-top:10px" onclick="addPlin()" type="button">+ Añadir línea</button>'+
     '<div class="totbox"><div><span>Base</span><span>'+EUR(base)+'</span></div><div><span>IVA 21%</span><span>'+EUR(base*IVA)+'</span></div><div><span>Total</span><span>'+EUR(base*1.21)+'</span></div></div>';
 }
 function setPlin(i,k,v){ PLIN[i][k]=k==='art'?v:(+v||0); if(k==='art') PLIN[i].precio=art(v).coste; drawPlin(); }
@@ -6336,11 +6737,11 @@ ROUTES.fichajes=function(){
   const lista=soloMio?DB.empleados.filter(e=>e.id===ME.emp):DB.empleados;
   const mio=fichajeHoy(ME.emp), est=estadoJornada(mio), r=resumenMes(ME.emp);
   let h=head('Control de fichajes','Registro diario de jornada · julio 2026'+(soloMio?' · tu registro personal':' · '+DB.empleados.length+' personas'),
-    (soloMio?'':'<button class="btn ghost" onclick="formFichaje()">Registro manual</button>')+
-    '<button class="btn ghost" onclick="exportarFichajes()">Descargar registro</button>');
-  const btns = est==='sin_fichar' ? '<button class="btn" onclick="fichar(\'entrada\')">Fichar entrada</button>'
-    : est==='trabajando' ? '<button class="btn ghost" onclick="fichar(\'pausa\')">Iniciar pausa</button><button class="btn" onclick="fichar(\'salida\')">Fichar salida</button>'
-    : est==='pausa' ? '<button class="btn" onclick="fichar(\'volver\')">Terminar pausa</button>'
+    (soloMio?'':'<button class="btn ghost" onclick="formFichaje()" type="button">Registro manual</button>')+
+    '<button class="btn ghost" onclick="exportarFichajes()" type="button">Descargar registro</button>');
+  const btns = est==='sin_fichar' ? '<button class="btn" onclick="fichar(\'entrada\')" type="button">Fichar entrada</button>'
+    : est==='trabajando' ? '<button class="btn ghost" onclick="fichar(\'pausa\')" type="button">Iniciar pausa</button><button class="btn" onclick="fichar(\'salida\')" type="button">Fichar salida</button>'
+    : est==='pausa' ? '<button class="btn" onclick="fichar(\'volver\')" type="button">Terminar pausa</button>'
     : '<span class="tag t-ok">Jornada cerrada</span>';
   const linea = !mio||!mio.entrada ? 'Todavía no has fichado hoy.'
     : 'Entrada a las <strong>'+mio.entrada+'</strong>'+(mio.pausa?' · pausas '+mio.pausa+' min':'')+(mio.salida?' · salida a las <strong>'+mio.salida+'</strong>':'')+' · llevas <strong>'+hDur(minTrabajados(mio))+'</strong>';
@@ -6363,7 +6764,7 @@ ROUTES.fichajes=function(){
       return rowN(['<strong>'+esc(e.nom)+'</strong><br><span style="font-size:11.5px;color:var(--ink-2)">'+esc(e.depto)+'</span>',
         aus?'<span class="tag t-wait">'+esc(aus.tipo)+'</span>':tag,
         f&&f.entrada?f.entrada:'—',f&&f.pausa?f.pausa+' min':'—',f&&f.salida?f.salida:'—',f?hDur(minTrabajados(f)):'—',
-        '<button class="btn ghost sm" onclick="verRegistro(\''+e.id+'\')">Registro</button>'],[2,3,4,5]);
+        '<button class="btn ghost sm" onclick="verRegistro(\''+e.id+'\')" type="button">Registro</button>'],[2,3,4,5]);
     });
     h+='<div class="card" style="margin-bottom:16px"><h3>Presencia hoy <span class="tag t-neu" style="margin-left:auto">'+FD(TODAY)+'</span></h3>'+
       tbl([['Empleado'],['Estado'],['Entrada','n'],['Pausas','n'],['Salida','n'],['Trabajado','n'],['']],rows)+'</div>';
@@ -6373,7 +6774,7 @@ ROUTES.fichajes=function(){
     return rowN(['<strong>'+esc(e.nom)+'</strong>',esc(e.depto),String(x.dias),hDur(x.trab),hDur(x.teor),
       '<span class="'+(x.saldo>=0?'pos':'neg')+'">'+(x.saldo>=0?'+':'')+hDur(x.saldo)+'</span><div class="bar" style="width:90px;margin-left:auto"><i class="'+(pct<95?'low':pct<99?'mid':'')+'" style="width:'+Math.min(100,pct)+'%"></i></div>',
       x.inc?'<span class="tag t-late">'+x.inc+' sin cerrar</span>':'<span class="tag t-ok">Correcto</span>',
-      '<button class="btn ghost sm" onclick="verRegistro(\''+e.id+'\')">Detalle</button>'],[2,3,4,5]);
+      '<button class="btn ghost sm" onclick="verRegistro(\''+e.id+'\')" type="button">Detalle</button>'],[2,3,4,5]);
   });
   h+='<div class="card"><h3>Resumen de julio</h3>'+
     tbl([['Empleado'],['Departamento'],['Días','n'],['Trabajado','n'],['Teórico','n'],['Saldo','n'],['Incidencias'],['']],rows2)+
@@ -6405,13 +6806,13 @@ function verRegistro(empId){
     const t=f.salida?minTrabajados(f):null, s=t===null?null:t-JORNADA;
     return rowN([FD(f.fecha),f.entrada||'—',f.pausa?f.pausa+' min':'—',f.salida||'<span class="tag t-late">Falta</span>',
       t===null?'—':hDur(t),s===null?'—':'<span class="'+(s>=0?'pos':'neg')+'">'+(s>=0?'+':'')+hDur(s)+'</span>',
-      esc(f.obs||''),puede?'<button class="btn ghost sm" onclick="formFichaje(\''+f.id+'\')">Corregir</button>':''],[1,2,3,4,5]);
+      esc(f.obs||''),puede?'<button class="btn ghost sm" onclick="formFichaje(\''+f.id+'\')" type="button">Corregir</button>':''],[1,2,3,4,5]);
   });
   openModal('Registro de jornada · '+esc(e.nom),
     '<div class="frow" style="margin-bottom:16px">'+info('Periodo','01/07/2026 – '+FD(TODAY))+info('Días registrados',String(x.dias))+
       info('Total trabajado',hDur(x.trab))+info('Saldo',(x.saldo>=0?'+':'')+hDur(x.saldo))+'</div>'+
     tbl([['Fecha'],['Entrada','n'],['Pausas','n'],['Salida','n'],['Trabajado','n'],['Saldo','n'],['Observaciones'],['']],rows),
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button><button class="btn" onclick="exportarFichajes(\''+empId+'\')">Descargar</button>',true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button><button class="btn" onclick="exportarFichajes(\''+empId+'\')" type="button">Descargar</button>',true);
 }
 function formFichaje(fid){
   const f=fid?DB.fichajes.find(x=>x.id===fid):null;
@@ -6424,7 +6825,7 @@ function formFichaje(fid){
       fInput('Pausas (minutos)','fj_p','number',(f&&f.pausa)||60)+
       fInput('Motivo de la corrección','fj_o',null,f?f.obs:'')+
     '</div><p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">Toda corrección manual queda anotada con su motivo: es lo que justifica la diferencia frente al fichaje original.</p>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveFichaje('+(fid?'\''+fid+'\'':'null')+')">Guardar</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveFichaje('+(fid?'\''+fid+'\'':'null')+')" type="button">Guardar</button>');
 }
 function saveFichaje(fid){
   const ent=val('fj_ent'), sal=val('fj_sal');
@@ -6462,7 +6863,7 @@ ROUTES.rrhh=function(){
   const masa=all.reduce((s,e)=>s+e.brutoAnual,0);
   const coste=all.reduce((s,e)=>s+calcNomina(e).coste*12,0);
   let h=head('Empleados',all.length+' personas en plantilla',
-    '<button class="btn ghost" onclick="formAusencia()">Registrar ausencia</button><button class="btn" onclick="formEmpleado()">Alta de empleado</button>');
+    '<button class="btn ghost" onclick="formAusencia()" type="button">Registrar ausencia</button><button class="btn" onclick="formEmpleado()" type="button">Alta de empleado</button>');
   h+='<div class="grid g3" style="margin-bottom:16px">'+
     kpi('Masa salarial bruta',EUR(masa),'anual · '+all.length+' contratos','blue')+
     kpi('Coste de empresa',EUR(coste),'incluye S.S. patronal ('+NUM(ssEmpPct)+' %)','amber')+
@@ -6473,7 +6874,7 @@ ROUTES.rrhh=function(){
     esc(e.cat),esc(e.depto),
     e.contrato==='Indefinido'?'<span class="tag t-ok">Indefinido</span>':'<span class="tag t-wait">'+esc(e.contrato)+'</span>',
     FD(e.alta),EUR(e.brutoAnual),NUM(e.irpf)+' %',EUR(n.liquido),
-    '<button class="btn ghost sm" onclick="verNomina(\''+e.id+'\')">Nómina</button>'],[5,6,7]);});
+    '<button class="btn ghost sm" onclick="verNomina(\''+e.id+'\')" type="button">Nómina</button>'],[5,6,7]);});
   h+='<div class="card">'+tbl([['Empleado'],['Categoría'],['Departamento'],['Contrato'],['Alta'],['Bruto anual','n'],['IRPF','n'],['Líquido mes','n'],['']],rows,
     ['Sin empleados','Da de alta el primero con «Alta de empleado».'])+'</div>';
   h+='<div class="card" style="margin-top:16px"><h3>Ausencias registradas</h3>'+
@@ -6490,7 +6891,7 @@ function formEmpleado(){
       fSelect('Tipo de contrato','ne_con',[['Indefinido','Indefinido'],['Temporal','Temporal'],['Prácticas','Prácticas'],['Formación','Formación en alternancia']])+
       fInput('Fecha de alta','ne_alta','date',TODAY)+
       fInput('Salario bruto anual (€)','ne_bruto','number','0')+fInput('Retención IRPF (%)','ne_irpf','number','15')+'</div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveEmpleado()">Dar de alta</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveEmpleado()" type="button">Dar de alta</button>');
 }
 function saveEmpleado(){
   const nom=val('ne_nom').trim();
@@ -6504,7 +6905,7 @@ function formAusencia(){
     '<div class="frow">'+fSelect('Empleado','au_e',DB.empleados.map(e=>[e.id,e.nom]))+
       fSelect('Tipo','au_t',[['Vacaciones','Vacaciones'],['Baja por IT (común)','Baja por IT (común)'],['Baja por accidente de trabajo','Baja por accidente de trabajo'],['Permiso retribuido','Permiso retribuido'],['Ausencia no justificada','Ausencia no justificada']])+
       fInput('Desde','au_d','date',TODAY)+fInput('Hasta','au_h','date',TODAY)+'</div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveAusencia()">Registrar</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveAusencia()" type="button">Registrar</button>');
 }
 function saveAusencia(){
   const d=val('au_d'), hasta=val('au_h');
@@ -6517,7 +6918,7 @@ ROUTES.nominas=function(){
   const mes='2026-07', gen=DB.nominas.filter(n=>n.mes===mes);
   const t=DB.empleados.reduce((a,e)=>{const n=calcNomina(e);a.bruto+=n.brutoMes;a.ssT+=n.ssT;a.ssE+=n.ssE;a.irpf+=n.irpf;a.liq+=n.liquido;return a;},{bruto:0,ssT:0,ssE:0,irpf:0,liq:0});
   let h=head('Nóminas','Julio 2026 · '+gen.length+' de '+DB.empleados.length+' recibos generados',
-    gen.length<DB.empleados.length?'<button class="btn" onclick="generarNominas()">Generar nóminas de julio</button>':'<span class="tag t-ok" style="align-self:center">Generadas y contabilizadas</span>');
+    gen.length<DB.empleados.length?'<button class="btn" onclick="generarNominas()" type="button">Generar nóminas de julio</button>':'<span class="tag t-ok" style="align-self:center">Generadas y contabilizadas</span>');
   h+='<div class="grid g4" style="margin-bottom:16px">'+
     kpi('Bruto del mes',EUR(t.bruto),DB.empleados.length+' recibos','blue')+
     kpi('S.S. trabajador',EUR(t.ssT),NUM(ssTrabPct)+' % sobre base','teal')+
@@ -6526,7 +6927,7 @@ ROUTES.nominas=function(){
   const rows=DB.empleados.map(e=>{const n=calcNomina(e), hecho=gen.some(g=>g.emp===e.id);return rowN([
     '<strong>'+esc(e.nom)+'</strong>',esc(e.cat),EUR(n.brutoMes),EUR(n.ssT),EUR(n.irpf),'<strong>'+EUR(n.liquido)+'</strong>',EUR(n.ssE),EUR(n.coste),
     hecho?'<span class="tag t-ok">Generada</span>':'<span class="tag t-wait">Pendiente</span>',
-    '<button class="btn ghost sm" onclick="verNomina(\''+e.id+'\')">Recibo</button>'],[2,3,4,5,6,7]);});
+    '<button class="btn ghost sm" onclick="verNomina(\''+e.id+'\')" type="button">Recibo</button>'],[2,3,4,5,6,7]);});
   h+='<div class="card"><h3>Resumen del mes <span class="tag t-neu" style="margin-left:auto">tipos vigentes régimen general</span></h3>'+
     tbl([['Empleado'],['Categoría'],['Bruto','n'],['S.S. trab.','n'],['IRPF','n'],['Líquido','n'],['S.S. empresa','n'],['Coste total','n'],['Estado'],['']],rows)+'</div>';
   h+='<div class="card" style="margin-top:16px"><h3>Tipos de cotización aplicados</h3><div class="cardbody grid g2">'+
@@ -6555,7 +6956,7 @@ function verNomina(id){
       '<div class="l"><span>S.S. a cargo de la empresa ('+NUM(ssEmpPct)+' %)</span><span>'+EUR(n.ssE)+'</span></div>'+
       '<div class="tot"><span>Coste total</span><span>'+EUR(n.coste)+'</span></div>'+
     '</div><p style="margin-top:14px;font-size:12px;color:var(--ink-2)">Cálculo simplificado de gestión: la base de cotización se toma igual al bruto mensual con prorrata, sin topes máximos ni mínimos por grupo.</p>',
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>');
 }
 function generarNominas(){
   const mes='2026-07';
@@ -6712,7 +7113,6 @@ function log(accion,detalle){
 /* ---------- Cálculos de fabricación ---------- */
 function mp(id){ return DB.materias.find(m=>m.id===id)||{nom:'—',coste:0,unidad:'',stock:0}; }
 function formulaVigente(prodId){ return DB.formulas.find(f=>f.prod===prodId&&f.estado==='Vigente'); }
-function formulasDe(prodId){ return DB.formulas.filter(f=>f.prod===prodId).sort((a,b)=>b.version-a.version); }
 const TARIFA_HORA=22;
 function costeFormula(f){
   const granel=f.comp.reduce((s,c)=>s+(c.pct/100)*f.litros*mp(c.mp).coste,0);
@@ -6728,7 +7128,6 @@ function consumoOF(f,unidades){
 function faltaMP(consumo){ return consumo.filter(c=>mp(c.mp).stock<c.cant); }
 function diasHasta(f){ return Math.round((new Date(f+'T00:00:00Z')-new Date(TODAY+'T00:00:00Z'))/86400000); }
 function lotesDe(prodId){ return DB.lotes.filter(l=>l.prod===prodId); }
-function stockLotes(prodId){ return lotesDe(prodId).filter(l=>l.estado==='Liberado').reduce((s,l)=>s+l.disp,0); }
 
 /* Asignación FEFO: sale antes lo que antes caduca */
 function asignarLotes(prodId,cant,factNum,cliId){
@@ -6748,7 +7147,7 @@ function vMaterias(){
   const valor=DB.materias.reduce((s,m)=>s+m.stock*m.coste,0);
   const bajos=DB.materias.filter(m=>m.stock<m.min);
   let h=head('Materias primas',DB.materias.length+' referencias · valor de existencias '+EUR(valor),
-    '<button class="btn ghost" onclick="formEntradaMP()">Entrada de mercancía</button>');
+    '<button class="btn ghost" onclick="formEntradaMP()" type="button">Entrada de mercancía</button>');
   if(bajos.length) h+='<div class="card" style="margin-bottom:14px;border-left:3px solid var(--red)"><div class="cardbody" style="font-size:13px"><strong>'+bajos.length+' materias primas bajo mínimo.</strong> Riesgo de parada de producción: '+bajos.map(b=>esc(b.nom)).join(', ')+'.</div></div>';
   const rows=DB.materias.map(m=>{
     const cad=m.lotes.filter(l=>diasHasta(l.cad)<180);
@@ -6770,7 +7169,7 @@ function formEntradaMP(){
     fInput('Nº de lote del proveedor','em_l')+fInput('Cantidad','em_c','number')+
     '<div><label class="flabel">Fecha de caducidad</label><input type="date" id="em_cad" value="2028-01-01"></div></div>'+
     '<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">El lote queda trazado: cualquier producto fabricado con él podrá rastrearse hasta esta entrada.</p>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveEntradaMP()">Registrar entrada</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveEntradaMP()" type="button">Registrar entrada</button>');
 }
 function saveEntradaMP(){
   const v=i=>document.getElementById(i).value, c=+v('em_c')||0;
@@ -6793,7 +7192,7 @@ function vFormulas(){
       FD(f.fecha),esc(emp(f.autor).nom.split(' ')[0]),
       EUR(c.granel),EUR(c.env),EUR(c.mano),'<strong>'+EUR(c.total)+'</strong>',
       '<span style="color:'+(desv>=0?'var(--teal)':'var(--red)')+'">'+(desv>=0?'+':'')+EUR(desv)+'</span>',
-      '<button class="btn ghost sm" onclick="verFormula(\''+f.id+'\')">Escandallo</button>'
+      '<button class="btn ghost sm" onclick="verFormula(\''+f.id+'\')" type="button">Escandallo</button>'
     ],[6,7,8,9,10]);
   });
   h+='<div class="card">'+tbl([['Fórmula'],['Producto'],['Versión'],['Estado'],['Fecha'],['Autor'],['Granel','n'],['Envase','n'],['Mano obra','n'],['Coste/ud','n'],['vs. estándar','n'],['']],rows)+
@@ -6819,8 +7218,8 @@ function verFormula(id){
     '<div style="clear:both;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:13px">'+
       '<strong>Margen sobre PVP:</strong> '+EUR(p.pvp-c.total)+' por unidad ('+NUM((p.pvp-c.total)/p.pvp*100)+' %).'+
       (f.notas?'<br><span style="color:var(--ink-2)">'+esc(f.notas)+'</span>':'')+'</div>',
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button>'+
-    (f.estado==='Vigente'?'<button class="btn" onclick="closeModal();formOF(\''+f.prod+'\')">Lanzar fabricación</button>':''),true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
+    (f.estado==='Vigente'?'<button class="btn" onclick="closeModal();formOF(\''+f.prod+'\')" type="button">Lanzar fabricación</button>':''),true);
 }
 
 /* ---------- Vista: órdenes de fabricación ---------- */
@@ -6828,7 +7227,7 @@ function vProduccion(){
   const abiertas=DB.ofs.filter(o=>o.estado!=='Finalizada'&&o.estado!=='Cancelada');
   const uds=DB.ofs.filter(o=>o.estado==='Finalizada').reduce((s,o)=>s+o.cant,0);
   let h=head('Órdenes de fabricación',DB.ofs.length+' órdenes en el ejercicio · '+NUM(uds)+' unidades fabricadas',
-    '<button class="btn" onclick="formOF()">Nueva orden</button>');
+    '<button class="btn" onclick="formOF()" type="button">Nueva orden</button>');
   h+='<div class="grid g4" style="margin-bottom:16px">'+
     kpi('Órdenes abiertas',String(abiertas.length),'planificadas o en curso','blue')+
     kpi('Unidades fabricadas',NUM(uds),'lotes cerrados y liberados','teal')+
@@ -6845,9 +7244,9 @@ function vProduccion(){
       esc(emp(o.operario).nom.split(' ')[0])+'<br><span style="font-size:11.5px;color:var(--ink-2)">'+esc(o.maquina)+'</span>',
       o.minutos?hDur(o.minutos):'—',
       tag+(falta.length?'<br><span class="tag t-late" style="margin-top:3px">Falta material</span>':''),
-      o.estado==='Planificada'?'<button class="btn ghost sm" onclick="verOF(\''+o.id+'\')">Preparar</button>':
-      o.estado==='En curso'?'<button class="btn sm" onclick="verOF(\''+o.id+'\')">Cerrar</button>':
-      '<button class="btn ghost sm" onclick="verOF(\''+o.id+'\')">Ver</button>'
+      o.estado==='Planificada'?'<button class="btn ghost sm" onclick="verOF(\''+o.id+'\')" type="button">Preparar</button>':
+      o.estado==='En curso'?'<button class="btn sm" onclick="verOF(\''+o.id+'\')" type="button">Cerrar</button>':
+      '<button class="btn ghost sm" onclick="verOF(\''+o.id+'\')" type="button">Ver</button>'
     ],[2,7]);
   });
   h+='<div class="card">'+tbl([['Orden'],['Producto'],['Cantidad','n'],['Fórmula'],['Inicio'],['Lote'],['Operario / máquina'],['Tiempo','n'],['Estado'],['']],rows)+'</div>';
@@ -6870,9 +7269,9 @@ function verOF(id){
         '<div class="card"><div class="cardbody"><span class="mono" style="font-size:16px;font-weight:600">'+l.lote+'</span> · fabricado el '+FD(l.fab)+' · caduca el '+FD(l.cad)+
         '<br>'+NUM(l.cant)+' unidades, quedan '+NUM(l.disp)+' disponibles · estado '+l.estado+'</div></div>':'';})():'')+
     (falta.length&&o.estado!=='Finalizada'?'<div class="card" style="margin-top:16px;border-left:3px solid var(--red)"><div class="cardbody" style="font-size:13px"><strong>No se puede lanzar.</strong> Falta material para '+falta.length+' componente(s). Genera antes el pedido de compra.</div></div>':''),
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button>'+
-    (o.estado==='Planificada'?'<button class="btn" onclick="lanzarOF(\''+id+'\')"'+(falta.length?' disabled':'')+'>Lanzar fabricación</button>':'')+
-    (o.estado==='En curso'?'<button class="btn" onclick="finalizarOF(\''+id+'\')">Finalizar y generar lote</button>':''),true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
+    (o.estado==='Planificada'?'<button class="btn" onclick="lanzarOF(\''+id+'\')"'+(falta.length?' disabled':'')+' type="button">Lanzar fabricación</button>':'')+
+    (o.estado==='En curso'?'<button class="btn" onclick="finalizarOF(\''+id+'\')" type="button">Finalizar y generar lote</button>':''),true);
 }
 function formOF(prodPre){
   const fabricables=DB.productos.filter(p=>p.fabricado&&formulaVigente(p.id));
@@ -6885,7 +7284,7 @@ function formOF(prodPre){
       DB.empleados.map(e=>'<option value="'+e.id+'"'+(e.id==='E06'?' selected':'')+'>'+esc(e.nom)+'</option>').join('')+'</select></div>'+
     '<div><label class="flabel">Máquina</label><select id="of_m"><option>Mezcladora M-1</option><option>Reactor R-2</option><option>Envasadora E-1</option></select></div>'+
     '</div><div id="ofPrev" style="margin-top:18px"></div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveOF()">Crear orden</button>',true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveOF()" type="button">Crear orden</button>',true);
   previewOF();
 }
 function previewOF(){
@@ -6956,7 +7355,7 @@ function vLotes(){
       '<strong class="mono">'+l.lote+'</strong>',esc(art(l.prod).nom),l.of,FD(l.fab),
       FD(l.cad)+'<br><span style="font-size:11.5px;color:'+(d<90?'var(--red)':'var(--ink-2)')+'">'+(d<0?'caducado':'quedan '+d+' días')+'</span>',
       NUM(l.cant),NUM(l.disp),tag,
-      '<button class="btn ghost sm" onclick="verTrazabilidad(\''+l.lote+'\')">Trazabilidad</button>'
+      '<button class="btn ghost sm" onclick="verTrazabilidad(\''+l.lote+'\')" type="button">Trazabilidad</button>'
     ],[5,6]);
   });
   h+='<div class="card">'+tbl([['Lote'],['Producto'],['Orden'],['Fabricación'],['Caducidad'],['Fabricado','n'],['Disponible','n'],['Estado'],['']],rows)+
@@ -6983,8 +7382,8 @@ function verTrazabilidad(lote){
       '<strong>Ante una retirada de producto:</strong> este lote está en manos de '+
       (l.destino.length?new Set(l.destino.map(d=>d.cli)).size+' cliente(s) con '+NUM(vendido)+' unidades servidas':'ningún cliente')+
       ', y quedan '+NUM(l.disp)+' unidades en almacén.</div>',
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button>'+
-    (l.estado==='Cuarentena'?'<button class="btn" onclick="closeModal();formAnalisis(\''+lote+'\')">Analizar y liberar</button>':''),true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
+    (l.estado==='Cuarentena'?'<button class="btn" onclick="closeModal();formAnalisis(\''+lote+'\')" type="button">Analizar y liberar</button>':''),true);
 }
 
 /* ---------- Vista: control de calidad ---------- */
@@ -7003,7 +7402,7 @@ function vCalidad(){
   h+='<div class="card" style="margin-bottom:16px"><h3>Lotes pendientes de liberación</h3>'+
     tbl([['Lote'],['Producto'],['Fabricación'],['Unidades','n'],['']],
       cuar.map(l=>rowN(['<strong class="mono">'+l.lote+'</strong>',esc(art(l.prod).nom),FD(l.fab),NUM(l.cant),
-        '<button class="btn sm" onclick="formAnalisis(\''+l.lote+'\')">Registrar ensayo</button>'],[3])))+'</div>';
+        '<button class="btn sm" onclick="formAnalisis(\''+l.lote+'\')" type="button">Registrar ensayo</button>'],[3])))+'</div>';
   const rows=DB.lotes.filter(l=>l.analisis&&l.analisis.ph!=null).map(l=>{
     const a=l.analisis, s=SPECS[l.prod]||{};
     const cell=(campo,val,ud)=>{const ok=dentro(l.prod,campo,val);
@@ -7018,7 +7417,7 @@ function vCalidad(){
     tbl([['Nº'],['Lote'],['Fecha'],['Descripción'],['Acción correctiva'],['Estado'],['']],
       DB.noconf.map(n=>rowN([n.id,'<span class="mono">'+n.lote+'</span>',FD(n.fecha),esc(n.desc),esc(n.accion),
         n.estado==='Abierta'?'<span class="tag t-late">Abierta</span>':'<span class="tag t-ok">Cerrada</span>',
-        n.estado==='Abierta'?'<button class="btn ghost sm" onclick="cerrarNC(\''+n.id+'\')">Cerrar</button>':'—'],[])))+'</div>';
+        n.estado==='Abierta'?'<button class="btn ghost sm" onclick="cerrarNC(\''+n.id+'\')" type="button">Cerrar</button>':'—'],[])))+'</div>';
   return h;
 }
 function formAnalisis(lote){
@@ -7032,7 +7431,7 @@ function formAnalisis(lote){
     '<div><label class="flabel">Técnico responsable</label><select id="an_t">'+
       DB.empleados.map(e=>'<option value="'+e.id+'"'+(e.id==='E05'?' selected':'')+'>'+esc(e.nom)+'</option>').join('')+'</select></div></div>'+
     '<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">Si algún parámetro queda fuera de especificación, el lote se rechaza y se abre automáticamente una no conformidad.</p>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveAnalisis(\''+lote+'\')">Registrar ensayo</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveAnalisis(\''+lote+'\')" type="button">Registrar ensayo</button>');
 }
 function saveAnalisis(lote){
   const l=DB.lotes.find(x=>x.lote===lote);
@@ -7085,12 +7484,12 @@ function evaluarReglas(){
 function vAutomat(){
   const disp=evaluarReglas();
   let h=head('Automatizaciones',disp.length+' situaciones detectadas ahora mismo · las reglas se evalúan sobre los datos reales',
-    '<button class="btn" onclick="ejecutarReglas()">Ejecutar todas</button>');
+    '<button class="btn" onclick="ejecutarReglas()" type="button">Ejecutar todas</button>');
   h+='<div class="card" style="margin-bottom:16px"><h3>Reglas configuradas</h3>'+
     tbl([['Regla'],['Cuando…'],['Entonces…'],['Estado'],['']],
       DB.reglas.map(r=>rowN(['<strong>'+esc(r.nom)+'</strong>',esc(r.cuando),esc(r.entonces),
         r.activa?'<span class="tag t-ok">Activa</span>':'<span class="tag t-neu">Pausada</span>',
-        '<button class="btn ghost sm" onclick="toggleRegla(\''+r.id+'\')">'+(r.activa?'Pausar':'Activar')+'</button>'],[])))+'</div>';
+        '<button class="btn ghost sm" onclick="toggleRegla(\''+r.id+'\')" type="button">'+(r.activa?'Pausar':'Activar')+'</button>'],[])))+'</div>';
   h+='<div class="card"><h3>Qué dispararían ahora <span class="tag '+(disp.length?'t-wait':'t-ok')+'">'+disp.length+'</span></h3>'+
     (disp.length?tbl([['Regla'],['Situación detectada'],['Acción propuesta']],
       disp.map(d=>rowN(['<span class="tag t-blue">'+esc(d.regla.nom)+'</span>',esc(d.txt),esc(d.accion)],[])))
@@ -7154,8 +7553,8 @@ function fichaProducto(id){
     (ls.length?tbl([['Lote'],['Fabricación'],['Caducidad'],['Disponible','n'],['Estado']],
       ls.map(l=>rowN(['<span class="mono">'+l.lote+'</span>',FD(l.fab),FD(l.cad),NUM(l.disp),l.estado],[3])))
       :'<p style="color:var(--ink-2);font-size:13px">Este artículo no se gestiona por lotes.</p>'),
-    '<button class="btn ghost" onclick="closeModal()">Cerrar</button>'+
-    (p.fabricado?'<button class="btn" onclick="closeModal();formOF(\''+id+'\')">Fabricar</button>':''),true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
+    (p.fabricado?'<button class="btn" onclick="closeModal();formOF(\''+id+'\')" type="button">Fabricar</button>':''),true);
 }
 
 /* ---------- Buscador global y atajos ---------- */
@@ -7237,7 +7636,7 @@ function vSistema(){
     return '<div class="empty"><strong>Acceso restringido</strong>Esta sección solo está disponible para Dirección.</div>';
   }
   let h = head('Administración del sistema','Gestión de accesos, datos de empresa y permisos ampliados de Dirección',
-    '<button class="btn ghost" onclick="formNuevoUsuario()">Crear acceso</button>');
+    '<button class="btn ghost" onclick="formNuevoUsuario()" type="button">Crear acceso</button>');
 
   h += '<div class="grid g4" style="margin-bottom:16px">'+
     kpi('Usuarios activos', String(USERS.filter(u=>u.activo!==false).length), USERS.length+' cuentas totales', 'blue')+
@@ -7257,8 +7656,8 @@ function vSistema(){
           '<span class="tag t-neu">'+etiquetaPermiso(u.perms)+'</span>',
           activo?'<span class="tag t-ok">Activo</span>':'<span class="tag t-late">Desactivado</span>',
           u.id===ME.id ? '<span style="color:var(--ink-2);font-size:12px">cuenta propia</span>' :
-            '<button class="btn ghost sm" onclick="resetPassUsuario(\''+u.id+'\')">Restablecer clave</button> '+
-            '<button class="btn ghost sm" onclick="toggleUsuario(\''+u.id+'\')">'+(activo?'Desactivar':'Activar')+'</button>'
+            '<button class="btn ghost sm" onclick="resetPassUsuario(\''+u.id+'\')" type="button">Restablecer clave</button> '+
+            '<button class="btn ghost sm" onclick="toggleUsuario(\''+u.id+'\')" type="button">'+(activo?'Desactivar':'Activar')+'</button>'
         ],[]);
       }))+
     '<div class="cardbody" style="border-top:1px solid var(--line);font-size:12.5px;color:var(--ink-2)">Solo Dirección puede crear, desactivar o restablecer accesos. Una cuenta desactivada no puede iniciar sesión aunque conozca su contraseña.</div></div>';
@@ -7269,7 +7668,7 @@ function vSistema(){
       fInput('Razón social','sis_nom','text',e.nom)+fInput('NIF','sis_nif','text',e.nif)+
       fInput('Dirección','sis_dir','text',e.dir)+fInput('Correo de contacto','sis_mail','text',e.mail)+
       fInput('Teléfono','sis_tel','text',e.tel)+
-    '</div><button class="btn gold" style="margin-top:14px" onclick="guardarEmpresa()">Guardar datos</button></div></div>';
+    '</div><button class="btn gold" style="margin-top:14px" onclick="guardarEmpresa()" type="button">Guardar datos</button></div></div>';
 
   h += '<div class="card"><h3>Permisos ampliados de Dirección</h3><div class="cardbody" style="font-size:13px;line-height:1.8">'+
     '· Puedes eliminar clientes, productos y empleados desde sus fichas — el resto de roles solo puede editar.<br>'+
@@ -7298,7 +7697,7 @@ function resetPassUsuario(id){
     '<p style="font-size:13px;margin-bottom:14px">Se ha generado una nueva contraseña para <strong>'+esc(u.nom)+'</strong>. Compártesela por un canal seguro; no volverá a mostrarse.</p>'+
     '<div style="padding:14px;background:var(--soft);border:1px solid var(--line);border-radius:var(--radius);text-align:center">'+
       '<div class="eyebrow">Nueva contraseña</div><div class="mono" style="font-size:22px;font-weight:700;letter-spacing:.04em;margin-top:6px">'+nueva+'</div></div>',
-    '<button class="btn" onclick="closeModal();go(\'sistema\')">Cerrar</button>');
+    '<button class="btn" onclick="closeModal();go(\'sistema\')" type="button">Cerrar</button>');
 }
 function formNuevoUsuario(){
   const sinAcceso = DB.empleados.filter(e=>!USERS.some(u=>u.emp===e.id));
@@ -7314,7 +7713,7 @@ function formNuevoUsuario(){
       '<option value="logistica" selected>Logística y fabricación</option>'+
       '</select></div></div>'+
     '<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">Se generará una contraseña aleatoria que podrás ver una sola vez tras crear el acceso.</p>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveNuevoUsuario()">Crear acceso</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveNuevoUsuario()" type="button">Crear acceso</button>');
 }
 function saveNuevoUsuario(){
   const empId=val('nu_emp'), e=emp(empId);
@@ -7329,7 +7728,7 @@ function saveNuevoUsuario(){
     '<p style="font-size:13px;margin-bottom:14px">Cuenta creada para <strong>'+esc(e.nom)+'</strong>. Estos son sus datos de acceso; compártelos por un canal seguro.</p>'+
     '<div class="frow"><div><div class="eyebrow">Usuario</div><div class="mono" style="font-weight:700">'+esc(mail)+'</div></div>'+
     '<div><div class="eyebrow">Contraseña</div><div class="mono" style="font-weight:700">'+pass+'</div></div></div>',
-    '<button class="btn" onclick="closeModal();go(\'sistema\')">Cerrar</button>');
+    '<button class="btn" onclick="closeModal();go(\'sistema\')" type="button">Cerrar</button>');
 }
 function guardarEmpresa(){
   DB.empresa = {nom:val('sis_nom'), nif:val('sis_nif'), dir:val('sis_dir'), mail:val('sis_mail'), tel:val('sis_tel')};
@@ -7416,7 +7815,7 @@ ROUTES.rrhh = function(){
   let out = _rrhhBase();
   if(isAdmin()){
     out = out.replace(/onclick="verNomina\('([^']+)'\)">Nómina<\/button>/g,
-      'onclick="verNomina(\'$1\')">Nómina</button> <button class="btn ghost sm" onclick="eliminarEmpleado(\'$1\')">Baja</button>');
+      'onclick="verNomina(\'$1\')">Nómina</button> <button class="btn ghost sm" onclick="eliminarEmpleado(\'$1\')" type="button">Baja</button>');
   }
   return out;
 };
@@ -7478,7 +7877,7 @@ function stockPorAlmacen(){
 ROUTES.almacenes = function(){
   const m = stockPorAlmacen();
   let h = head('Almacenes', DB.almacenes.length+' centros logísticos · '+EUR(DB.productos.reduce((s,p)=>s+p.valor,0))+' en existencias totales',
-    '<button class="btn ghost" onclick="formAlmacen()">Nuevo almacén</button>');
+    '<button class="btn ghost" onclick="formAlmacen()" type="button">Nuevo almacén</button>');
   h += '<div class="grid g2" style="margin-bottom:16px">' + DB.almacenes.map(a=>{
     const d = m[a.id] || {uds:0,valor:0};
     const ocupacion = Math.min(100, Math.round(d.uds/(a.m2*4)*100));
@@ -7514,7 +7913,7 @@ function formAlmacen(){
       fInput('Superficie (m²)','nal_m2','number','300')+
       fSelect('Responsable',' nal_resp'.trim(),DB.empleados.map(e=>[e.id,e.nom]))+
     '</div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveAlmacen()">Crear almacén</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveAlmacen()" type="button">Crear almacén</button>');
 }
 function saveAlmacen(){
   const nom=val('nal_nom').trim(); if(!nom){toast('Ponle nombre al almacén.');return;}
@@ -7526,12 +7925,12 @@ function saveAlmacen(){
 /* ---------- Transportistas ---------- */
 ROUTES.transportistas = function(){
   let h = head('Transportistas', DB.transportistas.length+' operadores homologados',
-    '<button class="btn ghost" onclick="formTransportista()">Nuevo transportista</button>');
+    '<button class="btn ghost" onclick="formTransportista()" type="button">Nuevo transportista</button>');
   const rows = DB.transportistas.map(t=>{
     const envios = DB.expediciones.filter(e=>e.transp===t.id);
     return rowN(['<strong>'+esc(t.nom)+'</strong>', esc(t.zona), EUR(t.tarifa)+' / envío', t.diasEntrega+' día(s) medio',
       '<div class="bar" style="width:90px"><i class="'+(t.fiabilidad<90?'mid':'')+'" style="width:'+t.fiabilidad+'%"></i></div>'+t.fiabilidad+' %',
-      String(envios.length), '<button class="btn ghost sm" onclick="formTransportista(\''+t.id+'\')">Editar</button>'
+      String(envios.length), '<button class="btn ghost sm" onclick="formTransportista(\''+t.id+'\')" type="button">Editar</button>'
     ],[2,3,4,5]);
   });
   h += '<div class="card">' + tbl([['Transportista'],['Zona de cobertura'],['Tarifa'],['Plazo medio'],['Fiabilidad'],['Envíos'],['']], rows) + '</div>';
@@ -7546,7 +7945,7 @@ function formTransportista(id){
       fInput('Plazo medio (días)','nt_dias','number',t.diasEntrega!==undefined?t.diasEntrega:2)+
       fInput('Fiabilidad estimada (%)','nt_fiab','number',t.fiabilidad!==undefined?t.fiabilidad:90)+
     '</div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveTransportista('+(id?'\''+id+'\'':'null')+')">Guardar</button>');
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveTransportista('+(id?'\''+id+'\'':'null')+')" type="button">Guardar</button>');
 }
 function saveTransportista(id){
   const datos={nom:val('nt_nom').trim(), zona:val('nt_zona').trim(), tarifa:+val('nt_tar')||0, diasEntrega:+val('nt_dias')||1, fiabilidad:+val('nt_fiab')||90};
@@ -7569,7 +7968,7 @@ ROUTES.expediciones = function(){
   const otif = entregadas.length ? Math.round(aTiempo.length/entregadas.length*100) : 100;
 
   let h = head('Expediciones', all.length+' envíos · OTIF (entregas a tiempo y completas) '+otif+' %',
-    '<button class="btn" onclick="formExpedicion()">Nueva expedición</button>');
+    '<button class="btn" onclick="formExpedicion()" type="button">Nueva expedición</button>');
   h += '<div class="grid g4" style="margin-bottom:16px">'+
     kpi('OTIF', otif+' %', entregadas.length+' entregas cerradas', otif>=90?'teal':otif>=75?'amber':'red')+
     kpi('En tránsito', String(all.filter(e=>e.estado==='En tránsito').length), 'pendientes de llegar', 'blue')+
@@ -7584,8 +7983,8 @@ ROUTES.expediciones = function(){
       '<span class="tag t-neu" title="'+esc(INCOTERMS[e.incoterm]||'')+'">'+e.incoterm+'</span>',
       NUM(e.bultos)+' bultos', FD(e.fechaPrevista), e.fechaEntrega?FD(e.fechaEntrega)+(tarde?' <span class="tag t-late">tarde</span>':''):'—',
       tag,
-      e.estado==='Preparando' ? '<button class="btn ghost sm" onclick="avanzarExpedicion(\''+e.id+'\',\'En tránsito\')">Enviar</button>' :
-      e.estado==='En tránsito' ? '<button class="btn sm" onclick="avanzarExpedicion(\''+e.id+'\',\'Entregada\')">Confirmar entrega</button>' : '—'
+      e.estado==='Preparando' ? '<button class="btn ghost sm" onclick="avanzarExpedicion(\''+e.id+'\',\'En tránsito\')" type="button">Enviar</button>' :
+      e.estado==='En tránsito' ? '<button class="btn sm" onclick="avanzarExpedicion(\''+e.id+'\',\'Entregada\')" type="button">Confirmar entrega</button>' : '—'
     ],[4]);
   });
   h += '<div class="card">'+tbl([['Factura'],['Cliente'],['Transportista'],['Incoterm'],['Bultos'],['Prevista'],['Entregada'],['Estado'],['']], rows,
@@ -7628,7 +8027,7 @@ function formExpedicion(factPre){
       fInput('Fecha prevista de entrega','ne_fp','date', addDays(TODAY,2))+
     '</div>'+
     '<div id="incotermInfo" style="margin-top:12px;padding:10px 12px;background:var(--soft);border:1px solid var(--line);border-radius:var(--radius);font-size:12.5px;color:var(--ink-2)"></div>',
-    '<button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn" onclick="saveExpedicion()">Crear expedición</button>',true);
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveExpedicion()" type="button">Crear expedición</button>',true);
   drawIncotermInfo();
   document.getElementById('ne_inc').addEventListener('change', drawIncotermInfo);
 }
@@ -8231,8 +8630,6 @@ DB.movimientos2025 = [
   const asiento={id:uid('AS25'), n:DB.asientos2025.length+1, fecha:a.fecha, concepto:a.concepto, apuntes:a.apuntes, origen:'ARCHIVO2025:'+a.doc};
   DB.asientos2025.push(asiento);
 });
-function nomCli2025(id){ const c=DB.clientes2025.find(x=>x.id===id); return c?c.nom:'—'; }
-function nomProv2025(id){ const p=DB.proveedores2025.find(x=>x.id===id); return p?p.nom:'—'; }
 DB.clientes.push(
   {id:"NC01", nom:"FoodClean Iberia S.L.", nif:'—', pob:'—', dir:'—', tel:'', mail:'', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'430'},
   {id:"NC02", nom:"Grup Hoteler Mediterrani S.L.", nif:'—', pob:'—', dir:'—', tel:'', mail:'', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'430'},
@@ -8421,8 +8818,8 @@ function resultadoDetalle2025(){
 function tabs2025(){
   const tabs = [['diario','Libro diario'],['mayor','Libro mayor'],['sumas','Sumas y saldos'],['balance','Balance de situación'],['pyg','Pérdidas y ganancias'],['isoc','Impuesto de Sociedades'],['analisisfin','Análisis financiero'],['analisiseco','Análisis económico']];
   return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center">' +
-    tabs.map(t=>'<button class="btn '+(VISTA2025===t[0]?'':'ghost')+' sm" onclick="irA2025(\''+t[0]+'\')">'+t[1]+'</button>').join('') +
-    '<button class="btn ghost sm" style="margin-left:auto" onclick="exportarPDF2025()">⬇ Descargar PDF</button>'+
+    tabs.map(t=>'<button class="btn '+(VISTA2025===t[0]?'':'ghost')+' sm" onclick="irA2025(\''+t[0]+'\')" type="button">'+t[1]+'</button>').join('') +
+    '<button class="btn ghost sm" style="margin-left:auto" onclick="exportarPDF2025()" type="button">⬇ Descargar PDF</button>'+
     '</div>';
 }
 function irA2025(v){ VISTA2025=v; refresh(); }
