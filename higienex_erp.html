@@ -5418,13 +5418,13 @@ const NAV_GROUP_ICONS={
   'Personas':'⏱️', 'RRHH':'👥', 'Sistema':'⚙️', 'Dirección':'🛡️'
 };
 function buildTopNav(){
-  let h='<button class="topnavitem'+(!ACTIVE_GROUP?' on':'')+'" onclick="go(\'panel\')" type="button"><span class="topnavicon">📊</span><span>Panel</span></button>';
+  let h='<button class="topnavitem'+(!ACTIVE_GROUP?' on':'')+'" onclick="go(\'panel\')" type="button" title="Panel"><span class="topnavicon">📊</span><span>Panel</span></button>';
   NAV.forEach(sec=>{
     if(!sec.g) return; // el grup sense nom ('Panel') ja té botó propi més amunt
     const vis=sec.items.filter(i=>can(i[2]));
     if(!vis.length) return;
     const icon=NAV_GROUP_ICONS[sec.g]||'🔹';
-    h+='<button class="topnavitem'+(ACTIVE_GROUP===sec.g?' on':'')+'" onclick="go(\''+vis[0][0]+'\')" type="button"><span class="topnavicon">'+icon+'</span><span>'+sec.g+'</span></button>';
+    h+='<button class="topnavitem'+(ACTIVE_GROUP===sec.g?' on':'')+'" onclick="go(\''+vis[0][0]+'\')" type="button" title="'+esc(sec.g)+'"><span class="topnavicon">'+icon+'</span><span>'+esc(sec.g)+'</span></button>';
   });
   const topnav=document.getElementById('topnav');
   if(topnav) topnav.innerHTML=h;
