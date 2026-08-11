@@ -2756,6 +2756,15 @@ button,.navitem,.btn,a{min-height:32px}
   .hx-admin-tool{display:none !important}
   .exercise{display:none} /* ja es veu al selector d'exercici dins de cada secció */
   #hxNotifBell, .avatar{box-shadow:0 2px 8px rgba(11,61,107,0.14)}
+  /* Els desplegables (notificacions, avatar) s'escapen del contenidor amb
+     scroll horitzontal .who — si no, quedaven tallats / invisibles en
+     obrir-se al mòbil */
+  .hx-notif-panel{
+    position:fixed !important;
+    top:calc(49px + 58px) !important;
+    right:1rem !important;
+    left:auto !important;
+  }
   .topnav{padding:0 16px;top:calc(49px + 50px);box-shadow:0 6px 14px -6px rgba(0,0,0,0.18)}
   .qa-bar{gap:8px}
   .qa-btn{flex:1 1 44%;justify-content:center}
