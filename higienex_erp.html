@@ -2515,6 +2515,7 @@ aside .sideLogo{display:block;width:calc(100% - 8px);margin:2px 4px 12px;padding
 .hx-notif-panel{display:none;position:absolute;top:calc(100% + 10px);right:0;width:340px;max-height:420px;overflow-y:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);z-index:60;padding:6px}
 .hx-notif-panel.on{display:block}
 .hx-notif-item{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;border-radius:10px;cursor:pointer;font-size:13px;color:var(--ink);line-height:1.4;transition:background .12s}
+button.hx-notif-item{width:100%;text-align:left;border:none;background:none;font-family:inherit}
 .hx-notif-item:hover{background:var(--hover)}
 .hx-notif-ic{font-size:16px;flex-shrink:0}
 .hx-notif-danger{border-left:3px solid var(--red)}
@@ -2525,6 +2526,7 @@ aside .sideLogo{display:block;width:calc(100% - 8px);margin:2px 4px 12px;padding
 main{min-width:0;display:flex;flex-direction:column}
 .topbar{background:color-mix(in srgb,var(--paper) 72%,transparent);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line);padding:14px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:20}
 .topbar .who{margin-left:auto;display:flex;align-items:center;gap:14px;font-size:12.5px;color:var(--ink-2);font-weight:600}
+#hxMoreWrap{display:none} /* el botó "⋮" només es mostra al mòbil (veure media query) */
 .avatar{width:32px;height:32px;border-radius:11px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800;font-family:'Plus Jakarta Sans';box-shadow:var(--shadow-sm)}
 .exercise{font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid var(--line-strong);padding:4px 10px;border-radius:20px;color:var(--ink-2);font-weight:600}
 .wrap{padding:32px 36px 76px;max-width:1480px;width:100%}
@@ -2744,9 +2746,10 @@ button,.navitem,.btn,a{min-height:32px}
   }
   .topbar .who::-webkit-scrollbar{display:none}
   .topbar .who > *{flex-shrink:0}
-  /* Als botons administratius (còpia, restaurar, tema, instal·lar) només
-     l'icona al mòbil, per no ocupar tant d'espai horitzontal */
-  #themeBtn .lbl, #hxInstallBtnErp .lbl, #hxBackupBtn .lbl, #hxRestoreBtn .lbl, #hxResetBtn .lbl{display:none}
+  /* Al mòbil, les eines administratives (tema, còpia, restaurar, restablir,
+     instal·lar) es col·lapsen dins del botó "⋮" en lloc d'anar totes soltes */
+  .hx-admin-tool{display:none !important}
+  #hxMoreWrap{display:block}
   .exercise{display:none} /* ja es veu al selector d'exercici dins de cada secció */
   .topnav{padding:0 16px;top:calc(49px + 46px)}
   .qa-bar{gap:8px}
@@ -4647,9 +4650,9 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
       <span class="eyebrow" id="crumb">Panel</span>
       <button class="searchbtn" onclick="openPalette()" type="button"><span class="lbl">Buscar en todo el ERP…</span><span class="kbd">Ctrl K</span></button>
       <div class="who">
-        <button class="btn ghost sm" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">🌓 <span class="lbl">Modo oscuro</span></button>
-        <button class="btn ghost sm" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ <span class="lbl">Instal·lar</span></button>
-        <span class="exercise">Ejercicio 2026</span>
+        <button class="btn ghost sm hx-admin-tool" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">🌓 <span class="lbl">Modo oscuro</span></button>
+        <button class="btn ghost sm hx-admin-tool" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ <span class="lbl">Instal·lar</span></button>
+        <span class="exercise hx-admin-tool">Ejercicio 2026</span>
         <div style="position:relative">
           <button class="btn ghost sm" id="hxNotifBell" onclick="hxToggleNotifPanel()" title="Notificacions" aria-label="Notificacions" type="button" style="position:relative">
             🔔<span id="hxNotifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:20px;min-width:16px;height:16px;align-items:center;justify-content:center;padding:0 3px">0</span>
@@ -4658,10 +4661,20 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
         </div>
         <span id="whoName"></span>
         <span class="avatar" id="whoAv"></span>
-        <button class="btn ghost sm" id="hxBackupBtn" title="Descarrega totes les dades del panell en un fitxer .json" onclick="hxBackupDB()" type="button">💾 <span class="lbl">Còpia de seguretat</span></button>
-        <button class="btn ghost sm" id="hxRestoreBtn" title="Restaura dades des d'un fitxer .json de còpia de seguretat" onclick="document.getElementById('hxRestoreInput').click()" type="button">📂 <span class="lbl">Restaurar</span></button>
+        <button class="btn ghost sm hx-admin-tool" id="hxBackupBtn" title="Descarrega totes les dades del panell en un fitxer .json" onclick="hxBackupDB()" type="button">💾 <span class="lbl">Còpia de seguretat</span></button>
+        <button class="btn ghost sm hx-admin-tool" id="hxRestoreBtn" title="Restaura dades des d'un fitxer .json de còpia de seguretat" onclick="document.getElementById('hxRestoreInput').click()" type="button">📂 <span class="lbl">Restaurar</span></button>
         <input type="file" id="hxRestoreInput" accept="application/json" style="display:none" onchange="hxRestoreDB(event)">
-        <button class="btn ghost sm" id="hxResetBtn" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()" type="button">♻️ <span class="lbl">Restablecer datos</span></button>
+        <button class="btn ghost sm hx-admin-tool" id="hxResetBtn" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()" type="button">♻️ <span class="lbl">Restablecer datos</span></button>
+        <div style="position:relative" id="hxMoreWrap">
+          <button class="btn ghost sm" id="hxMoreBtn" onclick="hxToggleMoreMenu()" title="Més opcions" aria-label="Més opcions" type="button">⋮</button>
+          <div id="hxMoreMenu" class="hx-notif-panel">
+            <button class="hx-notif-item" onclick="hxToggleMoreMenu();toggleTema()" type="button"><span class="hx-notif-ic">🌓</span><span>Cambiar tema</span></button>
+            <button class="hx-notif-item" id="hxMoreInstall" onclick="hxToggleMoreMenu();hxInstallAppErp()" type="button" style="display:none"><span class="hx-notif-ic">⬇️</span><span>Instal·lar l'app</span></button>
+            <button class="hx-notif-item" onclick="hxToggleMoreMenu();hxBackupDB()" type="button"><span class="hx-notif-ic">💾</span><span>Còpia de seguretat</span></button>
+            <button class="hx-notif-item" onclick="hxToggleMoreMenu();document.getElementById('hxRestoreInput').click()" type="button"><span class="hx-notif-ic">📂</span><span>Restaurar còpia</span></button>
+            <button class="hx-notif-item" onclick="hxToggleMoreMenu();restablecerDatosEjemplo()" type="button"><span class="hx-notif-ic">♻️</span><span>Restablecer datos</span></button>
+          </div>
+        </div>
         <button class="btn ghost sm" onclick="logout()" type="button">Salir</button>
       </div>
     </div>
@@ -5264,6 +5277,8 @@ window.addEventListener('beforeinstallprompt', function(e) {
   _hxInstallPromptErp = e;
   const btn = document.getElementById('hxInstallBtnErp');
   if (btn) btn.style.display = 'inline-flex';
+  const moreBtn = document.getElementById('hxMoreInstall');
+  if (moreBtn) moreBtn.style.display = 'flex';
 });
 function hxInstallAppErp() {
   if (!_hxInstallPromptErp) return;
@@ -5372,6 +5387,18 @@ function hxToggleNotifPanel(){
 window.hxToggleNotifPanel = hxToggleNotifPanel;
 document.addEventListener('click', function(e){
   const p=document.getElementById('hxNotifPanel'), b=document.getElementById('hxNotifBell');
+  if(p && p.classList.contains('on') && !p.contains(e.target) && b && !b.contains(e.target)) p.classList.remove('on');
+});
+function hxToggleMoreMenu(){
+  const p=document.getElementById('hxMoreMenu');
+  if(!p) return;
+  const open=p.classList.contains('on');
+  document.querySelectorAll('.hx-notif-panel.on').forEach(x=>x.classList.remove('on'));
+  if(!open) p.classList.add('on');
+}
+window.hxToggleMoreMenu = hxToggleMoreMenu;
+document.addEventListener('click', function(e){
+  const p=document.getElementById('hxMoreMenu'), b=document.getElementById('hxMoreBtn');
   if(p && p.classList.contains('on') && !p.contains(e.target) && b && !b.contains(e.target)) p.classList.remove('on');
 });
 const NAV_GROUP_ICONS={
