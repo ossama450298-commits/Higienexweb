@@ -1442,32 +1442,6 @@ tbody tr:hover td { background: var(--green-cream); }
 .btn-fp-outline:hover { background: var(--warm-white); }
 @media (max-width: 800px) { .fp-grid { grid-template-columns: 1fr; } }
 
-/* Cookie / RGPD banner */
-#cookieBanner {
-  display: none;
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 9999997;
-  background: #0B1622; color: #fff;
-  box-shadow: 0 -8px 30px rgba(0,0,0,0.25);
-}
-#cookieBanner.open { display: block; animation: cookieSlideUp 0.35s ease; }
-@keyframes cookieSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-#cookieBannerInner {
-  max-width: 1100px; margin: 0 auto; padding: 1.1rem 1.5rem;
-  display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
-}
-#cookieBannerInner p { flex: 1; min-width: 240px; font-size: 0.82rem; line-height: 1.55; color: #D9E2EC; margin: 0; }
-#cookieBannerInner a { color: #64B5E8; text-decoration: underline; }
-#cookieBannerBtns { display: flex; gap: 0.6rem; flex-shrink: 0; }
-.cookie-btn {
-  padding: 0.65rem 1.2rem; border-radius: 10px; font-size: 0.82rem; font-weight: 700;
-  cursor: pointer; white-space: nowrap; border: 1.5px solid transparent;
-  background: var(--accent); color: #1A1A1A;
-}
-.cookie-btn:hover { opacity: 0.9; }
-.cookie-btn.ghost { background: transparent; border-color: rgba(255,255,255,0.3); color: #fff; }
-.cookie-btn.ghost:hover { background: rgba(255,255,255,0.08); }
-@media (max-width: 560px) { #cookieBannerBtns { width: 100%; } .cookie-btn { flex: 1; } }
-
 /* Testimonis */
 #testimonis { background: var(--warm-white); }
 .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem; }
@@ -1717,6 +1691,25 @@ footer ul a:hover { color: var(--green-light); }
   font-family: Arial, sans-serif;
 }
 #hxChatBadge.hidden { display: none; }
+
+/* Desplegable de canvi d'idioma */
+#langDropdownMenu {
+  display: none;
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: white; border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(11,61,107,0.18), 0 2px 8px rgba(0,0,0,0.08);
+  min-width: 170px; padding: 0.4rem; z-index: 99999998;
+  animation: toastIn 0.2s ease;
+}
+#langDropdownMenu.open { display: block; }
+#langDropdownMenu button {
+  display: flex; align-items: center; gap: 0.6rem; width: 100%;
+  background: none; border: none; padding: 0.55rem 0.7rem; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600; color: var(--charcoal); cursor: pointer;
+  text-align: left; font-family: Arial, sans-serif;
+}
+#langDropdownMenu button:hover { background: var(--warm-white); }
+#langDropdownMenu button.active { background: var(--green-cream); color: var(--green-deep); }
 
 #hxChatWindow {
   position: fixed;
@@ -4435,14 +4428,25 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
       <span id="menuIcon">☰</span> Menú
     </button>
     <div id="navRightGroup" style="display:flex;align-items:center;gap:1rem;margin-left:auto;">
-      <button id="langToggleBtn" onclick="hxToggleLang()" type="button" title="Canviar idioma" aria-label="Canviar idioma" style="background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 0.75rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;">CA/ES</button>
+      <div id="langDropdownWrap" style="position:relative;">
+        <button id="langToggleBtn" onclick="hxToggleLangMenu()" type="button" title="Canviar idioma" aria-label="Canviar idioma" aria-haspopup="true" aria-expanded="false" style="display:flex;align-items:center;gap:0.35rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 0.75rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;">
+          <span id="langCurrentFlag">🏴</span> <span id="langCurrentCode">CA</span> <span style="font-size:0.65rem;">▾</span>
+        </button>
+        <div id="langDropdownMenu" role="menu">
+          <button type="button" role="menuitem" onclick="hxSetLang('ca')"><span>🏴</span> Català</button>
+          <button type="button" role="menuitem" onclick="hxSetLang('es')"><span>🇪🇸</span> Castellano</button>
+          <button type="button" role="menuitem" onclick="hxSetLang('en')"><span>🇬🇧</span> English</button>
+          <button type="button" role="menuitem" onclick="hxSetLang('fr')"><span>🇫🇷</span> Français</button>
+          <button type="button" role="menuitem" onclick="hxSetLang('de')"><span>🇩🇪</span> Deutsch</button>
+        </div>
+      </div>
       <button id="hxInstallBtn" onclick="hxInstallApp()" type="button" title="Instal·lar l'app" aria-label="Instal·lar l'app" style="display:none;align-items:center;gap:0.4rem;background:var(--accent);border:none;color:#1A1A1A;padding:0.45rem 0.9rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;white-space:nowrap;">⬇️ <span class="hxInstallLabel">Instal·lar app</span></button>
       <div id="authBtns" style="display:flex;gap:0.5rem;">
         <button onclick="openAuthModal();switchTab('login')" style="display:flex;align-items:center;gap:0.4rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 1rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.82rem;font-weight:600;transition:all 0.2s;white-space:nowrap;" type="button">
-          Accedir
+          <span data-i18n data-ca="Accedir" data-es="Acceder" data-en="Log In" data-fr="Connexion" data-de="Anmelden">Accedir</span>
         </button>
         <button onclick="openAuthModal();switchTab('register')" style="display:flex;align-items:center;gap:0.4rem;background:var(--green-deep);border:1.5px solid var(--green-deep);color:white;padding:0.45rem 1rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.82rem;font-weight:600;transition:all 0.2s;white-space:nowrap;" type="button">
-          Registrar-me
+          <span data-i18n data-ca="Registrar-me" data-es="Registrarme" data-en="Sign Up" data-fr="S'inscrire" data-de="Registrieren">Registrar-me</span>
         </button>
       </div>
       <button id="navCartBtn" onclick="openCartDrawer()" title="El teu cistell" aria-label="El teu cistell" style="position:relative;display:flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--green-deep);color:white;border:none;cursor:pointer;flex-shrink:0;font-size:1rem;line-height:1;" type="button">
@@ -4468,13 +4472,13 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
       <span class="side-panel-tag">Higiene professional ECO</span>
     </div>
     <div class="dd-inner">
-      <a class="dditem" onclick="navTo('home')" data-i18n><span data-ca="🏠 Inici" data-es="🏠 Inicio">🏠 Inici</span></a>
-      <a class="dditem" onclick="navTo('empresa')" data-i18n><span data-ca="🏢 Empresa" data-es="🏢 Empresa">🏢 Empresa</span></a>
-      <a class="dditem" onclick="navTo('productes')" data-i18n><span data-ca="🧴 Productes i Innovació" data-es="🧴 Productos e Innovación">🧴 Productes i Innovació</span></a>
-      <a class="dditem" onclick="navTo('operacions')" data-i18n><span data-ca="🏭 Operacions" data-es="🏭 Operaciones">🏭 Operacions</span></a>
-      <a class="dditem" onclick="navTo('compromis')" data-i18n><span data-ca="♻️ Compromís i Mercat" data-es="♻️ Compromiso y Mercado">♻️ Compromís i Mercat</span></a>
-      <a class="dditem" onclick="navTo('newsletter')" data-i18n><span data-ca="📰 Newsletter" data-es="📰 Newsletter">📰 Newsletter</span></a>
-      <a class="dditem" onclick="navTo('contacte')" data-i18n><span data-ca="📞 Ajuda i Contacte" data-es="📞 Ayuda y Contacto">📞 Ajuda i Contacte</span></a>
+      <a class="dditem" onclick="navTo('home')" data-i18n><span data-ca="🏠 Inici" data-en="🏠 Home" data-fr="🏠 Accueil" data-de="🏠 Start" data-es="🏠 Inicio">🏠 Inici</span></a>
+      <a class="dditem" onclick="navTo('empresa')" data-i18n><span data-ca="🏢 Empresa" data-en="🏢 Company" data-fr="🏢 Entreprise" data-de="🏢 Unternehmen" data-es="🏢 Empresa">🏢 Empresa</span></a>
+      <a class="dditem" onclick="navTo('productes')" data-i18n><span data-ca="🧴 Productes i Innovació" data-en="🧴 Products & Innovation" data-fr="🧴 Produits et Innovation" data-de="🧴 Produkte & Innovation" data-es="🧴 Productos e Innovación">🧴 Productes i Innovació</span></a>
+      <a class="dditem" onclick="navTo('operacions')" data-i18n><span data-ca="🏭 Operacions" data-en="🏭 Operations" data-fr="🏭 Opérations" data-de="🏭 Betrieb" data-es="🏭 Operaciones">🏭 Operacions</span></a>
+      <a class="dditem" onclick="navTo('compromis')" data-i18n><span data-ca="♻️ Compromís i Mercat" data-en="♻️ Commitment & Market" data-fr="♻️ Engagement et Marché" data-de="♻️ Engagement & Markt" data-es="♻️ Compromiso y Mercado">♻️ Compromís i Mercat</span></a>
+      <a class="dditem" onclick="navTo('newsletter')" data-i18n><span data-ca="📰 Newsletter" data-en="📰 Newsletter" data-fr="📰 Newsletter" data-de="📰 Newsletter" data-es="📰 Newsletter">📰 Newsletter</span></a>
+      <a class="dditem" onclick="navTo('contacte')" data-i18n><span data-ca="📞 Ajuda i Contacte" data-en="📞 Help & Contact" data-fr="📞 Aide et Contact" data-de="📞 Hilfe & Kontakt" data-es="📞 Ayuda y Contacto">📞 Ajuda i Contacte</span></a>
     </div>
   </div>
 </nav>
@@ -4485,16 +4489,16 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
     <div class="hero-left">
       <div class="hero-eyebrow">Líders en Higiene Professional ECO</div>
       <h1 class="hero-title">HIGIENE<span class="highlight">X</span></h1>
-      <p class="hero-slogan" data-i18n data-ca="Higiene impecable, futur sostenible" data-es="Higiene impecable, futuro sostenible">Higiene impecable, futur sostenible</p>
-      <p class="hero-desc" data-i18n data-ca="Des de 2015 fabricant i distribuint productes de neteja i higiene professional per a hospitals, hotels i indústria." data-es="Desde 2015 fabricando y distribuyendo productos de limpieza e higiene profesional para hospitales, hoteles e industria.">Des de 2015 fabricant i distribuint productes de neteja i higiene professional per a hospitals, hotels i indústria.</p>
+      <p class="hero-slogan" data-i18n data-ca="Higiene impecable, futur sostenible" data-en="Impeccable hygiene, sustainable future" data-fr="Hygiène impeccable, avenir durable" data-de="Makellose Hygiene, nachhaltige Zukunft" data-es="Higiene impecable, futuro sostenible">Higiene impecable, futur sostenible</p>
+      <p class="hero-desc" data-i18n data-ca="Des de 2015 fabricant i distribuint productes de neteja i higiene professional per a hospitals, hotels i indústria." data-en="Manufacturing and distributing professional cleaning and hygiene products for hospitals, hotels and industry since 2015." data-fr="Fabricant et distribuant des produits professionnels d'hygiène et de nettoyage pour hôpitaux, hôtels et industries depuis 2015." data-de="Seit 2015 Herstellung und Vertrieb professioneller Reinigungs- und Hygieneprodukte für Krankenhäuser, Hotels und Industrie." data-es="Desde 2015 fabricando y distribuyendo productos de limpieza e higiene profesional para hospitales, hoteles e industria.">Des de 2015 fabricant i distribuint productes de neteja i higiene professional per a hospitals, hotels i indústria.</p>
       <div class="hero-btns">
-        <a href="#" onclick="navTo('empresa');return false;" class="btn-primary" data-i18n data-ca="Descobreix HIGIENEX →" data-es="Descubre HIGIENEX →">Descobreix HIGIENEX →</a>
-        <a href="#" onclick="navTo('contacte');return false;" class="btn-outline" data-i18n data-ca="Contactar Ara" data-es="Contactar Ahora">Contactar Ara</a>
+        <a href="#" onclick="navTo('empresa');return false;" class="btn-primary" data-i18n data-ca="Descobreix HIGIENEX →" data-en="Discover HIGIENEX →" data-fr="Découvrir HIGIENEX →" data-de="HIGIENEX entdecken →" data-es="Descubre HIGIENEX →">Descobreix HIGIENEX →</a>
+        <a href="#" onclick="navTo('contacte');return false;" class="btn-outline" data-i18n data-ca="Contactar Ara" data-en="Contact Us Now" data-fr="Contactez-nous" data-de="Jetzt kontaktieren" data-es="Contactar Ahora">Contactar Ara</a>
       </div>
       <div class="hero-stats">
-        <div class="stat-card"><span class="stat-num">30</span><span class="stat-lbl" data-i18n data-ca="Treballadors" data-es="Trabajadores">Treballadors</span></div>
-        <div class="stat-card"><span class="stat-num">19</span><span class="stat-lbl" data-i18n data-ca="Patentes" data-es="Patentes">Patentes</span></div>
-        <div class="stat-card"><span class="stat-num">2015</span><span class="stat-lbl" data-i18n data-ca="Fundació" data-es="Fundación">Fundació</span></div>
+        <div class="stat-card"><span class="stat-num">30</span><span class="stat-lbl" data-i18n data-ca="Treballadors" data-en="Employees" data-fr="Employés" data-de="Mitarbeiter" data-es="Trabajadores">Treballadors</span></div>
+        <div class="stat-card"><span class="stat-num">19</span><span class="stat-lbl" data-i18n data-ca="Patentes" data-en="Patents" data-fr="Brevets" data-de="Patente" data-es="Patentes">Patentes</span></div>
+        <div class="stat-card"><span class="stat-num">2015</span><span class="stat-lbl" data-i18n data-ca="Fundació" data-en="Founded" data-fr="Fondation" data-de="Gründung" data-es="Fundación">Fundació</span></div>
       </div>
     </div>
   </div>
@@ -4507,8 +4511,8 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
   <div class="cat-banner-inner">
     <span class="cat-num">02</span>
     <div>
-      <h2 data-i18n data-ca="Empresa" data-es="Empresa">Empresa</h2>
-      <p data-i18n data-ca="Història, missió i equip humà" data-es="Historia, misión y equipo humano">Història, missió i equip humà</p>
+      <h2 data-i18n data-ca="Empresa" data-en="Company" data-fr="Entreprise" data-de="Unternehmen" data-es="Empresa">Empresa</h2>
+      <p data-i18n data-ca="Història, missió i equip humà" data-en="History, mission and team" data-fr="Histoire, mission et équipe" data-de="Geschichte, Mission und Team" data-es="Historia, misión y equipo humano">Història, missió i equip humà</p>
     </div>
   </div>
 </div>
@@ -4708,8 +4712,8 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
   <div class="cat-banner-inner">
     <span class="cat-num">03</span>
     <div>
-      <h2 data-i18n data-ca="Productes i Innovació" data-es="Productos e Innovación">Productes i Innovació</h2>
-      <p data-i18n data-ca="Catàleg, R+D i transformació digital" data-es="Catálogo, I+D y transformación digital">Catàleg, R+D i transformació digital</p>
+      <h2 data-i18n data-ca="Productes i Innovació" data-en="Products & Innovation" data-fr="Produits et Innovation" data-de="Produkte & Innovation" data-es="Productos e Innovación">Productes i Innovació</h2>
+      <p data-i18n data-ca="Catàleg, R+D i transformació digital" data-en="Catalogue, R&D and digital transformation" data-fr="Catalogue, R&D et transformation numérique" data-de="Katalog, F&E und digitale Transformation" data-es="Catálogo, I+D y transformación digital">Catàleg, R+D i transformació digital</p>
     </div>
   </div>
 </div>
@@ -6970,8 +6974,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   <div class="cat-banner-inner">
     <span class="cat-num">04</span>
     <div>
-      <h2 data-i18n data-ca="Operacions" data-es="Operaciones">Operacions</h2>
-      <p data-i18n data-ca="Producció, logística i internacionalització" data-es="Producción, logística e internacionalización">Producció, logística i internacionalització</p>
+      <h2 data-i18n data-ca="Operacions" data-en="Operations" data-fr="Opérations" data-de="Betrieb" data-es="Operaciones">Operacions</h2>
+      <p data-i18n data-ca="Producció, logística i internacionalització" data-en="Production, logistics and internationalization" data-fr="Production, logistique et internationalisation" data-de="Produktion, Logistik und Internationalisierung" data-es="Producción, logística e internacionalización">Producció, logística i internacionalització</p>
     </div>
   </div>
 </div>
@@ -7058,8 +7062,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   <div class="cat-banner-inner">
     <span class="cat-num">05</span>
     <div>
-      <h2 data-i18n data-ca="Compromís i Mercat" data-es="Compromiso y Mercado">Compromís i Mercat</h2>
-      <p data-i18n data-ca="Sostenibilitat, RSC, clients i màrqueting" data-es="Sostenibilidad, RSC, clientes y marketing">Sostenibilitat, RSC, clients i màrqueting</p>
+      <h2 data-i18n data-ca="Compromís i Mercat" data-en="Commitment & Market" data-fr="Engagement et Marché" data-de="Engagement & Markt" data-es="Compromiso y Mercado">Compromís i Mercat</h2>
+      <p data-i18n data-ca="Sostenibilitat, RSC, clients i màrqueting" data-en="Sustainability, CSR, clients and marketing" data-fr="Durabilité, RSE, clients et marketing" data-de="Nachhaltigkeit, CSR, Kunden und Marketing" data-es="Sostenibilidad, RSC, clientes y marketing">Sostenibilitat, RSC, clients i màrqueting</p>
     </div>
   </div>
 </div>
@@ -7305,8 +7309,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   <div class="cat-banner-inner">
     <span class="cat-num">06</span>
     <div>
-      <h2 data-i18n data-ca="Ajuda i Contacte" data-es="Ayuda y Contacto">Ajuda i Contacte</h2>
-      <p data-i18n data-ca="Preguntes freqüents i com contactar" data-es="Preguntas frecuentes y cómo contactar">Preguntes freqüents i com contactar</p>
+      <h2 data-i18n data-ca="Ajuda i Contacte" data-en="Help & Contact" data-fr="Aide et Contact" data-de="Hilfe & Kontakt" data-es="Ayuda y Contacto">Ajuda i Contacte</h2>
+      <p data-i18n data-ca="Preguntes freqüents i com contactar" data-en="Frequently asked questions and how to contact us" data-fr="Questions fréquentes et comment nous contacter" data-de="Häufige Fragen und Kontaktmöglichkeiten" data-es="Preguntas frecuentes y cómo contactar">Preguntes freqüents i com contactar</p>
     </div>
   </div>
 </div>
@@ -7332,12 +7336,12 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     <span class="section-tag">21 / FAQ</span>
     <h2>Preguntes Freqüents</h2>
     <div class="faq-list fade-in">
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Quins sectors atén HIGIENEX?</span><div class="faq-icon">+</div></div><div class="faq-a">HIGIENEX atén hospitals i clíniques, hotels i allotjaments, indústria alimentària, oficines i empreses, administracions públiques, gimnasos i instal·lacions esportives. Qualsevol organització que necessiti un alt nivell d'higiene professional és un client potencial.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Quina és la forma jurídica d'HIGIENEX?</span><div class="faq-icon">+</div></div><div class="faq-a">HIGIENEX, Societat Limitada Laboral (SLL), constituïda a València el 2015 amb capital social de 3.000 euros. La forma de SL ofereix responsabilitat limitada al capital aportat, flexibilitat en la gestió i bona imatge davant clients, proveïdors i entitats financeres.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Quins certificats tenen els vostres productes?</span><div class="faq-icon">+</div></div><div class="faq-a">HIGIENEX disposa de la certificació ISO 14001 de gestió ambiental, registres de biocides europeus per als desinfectants, homologació HACCP per als productes de contacte alimentari, i 19 patentes pròpies registrades. Cada producte porta fitxa tècnica i de seguretat actualitzada.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Podeu enviar a Portugal i altres països europeus?</span><div class="faq-icon">+</div></div><div class="faq-a">Actualment HIGIENEX opera principalment al mercat espanyol. El pla d'entrada a Portugal s'inicia el 2026 via distribuïdors locals, amb adaptació d'etiquetatge al portuguès. Per a consultes d'exportació, contacteu amb el nostre departament comercial.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Com funcionen els concentrats ECO?</span><div class="faq-icon">+</div></div><div class="faq-a">Els concentrats HIGIENEX es dilueixen amb aigua en una proporció de 1:3 (×3) o superior. El client rep el producte concentrat amb instruccions clares de dilució. Això redueix el 70% d'envasos, els costos de transport i l'impacte ambiental, mantenint la màxima eficàcia professional.</div></div>
-      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Quin és el projecte WorkSafe Smart Space?</span><div class="faq-icon">+</div></div><div class="faq-a">WorkSafe Smart Space és una iniciativa conjunta d'HIGIENEX i OfiNova que dissenya espais de treball intel·ligents. OfiNova aporta mobiliari modular ergonòmic i HIGIENEX aporta les solucions d'higiene: superfícies antimicrobianes, dispensadors automàtics i sensors IoT. Inversió conjunta estimada: 70.000-90.000 €. Marge previst: 25-35%.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n data-ca="Quins sectors atén HIGIENEX?" data-es="¿Qué sectores atiende HIGIENEX?" data-en="What sectors does HIGIENEX serve?" data-fr="Quels secteurs HIGIENEX dessert-elle ?" data-de="Welche Branchen bedient HIGIENEX?">Quins sectors atén HIGIENEX?</span><div class="faq-icon">+</div></div><div class="faq-a">HIGIENEX atén hospitals i clíniques, hotels i allotjaments, indústria alimentària, oficines i empreses, administracions públiques, gimnasos i instal·lacions esportives. Qualsevol organització que necessiti un alt nivell d'higiene professional és un client potencial.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n data-ca="Quina és la forma jurídica d'HIGIENEX?" data-es="¿Cuál es la forma jurídica de HIGIENEX?" data-en="What is HIGIENEX's legal structure?" data-fr="Quelle est la forme juridique d'HIGIENEX ?" data-de="Welche Rechtsform hat HIGIENEX?">Quina és la forma jurídica d'HIGIENEX?</span><div class="faq-icon">+</div></div><div class="faq-a">HIGIENEX, Societat Limitada Laboral (SLL), constituïda a València el 2015 amb capital social de 3.000 euros. La forma de SL ofereix responsabilitat limitada al capital aportat, flexibilitat en la gestió i bona imatge davant clients, proveïdors i entitats financeres.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n data-ca="Quins certificats tenen els vostres productes?" data-es="¿Qué certificados tienen vuestros productos?" data-en="What certifications do your products have?" data-fr="Quelles certifications ont vos produits ?" data-de="Welche Zertifizierungen haben Ihre Produkte?">Quins certificats tenen els vostres productes?</span><div class="faq-icon">+</div></div><div class="faq-a">HIGIENEX disposa de la certificació ISO 14001 de gestió ambiental, registres de biocides europeus per als desinfectants, homologació HACCP per als productes de contacte alimentari, i 19 patentes pròpies registrades. Cada producte porta fitxa tècnica i de seguretat actualitzada.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n data-ca="Podeu enviar a Portugal i altres països europeus?" data-es="¿Podéis enviar a Portugal y otros países europeos?" data-en="Do you ship to Portugal and other European countries?" data-fr="Livrez-vous au Portugal et dans d'autres pays européens ?" data-de="Liefern Sie nach Portugal und in andere europäische Länder?">Podeu enviar a Portugal i altres països europeus?</span><div class="faq-icon">+</div></div><div class="faq-a">Actualment HIGIENEX opera principalment al mercat espanyol. El pla d'entrada a Portugal s'inicia el 2026 via distribuïdors locals, amb adaptació d'etiquetatge al portuguès. Per a consultes d'exportació, contacteu amb el nostre departament comercial.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n data-ca="Com funcionen els concentrats ECO?" data-es="¿Cómo funcionan los concentrados ECO?" data-en="How do the ECO concentrates work?" data-fr="Comment fonctionnent les concentrés ECO ?" data-de="Wie funktionieren die ECO-Konzentrate?">Com funcionen els concentrats ECO?</span><div class="faq-icon">+</div></div><div class="faq-a">Els concentrats HIGIENEX es dilueixen amb aigua en una proporció de 1:3 (×3) o superior. El client rep el producte concentrat amb instruccions clares de dilució. Això redueix el 70% d'envasos, els costos de transport i l'impacte ambiental, mantenint la màxima eficàcia professional.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span data-i18n data-ca="Quin és el projecte WorkSafe Smart Space?" data-es="¿Cuál es el proyecto WorkSafe Smart Space?" data-en="What is the WorkSafe Smart Space project?" data-fr="Qu'est-ce que le projet WorkSafe Smart Space ?" data-de="Was ist das Projekt WorkSafe Smart Space?">Quin és el projecte WorkSafe Smart Space?</span><div class="faq-icon">+</div></div><div class="faq-a">WorkSafe Smart Space és una iniciativa conjunta d'HIGIENEX i OfiNova que dissenya espais de treball intel·ligents. OfiNova aporta mobiliari modular ergonòmic i HIGIENEX aporta les solucions d'higiene: superfícies antimicrobianes, dispensadors automàtics i sensors IoT. Inversió conjunta estimada: 70.000-90.000 €. Marge previst: 25-35%.</div></div>
     </div>
   </div>
 </section>
@@ -7345,15 +7349,15 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 <section id="contacte">
   <div class="container">
     <span class="section-tag">22 / Contacte</span>
-    <h2>Contacteu amb Nosaltres</h2>
+    <h2 data-i18n data-ca="Contacteu amb Nosaltres" data-es="Contacta con Nosotros" data-en="Get in Touch" data-fr="Contactez-nous" data-de="Kontaktieren Sie uns">Contacteu amb Nosaltres</h2>
     <div class="contact-grid fade-in">
       <div class="contact-info">
-        <div class="contact-item"><div class="contact-icon">📍</div><div><h4>Adreça</h4><p>Carrer de la Indústria, 25<br>46010 València, Espanya</p></div></div>
-        <div class="contact-item"><div class="contact-icon">📞</div><div><h4>Telèfon</h4><a href="tel:963123456">963 123 456</a><br><a href="tel:645678901" style="font-size:0.85rem;color:#888;">📱 Mòbil atenció: 645 678 901</a></div></div>
-        <div class="contact-item"><div class="contact-icon">✉️</div><div><h4>Email</h4><a href="mailto:contacto@higienexvalencia.es">contacto@higienexvalencia.es</a><br><a href="mailto:administracion@higienexvalencia.es" style="font-size:0.82rem;color:#888;">administracion@higienexvalencia.es</a></div></div>
-        <div class="contact-item"><div class="contact-icon">🕒</div><div><h4>Horari</h4><p>Dilluns – Divendres: 8:00 – 17:30<br><span style="font-size:0.8rem;color:#888;">Urgències 24/7 per a hospitals i centres crítics</span></p></div></div>
+        <div class="contact-item"><div class="contact-icon">📍</div><div><h4 data-i18n data-ca="Adreça" data-es="Dirección" data-en="Address" data-fr="Adresse" data-de="Adresse">Adreça</h4><p>Carrer de la Indústria, 25<br>46010 València, Espanya</p></div></div>
+        <div class="contact-item"><div class="contact-icon">📞</div><div><h4 data-i18n data-ca="Telèfon" data-es="Teléfono" data-en="Phone" data-fr="Téléphone" data-de="Telefon">Telèfon</h4><a href="tel:963123456">963 123 456</a><br><a href="tel:645678901" style="font-size:0.85rem;color:#888;">📱 Mòbil atenció: 645 678 901</a></div></div>
+        <div class="contact-item"><div class="contact-icon">✉️</div><div><h4 data-i18n data-ca="Email" data-es="Email" data-en="Email" data-fr="E-mail" data-de="E-Mail">Email</h4><a href="mailto:contacto@higienexvalencia.es">contacto@higienexvalencia.es</a><br><a href="mailto:administracion@higienexvalencia.es" style="font-size:0.82rem;color:#888;">administracion@higienexvalencia.es</a></div></div>
+        <div class="contact-item"><div class="contact-icon">🕒</div><div><h4 data-i18n data-ca="Horari" data-es="Horario" data-en="Hours" data-fr="Horaires" data-de="Öffnungszeiten">Horari</h4><p>Dilluns – Divendres: 8:00 – 17:30<br><span style="font-size:0.8rem;color:#888;">Urgències 24/7 per a hospitals i centres crítics</span></p></div></div>
       </div>
-      <div><form class="contact-form" onsubmit="submitForm(event)"><div class="form-row"><div class="form-field"><label for="ctNom">Nom i Cognoms *</label><input id="ctNom" type="text" name="nom" required autocomplete="name" placeholder="Maria Garcia López"></div><div class="form-field"><label for="ctEmpresa">Empresa *</label><input id="ctEmpresa" type="text" name="empresa" required autocomplete="organization" placeholder="Hospital Sant Josep"></div></div><div class="form-row"><div class="form-field"><label for="ctEmail">Email *</label><input id="ctEmail" type="email" name="email" required autocomplete="email" placeholder="maria@hospital.com"></div><div class="form-field"><label for="ctTelefon">Telèfon</label><input id="ctTelefon" type="tel" name="telefon" autocomplete="tel" placeholder="600 000 000"></div></div><div class="form-field"><label for="ctSector">Sector</label><select id="ctSector" name="sector"><option>Selecciona el teu sector...</option><option>Sanitari / Hospitals</option><option>Hotels / Turisme</option><option>Indústria Alimentària</option><option>Oficines / Empreses</option><option>Administració Pública</option><option>Altres</option></select></div><div class="form-field"><label for="ctMissatge">Missatge *</label><textarea id="ctMissatge" name="missatge" required placeholder="Explica'ns les teves necessitats d'higiene professional..."></textarea></div><button type="submit" class="btn-submit">Enviar Missatge →</button></form><div id="formSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;">✅ Missatge enviat correctament! Us contactarem en menys de 24 hores.</div></div>
+      <div><form class="contact-form" onsubmit="submitForm(event)"><div class="form-row"><div class="form-field"><label for="ctNom" data-i18n data-ca="Nom i Cognoms *" data-es="Nombre y Apellidos *" data-en="Full Name *" data-fr="Nom complet *" data-de="Vollständiger Name *">Nom i Cognoms *</label><input id="ctNom" type="text" name="nom" required autocomplete="name" placeholder="Maria Garcia López"></div><div class="form-field"><label for="ctEmpresa" data-i18n data-ca="Empresa *" data-es="Empresa *" data-en="Company *" data-fr="Entreprise *" data-de="Unternehmen *">Empresa *</label><input id="ctEmpresa" type="text" name="empresa" required autocomplete="organization" placeholder="Hospital Sant Josep"></div></div><div class="form-row"><div class="form-field"><label for="ctEmail" data-i18n data-ca="Email *" data-es="Email *" data-en="Email *" data-fr="E-mail *" data-de="E-Mail *">Email *</label><input id="ctEmail" type="email" name="email" required autocomplete="email" placeholder="maria@hospital.com"></div><div class="form-field"><label for="ctTelefon" data-i18n data-ca="Telèfon" data-es="Teléfono" data-en="Phone" data-fr="Téléphone" data-de="Telefon">Telèfon</label><input id="ctTelefon" type="tel" name="telefon" autocomplete="tel" placeholder="600 000 000"></div></div><div class="form-field"><label for="ctSector">Sector</label><select id="ctSector" name="sector"><option>Selecciona el teu sector...</option><option>Sanitari / Hospitals</option><option>Hotels / Turisme</option><option>Indústria Alimentària</option><option>Oficines / Empreses</option><option>Administració Pública</option><option>Altres</option></select></div><div class="form-field"><label for="ctMissatge" data-i18n data-ca="Missatge *" data-es="Mensaje *" data-en="Message *" data-fr="Message *" data-de="Nachricht *">Missatge *</label><textarea id="ctMissatge" name="missatge" required placeholder="Explica'ns les teves necessitats d'higiene professional..."></textarea></div><button type="submit" class="btn-submit" data-i18n data-ca="Enviar Missatge →" data-es="Enviar Mensaje →" data-en="Send Message →" data-fr="Envoyer le message →" data-de="Nachricht senden →">Enviar Missatge →</button></form><div id="formSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;">✅ Missatge enviat correctament! Us contactarem en menys de 24 hores.</div></div>
     </div>
   </div>
   <iframe class="map-embed" loading="lazy" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3079.5!2d-0.3769!3d39.4738!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd6048a0eefcb0a9%3A0x1a5c5f3d0b6b7f5e!2sCalle%20de%20la%20Industria%2C%2025%2C%2046010%20Valencia!5e0!3m2!1sca!2ses!4v1" allowfullscreen loading="lazy" allowfullscreen></iframe>
@@ -7454,24 +7458,24 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   <div class="footer-inner">
     <div class="footer-brand">
       <a href="#" onclick="goTop();return false;" class="logo">HIGIENE<span>X</span></a>
-      <p>Fabricants i distribuïdors de productes d'higiene professional ECO. Des de 2015 servint els sectors més exigents.</p>
+      <p data-i18n data-ca="Fabricants i distribuïdors de productes d'higiene professional ECO. Des de 2015 servint els sectors més exigents." data-es="Fabricantes y distribuidores de productos de higiene profesional ECO. Desde 2015 sirviendo a los sectores más exigentes." data-en="Manufacturers and distributors of ECO professional hygiene products. Serving the most demanding sectors since 2015." data-fr="Fabricants et distributeurs de produits d'hygiène professionnelle ECO. Au service des secteurs les plus exigeants depuis 2015." data-de="Hersteller und Vertrieb von ECO-Profi-Hygieneprodukten. Seit 2015 im Dienst anspruchsvollster Branchen.">Fabricants i distribuïdors de productes d'higiene professional ECO. Des de 2015 servint els sectors més exigents.</p>
       <div><span class="iso-badge">ISO 14001</span><span class="iso-badge">19 Patentes</span><span class="iso-badge">🌿 ECO</span></div>
     </div>
-    <div><h4>Empresa</h4><ul>
-      <li><a href="#" onclick="navTo('sobre');return false;">Sobre Nosaltres</a></li>
-      <li><a href="#" onclick="navTo('missio');return false;">Missió i Valors</a></li>
-      <li><a href="#" onclick="navTo('organitzacio');return false;">Organigrama</a></li>
-      <li><a href="#" onclick="navTo('rrhh');return false;">Equip Humà</a></li>
-      <li><a href="#" onclick="navTo('rsc');return false;">RSC</a></li>
+    <div><h4 data-i18n data-ca="Empresa" data-es="Empresa" data-en="Company" data-fr="Entreprise" data-de="Unternehmen">Empresa</h4><ul>
+      <li><a href="#" onclick="navTo('sobre');return false;" data-i18n data-ca="Sobre Nosaltres" data-es="Sobre Nosotros" data-en="About Us" data-fr="À propos" data-de="Über uns">Sobre Nosaltres</a></li>
+      <li><a href="#" onclick="navTo('missio');return false;" data-i18n data-ca="Missió i Valors" data-es="Misión y Valores" data-en="Mission & Values" data-fr="Mission et valeurs" data-de="Mission & Werte">Missió i Valors</a></li>
+      <li><a href="#" onclick="navTo('organitzacio');return false;" data-i18n data-ca="Organigrama" data-es="Organigrama" data-en="Org Chart" data-fr="Organigramme" data-de="Organigramm">Organigrama</a></li>
+      <li><a href="#" onclick="navTo('rrhh');return false;" data-i18n data-ca="Equip Humà" data-es="Equipo Humano" data-en="Our Team" data-fr="Notre équipe" data-de="Unser Team">Equip Humà</a></li>
+      <li><a href="#" onclick="navTo('rsc');return false;" data-i18n data-ca="RSC" data-es="RSC" data-en="CSR" data-fr="RSE" data-de="CSR">RSC</a></li>
     </ul></div>
-    <div><h4>Productes i Serveis</h4><ul>
-      <li><a href="#" onclick="navTo('productes');return false;">Catàleg de Productes</a></li>
-      <li><a href="#" onclick="navTo('rd');return false;">Laboratori R+D</a></li>
-      <li><a href="#" onclick="navTo('sostenibilitat');return false;">Sostenibilitat</a></li>
-      <li><a href="#" onclick="navTo('innovacio');return false;">Innovació</a></li>
-      <li><a href="#" onclick="navTo('casos');return false;">Casos d'Èxit</a></li>
+    <div><h4 data-i18n data-ca="Productes i Serveis" data-es="Productos y Servicios" data-en="Products & Services" data-fr="Produits et Services" data-de="Produkte & Dienstleistungen">Productes i Serveis</h4><ul>
+      <li><a href="#" onclick="navTo('productes');return false;" data-i18n data-ca="Catàleg de Productes" data-es="Catálogo de Productos" data-en="Product Catalogue" data-fr="Catalogue de produits" data-de="Produktkatalog">Catàleg de Productes</a></li>
+      <li><a href="#" onclick="navTo('rd');return false;" data-i18n data-ca="Laboratori R+D" data-es="Laboratorio I+D" data-en="R&D Lab" data-fr="Laboratoire R&D" data-de="F&E-Labor">Laboratori R+D</a></li>
+      <li><a href="#" onclick="navTo('sostenibilitat');return false;" data-i18n data-ca="Sostenibilitat" data-es="Sostenibilidad" data-en="Sustainability" data-fr="Durabilité" data-de="Nachhaltigkeit">Sostenibilitat</a></li>
+      <li><a href="#" onclick="navTo('innovacio');return false;" data-i18n data-ca="Innovació" data-es="Innovación" data-en="Innovation" data-fr="Innovation" data-de="Innovation">Innovació</a></li>
+      <li><a href="#" onclick="navTo('casos');return false;" data-i18n data-ca="Casos d'Èxit" data-es="Casos de Éxito" data-en="Success Stories" data-fr="Études de cas" data-de="Erfolgsgeschichten">Casos d'Èxit</a></li>
     </ul></div>
-    <div><h4>Contacte</h4><ul>
+    <div><h4 data-i18n data-ca="Contacte" data-es="Contacto" data-en="Contact" data-fr="Contact" data-de="Kontakt">Contacte</h4><ul>
       <li>📍 Carrer de la Indústria, 25<br><span style="padding-left:1.3rem;font-size:0.78rem;">46010 València</span></li>
       <li><a href="tel:963123456">📞 963 123 456</a></li>
       <li><a href="tel:645678901">📱 645 678 901</a></li>
@@ -8224,17 +8228,6 @@ window.submitForm = submitForm;
   </div>
 </div>
 
-<!-- COOKIE / RGPD BANNER -->
-<div id="cookieBanner" role="dialog" aria-label="Consentiment de cookies">
-  <div id="cookieBannerInner">
-    <p>🍪 Fem servir cookies pròpies i de tercers per millorar la teva experiència i mesurar l'ús de la web. Pots acceptar-les totes o només les tècniques necessàries. Més informació a la nostra <a href="#" onclick="navTo('contacte');return false;">política de privacitat</a>.</p>
-    <div id="cookieBannerBtns">
-      <button type="button" class="cookie-btn ghost" onclick="hxCookieChoice('rejected')">Només necessàries</button>
-      <button type="button" class="cookie-btn" onclick="hxCookieChoice('accepted')">Acceptar totes</button>
-    </div>
-  </div>
-</div>
-
 <!-- NEWSLETTER POPUP -->
 <div id="newsletterPopup">
   <div id="newsletterPopupBox">
@@ -8348,23 +8341,6 @@ function submitNewsletterPopup(e) {
   setTimeout(hxMarkNewsletterSubscribed, 1400);
 }
 window.submitNewsletterPopup = submitNewsletterPopup;
-
-// ── BANNER DE COOKIES (RGPD) ──────────────────────────────
-var HX_COOKIE_KEY = 'hx_cookie_consent';
-function hxCookieChoice(choice) {
-  try { localStorage.setItem(HX_COOKIE_KEY, choice); } catch(e){}
-  var b = document.getElementById('cookieBanner');
-  if (b) b.classList.remove('open');
-}
-window.hxCookieChoice = hxCookieChoice;
-document.addEventListener('DOMContentLoaded', function() {
-  try {
-    if (!localStorage.getItem(HX_COOKIE_KEY)) {
-      var b = document.getElementById('cookieBanner');
-      if (b) setTimeout(function(){ b.classList.add('open'); }, 600);
-    }
-  } catch(e){}
-});
 
 // ── POPUP DE MOSTRA GRATUÏTA ──────────────────────────────
 function openSamplePopup() {
@@ -9598,30 +9574,9 @@ window.hxTrackOrder = hxTrackOrder;
 // Abast honest: tradueix el menú, l'hero i les capçaleres de secció (el
 // que es llegeix primer). Els paràgrafs llargs de contingut queden en
 // català — traduir-los tots amb garanties requeriria una revisió a part.
-var HX_LANG_KEY = 'hx_lang';
-function hxApplyLang(lang) {
-  document.querySelectorAll('[data-i18n]').forEach(function(el) {
-    var txt = el.getAttribute('data-' + lang);
-    if (txt) el.textContent = txt;
-  });
-  document.documentElement.setAttribute('lang', lang === 'es' ? 'es' : 'ca');
-  var btn = document.getElementById('langToggleBtn');
-  if (btn) btn.textContent = lang === 'es' ? 'ES/CA' : 'CA/ES';
-}
-function hxToggleLang() {
-  var current = 'ca';
-  try { current = localStorage.getItem(HX_LANG_KEY) || 'ca'; } catch(e){}
-  var next = current === 'ca' ? 'es' : 'ca';
-  try { localStorage.setItem(HX_LANG_KEY, next); } catch(e){}
-  hxApplyLang(next);
-}
-window.hxToggleLang = hxToggleLang;
-document.addEventListener('DOMContentLoaded', function() {
-  try {
-    var saved = localStorage.getItem(HX_LANG_KEY);
-    if (saved === 'es') hxApplyLang('es');
-  } catch(e){}
-});
+// El sistema d'idiomes (desplegable, traduccions, detecció de l'idioma
+// guardat) viu ara al fitxer separat i18n.js, carregat just abans de
+// tancar el body de la pàgina.
 
 // ── PWA: registre del Service Worker + botó d'instal·lació ───────────
 if ('serviceWorker' in navigator) {
@@ -9887,5 +9842,6 @@ window.legalClose = legalClose;
   </div>
 </div>
 
+<script src="i18n.js" defer></script>
 </body>
 </html>
