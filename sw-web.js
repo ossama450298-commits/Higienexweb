@@ -1,12 +1,19 @@
 // Service Worker de HIGIENEX (web pública)
-// Estratègia: "network first, cache fallback" per a la pàgina principal
-// (així sempre es veu la versió més nova quan hi ha connexió, però
-// segueix obrint-se si el mòbil es queda sense internet), i
-// "cache first" per a les icones i el manifest, que no canvien sovint.
+// ============================================================
+// Estratègia: "xarxa primer, caché com a reserva" per a TOT
+// (abans només ho feia per a l'HTML; els fitxers .js com i18n.js
+// es quedaven en caché per sempre i mai s'actualitzaven, encara
+// que jo pugés una versió nova — per això algú amb l'app ja
+// instal·lada no veia els últims canvis). Ara sempre s'intenta
+// la xarxa primer; només si no hi ha connexió es fa servir la
+// còpia guardada, perquè l'app segueixi obrint-se offline.
 
-const CACHE_NAME = 'higienex-web-v1';
+const CACHE_NAME = 'higienex-web-v2'; // ← versió pujada expressament per
+                                       //   forçar que qui ja tenia l'app
+                                       //   instal·lada descarti la caché vella
 const PRECACHE_URLS = [
   './index.html',
+  './i18n.js',
   './manifest-web.json',
   './icons/icon-web-192.png',
   './icons/icon-web-512.png'
@@ -32,24 +39,23 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return; // no interferir amb POST (formularis, xat, EmailJS...)
 
-  const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
-
-  if (isHTML) {
-    // Xarxa primer, per veure sempre la versió publicada més recent
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
-          return res;
-        })
-        .catch(() => caches.match(req).then((r) => r || caches.match('./index.html')))
-    );
-    return;
-  }
-
-  // Recursos estàtics (icones, manifest): cache primer, xarxa com a reforç
+  // Xarxa primer per a TOT (HTML, JS, JSON, icones): si hi ha connexió,
+  // sempre es veu la versió publicada més recent. Si falla (sense
+  // internet), es fa servir la còpia guardada perquè l'app segueixi
+  // funcionant offline.
   event.respondWith(
-    caches.match(req).then((cached) => cached || fetch(req).catch(() => cached))
+    fetch(req)
+      .then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+        return res;
+      })
+      .catch(() =>
+        caches.match(req).then((cached) => {
+          if (cached) return cached;
+          const isHTML = req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html');
+          return isHTML ? caches.match('./index.html') : undefined;
+        })
+      )
   );
 });
