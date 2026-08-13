@@ -2756,6 +2756,15 @@ button,.navitem,.btn,a{min-height:32px}
   .hx-admin-tool{display:none !important}
   .exercise{display:none} /* ja es veu al selector d'exercici dins de cada secció */
   #hxNotifBell, .avatar{box-shadow:0 2px 8px rgba(11,61,107,0.14)}
+  /* Els desplegables (notificacions, avatar) s'escapen del contenidor amb
+     scroll horitzontal .who — si no, quedaven tallats / invisibles en
+     obrir-se al mòbil */
+  .hx-notif-panel{
+    position:fixed !important;
+    top:calc(49px + 58px) !important;
+    right:1rem !important;
+    left:auto !important;
+  }
   .topnav{padding:0 16px;top:calc(49px + 50px);box-shadow:0 6px 14px -6px rgba(0,0,0,0.18)}
   .qa-bar{gap:8px}
   .qa-btn{flex:1 1 44%;justify-content:center}
@@ -4815,7 +4824,7 @@ bancos:[
  {id:'B2',nom:'Banco Sabadell · nóminas',iban:'ES33 0081 0330 7700 0123 4567',saldo:19870.15}
 ],
 facturasE:[], facturasR:[], movimientos:[], asientos:[], pedidos:[], oportunidades:[],
-nominas:[], actividades:[], fichajes:[], movStock:[]
+nominas:[], actividades:[], fichajes:[], movStock:[], incidencias:[], presupuestos:[]
 };
 
 /* =========================================================
@@ -5306,7 +5315,7 @@ window.addEventListener('appinstalled', function() {
 /* Navegación */
 const NAV=[
  {g:null,items:[['panel','Panel','all']]},
- {g:'Comercial',items:[['clientes','Clientes','comercial'],['pipeline','Oportunidades','comercial'],['actividad','Actividad','comercial']]},
+ {g:'Comercial',items:[['clientes','Clientes','comercial'],['pipeline','Oportunidades','comercial'],['actividad','Actividad','comercial'],['kpis','Panel comercial (KPIs)','comercial'],['incidencias','Incidencias','comercial'],['presupuestos','Presupuestos','comercial']]},
  {g:'Compras',items:[['proveedores','Proveedores','logistica'],['compras','Pedidos y aprovisionamiento','logistica']]},
  {g:'Facturación',items:[['femitidas','Facturas emitidas','comercial'],['frecibidas','Facturas recibidas','admin']]},
  {g:'Contabilidad',items:[['diario','Libro diario','admin'],['mayor','Libro mayor','admin'],['sumas','Sumas y saldos','admin'],['resultados','Balance y resultados','admin'],['ejercicio2025','Ejercicio 2025 (archivo)','admin']]},
@@ -5314,7 +5323,7 @@ const NAV=[
  {g:'Logística',items:[
    ['almacen','Artículos y stock','logistica'],
    ['almacenes','Almacenes','logistica'],['transportistas','Transportistas','logistica'],
-   ['expediciones','Expediciones','logistica']]},
+   ['expediciones','Expediciones','logistica'],['alertasstock','Alertas de stock','logistica']]},
  {g:'Fabricación',items:[['materias','Materias primas','logistica'],['formulas','Fórmulas y escandallos','logistica'],['produccion','Órdenes de fabricación','logistica'],['lotes','Lotes y trazabilidad','logistica'],['calidad','Control de calidad','logistica']]},
  {g:'Personas',items:[['fichajes','Control de fichajes','all']]},
  {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh']]},
@@ -5331,7 +5340,8 @@ const NAV_ICONS={
   materias:'🧪', formulas:'⚗️', produccion:'🏭', lotes:'📦', calidad:'✅',
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
   automat:'⚡', auditoria:'🛡️',
-  sistema:'⚙️'
+  sistema:'⚙️',
+  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔'
 };
 function can(area){
   if(!ME) return false;
@@ -5347,6 +5357,8 @@ function avisos(v){
   if(v==='calidad')  return (DB.lotes||[]).filter(l=>l.estado==='Cuarentena').length+(DB.noconf||[]).filter(n=>n.estado==='Abierta').length;
   if(v==='materias') return (DB.materias||[]).filter(m=>m.stock<m.min).length;
   if(v==='automat')  return typeof evaluarReglas==='function'?evaluarReglas().length:0;
+  if(v==='alertasstock') return DB.productos.filter(p=>p.stock<p.min).length;
+  if(v==='incidencias') return DB.incidencias.filter(i=>i.estado!=='Resuelta').length;
   return 0;
 }
 
@@ -5370,6 +5382,8 @@ function hxNotificaciones(){
   if(noConf.length) items.push({icon:'⚠️',text:noConf.length+' no-conformitat'+(noConf.length>1?'s':'')+' oberta'+(noConf.length>1?'s':''),v:'calidad',sev:'danger'});
   const sinExpedir=(typeof facturasSinExpedir==='function')?facturasSinExpedir():[];
   if(sinExpedir.length) items.push({icon:'🚚',text:sinExpedir.length+' comanda'+(sinExpedir.length>1?'es':'')+' pendent'+(sinExpedir.length>1?'s':'')+' d\'expedir',v:'expediciones',sev:'warn'});
+  const incObertes=(DB.incidencias||[]).filter(i=>i.estado!=='Resuelta');
+  if(incObertes.length) items.push({icon:'⚠️',text:incObertes.length+' incidència'+(incObertes.length>1?'es':'')+' de client pendent'+(incObertes.length>1?'s':'')+' de resoldre',v:'incidencias',sev:'warn'});
   return items;
 }
 function hxRenderNotifBell(){
@@ -5752,6 +5766,28 @@ ROUTES.clientes=function(){
     ['Sin clientes','Da de alta el primero con el botón «Nuevo cliente».'])+'</div>';
   return h;
 };
+function hxHistorialPreusCliente(id){
+  const fac=DB.facturasE.filter(f=>f.cli===id).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const porArt={};
+  fac.forEach(f=>{
+    (f.lineas||[]).forEach(l=>{
+      if(!porArt[l.art]) porArt[l.art]=[];
+      porArt[l.art].push({fecha:f.fecha,precio:l.precio,factura:f.num});
+    });
+  });
+  const artIds=Object.keys(porArt);
+  if(!artIds.length) return '<p style="color:var(--ink-2);font-size:13px">Aquest client encara no té factures amb línies de producte.</p>';
+  return tbl([['Producte'],['Primer preu','n'],['Últim preu','n'],['Variació','n'],['Compres']],
+    artIds.map(artId=>{
+      const hist=porArt[artId];
+      const primer=hist[0].precio, ultim=hist[hist.length-1].precio;
+      const variacio=primer?((ultim-primer)/primer*100):0;
+      const color=variacio>0?'var(--red)':variacio<0?'var(--teal)':'var(--ink-2)';
+      return rowN([esc(art(artId).nom),EUR(primer),EUR(ultim),
+        '<span style="color:'+color+'">'+(variacio>=0?'+':'')+variacio.toFixed(1)+' %</span>',
+        hist.length+' factura'+(hist.length>1?'es':'')],[1,2,3]);
+    }));
+}
 function fichaCliente(id){
   const c=cli(id);
   const fac=DB.facturasE.filter(f=>f.cli===id);
@@ -5769,6 +5805,8 @@ function fichaCliente(id){
     tbl([['Nº'],['Fecha'],['Base','n'],['Total','n'],['Vence'],['Estado']],
       fac.map(f=>rowN([f.num,FD(f.fecha),EUR(f.base),EUR(f.total),FD(f.venc),estadoTag(f)],[2,3])),
       ['Todavía sin facturas','Emite la primera desde el botón de abajo.'])+
+    '<div class="eyebrow" style="display:block;margin:18px 0 8px">Historial de precios por producto</div>'+
+    hxHistorialPreusCliente(id)+
     (ops.length?'<div class="eyebrow" style="display:block;margin:18px 0 8px">Oportunidades</div>'+
       ops.map(o=>'<div style="padding:8px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between"><span>'+esc(o.nom)+' <span class="tag t-blue">'+o.fase+'</span></span><span class="mono">'+EUR(o.valor)+'</span></div>').join(''):'')+
     '<div class="eyebrow" style="display:block;margin:18px 0 8px">Anotaciones</div>'+
@@ -5978,6 +6016,187 @@ function saveActividad(){
   if(!t){toast('Escribe la anotación antes de guardar.');return;}
   DB.actividades.push({id:uid('AC'),fecha:TODAY,cli:val('na_cli'),txt:t});
   closeModal();go('actividad');toast('Anotación guardada.');
+}
+
+/* =========================================================
+   PANEL COMERCIAL (KPIs por comercial y por zona)
+   ========================================================= */
+ROUTES.kpis=function(){
+  const facturas=DB.facturasE;
+  const totalVentas=facturas.reduce((s,f)=>s+f.total,0);
+
+  // Agrupació per comercial (resp del client)
+  const porResp={};
+  facturas.forEach(f=>{
+    const respId=cli(f.cli).resp||'—';
+    porResp[respId]=(porResp[respId]||0)+f.total;
+  });
+  const respItems=Object.keys(porResp).map(id=>({
+    label:emp(id).nom||'Sense assignar', value:porResp[id], valueLabel:EUR(porResp[id]),
+    color:'#1565A8'
+  })).sort((a,b)=>b.value-a.value);
+
+  // Agrupació per zona (població del client)
+  const porZona={};
+  facturas.forEach(f=>{
+    const pob=cli(f.cli).pob||'—';
+    porZona[pob]=(porZona[pob]||0)+f.total;
+  });
+  const zonaItems=Object.keys(porZona).map(pob=>({
+    label:pob, value:porZona[pob], valueLabel:EUR(porZona[pob]),
+    color:'#2E9E5B'
+  })).sort((a,b)=>b.value-a.value);
+
+  // Top 5 clients per import facturat
+  const porCli={};
+  facturas.forEach(f=>{ porCli[f.cli]=(porCli[f.cli]||0)+f.total; });
+  const topClients=Object.keys(porCli).map(id=>({id,total:porCli[id]})).sort((a,b)=>b.total-a.total).slice(0,5);
+
+  let h=head('Panel comercial (KPIs)','Rendiment de vendes per comercial, zona i client · exercici '+EJERCICIO);
+  h+='<div class="grid g4" style="margin-bottom:16px">'+
+    kpi('Vendes totals',EUR(totalVentas),facturas.length+' factures emeses','blue')+
+    kpi('Import mitjà per factura',EUR(facturas.length?totalVentas/facturas.length:0),'','teal')+
+    kpi('Clients actius',Object.keys(porCli).length,'amb factures emeses','amber')+
+    kpi('Millor comercial',respItems[0]?respItems[0].label:'—',respItems[0]?respItems[0].valueLabel:'','teal')+
+  '</div>';
+  h+='<div class="grid g2">'+
+    '<div class="card"><h3 style="margin:0 0 12px">Vendes per comercial</h3>'+(respItems.length?svgHBarChart(respItems,{width:480}):'<div class="empty"><strong>Sense dades</strong>Encara no hi ha factures emeses.</div>')+'</div>'+
+    '<div class="card"><h3 style="margin:0 0 12px">Vendes per zona</h3>'+(zonaItems.length?svgHBarChart(zonaItems,{width:480}):'<div class="empty"><strong>Sense dades</strong>Encara no hi ha factures emeses.</div>')+'</div>'+
+  '</div>';
+  h+='<div class="card" style="margin-top:16px"><h3 style="margin:0 0 12px">Top 5 clients per facturació</h3>'+
+    tbl([['Client'],['Població'],['Import facturat',''],['% sobre el total','n']],
+      topClients.map(t=>rowN([esc(nomCli(t.id)),esc(cli(t.id).pob||'—'),EUR(t.total),(totalVentas?(t.total/totalVentas*100).toFixed(1):'0')+'%'],[2,3])),
+      ['Sense dades','Encara no hi ha factures emeses.'])+
+  '</div>';
+  return h;
+};
+
+/* =========================================================
+   INCIDÈNCIES / RECLAMACIONS
+   ========================================================= */
+ROUTES.incidencias=function(){
+  const all=DB.incidencias.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const lista=all.filter(i=>hit(i.tipo+' '+i.desc+' '+nomCli(i.cli)+' '+i.estado));
+  const abiertas=DB.incidencias.filter(i=>i.estado==='Abierta').length;
+  let h=head('Incidències i reclamacions',abiertas+' obertes de '+all.length+' totals',
+    '<button class="btn" onclick="formIncidencia()" type="button">Nova incidència</button>');
+  h+=buscador('Cercar per client, tipus o descripció…',all.length,lista.length);
+  h+='<div class="card">'+tbl([['Data'],['Client'],['Tipus'],['Descripció'],['Responsable'],['Estat'],['']],
+    lista.map(i=>rowN([FD(i.fecha),esc(nomCli(i.cli)),esc(i.tipo),esc(i.desc),esc(emp(i.resp).nom),incEstadoTag(i.estado),
+      '<button class="btn ghost sm" onclick="verIncidencia(\''+i.id+'\')" type="button">Veure</button>'],[]))
+    ,['Sense incidències','Cap reclamació registrada. Perfecte!'])+'</div>';
+  return h;
+};
+function incEstadoTag(e){
+  if(e==='Resuelta') return '<span class="tag t-ok">Resolta</span>';
+  if(e==='En proceso') return '<span class="tag t-wait">En procés</span>';
+  return '<span class="tag t-late">Oberta</span>';
+}
+function formIncidencia(){
+  openModal('Nova incidència',
+    fSelect('Client','inc_cli',DB.clientes.map(c=>[c.id,c.nom]))+
+    fSelect('Tipus','inc_tipo',[['Producte danyat','Producte danyat'],['Retard en entrega','Retard en entrega'],['Factura incorrecta','Factura incorrecta'],['Qualitat del producte','Qualitat del producte'],['Altres','Altres']])+
+    fSelect('Responsable','inc_resp',DB.empleados.map(e=>[e.id,e.nom]))+
+    '<div style="margin-top:14px"><label class="flabel" for="inc_desc">Descripció</label><textarea id="inc_desc" rows="4" placeholder="Explica què ha passat…"></textarea></div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancel·lar</button><button class="btn" onclick="saveIncidencia()" type="button">Guardar</button>');
+}
+function saveIncidencia(){
+  const d=val('inc_desc').trim();
+  if(!d){toast('Escriu la descripció abans de guardar.');return;}
+  DB.incidencias.push({id:uid('INC'),fecha:TODAY,cli:val('inc_cli'),tipo:val('inc_tipo'),desc:d,estado:'Abierta',resp:val('inc_resp'),resolucion:''});
+  closeModal();go('incidencias');toast('Incidència registrada.');
+}
+function verIncidencia(id){
+  const i=DB.incidencias.find(x=>x.id===id); if(!i) return;
+  const cerrada=i.estado==='Resuelta';
+  openModal('Incidència · '+nomCli(i.cli),
+    '<div style="display:grid;gap:8px;font-size:13px;margin-bottom:14px">'+
+    '<div><b>Data:</b> '+FD(i.fecha)+'</div><div><b>Tipus:</b> '+esc(i.tipo)+'</div>'+
+    '<div><b>Responsable:</b> '+esc(emp(i.resp).nom)+'</div><div><b>Descripció:</b> '+esc(i.desc)+'</div>'+
+    '<div><b>Estat:</b> '+incEstadoTag(i.estado)+'</div></div>'+
+    fSelect('Canviar estat','inc_estado_edit',[['Abierta','Oberta'],['En proceso','En procés'],['Resuelta','Resolta']],i.estado)+
+    '<div style="margin-top:14px"><label class="flabel" for="inc_resol">Resolució</label><textarea id="inc_resol" rows="3" placeholder="Com s\'ha resolt…">'+esc(i.resolucion||'')+'</textarea></div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Tancar</button><button class="btn" onclick="updateIncidencia(\''+id+'\')" type="button">Guardar canvis</button>');
+}
+function updateIncidencia(id){
+  const i=DB.incidencias.find(x=>x.id===id); if(!i) return;
+  i.estado=val('inc_estado_edit'); i.resolucion=val('inc_resol').trim();
+  closeModal();go('incidencias');toast('Incidència actualitzada.');
+}
+
+/* =========================================================
+   PRESSUPOSTOS
+   ========================================================= */
+ROUTES.presupuestos=function(){
+  const all=DB.presupuestos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const lista=all.filter(p=>hit(p.num+' '+nomCli(p.cli)));
+  let h=head('Pressupostos',all.length+' pressupostos generats',
+    '<button class="btn" onclick="formPresupuesto()" type="button">Nou pressupost</button>');
+  h+=buscador('Cercar per número o client…',all.length,lista.length);
+  h+='<div class="card">'+tbl([['Número'],['Data'],['Client'],['Import',''],['']],
+    lista.map(p=>rowN([esc(p.num),FD(p.fecha),esc(nomCli(p.cli)),EUR(p.total),
+      '<button class="btn ghost sm" onclick="descarregarPressupost(\''+p.id+'\')" type="button">📄 PDF</button>'],[3]))
+    ,['Sense pressupostos','Crea el primer amb «Nou pressupost».'])+'</div>';
+  return h;
+};
+let PRESU_LINEAS=[];
+function formPresupuesto(){
+  PRESU_LINEAS=[];
+  openModal('Nou pressupost',
+    fSelect('Client','pr_cli',DB.clientes.map(c=>[c.id,c.nom]))+
+    '<div style="display:flex;gap:8px;align-items:end;margin-top:14px">'+
+      fSelect('Producte','pr_art',DB.productos.map(p=>[p.id,p.nom+' — '+EUR(p.pvp)]))+
+      '<div style="width:90px"><label class="flabel" for="pr_cant">Quantitat</label><input id="pr_cant" type="number" min="1" value="1"></div>'+
+      '<button class="btn ghost sm" onclick="presuAfegirLinia()" type="button">+ Afegir</button>'+
+    '</div>'+
+    '<div id="presuLineas" style="margin-top:14px"></div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancel·lar</button><button class="btn" onclick="savePresupuesto()" type="button">Generar pressupost</button>',true);
+  presuRenderLineas();
+}
+function presuAfegirLinia(){
+  const artId=val('pr_art'), cant=Math.max(1,parseInt(val('pr_cant'),10)||1);
+  const p=art(artId); if(!p) return;
+  const ex=PRESU_LINEAS.find(l=>l.art===artId);
+  if(ex) ex.cant+=cant; else PRESU_LINEAS.push({art:artId,cant,precio:p.pvp});
+  presuRenderLineas();
+}
+function presuRenderLineas(){
+  const wrap=document.getElementById('presuLineas'); if(!wrap) return;
+  if(!PRESU_LINEAS.length){ wrap.innerHTML='<div class="empty" style="padding:14px"><strong>Cap línia afegida</strong>Selecciona un producte i quantitat.</div>'; return; }
+  const total=PRESU_LINEAS.reduce((s,l)=>s+l.cant*l.precio,0);
+  wrap.innerHTML=tbl([['Producte'],['Quant.','n'],['Preu','n'],['Import','n'],['']],
+    PRESU_LINEAS.map((l,i)=>rowN([esc(art(l.art).nom),l.cant,EUR(l.precio),EUR(l.cant*l.precio),
+      '<button class="btn ghost sm" onclick="presuTreureLinia('+i+')" type="button">✕</button>'],[1,2,3])))+
+    '<div style="text-align:right;margin-top:8px;font-weight:700;color:var(--blue)">Total: '+EUR(total)+'</div>';
+}
+function presuTreureLinia(i){ PRESU_LINEAS.splice(i,1); presuRenderLineas(); }
+function savePresupuesto(){
+  if(!PRESU_LINEAS.length){toast('Afegeix almenys una línia.');return;}
+  const total=PRESU_LINEAS.reduce((s,l)=>s+l.cant*l.precio,0);
+  const num='PRE-'+TODAY.replace(/-/g,'').slice(2)+'-'+(DB.presupuestos.length+1).toString().padStart(3,'0');
+  const pres={id:uid('PR'),num,fecha:TODAY,cli:val('pr_cli'),lineas:PRESU_LINEAS.slice(),total};
+  DB.presupuestos.push(pres);
+  closeModal();go('presupuestos');toast('Pressupost '+num+' generat.');
+}
+function descarregarPressupost(id){
+  const p=DB.presupuestos.find(x=>x.id===id); if(!p) return;
+  const rows=p.lineas.map(l=>'<tr><td>'+esc(art(l.art).nom)+'</td><td class="num">'+l.cant+'</td><td class="num">'+EUR(l.precio)+'</td><td class="num">'+EUR(l.cant*l.precio)+'</td></tr>').join('');
+  const html='<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Pressupost '+esc(p.num)+'</title>'+
+    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:12.5px;max-width:780px;margin:0 auto}'+
+    '.top{border-bottom:3px solid #0B3D6B;padding-bottom:16px;margin-bottom:22px;display:flex;justify-content:space-between}'+
+    '.brand{font-size:22px;font-weight:800;color:#0B3D6B;font-family:Georgia,serif}.brand span{color:#F2A900}'+
+    'table{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px}th{background:#0B3D6B;color:#fff;text-align:left;padding:8px 10px;font-size:11px}'+
+    'td{border:1px solid #D9E5F0;padding:8px 10px}td.num,th.num{text-align:right}tr:nth-child(even) td{background:#F5FAFF}'+
+    '.tot{text-align:right;font-weight:800;font-size:14px;margin-top:10px;color:#0B3D6B}'+
+    '.foot{margin-top:28px;font-size:9.5px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:10px}'+
+    '@media print{@page{margin:15mm}}</style></head><body>'+
+    '<div class="top"><div class="brand">HIGIENE<span>X</span></div><div style="text-align:right"><div style="font-weight:700">Pressupost '+esc(p.num)+'</div><div style="color:#8A9BAC;font-size:11px">'+FD(p.fecha)+'</div></div></div>'+
+    '<div style="margin-bottom:10px"><b>Client:</b> '+esc(nomCli(p.cli))+' · '+esc(cli(p.cli).nif||'')+'<br>'+esc(cli(p.cli).dir||'')+', '+esc(cli(p.cli).pob||'')+'</div>'+
+    '<table><thead><tr><th>Producte</th><th class="num">Quant.</th><th class="num">Preu unit.</th><th class="num">Import</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div class="tot">Total: '+EUR(p.total)+' (IVA no inclòs)</div>'+
+    '<div class="foot">HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es · 963 123 456. Pressupost vàlid 30 dies des de la data d\'emissió.</div>'+
+    '</body></html>';
+  abrirImprimible('Pressupost '+p.num, html);
 }
 
 /* =========================================================
@@ -6527,6 +6746,47 @@ ROUTES.almacen=function(){
     ['Sin artículos','Crea el primero con «Nuevo artículo».'])+'</div>';
   return h;
 };
+
+/* =========================================================
+   ALERTES D'ESTOC + SUGGERIMENT DE COMANDA
+   ========================================================= */
+ROUTES.alertasstock=function(){
+  const bajos=DB.productos.filter(p=>p.stock<p.min);
+  const porProv={};
+  bajos.forEach(p=>{ (porProv[p.prov]=porProv[p.prov]||[]).push(p); });
+
+  let h=head('Alertes de stock','Articles per sota del mínim i suggeriment de reposició per proveïdor',
+    bajos.length?'<button class="btn" onclick="proponerPedidos()" type="button">📦 Generar tots els pressupostos de comanda</button>':'');
+
+  if(!bajos.length){
+    h+='<div class="card"><div class="empty"><strong>✅ Tot en ordre</strong>Cap article està per sota del seu estoc mínim ara mateix.</div></div>';
+    return h;
+  }
+
+  h+='<div class="grid g4" style="margin-bottom:16px">'+
+    kpi('Articles en alerta',bajos.length,'per sota del mínim','red')+
+    kpi('Proveïdors implicats',Object.keys(porProv).length,'a qui caldria comandar','amber')+
+    kpi('Unitats a reposar',bajos.reduce((s,p)=>s+Math.max(0,p.min*2-p.stock),0),'suma de totes les propostes','blue')+
+    kpi('Cost estimat reposició',EUR(bajos.reduce((s,p)=>s+Math.max(0,p.min*2-p.stock)*p.coste,0)),'a preu de cost','teal')+
+  '</div>';
+
+  Object.entries(porProv).forEach(([provId,items])=>{
+    const proposalTotal=items.reduce((s,p)=>s+Math.max(0,p.min*2-p.stock)*p.coste,0);
+    h+='<div class="card" style="margin-bottom:14px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+      '<h3 style="margin:0">🚚 '+esc(nomProv(provId))+'</h3>'+
+      '<button class="btn ghost sm" onclick="formPedido(null,\''+provId+'\')" type="button">Crear comanda a aquest proveïdor</button></div>'+
+      tbl([['Article'],['Estoc actual','n'],['Mínim','n'],['Suggerit a comandar','n'],['Cost estimat','n']],
+        items.map(p=>{
+          const sugerido=Math.max(0,p.min*2-p.stock);
+          return rowN([esc(p.nom),NUM(p.stock),NUM(p.min),'<strong>'+NUM(sugerido)+'</strong>',EUR(sugerido*p.coste)],[1,2,3,4]);
+        }))+
+      '<div style="text-align:right;margin-top:8px;font-weight:700;color:var(--blue)">Total estimat a aquest proveïdor: '+EUR(proposalTotal)+'</div>'+
+    '</div>';
+  });
+  return h;
+};
+
 function fichaArticulo(id){
   const p=art(id);
   const movs=DB.movStock.filter(m=>m.art===id);
@@ -7862,6 +8122,16 @@ DB.expediciones = [];
   mk('F26-0173','TR1','EXW','2026-06-04','2026-06-04','Entregada');
   mk('F26-0181','TR3','DDP','2026-06-22',null,'En tránsito');
   mk('F26-0194','TR1','DAP','2026-07-17','2026-07-19','Entregada');
+})();
+
+/* Incidències/reclamacions de mostra */
+(function seedIncidencias(){
+  DB.incidencias.push(
+    {id:uid('INC'),fecha:'2026-06-18',cli:'C02',tipo:'Producto dañado',desc:'2 garrafas de Net HOSTAL 5L llegaron con fuga en el tapón.',estado:'Resuelta',resp:'E04',resolucion:'Se repuso el pedido sin coste, transporte urgente en 24h.'},
+    {id:uid('INC'),fecha:'2026-07-02',cli:'C01',tipo:'Retraso en entrega',desc:'Pedido de Desinfectant HOSP-V llegó 3 días más tarde de lo previsto.',estado:'Resuelta',resp:'E04',resolucion:'Incidencia con el transportista, se aplicó descuento del 10% en la factura.'},
+    {id:uid('INC'),fecha:'2026-07-28',cli:'C05',tipo:'Factura incorrecta',desc:'El importe facturado no coincide con el presupuesto acordado.',estado:'Abierta',resp:'E02',resolucion:''},
+    {id:uid('INC'),fecha:'2026-08-05',cli:'C03',tipo:'Calidad del producto',desc:'Cliente indica que el ALIM-PRO no rinde igual que el lote anterior.',estado:'En proceso',resp:'E05',resolucion:''}
+  );
 })();
 
 const nomAlmacen = id => (DB.almacenes.find(a=>a.id===id)||{}).nom || '—';
