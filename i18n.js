@@ -620,12 +620,17 @@ var HX_SENYERA_SVG = '<svg viewBox="0 0 20 14" style="width:1.15rem;height:0.8re
 // Bandera de cada idioma: Catalunya no té emoji de bandera oficial a
 // Unicode, així que per a "ca" es fa servir un SVG propi de la senyera
 // en lloc de l'emoji genèric 🏴. La resta d'idiomes sí tenen emoji real.
+var HX_FLAG_ES = '<svg viewBox="0 0 20 14" style="width:1.15rem;height:0.8rem;display:inline-block;vertical-align:middle;border-radius:2px;box-shadow:0 0 0 0.5px rgba(0,0,0,0.15);"><rect width="20" height="14" fill="#AA151B"/><rect y="3.5" width="20" height="7" fill="#F1BF00"/></svg>';
+var HX_FLAG_GB = '<svg viewBox="0 0 20 14" style="width:1.15rem;height:0.8rem;display:inline-block;vertical-align:middle;border-radius:2px;box-shadow:0 0 0 0.5px rgba(0,0,0,0.15);"><rect width="20" height="14" fill="#00247D"/><path d="M0,0 L20,14 M20,0 L0,14" stroke="#FFFFFF" stroke-width="2.8"/><path d="M0,0 L20,14 M20,0 L0,14" stroke="#CF142B" stroke-width="1"/><path d="M10,0 V14 M0,7 H20" stroke="#FFFFFF" stroke-width="4.6"/><path d="M10,0 V14 M0,7 H20" stroke="#CF142B" stroke-width="2.6"/></svg>';
+var HX_FLAG_FR = '<svg viewBox="0 0 20 14" style="width:1.15rem;height:0.8rem;display:inline-block;vertical-align:middle;border-radius:2px;box-shadow:0 0 0 0.5px rgba(0,0,0,0.15);"><rect width="6.67" height="14" fill="#0055A4"/><rect x="6.67" width="6.67" height="14" fill="#FFFFFF"/><rect x="13.33" width="6.67" height="14" fill="#EF4135"/></svg>';
+var HX_FLAG_DE = '<svg viewBox="0 0 20 14" style="width:1.15rem;height:0.8rem;display:inline-block;vertical-align:middle;border-radius:2px;box-shadow:0 0 0 0.5px rgba(0,0,0,0.15);"><rect width="20" height="4.67" fill="#000000"/><rect y="4.67" width="20" height="4.67" fill="#DD0000"/><rect y="9.33" width="20" height="4.67" fill="#FFCE00"/></svg>';
+
 var HX_LANG_META = {
   ca: { flag: HX_SENYERA_SVG, code: 'CA', htmlLang: 'ca' },
-  es: { flag: '🇪🇸', code: 'ES', htmlLang: 'es' },
-  en: { flag: '🇬🇧', code: 'EN', htmlLang: 'en' },
-  fr: { flag: '🇫🇷', code: 'FR', htmlLang: 'fr' },
-  de: { flag: '🇩🇪', code: 'DE', htmlLang: 'de' }
+  es: { flag: HX_FLAG_ES, code: 'ES', htmlLang: 'es' },
+  en: { flag: HX_FLAG_GB, code: 'EN', htmlLang: 'en' },
+  fr: { flag: HX_FLAG_FR, code: 'FR', htmlLang: 'fr' },
+  de: { flag: HX_FLAG_DE, code: 'DE', htmlLang: 'de' }
 };
 
 // Aplica un idioma: recorre tots els elements marcats amb
