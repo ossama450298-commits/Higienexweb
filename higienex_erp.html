@@ -5328,7 +5328,7 @@ const NAV=[
  {g:'Personas',items:[['fichajes','Control de fichajes','all']]},
  {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh']]},
  {g:'Sistema',items:[['automat','Automatizaciones','admin'],['auditoria','Registro de auditoría','admin']]},
- {g:'Dirección',items:[['sistema','Administración del sistema','super']]}
+ {g:'Dirección',items:[['sistema','Administración del sistema','super'],['analitica','Analítica web','super']]}
 ];
 const NAV_ICONS={
   panel:'📊', clientes:'👥', pipeline:'🎯', actividad:'📈',
@@ -5341,7 +5341,7 @@ const NAV_ICONS={
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
   automat:'⚡', auditoria:'🛡️',
   sistema:'⚙️',
-  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔'
+  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊'
 };
 function can(area){
   if(!ME) return false;
@@ -8068,6 +8068,65 @@ if(_fichaProductoBase){
 
 /* Registro de la vista en el enrutador */
 ROUTES.sistema = vSistema;
+
+/* =========================================================
+   ANALÍTICA WEB (llegeix el localStorage compartit amb la
+   web pública index.html, ja que viuen al mateix domini)
+   ========================================================= */
+ROUTES.analitica=function(){
+  let data={pageViews:{},productViews:{},events:[]};
+  try{
+    const raw=localStorage.getItem('hx_analytics');
+    if(raw) data=JSON.parse(raw);
+  }catch(e){}
+
+  const pageEntries=Object.entries(data.pageViews||{}).sort((a,b)=>b[1]-a[1]);
+  const prodEntries=Object.entries(data.productViews||{}).sort((a,b)=>b[1]-a[1]);
+  const totalPageViews=pageEntries.reduce((s,[,v])=>s+v,0);
+  const totalProdViews=prodEntries.reduce((s,[,v])=>s+v,0);
+  const recentEvents=(data.events||[]).slice(-15).reverse();
+
+  const PAGE_LABELS={
+    home:'Inici', empresa:'Empresa', productes:'Productes', operacions:'Operacions',
+    compromis:'Compromís', contacte:'Contacte', sobre:'Sobre nosaltres', missio:'Missió i valors',
+    organitzacio:'Organització', rrhh:'Persones i RRHH', casos:'Casos d\'èxit', rd:'R+D',
+    innovacio:'Innovació', digitalitzacio:'Digitalització', futur:'Futur', processos:'Processos',
+    logistica:'Logística', internacionalitzacio:'Internacionalització', sostenibilitat:'Sostenibilitat',
+    rsc:'RSC', clients:'Clients', marqueting:'Màrqueting', competencia:'Competència', blog:'Blog',
+    faq:'FAQ'
+  };
+
+  let h=head('Analítica web','Dades de navegació de la web pública, capturades des del navegador dels visitants (sense servidor extern)');
+
+  if(!totalPageViews && !totalProdViews){
+    h+='<div class="card"><div class="empty"><strong>Encara no hi ha dades</strong>Navega per la web pública des d\'aquest mateix ordinador i torna aquí — les visites es guarden al navegador.</div></div>';
+    return h;
+  }
+
+  h+='<div class="grid g4" style="margin-bottom:16px">'+
+    kpi('Visualitzacions de pàgina',totalPageViews,pageEntries.length+' pàgines diferents vistes','blue')+
+    kpi('Visualitzacions de producte',totalProdViews,prodEntries.length+' productes diferents vistos','teal')+
+    kpi('Pàgina més visitada',pageEntries[0]?(PAGE_LABELS[pageEntries[0][0]]||pageEntries[0][0]):'—',pageEntries[0]?pageEntries[0][1]+' visites':'','amber')+
+    kpi('Producte més vist',prodEntries[0]?prodEntries[0][0]:'—',prodEntries[0]?prodEntries[0][1]+' visualitzacions':'','teal')+
+  '</div>';
+
+  h+='<div class="grid g2">'+
+    '<div class="card"><h3 style="margin:0 0 12px">Pàgines més visitades</h3>'+
+      (pageEntries.length?svgHBarChart(pageEntries.slice(0,8).map(([id,v])=>({label:PAGE_LABELS[id]||id,value:v,valueLabel:v,color:'#1565A8'})),{width:480}):'<div class="empty"><strong>Sense dades</strong></div>')+
+    '</div>'+
+    '<div class="card"><h3 style="margin:0 0 12px">Productes més vistos</h3>'+
+      (prodEntries.length?svgHBarChart(prodEntries.slice(0,8).map(([name,v])=>({label:name,value:v,valueLabel:v,color:'#2E9E5B'})),{width:480}):'<div class="empty"><strong>Sense dades</strong></div>')+
+    '</div>'+
+  '</div>';
+
+  h+='<div class="card" style="margin-top:16px"><h3 style="margin:0 0 12px">Activitat recent</h3>'+
+    tbl([['Data i hora'],['Tipus'],['Element']],
+      recentEvents.map(e=>rowN([new Date(e.t).toLocaleString('ca-ES'),e.type==='page'?'📄 Pàgina':'🛍️ Producte',esc(e.type==='page'?(PAGE_LABELS[e.id]||e.id):e.id)],[])),
+      ['Sense activitat recent','Encara no s\'ha registrat cap esdeveniment.'])+
+  '</div>';
+  h+='<p style="font-size:11px;color:var(--ink-2);margin-top:10px">Aquestes dades es guarden al navegador de cada visitant (sense servidor extern ni cookies de tercers) i només es poden consultar des del mateix dispositiu que va navegar per la web pública.</p>';
+  return h;
+};
 
 /* Botón de baja de empleado en la tabla de RRHH, solo para Dirección */
 const _rrhhBase = ROUTES.rrhh;
