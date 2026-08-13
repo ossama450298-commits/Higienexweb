@@ -1849,6 +1849,7 @@ footer ul a:hover { color: var(--green-light); }
   #navRightGroup::-webkit-scrollbar { display: none; }
   #navRightGroup #authBtns button { padding: 0.4rem 0.7rem !important; font-size: 0.76rem !important; }
   #navCartBtn, #navRightGroup a[href="higienex_erp.html"] { flex-shrink: 0; }
+  #hxSearchBtn { flex-shrink: 0; }
   /* El desplegable d'idioma s'escapa del contenidor amb scroll horitzontal
      (si no, quedava tallat / invisible en obrir-se al mòbil) */
   #langDropdownMenu {
@@ -2105,6 +2106,21 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   opacity: 1;
   pointer-events: auto;
 }
+
+/* ── VISTA D'IMPRESSIÓ (Ctrl+P) ──────────────────────────────
+   Amaga navegació, botons i pop-ups; mostra només el contingut
+   de la pàgina activa perquè es pugui imprimir directament. */
+@media print {
+  #mainNav, #navBackdrop, #navDropdown, #hxSearchOverlay, #hxSearchBtn,
+  #hxOfflineBanner, #cartPanel, #productPopup, #newsletterPopup, #authModal,
+  #hgCookieModal, .fp-actions, .hg-cookie-modal, .whatsapp-float, #hxChatWidget,
+  #hxInstallBtn { display: none !important; }
+  body { padding-top: 0 !important; }
+  .hg-page { display: none !important; }
+  .hg-page.hg-page-active { display: block !important; }
+  * { box-shadow: none !important; text-shadow: none !important; }
+  section { break-inside: avoid; page-break-inside: avoid; }
+}
 </style>
 
   <!-- PWA -->
@@ -2116,6 +2132,45 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <meta name="apple-mobile-web-app-title" content="HIGIENEX">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-web.png">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "HIGIENEX S.L.",
+  "url": "https://ossama450298-commits.github.io/Higienexweb/",
+  "logo": "https://ossama450298-commits.github.io/Higienexweb/icons/icon-web-512.png",
+  "description": "Fabricant i distribuïdor de productes d'higiene i neteja professional sostenible, especialitzat en concentrats ECO, desinfecció sanitària i solucions per a hostaleria i indústria alimentària.",
+  "foundingDate": "2015",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Carrer de la Indústria, 25",
+    "postalCode": "46010",
+    "addressLocality": "València",
+    "addressCountry": "ES"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+34-963-123-456",
+    "contactType": "customer service",
+    "email": "contacto@higienexvalencia.es",
+    "availableLanguage": ["ca","es","en","fr","de"]
+  },
+  "sameAs": []
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {"@type":"Product","position":1,"name":"ECO Concentrat Pro","description":"Concentrat ×3 biodegradable amb certificació ISO 14001, per a ús professional general.","brand":{"@type":"Brand","name":"HIGIENEX"},"offers":{"@type":"Offer","priceCurrency":"EUR","price":"12.50","availability":"https://schema.org/InStock"}},
+    {"@type":"Product","position":2,"name":"Desinfectant HOSP-V","description":"Desinfectant biocida UE per a quiròfans i entorns sanitaris crítics.","brand":{"@type":"Brand","name":"HIGIENEX"},"offers":{"@type":"Offer","priceCurrency":"EUR","price":"18.00","availability":"https://schema.org/InStock"}},
+    {"@type":"Product","position":3,"name":"Detergent ALIM-PRO","description":"Detergent homologat HACCP per a superfícies de contacte alimentari.","brand":{"@type":"Brand","name":"HIGIENEX"},"offers":{"@type":"Offer","priceCurrency":"EUR","price":"9.80","availability":"https://schema.org/InStock"}},
+    {"@type":"Product","position":4,"name":"Net HOSTAL Premium","description":"Producte de neteja professional per a hoteleria, certificat ISO 14001.","brand":{"@type":"Brand","name":"HIGIENEX"},"offers":{"@type":"Offer","priceCurrency":"EUR","price":"11.20","availability":"https://schema.org/InStock"}}
+  ]
+}
+</script>
 </head>
 <body>
 
@@ -4448,6 +4503,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
       <span id="menuIcon">☰</span> Menú
     </button>
     <div id="navRightGroup" style="display:flex;align-items:center;gap:1rem;margin-left:auto;">
+      <button id="hxSearchBtn" type="button" onclick="hxOpenSearch()" title="Cercar a la web" aria-label="Cercar a la web" style="display:flex;align-items:center;gap:0.4rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 0.7rem;border-radius:40px;cursor:pointer;font-size:0.82rem;">🔍</button>
       <div id="langDropdownWrap" style="position:relative;">
         <button id="langToggleBtn" onclick="hxToggleLangMenu()" type="button" title="Canviar idioma" aria-label="Canviar idioma" aria-haspopup="true" aria-expanded="false" style="display:flex;align-items:center;gap:0.35rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 0.75rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;">
           <span id="langCurrentFlag" style="font-size:1.1rem;display:inline-flex;align-items:center;"><svg viewBox="0 0 20 14" style="width:1.15rem;height:0.8rem;display:inline-block;vertical-align:middle;border-radius:2px;box-shadow:0 0 0 0.5px rgba(0,0,0,0.15);"><rect width="20" height="14" fill="#FCDD09"/><rect y="0" width="20" height="1.56" fill="#DA121A"/><rect y="3.11" width="20" height="1.56" fill="#DA121A"/><rect y="6.22" width="20" height="1.56" fill="#DA121A"/><rect y="9.33" width="20" height="1.56" fill="#DA121A"/><rect y="12.44" width="20" height="1.56" fill="#DA121A"/></svg></span> <span style="font-size:0.65rem;">▾</span>
@@ -4750,6 +4806,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
     <span class="section-tag" data-i18n-key="t559">04 / Productes</span>
     <h2 data-i18n-key="t031">Catàleg de Productes Professionals</h2>
     <p data-i18n-key="t204">Formulació pròpia, alta concentració i compromís ambiental. Cada producte HIGIENEX és el resultat d'anys de recerca al nostre laboratori independent.</p>
+    <div id="hxPriceUpdatedBadge" style="display:inline-flex;align-items:center;gap:0.4rem;background:var(--green-cream);color:var(--green-deep);font-size:0.78rem;font-weight:700;padding:0.4rem 0.9rem;border-radius:30px;margin-bottom:1rem;"></div>
     <div class="products-table-wrap fade-in">
       <table>
         <thead><tr><th data-i18n-key="t543">Producte</th><th data-i18n-key="t545">Sector d'aplicació</th><th data-i18n-key="t536">Avantatge clau</th><th data-i18n-key="t538">Certificació</th></tr></thead>
@@ -6986,6 +7043,11 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         <div style="font-weight:700;color:var(--green-deep);font-size:0.95rem;" data-i18n-key="t620">Catàleg complet (PDF)</div>
         <div style="font-size:0.78rem;color:var(--charcoal);opacity:0.7;margin-top:0.2rem;" data-i18n-key="t621">Tots els productes, preus i certificacions en un sol document.</div>
       </button>
+      <button type="button" onclick="hxDescarregarCatalegExcel()" style="text-align:left;background:var(--warm-white);border:1.5px solid var(--border);border-radius:16px;padding:1.3rem;cursor:pointer;transition:all 0.15s;">
+        <div style="font-size:1.6rem;margin-bottom:0.4rem;">📊</div>
+        <div style="font-weight:700;color:var(--green-deep);font-size:0.95rem;" data-i18n-key="t686">Catàleg complet (Excel)</div>
+        <div style="font-size:0.78rem;color:var(--charcoal);opacity:0.7;margin-top:0.2rem;" data-i18n-key="t687">Ideal per importar-lo al teu propi sistema de compres.</div>
+      </button>
       <div id="descarreguesFDS" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;"></div>
     </div>
   </div>
@@ -7398,11 +7460,24 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         <span class="section-tag" id="fpBadge" data-i18n-key="t578">Producte</span>
         <h2 id="fpName" data-i18n-key="t100">Nom del producte</h2>
         <div class="fp-price" id="fpPrice">0,00 €</div>
+        <div id="fpRating" style="margin:0.4rem 0 0.8rem;"></div>
         <p id="fpDesc" class="fp-desc" data-i18n-key="t265">Descripció.</p>
         <div class="fp-actions">
           <button type="button" class="btn-primary" id="fpAddBtn" onclick="fpAddToCart()" data-i18n-key="t415">🛒 Afegeix al cistell</button>
           <button type="button" class="btn-fp-outline" onclick="fpDescarregarFitxaTecnica()" data-i18n-key="t413">📄 Fitxa tècnica (PDF)</button>
         </div>
+      </div>
+    </div>
+    <div style="margin-top:3rem;">
+      <span class="section-tag" data-i18n-key="t672">⭐ Opinions de clients</span>
+      <h2 data-i18n-key="t673">Valoracions</h2>
+      <div id="fpReviewsList" style="margin-top:1.2rem;display:grid;gap:0.8rem;"></div>
+      <div style="margin-top:1.4rem;background:var(--warm-white);border-radius:14px;padding:1.2rem;max-width:480px;">
+        <div style="font-weight:700;color:var(--green-deep);font-size:0.88rem;margin-bottom:0.5rem;" data-i18n-key="t674">Deixa la teva valoració</div>
+        <div id="fpReviewStars" style="font-size:1.4rem;margin-bottom:0.6rem;letter-spacing:0.2rem;"></div>
+        <input id="fpReviewName" type="text" data-i18n-placeholder="t675" placeholder="El teu nom (opcional)" style="width:100%;padding:0.6rem;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;margin-bottom:0.6rem;box-sizing:border-box;">
+        <textarea id="fpReviewText" rows="2" data-i18n-placeholder="t676" placeholder="Explica la teva experiència amb el producte…" style="width:100%;padding:0.6rem;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;box-sizing:border-box;resize:vertical;"></textarea>
+        <button type="button" onclick="fpEnviarValoracio()" class="btn-primary" style="margin-top:0.7rem;width:100%;" data-i18n-key="t677">Enviar valoració</button>
       </div>
     </div>
     <div style="margin-top:3rem;">
@@ -8460,6 +8535,7 @@ window.submitForm = submitForm;
     </div>
     <h3 id="popupName" data-i18n-key="t168">Producte</h3>
     <div class="popup-price" id="popupPrice">0,00 € / L</div>
+    <div id="popupRating" style="margin:0.3rem 0 0.6rem;font-size:0.85rem;"></div>
     <p id="popupDesc" data-i18n-key="t293">Descripció del producte.</p>
     <button class="popup-btn" onclick="addProductFromPopup()" type="button" data-i18n-key="t421">
       🛒 Afegeix-lo al cistell
@@ -9664,6 +9740,57 @@ function addNewProduct(){
 }
 window.addNewProduct=addNewProduct;
 
+var HX_PRODUCT_DESC = {
+  'ECO Concentrat Pro': {
+    ca: "Concentrat multiusos ×3 formulat amb tensioactius biodegradables d'origen vegetal. Un litre en genera fins a quatre de producte d'ús un cop diluït, reduint fins a un 70% els envasos, el transport i l'espai d'emmagatzematge respecte a un netejador convencional. Certificat ISO 14001, és la nostra opció més versàtil per a superfícies i sòls en qualsevol sector professional.",
+    es: "Concentrado multiusos ×3 formulado con tensioactivos biodegradables de origen vegetal. Un litro genera hasta cuatro de producto de uso una vez diluido, reduciendo hasta un 70% los envases, el transporte y el espacio de almacenamiento frente a un limpiador convencional. Certificado ISO 14001, es nuestra opción más versátil para superficies y suelos en cualquier sector profesional.",
+    en: "A ×3 multipurpose concentrate formulated with plant-based biodegradable surfactants. One liter yields up to four liters of ready-to-use product once diluted, cutting packaging, transport and storage space by up to 70% compared with a conventional cleaner. ISO 14001 certified, it's our most versatile option for surfaces and floors across any professional sector.",
+    fr: "Concentré multi-usages ×3 formulé avec des tensioactifs biodégradables d'origine végétale. Un litre donne jusqu'à quatre litres de produit prêt à l'emploi une fois dilué, réduisant jusqu'à 70% les emballages, le transport et l'espace de stockage par rapport à un nettoyant classique. Certifié ISO 14001, c'est notre option la plus polyvalente pour les surfaces et sols dans tout secteur professionnel.",
+    de: "Ein ×3-Mehrzweckkonzentrat auf Basis pflanzlicher, biologisch abbaubarer Tenside. Ein Liter ergibt nach Verdünnung bis zu vier Liter gebrauchsfertiges Produkt und reduziert Verpackung, Transport und Lagerraum im Vergleich zu einem herkömmlichen Reiniger um bis zu 70%. ISO-14001-zertifiziert, ist es unsere vielseitigste Option für Oberflächen und Böden in jeder Branche."
+  },
+  'Desinfectant HOSP-V': {
+    ca: "Desinfectant d'ús directe amb eficàcia virucida i bactericida del 99,99%, registrat com a biocida a nivell europeu (TP2/TP4). Dissenyat per a entorns sanitaris crítics —quiròfans, UCI, sales d'aïllament—, actua en temps de contacte curts sense deixar residus agressius. Cada lot porta traçabilitat completa per facilitar auditories de control d'infeccions.",
+    es: "Desinfectante de uso directo con eficacia virucida y bactericida del 99,99%, registrado como biocida a nivel europeo (TP2/TP4). Diseñado para entornos sanitarios críticos —quirófanos, UCI, salas de aislamiento—, actúa en tiempos de contacto cortos sin dejar residuos agresivos. Cada lote lleva trazabilidad completa para facilitar auditorías de control de infecciones.",
+    en: "A ready-to-use disinfectant with 99.99% virucidal and bactericidal efficacy, registered as a biocide at EU level (TP2/TP4). Designed for critical healthcare settings — operating rooms, ICUs, isolation wards — it works in short contact times without leaving harsh residues. Every batch carries full traceability to support infection-control audits.",
+    fr: "Désinfectant prêt à l'emploi avec une efficacité virucide et bactéricide de 99,99%, enregistré comme biocide au niveau européen (TP2/TP4). Conçu pour les environnements de soins critiques — blocs opératoires, USI, chambres d'isolement —, il agit en temps de contact courts sans laisser de résidus agressifs. Chaque lot bénéficie d'une traçabilité complète pour faciliter les audits de contrôle des infections.",
+    de: "Ein gebrauchsfertiges Desinfektionsmittel mit 99,99% viruzider und bakterizider Wirksamkeit, EU-weit als Biozid registriert (TP2/TP4). Entwickelt für kritische Gesundheitsbereiche — Operationssäle, Intensivstationen, Isolierzimmer —, wirkt es bei kurzen Einwirkzeiten, ohne aggressive Rückstände zu hinterlassen. Jede Charge verfügt über vollständige Rückverfolgbarkeit zur Unterstützung von Infektionskontroll-Audits."
+  },
+  'Detergent ALIM-PRO': {
+    ca: "Detergent desengreixant industrial homologat per a contacte alimentari, formulat per eliminar greixos cuits i residus orgànics en cuines i línies de producció sense necessitat d'aclarit posterior. Compatible amb els protocols HACCP, és la solució habitual dels nostres clients de restauració col·lectiva i indústria alimentària que necessiten rapidesa sense comprometre la seguretat.",
+    es: "Detergente desengrasante industrial homologado para contacto alimentario, formulado para eliminar grasas cocidas y residuos orgánicos en cocinas y líneas de producción sin necesidad de aclarado posterior. Compatible con los protocolos HACCP, es la solución habitual de nuestros clientes de restauración colectiva e industria alimentaria que necesitan rapidez sin comprometer la seguridad.",
+    en: "An industrial degreasing detergent approved for food contact, formulated to remove baked-on grease and organic residue in kitchens and production lines with no rinse required afterward. Compatible with HACCP protocols, it's the go-to solution for our catering and food-industry clients who need speed without compromising safety.",
+    fr: "Détergent dégraissant industriel homologué pour le contact alimentaire, formulé pour éliminer les graisses cuites et résidus organiques dans les cuisines et lignes de production sans rinçage nécessaire. Compatible avec les protocoles HACCP, c'est la solution habituelle de nos clients de restauration collective et de l'industrie alimentaire qui recherchent rapidité sans compromettre la sécurité.",
+    de: "Ein für Lebensmittelkontakt zugelassenes industrielles Entfettungsmittel, das eingebrannte Fette und organische Rückstände in Küchen und Produktionslinien entfernt, ohne dass anschließend gespült werden muss. Kompatibel mit HACCP-Protokollen, ist es die bevorzugte Lösung unserer Kunden aus Gemeinschaftsverpflegung und Lebensmittelindustrie, die Schnelligkeit ohne Sicherheitskompromisse benötigen."
+  },
+  'Net HOSTAL Premium': {
+    ca: "Netejador multisuperfície d'aroma neutre, pensat per a la rotació diària d'habitacions i zones comunes en hoteleria. No deixa residus visibles ni vels a mobles ni miralls, i la seva alta tolerància a l'aigua calcària el fa fiable en qualsevol zona geogràfica. Certificat ISO 14001, combina rendiment i respecte ambiental sense penalitzar el temps de neteja del personal.",
+    es: "Limpiador multisuperficie de aroma neutro, pensado para la rotación diaria de habitaciones y zonas comunes en hostelería. No deja residuos visibles ni velos en muebles ni espejos, y su alta tolerancia al agua calcárea lo hace fiable en cualquier zona geográfica. Certificado ISO 14001, combina rendimiento y respeto ambiental sin penalizar el tiempo de limpieza del personal.",
+    en: "A neutral-scent multi-surface cleaner designed for the daily turnover of rooms and common areas in hospitality. It leaves no visible residue or streaking on furniture or mirrors, and its high tolerance to hard water makes it reliable across any region. ISO 14001 certified, it combines performance and environmental care without slowing down staff cleaning time.",
+    fr: "Nettoyant multi-surfaces au parfum neutre, conçu pour la rotation quotidienne des chambres et espaces communs en hôtellerie. Il ne laisse ni résidus visibles ni voiles sur les meubles ou miroirs, et sa haute tolérance à l'eau calcaire le rend fiable dans toute zone géographique. Certifié ISO 14001, il allie performance et respect de l'environnement sans pénaliser le temps de nettoyage du personnel.",
+    de: "Ein neutral duftender Mehrflächenreiniger für den täglichen Zimmer- und Gemeinschaftsbereichswechsel im Hotelgewerbe. Er hinterlässt keine sichtbaren Rückstände oder Schlieren auf Möbeln oder Spiegeln, und seine hohe Kalkwassertoleranz macht ihn in jeder Region zuverlässig. ISO-14001-zertifiziert, vereint er Leistung und Umweltschutz, ohne die Reinigungszeit des Personals zu verlängern."
+  },
+  'WorkSafe Antimicrobial': {
+    ca: "Solució de recobriment antimicrobià per a superfícies de contacte freqüent, desenvolupada conjuntament amb OfiNova dins del projecte WorkSafe Smart Space. Redueix la càrrega microbiana entre neteges i s'integra amb sensors IoT que avisen quan cal reforçar la desinfecció, pensat per a oficines, coworkings i espais de treball compartit que volen anar més enllà de la neteja tradicional.",
+    es: "Solución de recubrimiento antimicrobiano para superficies de contacto frecuente, desarrollada conjuntamente con OfiNova dentro del proyecto WorkSafe Smart Space. Reduce la carga microbiana entre limpiezas y se integra con sensores IoT que avisan cuando conviene reforzar la desinfección, pensado para oficinas, coworkings y espacios de trabajo compartido que quieren ir más allá de la limpieza tradicional.",
+    en: "An antimicrobial coating solution for high-touch surfaces, co-developed with OfiNova as part of the WorkSafe Smart Space project. It reduces microbial load between cleanings and integrates with IoT sensors that flag when disinfection needs reinforcing — built for offices, coworking spaces and shared workspaces looking to go beyond traditional cleaning.",
+    fr: "Solution de revêtement antimicrobien pour surfaces à contact fréquent, développée conjointement avec OfiNova dans le cadre du projet WorkSafe Smart Space. Elle réduit la charge microbienne entre les nettoyages et s'intègre à des capteurs IoT qui signalent quand renforcer la désinfection, pensée pour les bureaux, espaces de coworking et lieux de travail partagés qui veulent aller au-delà du nettoyage traditionnel.",
+    de: "Eine antimikrobielle Beschichtungslösung für stark frequentierte Oberflächen, gemeinsam mit OfiNova im Rahmen des WorkSafe Smart Space-Projekts entwickelt. Sie reduziert die mikrobielle Belastung zwischen den Reinigungen und ist mit IoT-Sensoren verbunden, die anzeigen, wann eine verstärkte Desinfektion nötig ist — konzipiert für Büros, Coworking-Spaces und gemeinsam genutzte Arbeitsbereiche, die über die traditionelle Reinigung hinausgehen wollen."
+  },
+  'Gamma Superfícies QR': {
+    ca: "Línia de productes de superfície amb codi QR individual per lot, pensada per a organitzacions que necessiten traçabilitat digital immediata: escanejant el codi s'accedeix a la fitxa tècnica, la fitxa de seguretat i la data de fabricació del lot concret. La dosificació ×3 garanteix un ús exacte i redueix el malbaratament de producte en aplicacions professionals d'alta rotació.",
+    es: "Línea de productos de superficie con código QR individual por lote, pensada para organizaciones que necesitan trazabilidad digital inmediata: escaneando el código se accede a la ficha técnica, la ficha de seguridad y la fecha de fabricación del lote concreto. La dosificación ×3 garantiza un uso exacto y reduce el desperdicio de producto en aplicaciones profesionales de alta rotación.",
+    en: "A surface-care line with an individual QR code per batch, designed for organizations that need instant digital traceability: scanning the code brings up the technical datasheet, safety datasheet and manufacturing date of that specific batch. The ×3 dosing ensures exact use and reduces product waste in high-turnover professional applications.",
+    fr: "Gamme de produits de surface avec code QR individuel par lot, pensée pour les organisations ayant besoin d'une traçabilité numérique immédiate : scanner le code donne accès à la fiche technique, la fiche de sécurité et la date de fabrication du lot concerné. Le dosage ×3 garantit un usage exact et réduit le gaspillage de produit dans les applications professionnelles à forte rotation.",
+    de: "Eine Oberflächenpflegeserie mit individuellem QR-Code pro Charge, konzipiert für Organisationen, die sofortige digitale Rückverfolgbarkeit benötigen: Das Scannen des Codes zeigt das technische Datenblatt, das Sicherheitsdatenblatt und das Herstellungsdatum der jeweiligen Charge an. Die ×3-Dosierung gewährleistet exakten Verbrauch und reduziert Produktverschwendung bei professionellen Anwendungen mit hohem Durchsatz."
+  }
+};
+function hxProdDesc(name){
+  var lang = 'ca'; try { lang = localStorage.getItem('hx_lang') || 'ca'; } catch(e) {}
+  var entry = HX_PRODUCT_DESC[name];
+  if (!entry) return '';
+  return entry[lang] || entry.ca || '';
+}
+
 var PRODUCT_INFO = {
   'ECO Concentrat Pro':     {emoji:'🌿',price:'12,50 € / L',desc:'Concentrat x3 biodegradable. Redueix un 70% els envasos. ISO 14001.'},
   'Desinfectant HOSP-V':    {emoji:'🏥',price:'18,00 € / L',desc:'Virucida + Bactericida 99,99%. Biocida europeu. Per a quirofans i UCI.'},
@@ -9845,8 +9972,22 @@ function hxRenderFDSButtons(){
 document.addEventListener('click', function(e){
   if (e.target && e.target.closest && e.target.closest('#langDropdownMenu button')) {
     setTimeout(cmpRenderTable, 50);
+    setTimeout(hxRefreshOpenProductDesc, 50);
   }
 });
+function hxRefreshOpenProductDesc(){
+  var fpName = document.getElementById('fpName');
+  if (fpName && fpName.textContent) {
+    var fpDesc = document.getElementById('fpDesc');
+    if (fpDesc) fpDesc.textContent = hxProdDesc(fpName.textContent) || fpDesc.textContent;
+  }
+  var popupName = document.getElementById('popupName');
+  var popup = document.getElementById('productPopup');
+  if (popup && popup.classList.contains('open') && popupName && popupName.textContent) {
+    var popupDesc = document.getElementById('popupDesc');
+    if (popupDesc) popupDesc.textContent = hxProdDesc(popupName.textContent) || popupDesc.textContent;
+  }
+}
 
 function openProductPopup(name){
   hxTrackProductView(name);
@@ -9855,7 +9996,7 @@ function openProductPopup(name){
   var pi=document.getElementById('popupImg');
   var pn=document.getElementById('popupName');  if(pn) pn.textContent=name;
   var pp=document.getElementById('popupPrice'); if(pp) pp.textContent=info.price;
-  var pd=document.getElementById('popupDesc');  if(pd) pd.textContent=info.desc;
+  var pd=document.getElementById('popupDesc');  if(pd) pd.textContent=hxProdDesc(name)||info.desc;
   // La imatge del popup reutilitza el <img> ja carregat a la fitxa de producte
   // (mateix fitxer, sense duplicar-ne el base64 dins PRODUCT_INFO).
   var cardImg = document.querySelector('img.prod-img[alt="' + name + '"]');
@@ -9863,6 +10004,7 @@ function openProductPopup(name){
   else { if(pe){pe.textContent=info.emoji; pe.style.display='block';} if(pi){pi.style.display='none'; pi.alt='';} }
   var pop=document.getElementById('productPopup'); if(pop) pop.classList.add('open');
   _productPopupOpenedAt = Date.now();
+  hxRenderProductRating(name, 'popupRating', null);
 }
 window.openProductPopup=openProductPopup;
 function closeProductPopup(){var p=document.getElementById('productPopup');if(p)p.classList.remove('open');}
@@ -9891,7 +10033,7 @@ function obrirFitxaProducte(name) {
   for (var i=0; i<PRODUCTS.length; i++) { if (PRODUCTS[i].name === name) { prod = PRODUCTS[i]; break; } }
   document.getElementById('fpName').textContent = name;
   document.getElementById('fpPrice').textContent = info.price;
-  document.getElementById('fpDesc').textContent = info.desc;
+  document.getElementById('fpDesc').textContent = hxProdDesc(name)||info.desc;
   document.getElementById('fpBadge').textContent = prod ? prod.unit : 'Producte';
   var img = document.getElementById('fpImg'), emo = document.getElementById('fpEmoji');
   var cardImg = document.querySelector('img.prod-img[alt="' + name + '"]');
@@ -9910,6 +10052,9 @@ function obrirFitxaProducte(name) {
     }).join('');
   }
   navTo('fitxaproducte');
+  hxRenderProductRating(name, 'fpRating', 'fpReviewsList');
+  HX_CURRENT_REVIEW_STARS = 5;
+  hxRenderReviewStarsPicker();
 }
 window.obrirFitxaProducte = obrirFitxaProducte;
 
@@ -9945,7 +10090,7 @@ function fpDescarregarFitxaTecnica() {
     '<table><tr><td class="k">Nom comercial</td><td>' + escHtml(name) + '</td></tr>' +
     '<tr><td class="k">Fabricant</td><td>HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València</td></tr>' +
     '<tr><td class="k">Preu de referència</td><td>' + escHtml(info.price||'—') + '</td></tr></table>' +
-    '<h2>2. Descripció</h2><table><tr><td>' + escHtml(info.desc||'—') + '</td></tr></table>' +
+    '<h2>2. Descripció</h2><table><tr><td>' + escHtml(hxProdDesc(name)||info.desc||'—') + '</td></tr></table>' +
     '<h2>3. Mode d\'ús recomanat</h2>' +
     '<table><tr><td>Diluir segons superfície a tractar. Aplicar amb pols polvoritzador, mopa o bayeta microfibra. Deixar actuar el temps de contacte indicat a l\'etiqueta abans d\'aclarir si escau. Ventilar l\'espai durant l\'aplicació.</td></tr></table>' +
     '<h2>4. Precaucions i emmagatzematge</h2>' +
@@ -9972,7 +10117,7 @@ function fpDescarregarFDS(name) {
     '<div class="top"><div class="brand">HIGIENE<span>X</span></div><h1>Fitxa de Dades de Seguretat (FDS)</h1><div class="subt">' + escHtml(name) + ' — Document orientatiu, format simplificat</div></div>' +
     '<h2>Secció 1. Identificació de la substància i de la societat</h2>' +
     '<table><tr><td class="k">Nom del producte</td><td>' + escHtml(name) + '</td></tr>' +
-    '<tr><td class="k">Ús recomanat</td><td>' + escHtml(info.us || info.desc || '—') + '</td></tr>' +
+    '<tr><td class="k">Ús recomanat</td><td>' + escHtml(info.us || hxProdDesc(name) || info.desc || '—') + '</td></tr>' +
     '<tr><td class="k">Fabricant</td><td>HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es</td></tr>' +
     '<tr><td class="k">Telèfon d\'emergència</td><td>963 123 456 (horari laboral) · 645 678 901 (urgències 24/7)</td></tr></table>' +
     '<h2>Secció 2. Identificació de perills</h2>' +
@@ -10028,6 +10173,43 @@ function hxDescarregarCataleg() {
   abrirImprimibleComanda('Catàleg HIGIENEX', html);
 }
 window.hxDescarregarCataleg = hxDescarregarCataleg;
+
+function hxDescarregarCatalegExcel() {
+  if (!window.XLSX) { showToast('Encara es carrega el mòdul d\'Excel, torna-ho a provar en un segon.', '⚠️'); return; }
+  var rows = [['Producte', 'Sector recomanat', 'Preu', 'Concentració', 'Certificació', 'Biodegradable', 'Reducció envàs', 'Ús principal']];
+  Object.keys(CMP_DATA).forEach(function(name){
+    var info = CMP_DATA[name];
+    rows.push([name, info.sector, info.price, info.concentracio, info.certificacio, info.biodegradable, info.envas, info.us]);
+  });
+  try {
+    var ws = XLSX.utils.aoa_to_sheet(rows);
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Catàleg HIGIENEX');
+    XLSX.writeFile(wb, 'cataleg-higienex-' + new Date().toISOString().slice(0,10) + '.xlsx');
+  } catch(e) { showToast('No s\'ha pogut generar l\'Excel.', '⚠️'); }
+}
+window.hxDescarregarCatalegExcel = hxDescarregarCatalegExcel;
+
+// ═══════════════════════════════════════════════════════════
+// WIDGET "ÚLTIMA ACTUALITZACIÓ DE PREUS"
+// ═══════════════════════════════════════════════════════════
+var HX_PREUS_ACTUALITZATS = '2026-08-01'; // ← canvia aquesta data quan actualitzis preus
+var HX_PRICE_BADGE_LABEL = {ca:'🕒 Preus actualitzats el',es:'🕒 Precios actualizados el',en:'🕒 Prices updated on',fr:'🕒 Prix mis à jour le',de:'🕒 Preise aktualisiert am'};
+var HX_LOCALE_MAP = {ca:'ca-ES',es:'es-ES',en:'en-GB',fr:'fr-FR',de:'de-DE'};
+function hxRenderPriceBadge(){
+  var el = document.getElementById('hxPriceUpdatedBadge');
+  if (!el) return;
+  var lang = 'ca'; try { lang = localStorage.getItem('hx_lang') || 'ca'; } catch(e) {}
+  var d = new Date(HX_PREUS_ACTUALITZATS + 'T00:00:00');
+  var dateStr = d.toLocaleDateString(HX_LOCALE_MAP[lang] || 'ca-ES', {day:'numeric',month:'long',year:'numeric'});
+  el.innerHTML = (HX_PRICE_BADGE_LABEL[lang] || HX_PRICE_BADGE_LABEL.ca) + ' ' + dateStr;
+}
+document.addEventListener('DOMContentLoaded', hxRenderPriceBadge);
+document.addEventListener('click', function(e){
+  if (e.target && e.target.closest && e.target.closest('#langDropdownMenu button')) {
+    setTimeout(hxRenderPriceBadge, 60);
+  }
+});
 
 // ── RESUM DE CERTIFICACIONS EN PDF ──────────────────────────────────
 function hxDescarregarCertificats() {
@@ -10146,6 +10328,217 @@ window.hxRecurrentAfegir = hxRecurrentAfegir;
 document.addEventListener('DOMContentLoaded', hxRecurrentInit);
 
 // ═══════════════════════════════════════════════════════════
+// CERCADOR GLOBAL DE LA WEB
+// ═══════════════════════════════════════════════════════════
+var HX_SEARCH_INDEX = [
+  {title:'ECO Concentrat Pro', desc:'Concentrat ×3, biodegradable, ISO 14001', section:'productes', icon:'🌿'},
+  {title:'Desinfectant HOSP-V', desc:'Biocida UE, quiròfans i sanitari crític', section:'productes', icon:'🏥'},
+  {title:'Detergent ALIM-PRO', desc:'HACCP, indústria alimentària', section:'productes', icon:'🏭'},
+  {title:'Net HOSTAL Premium', desc:'Hoteleria, ISO 14001', section:'productes', icon:'🏨'},
+  {title:'Gamma Superfícies QR', desc:'Traçabilitat de lot digital', section:'productes', icon:'📱'},
+  {title:'WorkSafe Antimicrobial', desc:'Col·laboració OfiNova, oficines', section:'productes', icon:'🤝'},
+  {title:'Comparador de productes', desc:'Compara fins a 3 productes costat a costat', section:'productes', icon:'⚖️'},
+  {title:'Calculadora d\'estalvi ECO', desc:'Quant estalvies amb els concentrats', section:'compromis', icon:'🧮'},
+  {title:'Descàrregues i fitxes de seguretat', desc:'Catàleg PDF i FDS de cada producte', section:'productes', icon:'📥'},
+  {title:'Certificats i segells', desc:'ISO 14001, Registre de Biocides, HACCP', section:'compromis', icon:'🏅'},
+  {title:'On repartim', desc:'Zones de cobertura i terminis d\'entrega', section:'contacte', icon:'🚚'},
+  {title:'Sol·licita una mostra gratuïta', desc:'Prova el producte abans de comprar', section:'productes', icon:'🎁'},
+  {title:'Nosaltres / Història', desc:'HIGIENEX des de 2015 a València', section:'empresa', icon:'🏢'},
+  {title:'Missió, visió i valors', desc:'Rigor tècnic, sostenibilitat, integritat', section:'empresa', icon:'🎯'},
+  {title:'Casos d\'èxit', desc:'Hospitals, hotels i indústria alimentària', section:'empresa', icon:'⭐'},
+  {title:'Laboratori R+D', desc:'19 patents pròpies, independent des de 2018', section:'productes', icon:'🧪'},
+  {title:'Sostenibilitat i ISO 14001', desc:'Gestió ambiental certificada', section:'compromis', icon:'♻️'},
+  {title:'Blog i newsletter', desc:'Novetats del sector, normativa i innovació', section:'compromis', icon:'📰'},
+  {title:'Preguntes freqüents', desc:'Sectors, garanties, exportació, concentrats', section:'contacte', icon:'❓'},
+  {title:'Contacte', desc:'Adreça, telèfon, formulari, horari', section:'contacte', icon:'📍'},
+  {title:'Simulador de comanda recurrent', desc:'Programa reposicions automàtiques', section:'productes', icon:'🔁'}
+];
+
+function hxOpenSearch(){
+  var ov = document.getElementById('hxSearchOverlay');
+  if (!ov) return;
+  ov.style.display = 'block';
+  var input = document.getElementById('hxSearchInput');
+  if (input) { input.value = ''; setTimeout(function(){ input.focus(); }, 50); }
+  hxRunSearch();
+}
+window.hxOpenSearch = hxOpenSearch;
+function hxCloseSearch(){
+  var ov = document.getElementById('hxSearchOverlay');
+  if (ov) ov.style.display = 'none';
+}
+window.hxCloseSearch = hxCloseSearch;
+function hxRunSearch(){
+  var input = document.getElementById('hxSearchInput');
+  var results = document.getElementById('hxSearchResults');
+  if (!input || !results) return;
+  var q = input.value.trim().toLowerCase();
+  var matches = q ? HX_SEARCH_INDEX.filter(function(item){
+    return (item.title + ' ' + item.desc).toLowerCase().indexOf(q) !== -1;
+  }) : HX_SEARCH_INDEX.slice(0, 6);
+  if (!matches.length) {
+    results.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--charcoal);opacity:0.6;font-size:0.85rem;">Cap resultat per «' + q.replace(/</g,'&lt;') + '».</div>';
+    return;
+  }
+  results.innerHTML = matches.map(function(item){
+    return '<button type="button" onclick="hxSearchGo(' + JSON.stringify(item.section) + ')" style="display:flex;align-items:center;gap:0.7rem;width:100%;text-align:left;padding:0.7rem 0.8rem;border:none;background:none;border-radius:10px;cursor:pointer;font-family:inherit;" onmouseover="this.style.background=\'var(--warm-white)\'" onmouseout="this.style.background=\'none\'">' +
+      '<span style="font-size:1.2rem;">' + item.icon + '</span>' +
+      '<span><span style="display:block;font-weight:700;color:var(--green-deep);font-size:0.88rem;">' + item.title.replace(/</g,'&lt;') + '</span>' +
+      '<span style="display:block;font-size:0.76rem;color:var(--charcoal);opacity:0.65;">' + item.desc.replace(/</g,'&lt;') + '</span></span>' +
+      '</button>';
+  }).join('');
+}
+window.hxRunSearch = hxRunSearch;
+function hxSearchGo(section){
+  hxCloseSearch();
+  navTo(section);
+}
+window.hxSearchGo = hxSearchGo;
+
+// ═══════════════════════════════════════════════════════════
+// VALORACIONS DE PRODUCTES (estrelles)
+// ═══════════════════════════════════════════════════════════
+var HX_REVIEWS_KEY = 'hx_reviews';
+var HX_REVIEWS_SEED = {
+  'ECO Concentrat Pro': [
+    {n:'Marta S.', s:5, t:'Reduïm molt l\'espai d\'emmagatzematge des que fem servir els concentrats. Molt recomanable.'},
+    {n:'Josep R.', s:4, t:'Bon rendiment, encara que el primer cop cal ajustar-se bé a la dilució.'}
+  ],
+  'Desinfectant HOSP-V': [
+    {n:'Dra. Elena V.', s:5, t:'El que fem servir a planta des de fa un any. Eficàcia demostrada.'}
+  ],
+  'Detergent ALIM-PRO': [
+    {n:'Responsable de cuina', s:5, t:'Compleix HACCP sense complicacions i el rendiment és molt bo.'}
+  ],
+  'Net HOSTAL Premium': [
+    {n:'Direcció Hotel', s:4, t:'Bona relació qualitat-preu per a ús diari a habitacions.'}
+  ]
+};
+function hxReviewsLoad(){
+  try {
+    var raw = localStorage.getItem(HX_REVIEWS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+function hxReviewsSave(data){
+  try { localStorage.setItem(HX_REVIEWS_KEY, JSON.stringify(data)); } catch(e) {}
+}
+function hxReviewsFor(name){
+  var stored = hxReviewsLoad();
+  var seed = HX_REVIEWS_SEED[name] || [];
+  var user = stored[name] || [];
+  return seed.concat(user);
+}
+function hxStarsHtml(score, size){
+  size = size || '1rem';
+  var full = Math.round(score);
+  var html = '';
+  for (var i=1; i<=5; i++) html += '<span style="font-size:' + size + ';color:' + (i<=full ? '#F2A900' : '#DDD') + ';">★</span>';
+  return html;
+}
+var HX_CURRENT_REVIEW_STARS = 5;
+function hxRenderProductRating(name, targetRatingId, targetListId){
+  var reviews = hxReviewsFor(name);
+  var ratingEl = document.getElementById(targetRatingId);
+  if (ratingEl) {
+    if (!reviews.length) {
+      ratingEl.innerHTML = '<span style="color:var(--charcoal);opacity:0.55;font-size:0.82rem;">Encara sense valoracions</span>';
+    } else {
+      var avg = reviews.reduce(function(s,r){ return s+r.s; },0) / reviews.length;
+      ratingEl.innerHTML = hxStarsHtml(avg) + ' <span style="color:var(--charcoal);opacity:0.65;font-size:0.8rem;margin-left:0.3rem;">' + avg.toFixed(1) + ' (' + reviews.length + ')</span>';
+    }
+  }
+  var listEl = targetListId ? document.getElementById(targetListId) : null;
+  if (listEl) {
+    if (!reviews.length) {
+      listEl.innerHTML = '<p style="color:var(--charcoal);opacity:0.6;font-size:0.85rem;">Encara no hi ha valoracions d\'aquest producte. Sigues el primer a opinar!</p>';
+    } else {
+      listEl.innerHTML = reviews.map(function(r){
+        return '<div style="background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:0.9rem 1.1rem;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">' +
+          '<span style="font-weight:700;color:var(--green-deep);font-size:0.85rem;">' + escHtml(r.n||'Client anònim') + '</span>' +
+          '<span>' + hxStarsHtml(r.s, '0.85rem') + '</span></div>' +
+          '<p style="margin:0;font-size:0.83rem;color:var(--charcoal);opacity:0.85;">' + escHtml(r.t||'') + '</p></div>';
+      }).join('');
+    }
+  }
+}
+function hxRenderReviewStarsPicker(){
+  var el = document.getElementById('fpReviewStars');
+  if (!el) return;
+  el.innerHTML = [1,2,3,4,5].map(function(i){
+    return '<span onclick="hxSetReviewStars(' + i + ')" style="cursor:pointer;color:' + (i<=HX_CURRENT_REVIEW_STARS ? '#F2A900' : '#DDD') + ';">★</span>';
+  }).join('');
+}
+function hxSetReviewStars(n){
+  HX_CURRENT_REVIEW_STARS = n;
+  hxRenderReviewStarsPicker();
+}
+window.hxSetReviewStars = hxSetReviewStars;
+function fpEnviarValoracio(){
+  var name = document.getElementById('fpName').textContent;
+  var nameInput = document.getElementById('fpReviewName');
+  var textInput = document.getElementById('fpReviewText');
+  var text = textInput ? textInput.value.trim() : '';
+  if (!text) { showToast('Escriu un breu comentari abans d\'enviar.', '⚠️'); return; }
+  var data = hxReviewsLoad();
+  if (!data[name]) data[name] = [];
+  data[name].push({ n: (nameInput && nameInput.value.trim()) || 'Client anònim', s: HX_CURRENT_REVIEW_STARS, t: text });
+  hxReviewsSave(data);
+  if (nameInput) nameInput.value = '';
+  if (textInput) textInput.value = '';
+  HX_CURRENT_REVIEW_STARS = 5;
+  hxRenderReviewStarsPicker();
+  hxRenderProductRating(name, 'fpRating', 'fpReviewsList');
+  showToast('Gràcies per la teva valoració!', '⭐');
+}
+window.fpEnviarValoracio = fpEnviarValoracio;
+
+// ═══════════════════════════════════════════════════════════
+// COMPARTIR ENTRADES DEL BLOG A XARXES SOCIALS
+// ═══════════════════════════════════════════════════════════
+function hxShareUrl(){
+  return 'https://ossama450298-commits.github.io/Higienexweb/';
+}
+function hxShareBlog(network, title){
+  var url = encodeURIComponent(hxShareUrl());
+  var text = encodeURIComponent(title + ' — HIGIENEX');
+  var links = {
+    whatsapp: 'https://wa.me/?text=' + text + '%20' + url,
+    linkedin: 'https://www.linkedin.com/sharing/share-offsite/?url=' + url,
+    twitter: 'https://twitter.com/intent/tweet?text=' + text + '&url=' + url,
+    email: 'mailto:?subject=' + text + '&body=' + encodeURIComponent(title + '\n\n' + hxShareUrl())
+  };
+  if (links[network]) window.open(links[network], '_blank', 'noopener,noreferrer');
+}
+window.hxShareBlog = hxShareBlog;
+
+function hxInjectBlogShareButtons(){
+  var cards = document.querySelectorAll('.blog-card');
+  cards.forEach(function(card){
+    if (card.querySelector('.hx-share-row')) return; // ja té botons
+    var content = card.querySelector('.blog-content');
+    var titleEl = card.querySelector('.blog-title');
+    if (!content || !titleEl) return;
+    var title = titleEl.textContent.trim();
+    var row = document.createElement('div');
+    row.className = 'hx-share-row';
+    row.style.cssText = 'display:flex;gap:0.5rem;margin-top:0.7rem;';
+    row.innerHTML =
+      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'whatsapp\',' + JSON.stringify(title) + ')" title="Compartir a WhatsApp" aria-label="Compartir a WhatsApp" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">💬</button>' +
+      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'linkedin\',' + JSON.stringify(title) + ')" title="Compartir a LinkedIn" aria-label="Compartir a LinkedIn" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">💼</button>' +
+      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'twitter\',' + JSON.stringify(title) + ')" title="Compartir a X" aria-label="Compartir a X" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">🐦</button>' +
+      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'email\',' + JSON.stringify(title) + ')" title="Compartir per email" aria-label="Compartir per email" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">✉️</button>';
+    content.appendChild(row);
+  });
+}
+document.addEventListener('DOMContentLoaded', hxInjectBlogShareButtons);
+// Cada vegada que naveguem (les cards del blog es mostren en diferents pàgines) tornem a injectar
+var _hxOrigNavTo = navTo;
+navTo = function(id){ _hxOrigNavTo(id); setTimeout(hxInjectBlogShareButtons, 60); };
+window.navTo = navTo;
+
+// ═══════════════════════════════════════════════════════════
 // DETECCIÓ DE CONNEXIÓ (mode offline de la PWA)
 // ═══════════════════════════════════════════════════════════
 function hxUpdateOfflineBanner(){
@@ -10162,6 +10555,8 @@ document.addEventListener('DOMContentLoaded', hxUpdateOfflineBanner);
 document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   var closed = false;
+  var searchOv = document.getElementById('hxSearchOverlay');
+  if (searchOv && searchOv.style.display !== 'none') { hxCloseSearch(); closed = true; }
   var langMenu = document.getElementById('langDropdownMenu');
   if (langMenu && langMenu.classList.contains('open')) { hxToggleLangMenu(false); closed = true; }
   var navDropdown = document.getElementById('navDropdown');
@@ -10457,6 +10852,28 @@ window.hgRejectCookies = hgRejectCookies;
 window.hgGoCookiesPolicy = hgGoCookiesPolicy;
 window.hgInitCookies = hgInitCookies;
 
+function hgTogglePersonalitzar(){
+  var box = document.getElementById('hgCookiePersonalitzar');
+  if (box) box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none';
+}
+window.hgTogglePersonalitzar = hgTogglePersonalitzar;
+function hgSavePersonalitzat(){
+  var pref = document.getElementById('hgCookiePref');
+  var analytics = document.getElementById('hgCookieAnalytics');
+  try {
+    localStorage.setItem('hx_cookie_prefs', JSON.stringify({
+      necessary: true,
+      preferences: pref ? pref.checked : true,
+      analytics: analytics ? analytics.checked : true
+    }));
+  } catch(e) {}
+  window._hgCookiesPending = false;
+  var m = document.getElementById('hgCookieModal'); if (m) m.classList.remove('active');
+  document.body.style.overflow = '';
+  showToast('Preferències de cookies guardades.', '🍪');
+}
+window.hgSavePersonalitzat = hgSavePersonalitzat;
+
 // ════════════ PÀGINES LEGALS ════════════
 function legalOpen(id) {
   // Tancar el menú si està obert
@@ -10514,6 +10931,34 @@ window.legalClose = legalClose;
       <button onclick="hgAcceptCookies()" class="hg-cookie-btn-primary" type="button" data-i18n-key="t406">✓ Acceptar cookies</button>
       <button onclick="hgRejectCookies()" class="hg-cookie-btn-outline" type="button" data-i18n-key="t407">✕ Rebutjar</button>
     </div>
+    <button type="button" onclick="hgTogglePersonalitzar()" style="background:none;border:none;color:#0B70C8;font-size:0.8rem;font-weight:600;cursor:pointer;margin-top:0.7rem;text-decoration:underline;" data-i18n-key="t678">⚙️ Personalitzar cookies</button>
+    <div id="hgCookiePersonalitzar" style="display:none;text-align:left;margin-top:1rem;padding-top:1rem;border-top:1px solid #E0E0E0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;">
+        <div><strong style="font-size:0.85rem;color:#0B3D6B;" data-i18n-key="t679">Necessàries</strong><div style="font-size:0.75rem;color:#888;" data-i18n-key="t680">Imprescindibles per al funcionament del lloc. Sempre actives.</div></div>
+        <input type="checkbox" checked disabled style="width:20px;height:20px;flex-shrink:0;margin-left:0.8rem;">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;">
+        <div><strong style="font-size:0.85rem;color:#0B3D6B;" data-i18n-key="t681">Preferències</strong><div style="font-size:0.75rem;color:#888;" data-i18n-key="t682">Recorden el teu idioma i la teva sessió.</div></div>
+        <input id="hgCookiePref" type="checkbox" checked style="width:20px;height:20px;flex-shrink:0;margin-left:0.8rem;">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;">
+        <div><strong style="font-size:0.85rem;color:#0B3D6B;" data-i18n-key="t683">Analítiques</strong><div style="font-size:0.75rem;color:#888;" data-i18n-key="t684">Ens ajuden a entendre com s'utilitza el lloc.</div></div>
+        <input id="hgCookieAnalytics" type="checkbox" checked style="width:20px;height:20px;flex-shrink:0;margin-left:0.8rem;">
+      </div>
+      <button onclick="hgSavePersonalitzat()" class="hg-cookie-btn-primary" type="button" style="width:100%;margin-top:0.8rem;" data-i18n-key="t685">Guardar preferències</button>
+    </div>
+  </div>
+</div>
+
+<!-- CERCADOR GLOBAL DE LA WEB -->
+<div id="hxSearchOverlay" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(11,61,107,0.45);backdrop-filter:blur(3px);padding:8vh 1rem 1rem;" onclick="if(event.target===this) hxCloseSearch()">
+  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.25);overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:0.6rem;padding:1rem 1.2rem;border-bottom:1px solid var(--border);">
+      <span style="font-size:1.1rem;">🔍</span>
+      <input id="hxSearchInput" type="text" placeholder="Cerca productes, seccions, preguntes freqüents…" oninput="hxRunSearch()" style="flex:1;border:none;outline:none;font-size:0.95rem;font-family:inherit;" autocomplete="off">
+      <button type="button" onclick="hxCloseSearch()" aria-label="Tancar cercador" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--charcoal);opacity:0.6;">✕</button>
+    </div>
+    <div id="hxSearchResults" style="max-height:50vh;overflow-y:auto;padding:0.5rem;"></div>
   </div>
 </div>
 

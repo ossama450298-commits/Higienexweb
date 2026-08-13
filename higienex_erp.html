@@ -21,6 +21,7 @@
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
 <style>
 /* ==========================================================================
    HIGIENEX — Sistema de diseño 2026
@@ -5323,7 +5324,7 @@ const NAV=[
  {g:'Logística',items:[
    ['almacen','Artículos y stock','logistica'],
    ['almacenes','Almacenes','logistica'],['transportistas','Transportistas','logistica'],
-   ['expediciones','Expediciones','logistica'],['alertasstock','Alertas de stock','logistica']]},
+   ['expediciones','Expediciones','logistica'],['alertasstock','Alertas de stock','logistica'],['calendario','Calendario de entregas','logistica']]},
  {g:'Fabricación',items:[['materias','Materias primas','logistica'],['formulas','Fórmulas y escandallos','logistica'],['produccion','Órdenes de fabricación','logistica'],['lotes','Lotes y trazabilidad','logistica'],['calidad','Control de calidad','logistica']]},
  {g:'Personas',items:[['fichajes','Control de fichajes','all']]},
  {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh']]},
@@ -5341,7 +5342,7 @@ const NAV_ICONS={
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
   automat:'⚡', auditoria:'🛡️',
   sistema:'⚙️',
-  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊'
+  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊', calendario:'📅'
 };
 function can(area){
   if(!ME) return false;
@@ -6052,7 +6053,8 @@ ROUTES.kpis=function(){
   facturas.forEach(f=>{ porCli[f.cli]=(porCli[f.cli]||0)+f.total; });
   const topClients=Object.keys(porCli).map(id=>({id,total:porCli[id]})).sort((a,b)=>b.total-a.total).slice(0,5);
 
-  let h=head('Panel comercial (KPIs)','Rendiment de vendes per comercial, zona i client · exercici '+EJERCICIO);
+  let h=head('Panel comercial (KPIs)','Rendiment de vendes per comercial, zona i client · exercici '+EJERCICIO,
+    '<button class="btn ghost sm" onclick="exportarKPIsExcel()" type="button">📊 Exportar a Excel</button>');
   h+='<div class="grid g4" style="margin-bottom:16px">'+
     kpi('Vendes totals',EUR(totalVentas),facturas.length+' factures emeses','blue')+
     kpi('Import mitjà per factura',EUR(facturas.length?totalVentas/facturas.length:0),'','teal')+
@@ -6079,7 +6081,7 @@ ROUTES.incidencias=function(){
   const lista=all.filter(i=>hit(i.tipo+' '+i.desc+' '+nomCli(i.cli)+' '+i.estado));
   const abiertas=DB.incidencias.filter(i=>i.estado==='Abierta').length;
   let h=head('Incidències i reclamacions',abiertas+' obertes de '+all.length+' totals',
-    '<button class="btn" onclick="formIncidencia()" type="button">Nova incidència</button>');
+    '<button class="btn ghost sm" onclick="exportarIncidenciasExcel()" type="button">📊 Excel</button><button class="btn" onclick="formIncidencia()" type="button">Nova incidència</button>');
   h+=buscador('Cercar per client, tipus o descripció…',all.length,lista.length);
   h+='<div class="card">'+tbl([['Data'],['Client'],['Tipus'],['Descripció'],['Responsable'],['Estat'],['']],
     lista.map(i=>rowN([FD(i.fecha),esc(nomCli(i.cli)),esc(i.tipo),esc(i.desc),esc(emp(i.resp).nom),incEstadoTag(i.estado),
@@ -6131,7 +6133,7 @@ ROUTES.presupuestos=function(){
   const all=DB.presupuestos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const lista=all.filter(p=>hit(p.num+' '+nomCli(p.cli)));
   let h=head('Pressupostos',all.length+' pressupostos generats',
-    '<button class="btn" onclick="formPresupuesto()" type="button">Nou pressupost</button>');
+    '<button class="btn ghost sm" onclick="exportarPresupuestosExcel()" type="button">📊 Excel</button><button class="btn" onclick="formPresupuesto()" type="button">Nou pressupost</button>');
   h+=buscador('Cercar per número o client…',all.length,lista.length);
   h+='<div class="card">'+tbl([['Número'],['Data'],['Client'],['Import',''],['']],
     lista.map(p=>rowN([esc(p.num),FD(p.fecha),esc(nomCli(p.cli)),EUR(p.total),
@@ -6501,6 +6503,37 @@ function descargarXLSX(filas, nombre, hoja){
 }
 window.descargarXLSX = descargarXLSX;
 
+function exportarKPIsExcel(){
+  const filas=[['Comercial / Zona','Import facturat']];
+  const porResp={};
+  DB.facturasE.forEach(f=>{ const r=cli(f.cli).resp||'—'; porResp[r]=(porResp[r]||0)+f.total; });
+  Object.keys(porResp).forEach(id=>filas.push([emp(id).nom||'Sense assignar', porResp[id]]));
+  filas.push([]); filas.push(['Client','Import facturat']);
+  const porCli={};
+  DB.facturasE.forEach(f=>{ porCli[f.cli]=(porCli[f.cli]||0)+f.total; });
+  Object.keys(porCli).sort((a,b)=>porCli[b]-porCli[a]).forEach(id=>filas.push([nomCli(id), porCli[id]]));
+  descargarXLSX(filas, 'kpis-comercial-'+TODAY+'.xlsx', 'KPIs');
+}
+window.exportarKPIsExcel = exportarKPIsExcel;
+
+function exportarIncidenciasExcel(){
+  const filas=[['Data','Client','Tipus','Descripció','Responsable','Estat','Resolució']];
+  DB.incidencias.forEach(i=>filas.push([FD(i.fecha), nomCli(i.cli), i.tipo, i.desc, emp(i.resp).nom, i.estado, i.resolucion||'']));
+  descargarXLSX(filas, 'incidencias-'+TODAY+'.xlsx', 'Incidencias');
+}
+window.exportarIncidenciasExcel = exportarIncidenciasExcel;
+
+function exportarPresupuestosExcel(){
+  const filas=[['Número','Data','Client','Producte','Quantitat','Preu unitari','Import línia','Total pressupost']];
+  DB.presupuestos.forEach(p=>{
+    p.lineas.forEach(l=>{
+      filas.push([p.num, FD(p.fecha), nomCli(p.cli), art(l.art).nom, l.cant, l.precio, l.cant*l.precio, p.total]);
+    });
+  });
+  descargarXLSX(filas, 'presupuestos-'+TODAY+'.xlsx', 'Presupuestos');
+}
+window.exportarPresupuestosExcel = exportarPresupuestosExcel;
+
 /* Libro mayor */
 let CTA_SEL=null;
 function verMayor(cod){ CTA_SEL=cod; go('mayor'); }
@@ -6804,8 +6837,41 @@ function fichaArticulo(id){
         (m.tipo==='Entrada'?'+':'−')+NUM(m.cant),EUR(m.precio),EUR(m.importe),NUM(m.saldoCant),EUR(m.saldoValor)],[3,4,5,6,7]))),
     '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
     '<button class="btn ghost" onclick="formArticulo(\''+id+'\')" type="button">Editar</button>'+
+    '<button class="btn ghost" onclick="generarQRArticulo(\''+id+'\')" type="button">🔲 Codi QR</button>'+
     '<button class="btn" onclick="closeModal();formPedido(null,\''+p.prov+'\',\''+id+'\')" type="button">Pedir al proveedor</button>',true);
 }
+function generarQRArticulo(id){
+  const p=art(id);
+  openModal('Codi QR · '+esc(p.nom),
+    '<div style="text-align:center">'+
+      '<div id="qrCanvasWrap" style="display:inline-block;padding:16px;background:#fff;border-radius:12px;border:1px solid var(--line)"></div>'+
+      '<p style="font-size:12px;color:var(--ink-2);margin-top:12px">Codi de traçabilitat de lot per a l\'article <span class="mono">'+esc(p.ref)+'</span>. Escaneja\'l per veure la fitxa tècnica i de seguretat a la web.</p>'+
+    '</div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Tancar</button>'+
+    '<button class="btn" onclick="descarregarQRArticulo(\''+id+'\')" type="button">⬇️ Descarregar PNG</button>');
+  setTimeout(()=>{
+    const wrap=document.getElementById('qrCanvasWrap');
+    if(!wrap||typeof QRCode==='undefined') { if(wrap) wrap.innerHTML='<p style="font-size:12px;color:var(--ink-2)">Carregant generador de QR…</p>'; return; }
+    const url='https://ossama450298-commits.github.io/Higienexweb/?producte='+encodeURIComponent(p.nom)+'&ref='+encodeURIComponent(p.ref);
+    QRCode.toCanvas(document.createElement('canvas'), url, {width:220,margin:1,color:{dark:'#0B3D6B',light:'#FFFFFF'}}, (err,canvas)=>{
+      if(err){ wrap.innerHTML='<p style="font-size:12px;color:var(--red)">No s\'ha pogut generar el QR.</p>'; return; }
+      canvas.id='qrCanvasReal';
+      wrap.innerHTML=''; wrap.appendChild(canvas);
+    });
+  }, 150);
+}
+window.generarQRArticulo=generarQRArticulo;
+function descarregarQRArticulo(id){
+  const canvas=document.getElementById('qrCanvasReal');
+  if(!canvas){ toast('Encara s\'està generant el QR, espera un segon.'); return; }
+  const p=art(id);
+  const a=document.createElement('a');
+  a.href=canvas.toDataURL('image/png');
+  a.download='QR-'+p.ref+'.png';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('QR descarregat.');
+}
+window.descarregarQRArticulo=descarregarQRArticulo;
 function formArticulo(id){
   const p=id?art(id):{};
   openModal(id?'Editar artículo':'Nuevo artículo',
@@ -7678,8 +7744,65 @@ function vCalidad(){
       DB.noconf.map(n=>rowN([n.id,'<span class="mono">'+n.lote+'</span>',FD(n.fecha),esc(n.desc),esc(n.accion),
         n.estado==='Abierta'?'<span class="tag t-late">Abierta</span>':'<span class="tag t-ok">Cerrada</span>',
         n.estado==='Abierta'?'<button class="btn ghost sm" onclick="cerrarNC(\''+n.id+'\')" type="button">Cerrar</button>':'—'],[])))+'</div>';
+  h+=vChecklistAuditoria();
   return h;
 }
+const CHECKLIST_ITEMS=[
+  {id:'chk1',cat:'HACCP',txt:'Registres de temperatura de magatzem revisats i actualitzats'},
+  {id:'chk2',cat:'HACCP',txt:'Traçabilitat de lot completa en tots els productes ALIM'},
+  {id:'chk3',cat:'HACCP',txt:'Fitxes de seguretat (FDS) accessibles i actualitzades'},
+  {id:'chk4',cat:'HACCP',txt:'Formació del personal en manipulació segura documentada'},
+  {id:'chk5',cat:'ISO 14001',txt:'Registre de residus i abocaments al dia'},
+  {id:'chk6',cat:'ISO 14001',txt:'Consum d\'aigua i energia mesurat i documentat'},
+  {id:'chk7',cat:'ISO 14001',txt:'Proveïdors auditats amb criteris ambientals vigents'},
+  {id:'chk8',cat:'ISO 14001',txt:'Pla d\'emergència ambiental revisat aquest exercici'},
+  {id:'chk9',cat:'Qualitat',txt:'Cap no conformitat oberta sense acció correctiva'},
+  {id:'chk10',cat:'Qualitat',txt:'Calibratge d\'instruments de laboratori vigent'}
+];
+function chkLoad(){
+  try{ const raw=localStorage.getItem('hx_erp_checklist'); return raw?JSON.parse(raw):{}; }catch(e){ return {}; }
+}
+function chkSave(data){ try{ localStorage.setItem('hx_erp_checklist', JSON.stringify(data)); }catch(e){} }
+function vChecklistAuditoria(){
+  const estat=chkLoad();
+  const fets=CHECKLIST_ITEMS.filter(i=>estat[i.id]).length;
+  let h='<div class="card" style="margin-top:16px">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+    '<h3 style="margin:0">Checklist d\'auditoria HACCP / ISO 14001</h3>'+
+    '<button class="btn ghost sm" onclick="descarregarChecklist()" type="button">📄 Exportar PDF</button></div>'+
+    '<p style="font-size:12.5px;color:var(--ink-2);margin:0 0 12px">'+fets+' de '+CHECKLIST_ITEMS.length+' punts revisats · es guarda automàticament</p>';
+  ['HACCP','ISO 14001','Qualitat'].forEach(cat=>{
+    h+='<div style="margin-bottom:10px"><div class="eyebrow" style="display:block;margin-bottom:6px">'+cat+'</div>';
+    CHECKLIST_ITEMS.filter(i=>i.cat===cat).forEach(i=>{
+      h+='<label style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;cursor:pointer">'+
+        '<input type="checkbox" onchange="chkToggle(\''+i.id+'\',this.checked)"'+(estat[i.id]?' checked':'')+'> '+esc(i.txt)+'</label>';
+    });
+    h+='</div>';
+  });
+  h+='</div>';
+  return h;
+}
+function chkToggle(id,val){ const d=chkLoad(); d[id]=val; chkSave(d); go('calidad'); }
+window.chkToggle=chkToggle;
+function descarregarChecklist(){
+  const estat=chkLoad();
+  const rows=CHECKLIST_ITEMS.map(i=>'<tr><td>'+i.cat+'</td><td>'+i.txt+'</td><td style="text-align:center">'+(estat[i.id]?'✅':'☐')+'</td></tr>').join('');
+  const html='<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Checklist auditoria HIGIENEX</title>'+
+    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:12.5px;max-width:780px;margin:0 auto}'+
+    '.top{border-bottom:3px solid #0B3D6B;padding-bottom:16px;margin-bottom:22px}'+
+    '.brand{font-size:22px;font-weight:800;color:#0B3D6B;font-family:Georgia,serif}.brand span{color:#F2A900}'+
+    'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}th{background:#0B3D6B;color:#fff;text-align:left;padding:8px 10px;font-size:11px}'+
+    'td{border:1px solid #D9E5F0;padding:8px 10px}tr:nth-child(even) td{background:#F5FAFF}'+
+    '.foot{margin-top:24px;font-size:9.5px;color:#8A9BAC}@media print{@page{margin:15mm}}</style></head><body>'+
+    '<div class="top"><div class="brand">HIGIENE<span>X</span></div><h1 style="font-size:18px;color:#0B3D6B;margin:6px 0 0">Checklist d\'auditoria HACCP / ISO 14001</h1>'+
+    '<div style="color:#8A9BAC;font-size:11px">Generat el '+FD(TODAY)+'</div></div>'+
+    '<table><thead><tr><th>Categoria</th><th>Punt de control</th><th style="text-align:center">Estat</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+    '<div class="foot">HIGIENEX S.L. · Document intern de suport a l\'auditoria. No substitueix l\'informe oficial de l\'entitat certificadora.</div>'+
+    '</body></html>';
+  const w=window.open('','_blank'); w.document.write(html); w.document.close();
+  setTimeout(()=>w.print(),300);
+}
+window.descarregarChecklist=descarregarChecklist;
 function formAnalisis(lote){
   const l=DB.lotes.find(x=>x.lote===lote), s=SPECS[l.prod]||{ph:[0,14],dens:[0,2],visc:[0,999]};
   openModal('Ensayo de liberación · lote '+lote,
@@ -8127,6 +8250,62 @@ ROUTES.analitica=function(){
   h+='<p style="font-size:11px;color:var(--ink-2);margin-top:10px">Aquestes dades es guarden al navegador de cada visitant (sense servidor extern ni cookies de tercers) i només es poden consultar des del mateix dispositiu que va navegar per la web pública.</p>';
   return h;
 };
+
+/* =========================================================
+   CALENDARI D'ENTREGUES
+   ========================================================= */
+let CAL_MES = new Date(TODAY+'T00:00:00');
+ROUTES.calendario=function(){
+  const y=CAL_MES.getFullYear(), m=CAL_MES.getMonth();
+  const primerDia=new Date(y,m,1);
+  const diesAlMes=new Date(y,m+1,0).getDate();
+  const offset=(primerDia.getDay()+6)%7; // dilluns=0
+
+  const porDia={};
+  DB.expediciones.forEach(e=>{
+    const clau=e.fechaPrevista;
+    (porDia[clau]=porDia[clau]||[]).push(e);
+  });
+
+  const nomMes=primerDia.toLocaleDateString('ca-ES',{month:'long',year:'numeric'});
+  let h=head('Calendari d\'entregues','Expedicions previstes per data · '+DB.expediciones.length+' registrades',
+    '<button class="btn ghost sm" onclick="calMesAnterior()" type="button">←</button>'+
+    '<button class="btn ghost sm" onclick="calMesActual()" type="button">Avui</button>'+
+    '<button class="btn ghost sm" onclick="calMesSeguent()" type="button">→</button>');
+
+  h+='<div class="card"><h3 style="margin:0 0 14px;text-transform:capitalize">'+nomMes+'</h3>';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px;font-weight:700;color:var(--ink-2);text-align:center;margin-bottom:6px">'+
+    ['Dl','Dt','Dc','Dj','Dv','Ds','Dg'].map(d=>'<div>'+d+'</div>').join('')+'</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+  for(let i=0;i<offset;i++) h+='<div></div>';
+  for(let d=1;d<=diesAlMes;d++){
+    const dataStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const evs=porDia[dataStr]||[];
+    const avui=dataStr===TODAY;
+    h+='<div style="min-height:64px;border:1px solid var(--line);border-radius:8px;padding:4px;'+(avui?'background:var(--blue-050,#EAF2FF);border-color:var(--blue)':'')+'">'+
+      '<div style="font-size:11px;font-weight:700;color:'+(avui?'var(--blue)':'var(--ink-2)')+'">'+d+'</div>'+
+      evs.slice(0,2).map(e=>{
+        const color={Preparando:'#8A93A3',['En tránsito']:'#1565A8',Entregada:'#2E9E5B',Incidencia:'#D64545'}[e.estado]||'#8A93A3';
+        return '<div onclick="go(&quot;expediciones&quot;)" style="cursor:pointer;font-size:10px;background:'+color+';color:#fff;border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+esc(nomCli(e.cli))+' · '+e.fact+'">'+esc(nomCli(e.cli))+'</div>';
+      }).join('')+
+      (evs.length>2?'<div style="font-size:9px;color:var(--ink-2);margin-top:2px">+'+(evs.length-2)+' més</div>':'')+
+    '</div>';
+  }
+  h+='</div></div>';
+
+  const properes=DB.expediciones.filter(e=>e.fechaPrevista>=TODAY && e.estado!=='Entregada').sort((a,b)=>a.fechaPrevista.localeCompare(b.fechaPrevista)).slice(0,8);
+  h+='<div class="card" style="margin-top:16px"><h3 style="margin:0 0 12px">Properes entregues</h3>'+
+    tbl([['Data'],['Factura'],['Client'],['Transportista'],['Estat']],
+      properes.map(e=>rowN([FD(e.fechaPrevista),e.fact,esc(nomCli(e.cli)),esc(nomTransp(e.transp)),
+        {Preparando:'<span class="tag t-neu">Preparant</span>','En tránsito':'<span class="tag t-blue">En trànsit</span>',Incidencia:'<span class="tag t-late">Incidència</span>'}[e.estado]||e.estado],[])),
+      ['Sense entregues properes','Tot al dia.'])+
+  '</div>';
+  return h;
+};
+function calMesAnterior(){ CAL_MES=new Date(CAL_MES.getFullYear(),CAL_MES.getMonth()-1,1); go('calendario'); }
+function calMesSeguent(){ CAL_MES=new Date(CAL_MES.getFullYear(),CAL_MES.getMonth()+1,1); go('calendario'); }
+function calMesActual(){ CAL_MES=new Date(TODAY+'T00:00:00'); go('calendario'); }
+window.calMesAnterior=calMesAnterior; window.calMesSeguent=calMesSeguent; window.calMesActual=calMesActual;
 
 /* Botón de baja de empleado en la tabla de RRHH, solo para Dirección */
 const _rrhhBase = ROUTES.rrhh;
