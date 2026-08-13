@@ -615,8 +615,13 @@ var HX_I18N = {
 
 var HX_LANG_KEY = 'hx_lang';
 
+var HX_SENYERA_SVG = '<svg viewBox="0 0 20 14" style="width:1.15rem;height:0.8rem;display:inline-block;vertical-align:middle;border-radius:2px;box-shadow:0 0 0 0.5px rgba(0,0,0,0.15);"><rect width="20" height="14" fill="#FCDD09"/><rect y="0" width="20" height="1.56" fill="#DA121A"/><rect y="3.11" width="20" height="1.56" fill="#DA121A"/><rect y="6.22" width="20" height="1.56" fill="#DA121A"/><rect y="9.33" width="20" height="1.56" fill="#DA121A"/><rect y="12.44" width="20" height="1.56" fill="#DA121A"/></svg>';
+
+// Bandera de cada idioma: Catalunya no té emoji de bandera oficial a
+// Unicode, així que per a "ca" es fa servir un SVG propi de la senyera
+// en lloc de l'emoji genèric 🏴. La resta d'idiomes sí tenen emoji real.
 var HX_LANG_META = {
-  ca: { flag: '🏴', code: 'CA', htmlLang: 'ca' },
+  ca: { flag: HX_SENYERA_SVG, code: 'CA', htmlLang: 'ca' },
   es: { flag: '🇪🇸', code: 'ES', htmlLang: 'es' },
   en: { flag: '🇬🇧', code: 'EN', htmlLang: 'en' },
   fr: { flag: '🇫🇷', code: 'FR', htmlLang: 'fr' },
@@ -648,7 +653,7 @@ function hxApplyLang(lang) {
   document.documentElement.setAttribute('lang', meta.htmlLang);
 
   var flagEl = document.getElementById('langCurrentFlag');
-  if (flagEl) flagEl.textContent = meta.flag;
+  if (flagEl) flagEl.innerHTML = meta.flag;
 
   document.querySelectorAll('#langDropdownMenu button').forEach(function(b, i) {
     var codes = ['ca', 'es', 'en', 'fr', 'de'];
