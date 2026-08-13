@@ -1312,6 +1312,12 @@ tbody tr:hover td { background: var(--green-cream); }
 
 /* BLOG */
 #blog { background: var(--warm-white); }
+.nl-filter-btn {
+  padding: 0.5rem 1rem; border-radius: 30px; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; border: 1.5px solid var(--border); background: #fff; color: var(--charcoal);
+  transition: all 0.15s; font-family: inherit;
+}
+.nl-filter-btn.active, .nl-filter-btn:hover { background: var(--green-deep); color: #fff; border-color: var(--green-deep); }
 .blog-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -6966,6 +6972,100 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
   </div>
 </section>
 
+<!-- ═══════════════════════════════════════
+     DESCÀRREGUES
+     ═══════════════════════════════════════ -->
+<section id="descarregues" style="background:#fff;">
+  <div class="container">
+    <span class="section-tag" data-i18n-key="t617">📥 Documentació tècnica</span>
+    <h2 data-i18n-key="t618">Descàrregues</h2>
+    <p class="section-sub" data-i18n-key="t619">Catàleg complet i fitxes de seguretat (FDS) de cada producte, llestos per descarregar en PDF.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;margin-top:1.8rem;">
+      <button type="button" onclick="hxDescarregarCataleg()" style="text-align:left;background:var(--warm-white);border:1.5px solid var(--border);border-radius:16px;padding:1.3rem;cursor:pointer;transition:all 0.15s;">
+        <div style="font-size:1.6rem;margin-bottom:0.4rem;">📄</div>
+        <div style="font-weight:700;color:var(--green-deep);font-size:0.95rem;" data-i18n-key="t620">Catàleg complet (PDF)</div>
+        <div style="font-size:0.78rem;color:var(--charcoal);opacity:0.7;margin-top:0.2rem;" data-i18n-key="t621">Tots els productes, preus i certificacions en un sol document.</div>
+      </button>
+      <div id="descarreguesFDS" style="grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1rem;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     COMPARADOR DE PRODUCTES
+     ═══════════════════════════════════════ -->
+<section id="comparador" style="background:var(--warm-white);">
+  <div class="container">
+    <span class="section-tag" data-i18n-key="t604">⚖️ Compara abans de decidir</span>
+    <h2 data-i18n-key="t605">Comparador de productes</h2>
+    <p class="section-sub" data-i18n-key="t606">Selecciona fins a 3 productes i compara les seves característiques tècniques costat a costat.</p>
+
+    <div id="cmpPicker" style="display:flex;flex-wrap:wrap;gap:0.7rem;justify-content:center;margin:1.6rem 0 2.2rem;"></div>
+
+    <div id="cmpEmpty" style="text-align:center;color:var(--green-mid);opacity:0.75;padding:2rem 1rem;font-size:0.92rem;" data-i18n-key="t607">Tria almenys 2 productes de la llista de dalt per veure'ls comparats.</div>
+
+    <div id="cmpTableWrap" style="display:none;overflow-x:auto;">
+      <table id="cmpTable" style="width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);min-width:560px;">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SIMULADOR DE COMANDA RECURRENT
+     ═══════════════════════════════════════ -->
+<section id="simulador-recurrent" style="background:#fff;">
+  <div class="container">
+    <span class="section-tag" data-i18n-key="t657">🔁 Automatitza el teu subministrament</span>
+    <h2 data-i18n-key="t658">Simulador de comanda recurrent</h2>
+    <p class="section-sub" data-i18n-key="t659">Programa reposicions automàtiques i estalvia amb els nostres descomptes per volum acumulat.</p>
+
+    <div style="max-width:720px;margin:2rem auto 0;background:var(--warm-white);border-radius:20px;padding:2rem;border:1.5px solid var(--border);">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+        <div class="form-field" style="margin:0;">
+          <label for="recProducte" data-i18n-key="t660">Producte</label>
+          <select id="recProducte" onchange="hxRecurrentRun()" style="width:100%;padding:0.7rem;border-radius:10px;border:1.5px solid var(--border);font-size:0.88rem;"></select>
+        </div>
+        <div class="form-field" style="margin:0;">
+          <label for="recQty" data-i18n-key="t661">Garrafes 5L per comanda</label>
+          <input id="recQty" type="number" min="1" value="4" oninput="hxRecurrentRun()" style="width:100%;padding:0.7rem;border-radius:10px;border:1.5px solid var(--border);font-size:0.88rem;">
+        </div>
+        <div class="form-field" style="margin:0;">
+          <label for="recFreq" data-i18n-key="t662">Freqüència</label>
+          <select id="recFreq" onchange="hxRecurrentRun()" style="width:100%;padding:0.7rem;border-radius:10px;border:1.5px solid var(--border);font-size:0.88rem;">
+            <option value="1" data-i18n-key="t663">Cada mes</option>
+            <option value="2" data-i18n-key="t664">Cada 2 mesos</option>
+            <option value="3" data-i18n-key="t665">Cada trimestre</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:1.6rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center;">
+        <div style="background:#fff;border-radius:14px;padding:1.1rem 0.6rem;box-shadow:var(--shadow);">
+          <div id="recOutDescompte" style="font-size:1.5rem;font-weight:800;color:var(--green-deep);">—</div>
+          <div style="font-size:0.75rem;opacity:0.7;" data-i18n-key="t666">Descompte per volum</div>
+        </div>
+        <div style="background:#fff;border-radius:14px;padding:1.1rem 0.6rem;box-shadow:var(--shadow);">
+          <div id="recOutComanda" style="font-size:1.5rem;font-weight:800;color:var(--green-deep);">—</div>
+          <div style="font-size:0.75rem;opacity:0.7;" data-i18n-key="t667">Import per comanda</div>
+        </div>
+        <div style="background:#fff;border-radius:14px;padding:1.1rem 0.6rem;box-shadow:var(--shadow);">
+          <div id="recOutAnual" style="font-size:1.5rem;font-weight:800;color:var(--accent-dark, #B8860B);">—</div>
+          <div style="font-size:0.75rem;opacity:0.7;" data-i18n-key="t668">Estalvi anual amb la subscripció</div>
+        </div>
+      </div>
+
+      <p style="font-size:0.76rem;opacity:0.65;margin-top:1.2rem;" data-i18n-key="t669"><strong>Descomptes per volum:</strong> -5% des de 5 unitats · -10% des de 10 · -15% des de 20 (s'aplica automàticament al cistell).</p>
+      <div style="text-align:center;margin-top:1rem;">
+        <button type="button" class="btn-primary" onclick="hxRecurrentAfegir()" data-i18n-key="t670">🛒 Afegir aquesta comanda al cistell</button>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="mostra-gratuita" style="background:linear-gradient(135deg,#0B3D6B,#1565A8);position:relative;overflow:hidden;">
   <div style="position:absolute;top:-60px;right:-40px;width:220px;height:220px;background:rgba(242,169,0,0.14);border-radius:50%;"></div>
   <div class="container" style="position:relative;text-align:center;">
@@ -7099,7 +7199,44 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     </div>
   </div>
 </section>
-<!-- 17. RSC -->
+<!-- CALCULADORA D'ESTALVI ECO -->
+<section id="calc-eco" style="background:linear-gradient(135deg,#0B3D6B,#1565A8);">
+  <div class="container">
+    <span class="section-tag" style="background:rgba(255,255,255,0.16);color:#fff;" data-i18n-key="t608">🧮 Calcula el teu estalvi</span>
+    <h2 style="color:#fff;" data-i18n-key="t609">Quant estalvies passant-te als concentrats ECO?</h2>
+    <p style="color:#DEEEFB;max-width:640px;" data-i18n-key="t610">Introdueix el teu consum mensual actual i compara't amb un producte concentrat ×3 d'HIGIENEX.</p>
+
+    <div style="max-width:720px;margin:2rem auto 0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:2rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;">
+        <div class="form-field" style="margin:0;">
+          <label for="calcLitres" style="color:#DEEEFB;" data-i18n-key="t611">Litres de producte diluït que gastes al mes</label>
+          <input id="calcLitres" type="number" min="0" value="200" oninput="calcEcoRun()" style="width:100%;padding:0.7rem;border-radius:10px;border:1.5px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.95);font-size:0.92rem;">
+        </div>
+        <div class="form-field" style="margin:0;">
+          <label for="calcPreuActual" style="color:#DEEEFB;" data-i18n-key="t612">Preu actual per litre ja diluït (€)</label>
+          <input id="calcPreuActual" type="number" min="0" step="0.01" value="3.20" oninput="calcEcoRun()" style="width:100%;padding:0.7rem;border-radius:10px;border:1.5px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.95);font-size:0.92rem;">
+        </div>
+      </div>
+
+      <div id="calcEcoResult" style="margin-top:1.8rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center;">
+        <div style="background:rgba(255,255,255,0.1);border-radius:14px;padding:1.1rem 0.6rem;">
+          <div id="calcOutAnual" style="font-size:1.6rem;font-weight:800;color:var(--accent);">—</div>
+          <div style="font-size:0.75rem;color:#DEEEFB;" data-i18n-key="t613">Estalvi anual estimat</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:14px;padding:1.1rem 0.6rem;">
+          <div id="calcOutEnvasos" style="font-size:1.6rem;font-weight:800;color:var(--accent);">—</div>
+          <div style="font-size:0.75rem;color:#DEEEFB;" data-i18n-key="t614">Envasos plàstics evitats/any</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:14px;padding:1.1rem 0.6rem;">
+          <div id="calcOutPct" style="font-size:1.6rem;font-weight:800;color:var(--accent);">—</div>
+          <div style="font-size:0.75rem;color:#DEEEFB;" data-i18n-key="t615">Reducció de cost</div>
+        </div>
+      </div>
+      <p style="color:rgba(255,255,255,0.55);font-size:0.72rem;margin-top:1.2rem;text-align:center;" data-i18n-key="t616">Càlcul orientatiu basat en una dilució ×3 i un envàs estàndard de 5 L. El resultat final depèn del producte i sector concrets.</p>
+    </div>
+  </div>
+</section>
+
 <section id="rsc" style="padding:0 0 4rem;">
   <div style="width:100%;height:180px;overflow:hidden;position:relative;">
     <img loading="lazy" src="https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Responsabilitat social" style="width:100%;height:100%;object-fit:cover;display:block;">
@@ -7115,6 +7252,42 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
       <div class="rsc-card"><h3 data-i18n-key="t075">📋 Compliment Normatiu Proactiu</h3><p data-i18n-key="t242">Seguiment continu de la normativa europea en productes químics i biocides. Els sistemes estrictes de control de qualitat són un avantatge competitiu i no una simple obligació legal.</p></div>
       <div class="rsc-card"><h3 data-i18n-key="t076">🏪 Ajudes i Subvencions</h3><p data-i18n-key="t243">Accés a Kit Digital, ajudes a la innovació industrial i subvencions mediambientals de les CCAA. Finançament d'R+D amb interessos reduïts. Bonificacions a la Seguretat Social per nous contractes.</p></div>
       <div class="rsc-card"><h3 data-i18n-key="t077">🤝 Aliances Estratègiques</h3><p data-i18n-key="t244">Col·laboració amb OfiNova en WorkSafe Smart Space. Entitats certificadores i organismes reguladors com a socis clau. Aliances que generen sinergies i valor per a ambdues empreses.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     CERTIFICATS I SEGELLS
+     ═══════════════════════════════════════ -->
+<section id="certificats" style="background:var(--warm-white);">
+  <div class="container">
+    <span class="section-tag" data-i18n-key="t634">🏅 Garantia documentada</span>
+    <h2 data-i18n-key="t635">Certificats i segells</h2>
+    <p class="section-sub" data-i18n-key="t636">Cada certificació és auditada per una entitat independent. Descarrega el resum per compartir-lo amb el teu departament de compres.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.2rem;margin-top:1.8rem;">
+      <div style="background:#fff;border-radius:16px;padding:1.5rem;border:1.5px solid var(--border);text-align:center;">
+        <div style="font-size:2.2rem;">🌍</div>
+        <h4 style="color:var(--green-deep);margin:0.5rem 0 0.3rem;" data-i18n-key="t637">ISO 14001</h4>
+        <p style="font-size:0.8rem;opacity:0.75;margin:0;" data-i18n-key="t638">Gestió ambiental certificada des de 2022.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.5rem;border:1.5px solid var(--border);text-align:center;">
+        <div style="font-size:2.2rem;">☣️</div>
+        <h4 style="color:var(--green-deep);margin:0.5rem 0 0.3rem;" data-i18n-key="t639">Registre de Biocides UE</h4>
+        <p style="font-size:0.8rem;opacity:0.75;margin:0;" data-i18n-key="t640">Desinfectants TP2/TP4 registrats reglamentàriament.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.5rem;border:1.5px solid var(--border);text-align:center;">
+        <div style="font-size:2.2rem;">🍽️</div>
+        <h4 style="color:var(--green-deep);margin:0.5rem 0 0.3rem;" data-i18n-key="t641">Homologació HACCP</h4>
+        <p style="font-size:0.8rem;opacity:0.75;margin:0;" data-i18n-key="t642">Productes homologats per a contacte alimentari.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.5rem;border:1.5px solid var(--border);text-align:center;">
+        <div style="font-size:2.2rem;">📜</div>
+        <h4 style="color:var(--green-deep);margin:0.5rem 0 0.3rem;" data-i18n-key="t643">19 patents pròpies</h4>
+        <p style="font-size:0.8rem;opacity:0.75;margin:0;" data-i18n-key="t644">Formulacions desenvolupades al laboratori independent.</p>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1.8rem;">
+      <button type="button" class="btn-primary" onclick="hxDescarregarCertificats()" data-i18n-key="t645">📥 Descarregar resum de certificacions (PDF)</button>
     </div>
   </div>
 </section>
@@ -7286,6 +7459,13 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
       </div>
     </div>
 
+    <div id="nlFilters" style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:1.4rem;">
+      <button type="button" class="nl-filter-btn active" data-filter="all" onclick="hxFilterBlog('all')" data-i18n-key="t652">Totes</button>
+      <button type="button" class="nl-filter-btn" data-filter="Laboratori" onclick="hxFilterBlog('Laboratori')">🧪 <span data-i18n-key="t653">Laboratori</span></button>
+      <button type="button" class="nl-filter-btn" data-filter="Sostenibilitat" onclick="hxFilterBlog('Sostenibilitat')">♻️ <span data-i18n-key="t656">Sostenibilitat</span></button>
+      <button type="button" class="nl-filter-btn" data-filter="Innovació" onclick="hxFilterBlog('Innovació')">💡 <span data-i18n-key="t654">Innovació</span></button>
+      <button type="button" class="nl-filter-btn" data-filter="Normativa" onclick="hxFilterBlog('Normativa')">📋 <span data-i18n-key="t655">Normativa</span></button>
+    </div>
     <div class="blog-grid fade-in" id="nlGrid">
       <div class="blog-card" data-cat="Laboratori">
         <img loading="lazy" src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Laboratori d'anàlisi" class="blog-img">
@@ -7310,6 +7490,14 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
       <div class="blog-card" data-cat="Innovació">
         <img loading="lazy" src="https://images.unsplash.com/photo-1553413077-190dd305871c?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Magatzem automatitzat" class="blog-img">
         <div class="blog-content"><div class="nl-tag nl-tag-innovacio">💡 Innovació</div><h3 class="blog-title" data-i18n-key="t110">Logística intel·ligent: com l'automatització redueix errors de subministrament un 25%</h3><p style="font-size:0.8rem;color:#888;margin-top:0.5rem;" data-i18n-key="t273">Els magatzems del sector incorporen picking guiat per veu i escaneig per lot, reduint temps d'entrega i devolucions per errors de referència.</p><span class="nl-meta" data-i18n-key="t350">🕒 3 min · Maig 2026</span></div>
+      </div>
+      <div class="blog-card" data-cat="Sostenibilitat">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Auditoria ambiental" class="blog-img">
+        <div class="blog-content"><div class="nl-tag nl-tag-sostenibilitat">♻️ Sostenibilitat</div><h3 class="blog-title" data-i18n-key="t646">HIGIENEX renova l'auditoria ISO 14001 amb zero no-conformitats per tercer any consecutiu</h3><p style="font-size:0.8rem;color:#888;margin-top:0.5rem;" data-i18n-key="t647">L'auditoria externa confirma el compliment total del sistema de gestió ambiental, incloent la traçabilitat de residus i el control d'emissions de la flota.</p><span class="nl-meta" data-i18n-key="t649">🕒 2 min · Setembre 2026</span></div>
+      </div>
+      <div class="blog-card" data-cat="Normativa">
+        <img loading="lazy" src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&w=700&q=80&auto=format&fit=crop&crop=center&cs=tinysrgb" alt="Documentació reglamentària" class="blog-img">
+        <div class="blog-content"><div class="nl-tag nl-tag-normativa">📋 Normativa</div><h3 class="blog-title" data-i18n-key="t648">Fitxes de dades de seguretat digitals: la nova exigència dels grans comptes B2B</h3><p style="font-size:0.8rem;color:#888;margin-top:0.5rem;" data-i18n-key="t650">Cadenes hoteleres i hospitalàries comencen a exigir accés digital immediat a les FDS abans de tancar contractes de subministrament.</p><span class="nl-meta" data-i18n-key="t651">🕒 3 min · Setembre 2026</span></div>
       </div>
     </div>
   </div>
@@ -7376,6 +7564,43 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     </div>
   </div>
   <iframe class="map-embed" loading="lazy" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3079.5!2d-0.3769!3d39.4738!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd6048a0eefcb0a9%3A0x1a5c5f3d0b6b7f5e!2sCalle%20de%20la%20Industria%2C%2025%2C%2046010%20Valencia!5e0!3m2!1sca!2ses!4v1" allowfullscreen loading="lazy" allowfullscreen></iframe>
+</section>
+
+<!-- ═══════════════════════════════════════
+     ZONES DE REPARTIMENT
+     ═══════════════════════════════════════ -->
+<section id="zones-reparti" style="background:var(--warm-white);">
+  <div class="container">
+    <span class="section-tag" data-i18n-key="t622">🚚 Cobertura de distribució</span>
+    <h2 data-i18n-key="t623">On repartim</h2>
+    <p class="section-sub" data-i18n-key="t624">Flota pròpia a la Comunitat Valenciana i acords logístics per a la resta d'Espanya.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;margin-top:1.8rem;">
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <div style="font-size:1.6rem;">🚛</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;" data-i18n-key="t625">València, Castelló i Alacant</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;" data-i18n-key="t626">Repartiment amb flota pròpia. Entrega en 24-48h laborables.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <div style="font-size:1.6rem;">📦</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;" data-i18n-key="t627">Resta d'Espanya peninsular</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;" data-i18n-key="t628">Mitjançant transportista homologat. Entrega en 2-4 dies laborables.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <div style="font-size:1.6rem;">🏝️</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;" data-i18n-key="t629">Balears i Canàries</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;" data-i18n-key="t630">Sota comanda amb transport marítim/aeri. Consulta terminis amb l'equip comercial.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <div style="font-size:1.6rem;">🇵🇹</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;" data-i18n-key="t631">Portugal</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;" data-i18n-key="t632">Pla d'entrada 2026 via distribuïdors locals. Disponible pròximament.</p>
+      </div>
+    </div>
+    <div style="margin-top:1.6rem;background:#0B3D6B;border-radius:14px;padding:1rem 1.4rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+      <span style="font-size:1.3rem;">💰</span>
+      <span style="color:#DEEEFB;font-size:0.86rem;" data-i18n-key="t633">Transport gratuït a partir de 300 € de comanda. Per sota d'aquest import, càrrec fix de 5,00 €.</span>
+    </div>
+  </div>
 </section>
 </div><!-- /g-contacte -->
 
@@ -9448,6 +9673,181 @@ var PRODUCT_INFO = {
 };
 PRODUCT_INFO['Gamma Superfícies QR']={emoji:'📱',price:'14,00 € / L',desc:'Tracabilitat digital de lot via QR. Dosi exacta garantida.'};
 
+// ═══════════════════════════════════════════════════════════
+// COMPARADOR DE PRODUCTES
+// ═══════════════════════════════════════════════════════════
+var CMP_DATA = {
+  'ECO Concentrat Pro': {
+    emoji:'🌿', price:'12,50 € / L', sector:'General B2B',
+    concentracio:'×3 (dilució 1:3)', certificacio:'ISO 14001',
+    biodegradable:'Sí, 100%', envas:'-70% plàstic', us:'Superfícies i sòls generals'
+  },
+  'Desinfectant HOSP-V': {
+    emoji:'🏥', price:'18,00 € / L', sector:'Sanitari / Hospitals',
+    concentracio:'Ús directe', certificacio:'Biocida UE (TP2/TP4)',
+    biodegradable:'Parcial', envas:'Estàndard', us:'Quiròfans, UCI, sanitari crític'
+  },
+  'Detergent ALIM-PRO': {
+    emoji:'🏭', price:'9,80 € / L', sector:'Indústria alimentària',
+    concentracio:'×2 (dilució 1:2)', certificacio:'HACCP · Contacte alimentari',
+    biodegradable:'Sí', envas:'Estàndard', us:'Cuines industrials, línies de producció'
+  },
+  'Net HOSTAL Premium': {
+    emoji:'🏨', price:'11,20 € / L', sector:'Hostaleria / Hotels',
+    concentracio:'×2 (dilució 1:2)', certificacio:'ISO 14001',
+    biodegradable:'Sí', envas:'-40% plàstic', us:'Habitacions, zones comunes'
+  },
+  'Gamma Superfícies QR': {
+    emoji:'📱', price:'14,00 € / L', sector:'Oficines / Multisector',
+    concentracio:'×3 (dilució 1:3)', certificacio:'ISO 14001 · QR traçabilitat',
+    biodegradable:'Sí', envas:'-70% plàstic', us:'Superfícies amb traçabilitat de lot'
+  },
+  'WorkSafe Antimicrobial': {
+    emoji:'🤝', price:'22,00 € / L', sector:'Oficines / Coworking',
+    concentracio:'Ús directe', certificacio:'Biocida UE · Col·lab. OfiNova',
+    biodegradable:'Parcial', envas:'Estàndard', us:'Superfícies de contacte freqüent, IoT'
+  }
+};
+var CMP_ROWS = [
+  {key:'price',        label:{ca:'Preu',es:'Precio',en:'Price',fr:'Prix',de:'Preis'}},
+  {key:'sector',       label:{ca:'Sector recomanat',es:'Sector recomendado',en:'Recommended sector',fr:'Secteur recommandé',de:'Empfohlene Branche'}},
+  {key:'concentracio', label:{ca:'Concentració',es:'Concentración',en:'Concentration',fr:'Concentration',de:'Konzentration'}},
+  {key:'certificacio', label:{ca:'Certificació',es:'Certificación',en:'Certification',fr:'Certification',de:'Zertifizierung'}},
+  {key:'biodegradable',label:{ca:'Biodegradable',es:'Biodegradable',en:'Biodegradable',fr:'Biodégradable',de:'Biologisch abbaubar'}},
+  {key:'envas',        label:{ca:'Reducció envàs',es:'Reducción envase',en:'Packaging reduction',fr:'Réduction emballage',de:'Verpackungsreduzierung'}},
+  {key:'us',           label:{ca:'Ús principal',es:'Uso principal',en:'Main use',fr:'Usage principal',de:'Hauptanwendung'}}
+];
+var cmpSelected = [];
+
+// ═══════════════════════════════════════════════════════════
+// CALCULADORA D'ESTALVI ECO
+// ═══════════════════════════════════════════════════════════
+function calcEcoRun(){
+  var litresEl = document.getElementById('calcLitres');
+  var preuEl = document.getElementById('calcPreuActual');
+  if (!litresEl || !preuEl) return;
+  var litres = parseFloat(litresEl.value) || 0;
+  var preuActual = parseFloat(preuEl.value) || 0;
+
+  // Un concentrat ×3 d'HIGIENEX es dilueix 1:3, així que el preu del
+  // producte concentrat (12,50€/L de mitjana) equival a 12,50/4 = 3,125€
+  // per litre ja diluït (1 L concentrat + 3 L aigua = 4 L de producte d'ús).
+  var preuEcoConcentratPerLitre = 12.50;
+  var preuEcoDiluitPerLitre = preuEcoConcentratPerLitre / 4;
+
+  var costActualAnual = litres * preuActual * 12;
+  var costEcoAnual = litres * preuEcoDiluitPerLitre * 12;
+  var estalvi = Math.max(0, costActualAnual - costEcoAnual);
+  var pct = costActualAnual > 0 ? Math.round((estalvi / costActualAnual) * 100) : 0;
+
+  // Envasos evitats: un envàs estàndard és de 5L de producte ja diluït;
+  // amb concentrat ×3 necessites 4 vegades menys envasos físics.
+  var envasosSenseEco = Math.round((litres * 12) / 5);
+  var envasosAmbEco = Math.round(envasosSenseEco / 4);
+  var envasosEstalviats = Math.max(0, envasosSenseEco - envasosAmbEco);
+
+  var outAnual = document.getElementById('calcOutAnual');
+  var outEnvasos = document.getElementById('calcOutEnvasos');
+  var outPct = document.getElementById('calcOutPct');
+  if (outAnual) outAnual.textContent = estalvi.toLocaleString('es-ES', {maximumFractionDigits:0}) + ' €';
+  if (outEnvasos) outEnvasos.textContent = envasosEstalviats.toLocaleString('es-ES');
+  if (outPct) outPct.textContent = (pct > 0 ? pct : 0) + '%';
+}
+document.addEventListener('DOMContentLoaded', calcEcoRun);
+
+function cmpLang(){ try { return localStorage.getItem('hx_lang') || 'ca'; } catch(e){ return 'ca'; } }
+
+function cmpRenderPicker(){
+  var wrap = document.getElementById('cmpPicker');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  Object.keys(CMP_DATA).forEach(function(name){
+    var info = CMP_DATA[name];
+    var active = cmpSelected.indexOf(name) !== -1;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = info.emoji + ' ' + name;
+    btn.style.cssText = 'padding:0.55rem 1rem;border-radius:30px;font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.15s;border:1.5px solid ' + (active ? 'var(--green-deep)' : 'var(--border)') + ';background:' + (active ? 'var(--green-deep)' : '#fff') + ';color:' + (active ? '#fff' : 'var(--charcoal)') + ';';
+    btn.onclick = function(){ cmpToggle(name); };
+    wrap.appendChild(btn);
+  });
+}
+
+function cmpToggle(name){
+  var idx = cmpSelected.indexOf(name);
+  if (idx !== -1) {
+    cmpSelected.splice(idx, 1);
+  } else {
+    if (cmpSelected.length >= 3) cmpSelected.shift(); // màxim 3: treu el més antic
+    cmpSelected.push(name);
+  }
+  cmpRenderPicker();
+  cmpRenderTable();
+}
+window.cmpToggle = cmpToggle;
+
+function cmpRenderTable(){
+  var wrap = document.getElementById('cmpTableWrap');
+  var empty = document.getElementById('cmpEmpty');
+  var table = document.getElementById('cmpTable');
+  if (!wrap || !table) return;
+  if (cmpSelected.length < 2) {
+    wrap.style.display = 'none';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  wrap.style.display = 'block';
+  var lang = cmpLang();
+
+  var thead = table.querySelector('thead');
+  var tbody = table.querySelector('tbody');
+  var headHtml = '<tr><th style="text-align:left;padding:1rem;background:var(--green-deep);color:#fff;font-size:0.8rem;">&nbsp;</th>';
+  cmpSelected.forEach(function(name){
+    var info = CMP_DATA[name];
+    headHtml += '<th style="text-align:left;padding:1rem;background:var(--green-deep);color:#fff;font-size:0.88rem;white-space:nowrap;">' + info.emoji + ' ' + name + '</th>';
+  });
+  headHtml += '</tr>';
+  thead.innerHTML = headHtml;
+
+  var bodyHtml = '';
+  CMP_ROWS.forEach(function(row, i){
+    var bg = i % 2 === 0 ? '#fff' : 'var(--warm-white)';
+    bodyHtml += '<tr style="background:' + bg + ';"><td style="padding:0.9rem 1rem;font-weight:700;color:var(--green-deep);font-size:0.82rem;white-space:nowrap;">' + (row.label[lang] || row.label.ca) + '</td>';
+    cmpSelected.forEach(function(name){
+      var val = CMP_DATA[name][row.key];
+      bodyHtml += '<td style="padding:0.9rem 1rem;font-size:0.86rem;color:var(--charcoal);">' + val + '</td>';
+    });
+    bodyHtml += '</tr>';
+  });
+  tbody.innerHTML = bodyHtml;
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  cmpSelected = ['ECO Concentrat Pro', 'Desinfectant HOSP-V'];
+  cmpRenderPicker();
+  cmpRenderTable();
+  hxRenderFDSButtons();
+});
+function hxRenderFDSButtons(){
+  var wrap = document.getElementById('descarreguesFDS');
+  if (!wrap) return;
+  wrap.innerHTML = Object.keys(CMP_DATA).map(function(name){
+    var info = CMP_DATA[name];
+    return '<button type="button" onclick="fpDescarregarFDS(' + JSON.stringify(name) + ')" style="text-align:left;background:var(--warm-white);border:1.5px solid var(--border);border-radius:16px;padding:1.3rem;cursor:pointer;">' +
+      '<div style="font-size:1.6rem;margin-bottom:0.4rem;">' + info.emoji + '</div>' +
+      '<div style="font-weight:700;color:var(--green-deep);font-size:0.9rem;">FDS · ' + escHtml(name) + '</div>' +
+      '<div style="font-size:0.76rem;color:var(--charcoal);opacity:0.7;margin-top:0.2rem;">' + escHtml(info.certificacio) + '</div>' +
+      '</button>';
+  }).join('');
+}
+// Recalcula els textos de la taula si l'usuari canvia d'idioma
+document.addEventListener('click', function(e){
+  if (e.target && e.target.closest && e.target.closest('#langDropdownMenu button')) {
+    setTimeout(cmpRenderTable, 50);
+  }
+});
+
 function openProductPopup(name){
   var info=PRODUCT_INFO[name]; if(!info) return;
   var pe=document.getElementById('popupEmoji');
@@ -9554,6 +9954,195 @@ function fpDescarregarFitxaTecnica() {
   abrirImprimibleComanda('Fitxa tècnica ' + name, html);
 }
 window.fpDescarregarFitxaTecnica = fpDescarregarFitxaTecnica;
+
+// ── FITXA DE SEGURETAT (FDS) — versió orientativa amb estructura estàndard ──
+function fpDescarregarFDS(name) {
+  name = name || (document.getElementById('fpName') ? document.getElementById('fpName').textContent : '');
+  var info = CMP_DATA[name] || PRODUCT_INFO[name] || {};
+  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>FDS ' + escHtml(name) + ' · HIGIENEX</title>' +
+    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:12.5px;max-width:780px;margin:0 auto}' +
+    '.top{border-bottom:3px solid #0B3D6B;padding-bottom:16px;margin-bottom:22px}' +
+    '.brand{font-size:22px;font-weight:800;color:#0B3D6B;font-family:Georgia,serif}.brand span{color:#F2A900}' +
+    'h1{font-size:18px;color:#0B3D6B;margin:4px 0 0}.subt{color:#8A9BAC;font-size:11px;margin-top:2px}' +
+    'h2{font-size:12.5px;color:#0B3D6B;border-bottom:1px solid #D9E5F0;padding-bottom:5px;margin:18px 0 8px}' +
+    'table{width:100%;border-collapse:collapse;font-size:11.5px;margin-bottom:4px}td{border:1px solid #D9E5F0;padding:5px 8px}' +
+    'td.k{background:#F5FAFF;font-weight:700;width:230px}.foot{margin-top:28px;font-size:9.5px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:10px}' +
+    '@media print{@page{margin:15mm}}</style></head><body>' +
+    '<div class="top"><div class="brand">HIGIENE<span>X</span></div><h1>Fitxa de Dades de Seguretat (FDS)</h1><div class="subt">' + escHtml(name) + ' — Document orientatiu, format simplificat</div></div>' +
+    '<h2>Secció 1. Identificació de la substància i de la societat</h2>' +
+    '<table><tr><td class="k">Nom del producte</td><td>' + escHtml(name) + '</td></tr>' +
+    '<tr><td class="k">Ús recomanat</td><td>' + escHtml(info.us || info.desc || '—') + '</td></tr>' +
+    '<tr><td class="k">Fabricant</td><td>HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es</td></tr>' +
+    '<tr><td class="k">Telèfon d\'emergència</td><td>963 123 456 (horari laboral) · 645 678 901 (urgències 24/7)</td></tr></table>' +
+    '<h2>Secció 2. Identificació de perills</h2>' +
+    '<table><tr><td>Classificació segons Reglament (CE) 1272/2008 (CLP). ' + (info.certificacio ? 'Certificació: ' + escHtml(info.certificacio) + '.' : '') + ' Pot causar irritació ocular i cutània lleu en contacte perllongat. No ingerir. Evitar el contacte amb els ulls.</td></tr></table>' +
+    '<h2>Secció 3. Composició / informació sobre els components</h2>' +
+    '<table><tr><td>Tensioactius aniònics i no iònics (5-15%), agents desinfectants segons variant, aigua, conservants. Formulació pròpia HIGIENEX registrada. Composició exacta disponible sota petició per a auditories.</td></tr></table>' +
+    '<h2>Secció 4. Primers auxilis</h2>' +
+    '<table><tr><td><b>Contacte amb els ulls:</b> rentar abundantment amb aigua durant 15 minuts, mantenint les parpelles obertes. <b>Contacte amb la pell:</b> rentar amb aigua i sabó. <b>Ingestió:</b> no provocar el vòmit, beure aigua i contactar amb el Servei d\'Informació Toxicològica (915 620 420). <b>Inhalació:</b> traslladar a l\'aire lliure.</td></tr></table>' +
+    '<h2>Secció 5. Mesures de lluita contra incendis</h2>' +
+    '<table><tr><td>Producte no inflamable. En cas d\'incendi de l\'entorn, usar agents extintors adequats a l\'entorn (CO₂, pols seca, escuma). No es preveuen productes de descomposició perillosos en condicions normals d\'ús.</td></tr></table>' +
+    '<h2>Secció 6. Mesures en cas d\'abocament accidental</h2>' +
+    '<table><tr><td>Absorbir amb material inert (sorra, terra de diatomees). Recollir en recipient tancat per a la seva eliminació. Esbandir la zona amb aigua. Evitar l\'abocament a la xarxa de clavegueram sense diluir.</td></tr></table>' +
+    '<h2>Secció 7. Manipulació i emmagatzematge</h2>' +
+    '<table><tr><td>Emmagatzemar en lloc fresc, sec i ben ventilat, protegit de la llum directa, entre 5°C i 30°C. Mantenir el recipient ben tancat. No barrejar amb altres productes químics, especialment lleixius o àcids.</td></tr></table>' +
+    '<h2>Secció 8. Controls d\'exposició / protecció individual</h2>' +
+    '<table><tr><td>Ús recomanat de guants de nitril per a manipulació concentrada. Ventilar l\'espai durant l\'aplicació. No es requereix protecció respiratòria en ús normal diluït.</td></tr></table>' +
+    '<h2>Secció 9. Propietats fisicoquímiques</h2>' +
+    '<table><tr><td class="k">Estat físic</td><td>Líquid</td></tr><tr><td class="k">pH (concentrat)</td><td>6,5 – 8,5 aprox.</td></tr><tr><td class="k">Solubilitat en aigua</td><td>Total</td></tr></table>' +
+    '<h2>Secció 11-12. Informació toxicològica i ecològica</h2>' +
+    '<table><tr><td>' + (info.biodegradable ? 'Biodegradabilitat: ' + escHtml(info.biodegradable) + '. ' : '') + 'Formulació dissenyada per minimitzar l\'impacte en ecosistemes aquàtics. Consultar la Secció 4 en cas d\'exposició accidental.</td></tr></table>' +
+    '<h2>Secció 15. Informació reglamentària</h2>' +
+    '<table><tr><td>Producte fabricat de conformitat amb la normativa europea de detergents (Reglament (CE) 648/2004) i, si escau, Reglament de Biocides (UE) 528/2012. ' + (info.certificacio ? 'Certificacions: ' + escHtml(info.certificacio) + '.' : '') + '</td></tr></table>' +
+    '<div class="foot">Document generat automàticament des de la web d\'HIGIENEX el ' + new Date().toLocaleDateString('ca-ES') + '. Aquest document és una FDS simplificada amb finalitat informativa i de projecte acadèmic; no substitueix la Fitxa de Dades de Seguretat oficial reglamentària (Reglament REACH 1907/2006, Annex II), disponible sota petició al departament tècnic.</div>' +
+    '</body></html>';
+  abrirImprimibleComanda('FDS ' + name, html);
+}
+window.fpDescarregarFDS = fpDescarregarFDS;
+
+// ── CATÀLEG COMPLET EN PDF ──────────────────────────────────
+function hxDescarregarCataleg() {
+  var rows = Object.keys(CMP_DATA).map(function(name){
+    var info = CMP_DATA[name];
+    return '<tr><td>' + info.emoji + ' <b>' + escHtml(name) + '</b><br><span style="color:#8A9BAC;font-size:10.5px;">' + escHtml(info.us) + '</span></td>' +
+      '<td>' + escHtml(info.sector) + '</td>' +
+      '<td>' + escHtml(info.price) + '</td>' +
+      '<td>' + escHtml(info.certificacio) + '</td></tr>';
+  }).join('');
+  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Catàleg complet · HIGIENEX</title>' +
+    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:12.5px;max-width:900px;margin:0 auto}' +
+    '.top{border-bottom:3px solid #0B3D6B;padding-bottom:16px;margin-bottom:22px}' +
+    '.brand{font-size:24px;font-weight:800;color:#0B3D6B;font-family:Georgia,serif}.brand span{color:#F2A900}' +
+    'h1{font-size:18px;color:#0B3D6B;margin:6px 0 0}.subt{color:#8A9BAC;font-size:11px;margin-top:2px}' +
+    'table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}' +
+    'th{background:#0B3D6B;color:#fff;text-align:left;padding:8px 10px;font-size:11px}' +
+    'td{border:1px solid #D9E5F0;padding:9px 10px;vertical-align:top}' +
+    'tr:nth-child(even) td{background:#F5FAFF}' +
+    '.foot{margin-top:28px;font-size:9.5px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:10px}' +
+    '@media print{@page{margin:15mm}}</style></head><body>' +
+    '<div class="top"><div class="brand">HIGIENE<span>X</span></div><h1>Catàleg complet de productes</h1><div class="subt">Higiene professional sostenible · Actualitzat ' + new Date().toLocaleDateString('ca-ES') + '</div></div>' +
+    '<table><thead><tr><th>Producte</th><th>Sector recomanat</th><th>Preu</th><th>Certificació</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<div class="foot">HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es · 963 123 456. Preus orientatius, subjectes a confirmació per part de l\'equip comercial. Per a fitxes tècniques i de seguretat individuals, consulta cada producte a la web.</div>' +
+    '</body></html>';
+  abrirImprimibleComanda('Catàleg HIGIENEX', html);
+}
+window.hxDescarregarCataleg = hxDescarregarCataleg;
+
+// ── RESUM DE CERTIFICACIONS EN PDF ──────────────────────────────────
+function hxDescarregarCertificats() {
+  var certs = [
+    {icon:'🌍', name:'ISO 14001', desc:'Sistema de gestió ambiental certificat per una entitat independent. Vigent des de 2022.'},
+    {icon:'☣️', name:'Registre de Biocides UE', desc:'Desinfectants TP2 (superfícies) i TP4 (contacte alimentari) registrats segons el Reglament de Biocides (UE) 528/2012.'},
+    {icon:'🍽️', name:'Homologació HACCP', desc:'Productes de la línia ALIM homologats per a ús en superfícies de contacte alimentari.'},
+    {icon:'📜', name:'19 patents pròpies', desc:'Formulacions desenvolupades i patentades pel laboratori R+D independent d\'HIGIENEX des de 2018.'}
+  ];
+  var rows = certs.map(function(c){
+    return '<tr><td style="font-size:22px;text-align:center;">' + c.icon + '</td><td><b>' + escHtml(c.name) + '</b><br><span style="color:#555;">' + escHtml(c.desc) + '</span></td></tr>';
+  }).join('');
+  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Certificacions · HIGIENEX</title>' +
+    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:12.5px;max-width:780px;margin:0 auto}' +
+    '.top{border-bottom:3px solid #0B3D6B;padding-bottom:16px;margin-bottom:22px}' +
+    '.brand{font-size:24px;font-weight:800;color:#0B3D6B;font-family:Georgia,serif}.brand span{color:#F2A900}' +
+    'h1{font-size:18px;color:#0B3D6B;margin:6px 0 0}.subt{color:#8A9BAC;font-size:11px;margin-top:2px}' +
+    'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:14px}td{border:1px solid #D9E5F0;padding:12px 14px;vertical-align:middle}' +
+    '.foot{margin-top:28px;font-size:9.5px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:10px}' +
+    '@media print{@page{margin:15mm}}</style></head><body>' +
+    '<div class="top"><div class="brand">HIGIENE<span>X</span></div><h1>Resum de certificacions i garanties</h1><div class="subt">Document per compartir amb el vostre departament de compres · ' + new Date().toLocaleDateString('ca-ES') + '</div></div>' +
+    '<table>' + rows + '</table>' +
+    '<div class="foot">HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es · 963 123 456. Certificats complets disponibles sota petició al departament tècnic.</div>' +
+    '</body></html>';
+  abrirImprimibleComanda('Certificacions HIGIENEX', html);
+}
+window.hxDescarregarCertificats = hxDescarregarCertificats;
+
+// ── FILTRE DEL BLOG PER CATEGORIA ──────────────────────────────────
+function hxFilterBlog(cat){
+  var cards = document.querySelectorAll('#nlGrid .blog-card');
+  cards.forEach(function(card){
+    var show = (cat === 'all') || (card.getAttribute('data-cat') === cat);
+    card.style.display = show ? '' : 'none';
+  });
+  document.querySelectorAll('#nlFilters .nl-filter-btn').forEach(function(btn){
+    btn.classList.toggle('active', btn.getAttribute('data-filter') === cat);
+  });
+}
+window.hxFilterBlog = hxFilterBlog;
+
+// ═══════════════════════════════════════════════════════════
+// SIMULADOR DE COMANDA RECURRENT
+// ═══════════════════════════════════════════════════════════
+function hxRecurrentInit(){
+  var sel = document.getElementById('recProducte');
+  if (!sel) return;
+  sel.innerHTML = PRODUCTS.map(function(p){
+    return '<option value="' + escHtml(p.name) + '">' + escHtml(p.name) + '</option>';
+  }).join('');
+  hxRecurrentRun();
+}
+
+function hxRecurrentDescompte(qty){
+  if (qty >= 20) return 0.15;
+  if (qty >= 10) return 0.10;
+  if (qty >= 5) return 0.05;
+  return 0;
+}
+
+function hxRecurrentRun(){
+  var sel = document.getElementById('recProducte');
+  var qtyEl = document.getElementById('recQty');
+  var freqEl = document.getElementById('recFreq');
+  if (!sel || !qtyEl || !freqEl) return;
+  var name = sel.value;
+  var qty = Math.max(1, parseInt(qtyEl.value, 10) || 1);
+  var freqMesos = parseInt(freqEl.value, 10) || 1;
+  var prod = PRODUCTS.find(function(p){ return p.name === name; });
+  if (!prod) return;
+
+  var descompte = hxRecurrentDescompte(qty);
+  var preuUnitari = prod.price * (1 - descompte);
+  var importComanda = preuUnitari * qty;
+  var comandesPerAny = Math.round(12 / freqMesos);
+  var costAnualAmbSub = importComanda * comandesPerAny;
+  var costAnualSenseSub = prod.price * qty * comandesPerAny; // mateix volum, sense descompte
+  var estalviAnual = Math.max(0, costAnualSenseSub - costAnualAmbSub);
+
+  var outDesc = document.getElementById('recOutDescompte');
+  var outCom = document.getElementById('recOutComanda');
+  var outAnual = document.getElementById('recOutAnual');
+  if (outDesc) outDesc.textContent = descompte > 0 ? ('-' + Math.round(descompte*100) + '%') : '—';
+  if (outCom) outCom.textContent = importComanda.toFixed(2) + ' €';
+  if (outAnual) outAnual.textContent = estalviAnual.toFixed(2) + ' €';
+}
+window.hxRecurrentRun = hxRecurrentRun;
+
+function hxRecurrentAfegir(){
+  var sel = document.getElementById('recProducte');
+  var qtyEl = document.getElementById('recQty');
+  if (!sel || !qtyEl) return;
+  var name = sel.value;
+  var qty = Math.max(1, parseInt(qtyEl.value, 10) || 1);
+  var prod = PRODUCTS.find(function(p){ return p.name === name; });
+  if (!prod) return;
+  if (cart[name]) { cart[name].qty += qty; }
+  else { cart[name] = { qty: qty, price: prod.price }; }
+  if (typeof recalcCartLine === 'function') recalcCartLine(name);
+  if (typeof renderCart === 'function') renderCart();
+  var msgId = 'recAfegitMsg';
+  var existing = document.getElementById(msgId);
+  if (existing) existing.remove();
+  var btn = document.querySelector('#simulador-recurrent button[onclick="hxRecurrentAfegir()"]');
+  if (btn) {
+    var msg = document.createElement('p');
+    msg.id = msgId;
+    msg.style.cssText = 'color:#2E7D32;font-size:0.82rem;font-weight:700;margin-top:0.8rem;text-align:center;';
+    msg.textContent = '✅ ' + qty + '× ' + name + ' — afegit al teu cistell.';
+    btn.parentNode.appendChild(msg);
+    setTimeout(function(){ if (msg.parentNode) msg.remove(); }, 4000);
+  }
+}
+window.hxRecurrentAfegir = hxRecurrentAfegir;
+
+document.addEventListener('DOMContentLoaded', hxRecurrentInit);
 
 // ── SEGUIMENT DE COMANDA ──────────────────────────────────
 // Com que no hi ha servidor real, cerca dins l'historial que ja es guarda
