@@ -1443,7 +1443,7 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
     <span class="eyebrow" style="text-align:center;display:block;margin-top:14px">Gestión interna · acceso empleados</span>
     <div class="err" id="loginErr">Usuario o contraseña incorrectos.</div>
     <div class="field"><label for="lu">Usuario o correo</label><input id="lu" autocomplete="username" placeholder="tu.usuario@higienex.es"></div>
-    <div class="field"><label for="lp">Contraseña</label><input id="lp" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+    <div class="field"><label for="lp">Contraseña</label><div style="position:relative"><input id="lp" type="password" autocomplete="current-password" placeholder="••••••••" style="width:100%;padding-right:40px;box-sizing:border-box"><button type="button" onclick="hxTogglePass('lp',this)" aria-label="Mostrar contraseña" title="Mostrar contraseña" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:4px;line-height:1;opacity:0.6">👁️</button></div></div>
     <button class="btn block" onclick="doLogin()" type="button">Entrar</button>
     <div class="hint" style="text-align:center">¿No recuerdas tu contraseña? Pide a Dirección que te la facilite o te la restablezca.</div>
     <div class="hint" style="text-align:center;margin-top:6px"><button class="btn ghost sm" onclick="hxAbrirPortalCliente()" type="button">👤 Ets client? Consulta les teves factures</button></div>
@@ -2349,6 +2349,7 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
         <button class="btn ghost sm hx-admin-tool" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">🌓 <span class="lbl">Modo oscuro</span></button>
         <button class="btn ghost sm hx-admin-tool" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ <span class="lbl">Instal·lar</span></button>
         <span class="exercise hx-admin-tool">Ejercicio 2026</span>
+        <button class="btn ghost sm hx-admin-tool" id="hxCalTopBtn" onclick="go('calendariolab')" title="Calendari laboral" type="button">🗓️ <span class="lbl">Calendario</span></button>
         <div style="position:relative">
           <button class="btn ghost sm" id="hxNotifBell" onclick="hxToggleNotifPanel()" title="Notificacions" aria-label="Notificacions" type="button" style="position:relative">
             🔔<span id="hxNotifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:20px;min-width:16px;height:16px;align-items:center;justify-content:center;padding:0 3px">0</span>
@@ -2932,6 +2933,13 @@ function setQ(v){
 const hit = txt => !Q || String(txt).toLowerCase().includes(Q.toLowerCase());
 
 /* Acceso */
+function hxTogglePass(id,btn){
+  const el=document.getElementById(id); if(!el) return;
+  const showing = el.type === 'text';
+  el.type = showing ? 'password' : 'text';
+  if(btn){ btn.textContent = showing ? '👁️' : '🙈'; btn.title = showing ? 'Mostrar contraseña' : 'Ocultar contraseña'; }
+}
+window.hxTogglePass = hxTogglePass;
 function doLogin(){
   const u=val('lu').trim().toLowerCase(), p=val('lp');
   const found=USERS.find(x=>[x.mail,x.alias,x.nom,x.nom.split(' ')[0]].some(v=>v.toLowerCase()===u)&&x.pass===p);
