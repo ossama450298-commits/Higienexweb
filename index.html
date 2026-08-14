@@ -8489,7 +8489,7 @@ window.submitTreballaForm = submitTreballaForm;
       </div>
       <div style="text-align:left;margin-bottom:0.4rem;">
         <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;" data-i18n-key="t434">Contrasenya</label>
-        <input id="loginPassword" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();loginWithEmail();}" style="width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:Arial,sans-serif;box-sizing:border-box;">
+        <div style="position:relative;"><input id="loginPassword" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter'){event.preventDefault();loginWithEmail();}" style="width:100%;padding:0.7rem;padding-right:2.4rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:Arial,sans-serif;box-sizing:border-box;"><button type="button" onclick="hxTogglePass('loginPassword',this)" aria-label="Mostrar contrasenya" title="Mostrar contrasenya" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;padding:4px;line-height:1;opacity:0.6;">👁️</button></div>
       </div>
       <div id="loginError" style="display:none;text-align:left;color:#D32F2F;font-size:0.8rem;font-weight:600;margin-bottom:1rem;" data-i18n-key="t422">⚠ Nom o contrasenya incorrectes.</div>
       <button onclick="loginWithEmail()" data-i18n-key="t423" style="width:100%;padding:0.8rem;background:#0B3D6B;color:white;border:none;border-radius:10px;font-size:0.92rem;font-weight:700;cursor:pointer;margin-bottom:1rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;" type="button">
@@ -8550,8 +8550,8 @@ window.submitTreballaForm = submitTreballaForm;
       </div>
       <div style="text-align:left;margin-bottom:0.7rem;">
         <label for="regPassword" style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;" data-i18n-key="t435">Contrasenya</label>
-        <input id="regPassword" type="password" required minlength="6" autocomplete="new-password" placeholder="Mínim 6 caràcters" data-i18n-placeholder="t507"
-          style="width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;box-sizing:border-box;">
+        <div style="position:relative;"><input id="regPassword" type="password" required minlength="6" autocomplete="new-password" placeholder="Mínim 6 caràcters" data-i18n-placeholder="t507"
+          style="width:100%;padding:0.7rem;padding-right:2.4rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;box-sizing:border-box;"><button type="button" onclick="hxTogglePass('regPassword',this)" aria-label="Mostrar contrasenya" title="Mostrar contrasenya" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;padding:4px;line-height:1;opacity:0.6;">👁️</button></div>
       </div>
       <div style="text-align:left;margin-bottom:1.2rem;">
         <label for="regSector" style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;" data-i18n-key="t447">Sector</label>
@@ -9275,6 +9275,13 @@ function forgotPassword() {
 }
 window.forgotPassword = forgotPassword;
 
+function hxTogglePass(id,btn){
+  var el = document.getElementById(id); if (!el) return;
+  var showing = el.type === 'text';
+  el.type = showing ? 'password' : 'text';
+  if (btn) { btn.textContent = showing ? '👁️' : '🙈'; btn.title = showing ? 'Mostrar contrasenya' : 'Amagar contrasenya'; }
+}
+window.hxTogglePass = hxTogglePass;
 function loginWithEmail() {
   var emailInput = document.getElementById('loginEmail');
   var passInput  = document.getElementById('loginPassword');
