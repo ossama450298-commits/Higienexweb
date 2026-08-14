@@ -2515,6 +2515,30 @@ mantenimientos:[
  {id:'MNT1',vehiculo:'Furgoneta 4218-KTX',tipo:'Revisió periòdica',fecha:'2026-07-15','proxima':'2026-10-15',km:48200,coste:145.00,taller:'Taller Mecànic Vialsa',estado:'Fet'},
  {id:'MNT2',vehiculo:'Furgoneta 7790-LMB',tipo:'Canvi de pneumàtics',fecha:'2026-06-02','proxima':'2027-06-02',km:61500,coste:410.00,taller:'Confortauto',estado:'Fet'},
  {id:'MNT3',vehiculo:'Camió 3301-NPZ',tipo:'ITV',fecha:'','proxima':'2026-09-01',km:112300,coste:0,taller:'ITV Paterna',estado:'Pendent'}
+],
+objetivos:[
+ {id:'OBJ1',emp:'E03',periodo:'2026-08',objetivo:45000,realizado:31200,concepto:'Vendes sector sanitari'},
+ {id:'OBJ2',emp:'E02',periodo:'2026-08',objetivo:12000,realizado:12800,concepto:'Vendes hostaleria'},
+ {id:'OBJ3',emp:'E03',periodo:'2026-07',objetivo:42000,realizado:44500,concepto:'Vendes sector sanitari'}
+],
+gastos:[
+ {id:'GAS1',emp:'E03',fecha:'2026-08-05',tipo:'Dieta',concepto:'Dinar visita client Hospital Comarcal',importe:24.50,estado:'Aprovat'},
+ {id:'GAS2',emp:'E07',fecha:'2026-08-09',tipo:'Quilometratge',concepto:'Desplaçament repartiment Alacant (180km)',importe:63.00,estado:'Pendent'},
+ {id:'GAS3',emp:'E02',fecha:'2026-08-11',tipo:'Allotjament',concepto:'Nit hotel fira sector · Barcelona',importe:98.00,estado:'Pendent'}
+],
+festivos:[
+ {id:'FES1',fecha:'2026-09-07',nombre:'Festiu local · València'},
+ {id:'FES2',fecha:'2026-10-09',nombre:'Dia de la Comunitat Valenciana'},
+ {id:'FES3',fecha:'2026-10-12',nombre:'Festa Nacional d\'Espanya'},
+ {id:'FES4',fecha:'2026-11-01',nombre:'Tots Sants'},
+ {id:'FES5',fecha:'2026-12-06',nombre:'Dia de la Constitució'},
+ {id:'FES6',fecha:'2026-12-08',nombre:'Immaculada Concepció'},
+ {id:'FES7',fecha:'2026-12-25',nombre:'Nadal'}
+],
+diascarga:[
+ {id:'CRG1',fecha:'2026-08-20',nivel:'Alta',nota:'Tancament comandes mensuals + auditoria ISO'},
+ {id:'CRG2',fecha:'2026-09-01',nivel:'Alta',nota:'Tornada de vacances: pic de comandes acumulades'},
+ {id:'CRG3',fecha:'2026-08-28',nivel:'Mitjana',nota:'Preparació documentació trimestral gestoria'}
 ]
 };
 
@@ -3017,7 +3041,7 @@ const NAV=[
    ['expediciones','Expediciones','logistica'],['alertasstock','Alertas de stock','logistica'],['calendario','Calendario de entregas','logistica'],['mantenimiento','Mantenimiento de flota','logistica']]},
  {g:'Fabricación',items:[['materias','Materias primas','logistica'],['formulas','Fórmulas y escandallos','logistica'],['produccion','Órdenes de fabricación','logistica'],['lotes','Lotes y trazabilidad','logistica'],['calidad','Control de calidad','logistica']]},
  {g:'Personas',items:[['fichajes','Control de fichajes','all']]},
- {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh'],['candidaturas','Candidaturas','rrhh']]},
+ {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh'],['candidaturas','Candidaturas','rrhh'],['gastos','Gastos y dietas','rrhh'],['objetivos','Objetivos comerciales','rrhh'],['calendariolab','Calendario laboral','rrhh']]},
  {g:'Sistema',items:[['automat','Automatizaciones','admin'],['auditoria','Registro de auditoría','admin']]},
  {g:'Dirección',items:[['sistema','Administración del sistema','super'],['analitica','Analítica web','super']]}
 ];
@@ -3032,7 +3056,7 @@ const NAV_ICONS={
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
   automat:'⚡', auditoria:'🛡️',
   sistema:'⚙️',
-  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊', calendario:'📅', candidaturas:'📋', mantenimiento:'🔧'
+  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊', calendario:'📅', candidaturas:'📋', mantenimiento:'🔧', gastos:'🧾', objetivos:'🎯', calendariolab:'🗓️'
 };
 function can(area){
   if(!ME) return false;
@@ -3052,6 +3076,7 @@ function avisos(v){
   if(v==='incidencias') return DB.incidencias.filter(i=>i.estado!=='Resuelta').length;
   if(v==='candidaturas') return DB.candidaturas.filter(c=>c.estado==='Pendent').length;
   if(v==='mantenimiento') return DB.mantenimientos.filter(m=>m.estado==='Pendent'&&m.proxima&&m.proxima<TODAY).length;
+  if(v==='gastos') return DB.gastos.filter(g=>g.estado==='Pendent').length;
   return 0;
 }
 
@@ -3081,6 +3106,8 @@ function hxNotificaciones(){
   if(canPendents.length) items.push({icon:'📋',text:canPendents.length+' candidatura'+(canPendents.length>1?'es':'')+' pendent'+(canPendents.length>1?'s':'')+' de revisar',v:'candidaturas',sev:'info'});
   const mntPendents=(DB.mantenimientos||[]).filter(m=>m.estado==='Pendent'&&m.proxima&&m.proxima<TODAY);
   if(mntPendents.length) items.push({icon:'🔧',text:mntPendents.length+' manteniment'+(mntPendents.length>1?'s':'')+' de flota vençut'+(mntPendents.length>1?'s':''),v:'mantenimiento',sev:'danger'});
+  const gasPendents=(DB.gastos||[]).filter(g=>g.estado==='Pendent');
+  if(gasPendents.length) items.push({icon:'🧾',text:gasPendents.length+' despesa'+(gasPendents.length>1?'es':'')+' pendent'+(gasPendents.length>1?'s':'')+' d\'aprovar',v:'gastos',sev:'warn'});
   return items;
 }
 function hxRenderNotifBell(){
@@ -3943,6 +3970,212 @@ function exportarMantenimientosExcel(){
   const filas=DB.mantenimientos.map(m=>({Vehicle:m.vehiculo,Tipus:m.tipo,Fet:m.fecha||'',Propera:m.proxima||'',Km:m.km,Cost:m.coste,Taller:m.taller,Estat:m.estado}));
   descargarXLSX(filas, 'mantenimiento-flota-'+TODAY+'.xlsx', 'Mantenimiento');
 }
+
+/* =========================================================
+   DESPESES I DIETES
+   ========================================================= */
+ROUTES.gastos=function(){
+  const all=DB.gastos.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const lista=all.filter(g=>hit(emp(g.emp).nom+' '+g.tipo+' '+g.concepto+' '+g.estado));
+  const pendents=DB.gastos.filter(g=>g.estado==='Pendent');
+  const totalPendent=pendents.reduce((s,g)=>s+g.importe,0);
+  let h=head('Despeses i dietes',pendents.length+' pendents d\'aprovar · '+EUR(totalPendent),
+    '<button class="btn ghost sm" onclick="exportarGastosExcel()" type="button">📊 Excel</button><button class="btn" onclick="formGasto()" type="button">Nova despesa</button>');
+  h+=buscador('Cercar per empleat, tipus o concepte…',all.length,lista.length);
+  h+='<div class="card">'+tbl([['Data'],['Empleat'],['Tipus'],['Concepte'],['Import',''],['Estat'],['']],
+    lista.map(g=>rowN([FD(g.fecha),esc(emp(g.emp).nom),esc(g.tipo),esc(g.concepto),EUR(g.importe),
+      g.estado==='Aprovat'?'<span class="tag t-ok">Aprovat</span>':(g.estado==='Rebutjat'?'<span class="tag t-late">Rebutjat</span>':'<span class="tag t-wait">Pendent</span>'),
+      g.estado==='Pendent'?'<button class="btn ghost sm" onclick="resolverGasto(\''+g.id+'\',\'Aprovat\')" type="button">✅ Aprovar</button> <button class="btn ghost sm" onclick="resolverGasto(\''+g.id+'\',\'Rebutjat\')" type="button">✖</button>':'—'],[4]))
+    ,['Sense despeses','Encara no s\'ha registrat cap despesa.'])+'</div>';
+  return h;
+};
+function formGasto(){
+  openModal('Nova despesa',
+    fSelect('Empleat','gas_emp',DB.empleados.map(e=>[e.id,e.nom]))+
+    fSelect('Tipus','gas_tipo',[['Dieta','Dieta'],['Quilometratge','Quilometratge'],['Allotjament','Allotjament'],['Material','Material'],['Altres','Altres']])+
+    '<div style="margin-top:14px"><label class="flabel" for="gas_concepto">Concepte</label><input id="gas_concepto" type="text" placeholder="Descripció de la despesa"></div>'+
+    '<div style="margin-top:14px"><label class="flabel" for="gas_importe">Import (€)</label><input id="gas_importe" type="number" min="0" step="0.01" placeholder="0.00"></div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancel·lar</button><button class="btn" onclick="saveGasto()" type="button">Guardar</button>');
+}
+function saveGasto(){
+  const c=val('gas_concepto').trim();
+  const imp=parseFloat(val('gas_importe'))||0;
+  if(!c||imp<=0){toast('Omple el concepte i un import vàlid.');return;}
+  DB.gastos.push({id:uid('GAS'),emp:val('gas_emp'),fecha:TODAY,tipo:val('gas_tipo'),concepto:c,importe:imp,estado:'Pendent'});
+  closeModal();go('gastos');toast('Despesa registrada.');
+}
+function resolverGasto(id,estado){
+  const g=DB.gastos.find(x=>x.id===id); if(!g) return;
+  g.estado=estado;
+  go('gastos');toast('Despesa marcada com '+estado.toLowerCase()+'.');
+}
+function exportarGastosExcel(){
+  const filas=DB.gastos.map(g=>({Data:g.fecha,Empleat:emp(g.emp).nom,Tipus:g.tipo,Concepte:g.concepto,Import:g.importe,Estat:g.estado}));
+  descargarXLSX(filas, 'gastos-dietas-'+TODAY+'.xlsx', 'Gastos');
+}
+
+/* =========================================================
+   OBJECTIUS COMERCIALS
+   ========================================================= */
+ROUTES.objetivos=function(){
+  const all=DB.objetivos.slice().sort((a,b)=>b.periodo.localeCompare(a.periodo));
+  const lista=all.filter(o=>hit(emp(o.emp).nom+' '+o.concepto+' '+o.periodo));
+  let h=head('Objectius comercials','Seguiment d\'objectius per empleat i període',
+    '<button class="btn ghost sm" onclick="exportarObjetivosExcel()" type="button">📊 Excel</button><button class="btn" onclick="formObjetivo()" type="button">Nou objectiu</button>');
+  h+=buscador('Cercar per empleat, concepte o període…',all.length,lista.length);
+  h+='<div class="card">'+tbl([['Període'],['Empleat'],['Concepte'],['Objectiu',''],['Realitzat',''],['Progrés']],
+    lista.map(o=>{
+      const pct=o.objetivo>0?Math.min(100,Math.round(o.realizado/o.objetivo*100)):0;
+      const color=pct>=100?'#2E7D32':(pct>=70?'#F2A900':'#C0392B');
+      return rowN([esc(o.periodo),esc(emp(o.emp).nom),esc(o.concepto),EUR(o.objetivo),EUR(o.realizado),
+        '<div style="background:#eee;border-radius:8px;overflow:hidden;width:110px;height:8px;"><div style="background:'+color+';width:'+pct+'%;height:100%;"></div></div><span style="font-size:11px;color:#888;">'+pct+'%</span>'],[3,4]);
+    })
+    ,['Sense objectius','Defineix el primer objectiu comercial.'])+'</div>';
+  return h;
+};
+function formObjetivo(){
+  openModal('Nou objectiu comercial',
+    fSelect('Empleat','obj_emp',DB.empleados.map(e=>[e.id,e.nom]))+
+    '<div style="margin-top:14px"><label class="flabel" for="obj_periodo">Període (AAAA-MM)</label><input id="obj_periodo" type="month" value="'+TODAY.slice(0,7)+'"></div>'+
+    '<div style="margin-top:14px"><label class="flabel" for="obj_concepto">Concepte</label><input id="obj_concepto" type="text" placeholder="Ex: Vendes sector sanitari"></div>'+
+    '<div style="margin-top:14px"><label class="flabel" for="obj_objetivo">Objectiu (€)</label><input id="obj_objetivo" type="number" min="0" step="1" placeholder="0"></div>'+
+    '<div style="margin-top:14px"><label class="flabel" for="obj_realizado">Realitzat fins ara (€)</label><input id="obj_realizado" type="number" min="0" step="1" value="0"></div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancel·lar</button><button class="btn" onclick="saveObjetivo()" type="button">Guardar</button>');
+}
+function saveObjetivo(){
+  const c=val('obj_concepto').trim();
+  const obj=parseFloat(val('obj_objetivo'))||0;
+  if(!c||obj<=0){toast('Omple el concepte i un objectiu vàlid.');return;}
+  DB.objetivos.push({id:uid('OBJ'),emp:val('obj_emp'),periodo:val('obj_periodo'),objetivo:obj,realizado:parseFloat(val('obj_realizado'))||0,concepto:c});
+  closeModal();go('objetivos');toast('Objectiu registrat.');
+}
+function exportarObjetivosExcel(){
+  const filas=DB.objetivos.map(o=>({Periode:o.periodo,Empleat:emp(o.emp).nom,Concepte:o.concepto,Objectiu:o.objetivo,Realitzat:o.realizado,Progres:(o.objetivo>0?Math.round(o.realizado/o.objetivo*100):0)+'%'}));
+  descargarXLSX(filas, 'objetivos-comerciales-'+TODAY+'.xlsx', 'Objetivos');
+}
+
+/* =========================================================
+   CALENDARI LABORAL (vacances, festius, dies de molta càrrega)
+   ========================================================= */
+let CAL_LAB = new Date(TODAY+'T00:00:00');
+ROUTES.calendariolab=function(){
+  const y=CAL_LAB.getFullYear(), m=CAL_LAB.getMonth();
+  const primerDia=new Date(y,m,1);
+  const diesAlMes=new Date(y,m+1,0).getDate();
+  const offset=(primerDia.getDay()+6)%7;
+  const nomMes=primerDia.toLocaleDateString('ca-ES',{month:'long',year:'numeric'});
+
+  const festPerDia={}; DB.festivos.forEach(f=>{ festPerDia[f.fecha]=f; });
+  const cargaPerDia={}; DB.diascarga.forEach(c=>{ cargaPerDia[c.fecha]=c; });
+  function vacacionesEnDia(dataStr){
+    return DB.ausencias.filter(a=>a.tipo==='Vacaciones' && a.desde<=dataStr && a.hasta>=dataStr);
+  }
+
+  let h=head('Calendari laboral','Vacances, festius i dies de molta càrrega',
+    '<button class="btn ghost sm" onclick="calLabAnterior()" type="button">←</button>'+
+    '<button class="btn ghost sm" onclick="calLabActual()" type="button">Avui</button>'+
+    '<button class="btn ghost sm" onclick="calLabSeguent()" type="button">→</button>'+
+    '<button class="btn ghost sm" onclick="formFestivo()" type="button">+ Festiu</button>'+
+    '<button class="btn ghost sm" onclick="formCarga()" type="button">+ Dia de càrrega</button>'+
+    '<button class="btn" onclick="formAusencia()" type="button">+ Vacances</button>');
+
+  h+='<div class="card" style="margin-bottom:14px;display:flex;gap:14px;flex-wrap:wrap;font-size:12px;">'+
+    '<span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#5B9BD5;margin-right:4px;"></span>Vacances</span>'+
+    '<span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#8E44AD;margin-right:4px;"></span>Festiu</span>'+
+    '<span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#D64545;margin-right:4px;"></span>Càrrega alta</span>'+
+    '<span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#F2A900;margin-right:4px;"></span>Càrrega mitjana</span>'+
+  '</div>';
+
+  h+='<div class="card"><h3 style="margin:0 0 14px;text-transform:capitalize">'+nomMes+'</h3>';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:11px;font-weight:700;color:var(--ink-2);text-align:center;margin-bottom:6px">'+
+    ['Dl','Dt','Dc','Dj','Dv','Ds','Dg'].map(d=>'<div>'+d+'</div>').join('')+'</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+  for(let i=0;i<offset;i++) h+='<div></div>';
+  for(let d=1;d<=diesAlMes;d++){
+    const dataStr=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const avui=dataStr===TODAY;
+    const fest=festPerDia[dataStr];
+    const carga=cargaPerDia[dataStr];
+    const vacs=vacacionesEnDia(dataStr);
+    let chips='';
+    if(fest) chips+='<div style="font-size:9px;background:#8E44AD;color:#fff;border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+esc(fest.nombre)+'">🎉 '+esc(fest.nombre)+'</div>';
+    if(carga) chips+='<div style="font-size:9px;background:'+(carga.nivel==='Alta'?'#D64545':'#F2A900')+';color:#fff;border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+esc(carga.nota)+'">🔥 '+esc(carga.nivel)+'</div>';
+    vacs.slice(0,2).forEach(v=>{
+      chips+='<div style="font-size:9px;background:#5B9BD5;color:#fff;border-radius:4px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🏖️ '+esc(emp(v.emp).nom)+'</div>';
+    });
+    if(vacs.length>2) chips+='<div style="font-size:9px;color:var(--ink-2);margin-top:2px">+'+(vacs.length-2)+' més</div>';
+    h+='<div style="min-height:70px;border:1px solid var(--line);border-radius:8px;padding:4px;'+(avui?'background:var(--blue-050,#EAF2FF);border-color:var(--blue)':'')+'">'+
+      '<div style="font-size:11px;font-weight:700;color:'+(avui?'var(--blue)':'var(--ink-2)')+'">'+d+'</div>'+chips+
+    '</div>';
+  }
+  h+='</div></div>';
+
+  const vacacionesActivas=DB.ausencias.filter(a=>a.tipo==='Vacaciones' && a.hasta>=TODAY).sort((a,b)=>a.desde.localeCompare(b.desde));
+  h+='<div class="card" style="margin-top:16px"><h3 style="margin:0 0 12px">Vacances actuals i properes</h3>'+
+    tbl([['Empleat'],['Desde'],['Fins'],['Dies']],
+      vacacionesActivas.map(a=>rowN([esc(emp(a.emp).nom),FD(a.desde),FD(a.hasta),NUM(a.dias)],[])),
+      ['Sense vacances properes','No hi ha vacances registrades actualment.'])+
+  '</div>';
+
+  const propersFestius=DB.festivos.filter(f=>f.fecha>=TODAY).sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(0,6);
+  h+='<div class="card" style="margin-top:16px"><h3 style="margin:0 0 12px">Propers festius</h3>'+
+    tbl([['Data'],['Festiu'],['']],
+      propersFestius.map(f=>rowN([FD(f.fecha),esc(f.nombre),
+        '<button class="btn ghost sm" onclick="eliminarFestivo(\''+f.id+'\')" type="button">🗑️</button>'],[])),
+      ['Sense festius propers','Afegeix el primer festiu amb «+ Festiu».'])+
+  '</div>';
+
+  const propersCarga=DB.diascarga.filter(c=>c.fecha>=TODAY).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  h+='<div class="card" style="margin-top:16px"><h3 style="margin:0 0 12px">Dies de molta càrrega</h3>'+
+    tbl([['Data'],['Nivell'],['Nota'],['']],
+      propersCarga.map(c=>rowN([FD(c.fecha),(c.nivel==='Alta'?'<span class="tag t-late">Alta</span>':'<span class="tag t-wait">Mitjana</span>'),esc(c.nota),
+        '<button class="btn ghost sm" onclick="eliminarCarga(\''+c.id+'\')" type="button">🗑️</button>'],[])),
+      ['Sense dies marcats','Marca els dies previstos de més volum de feina.'])+
+  '</div>';
+
+  return h;
+};
+function calLabAnterior(){ CAL_LAB=new Date(CAL_LAB.getFullYear(),CAL_LAB.getMonth()-1,1); go('calendariolab'); }
+function calLabSeguent(){ CAL_LAB=new Date(CAL_LAB.getFullYear(),CAL_LAB.getMonth()+1,1); go('calendariolab'); }
+function calLabActual(){ CAL_LAB=new Date(TODAY+'T00:00:00'); go('calendariolab'); }
+window.calLabAnterior=calLabAnterior; window.calLabSeguent=calLabSeguent; window.calLabActual=calLabActual;
+
+function formFestivo(){
+  openModal('Nou festiu',
+    '<div><label class="flabel" for="fes_fecha">Data</label><input id="fes_fecha" type="date" value="'+TODAY+'"></div>'+
+    '<div style="margin-top:14px"><label class="flabel" for="fes_nombre">Nom del festiu</label><input id="fes_nombre" type="text" placeholder="Ex: Festiu local"></div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancel·lar</button><button class="btn" onclick="saveFestivo()" type="button">Guardar</button>');
+}
+function saveFestivo(){
+  const n=val('fes_nombre').trim();
+  if(!n){toast('Escriu el nom del festiu.');return;}
+  DB.festivos.push({id:uid('FES'),fecha:val('fes_fecha'),nombre:n});
+  closeModal();go('calendariolab');toast('Festiu afegit.');
+}
+function eliminarFestivo(id){
+  DB.festivos=DB.festivos.filter(f=>f.id!==id);
+  go('calendariolab');toast('Festiu eliminat.');
+}
+window.eliminarFestivo=eliminarFestivo;
+
+function formCarga(){
+  openModal('Marcar dia de molta càrrega',
+    '<div><label class="flabel" for="crg_fecha">Data</label><input id="crg_fecha" type="date" value="'+TODAY+'"></div>'+
+    fSelect('Nivell','crg_nivel',[['Alta','Alta'],['Mitjana','Mitjana']])+
+    '<div style="margin-top:14px"><label class="flabel" for="crg_nota">Motiu</label><input id="crg_nota" type="text" placeholder="Ex: Tancament mensual, pic de comandes..."></div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancel·lar</button><button class="btn" onclick="saveCarga()" type="button">Guardar</button>');
+}
+function saveCarga(){
+  const n=val('crg_nota').trim();
+  if(!n){toast('Escriu el motiu.');return;}
+  DB.diascarga.push({id:uid('CRG'),fecha:val('crg_fecha'),nivel:val('crg_nivel'),nota:n});
+  closeModal();go('calendariolab');toast('Dia de càrrega marcat.');
+}
+function eliminarCarga(id){
+  DB.diascarga=DB.diascarga.filter(c=>c.id!==id);
+  go('calendariolab');toast('Dia de càrrega eliminat.');
+}
+window.eliminarCarga=eliminarCarga;
 
 /* =========================================================
    PRESSUPOSTOS
