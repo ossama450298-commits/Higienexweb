@@ -1849,7 +1849,6 @@ footer ul a:hover { color: var(--green-light); }
   #navRightGroup::-webkit-scrollbar { display: none; }
   #navRightGroup #authBtns button { padding: 0.4rem 0.7rem !important; font-size: 0.76rem !important; }
   #navCartBtn, #navRightGroup a[href="higienex_erp.html"] { flex-shrink: 0; }
-  #hxSearchBtn { flex-shrink: 0; }
   /* El desplegable d'idioma s'escapa del contenidor amb scroll horitzontal
      (si no, quedava tallat / invisible en obrir-se al mòbil) */
   #langDropdownMenu {
@@ -2111,7 +2110,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
    Amaga navegació, botons i pop-ups; mostra només el contingut
    de la pàgina activa perquè es pugui imprimir directament. */
 @media print {
-  #mainNav, #navBackdrop, #navDropdown, #hxSearchOverlay, #hxSearchBtn,
+  #mainNav, #navBackdrop, #navDropdown,
   #hxOfflineBanner, #cartPanel, #productPopup, #newsletterPopup, #authModal,
   #hgCookieModal, .fp-actions, .hg-cookie-modal, .whatsapp-float, #hxChatWidget,
   #hxInstallBtn { display: none !important; }
@@ -4503,7 +4502,6 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
       <span id="menuIcon">☰</span> Menú
     </button>
     <div id="navRightGroup" style="display:flex;align-items:center;gap:1rem;margin-left:auto;">
-      <button id="hxSearchBtn" type="button" onclick="hxOpenSearch()" title="Cercar a la web" aria-label="Cercar a la web" style="display:flex;align-items:center;gap:0.4rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 0.7rem;border-radius:40px;cursor:pointer;font-size:0.82rem;">🔍</button>
       <div id="langDropdownWrap" style="position:relative;">
         <button id="langToggleBtn" onclick="hxToggleLangMenu()" type="button" title="Canviar idioma" aria-label="Canviar idioma" aria-haspopup="true" aria-expanded="false" style="display:flex;align-items:center;gap:0.35rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 0.75rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;">
           <span id="langCurrentFlag" style="font-size:1.1rem;display:inline-flex;align-items:center;"><svg viewBox="0 0 20 14" style="width:1.15rem;height:0.8rem;display:inline-block;vertical-align:middle;border-radius:2px;box-shadow:0 0 0 0.5px rgba(0,0,0,0.15);"><rect width="20" height="14" fill="#FCDD09"/><rect y="0" width="20" height="1.56" fill="#DA121A"/><rect y="3.11" width="20" height="1.56" fill="#DA121A"/><rect y="6.22" width="20" height="1.56" fill="#DA121A"/><rect y="9.33" width="20" height="1.56" fill="#DA121A"/><rect y="12.44" width="20" height="1.56" fill="#DA121A"/></svg></span> <span style="font-size:0.65rem;">▾</span>
@@ -4717,6 +4715,74 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
     <div style="background:var(--green-cream);border-radius:12px;padding:1.5rem;margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;" class="fade-in">
       <div><h3 style="font-size:0.95rem;color:var(--green-deep);margin-bottom:0.5rem;" data-i18n-key="t022">🎯 Perfil Fundadors</h3><p style="font-size:0.82rem;color:#555;" data-i18n-key="t195">Dos químics amb experiència en química industrial i distribució. Perfil tècnic i sectorial amb orientació al client i visió estratègica a llarg termini. La combinació ideal per a una empresa de higiene professional exigent.</p></div>
       <div><h3 style="font-size:0.95rem;color:var(--green-deep);margin-bottom:0.5rem;" data-i18n-key="t023">💼 Polítiques de RRHH</h3><p style="font-size:0.82rem;color:#555;" data-i18n-key="t196">Polítiques salarials competitives, plans de carrera i formació contínua per a retenció del talent. L'equip humà és el principal actiu d'HIGIENEX per a mantenir la innovació i la qualitat del servei.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TREBALLA AMB NOSALTRES -->
+<section id="treballa" style="background:var(--warm-white);">
+  <div class="container">
+    <span class="section-tag">💼 Uneix-te a l'equip</span>
+    <h2>Treballa amb Nosaltres</h2>
+    <p class="section-sub">30 professionals i creixent. Si t'apassiona la química, la sostenibilitat o el tracte amb el client, aquí tens el teu lloc.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.2rem;margin-top:2rem;">
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <span style="display:inline-block;background:var(--green-cream);color:var(--green-deep);font-size:0.7rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:20px;text-transform:uppercase;letter-spacing:0.03em;">Laboratori</span>
+        <h4 style="color:var(--green-deep);margin:0.7rem 0 0.3rem;font-size:1rem;">Tècnic/a de Formulació Química</h4>
+        <p style="font-size:0.83rem;opacity:0.75;margin:0 0 0.8rem;">Desenvolupament de nous concentrats ECO. Grau en Química o Enginyeria Química. Experiència valorable en I+D industrial.</p>
+        <span style="font-size:0.78rem;color:#888;">📍 València · Jornada completa</span>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <span style="display:inline-block;background:var(--green-cream);color:var(--green-deep);font-size:0.7rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:20px;text-transform:uppercase;letter-spacing:0.03em;">Comercial</span>
+        <h4 style="color:var(--green-deep);margin:0.7rem 0 0.3rem;font-size:1rem;">Comercial Sector Sanitari</h4>
+        <p style="font-size:0.83rem;opacity:0.75;margin:0 0 0.8rem;">Captació i seguiment de clients hospitalaris i sociosanitaris a la Comunitat Valenciana. Es valora experiència en el sector.</p>
+        <span style="font-size:0.78rem;color:#888;">📍 València (amb desplaçaments) · Jornada completa</span>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <span style="display:inline-block;background:var(--green-cream);color:var(--green-deep);font-size:0.7rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:20px;text-transform:uppercase;letter-spacing:0.03em;">Logística</span>
+        <h4 style="color:var(--green-deep);margin:0.7rem 0 0.3rem;font-size:1rem;">Conductor/a Repartiment</h4>
+        <p style="font-size:0.83rem;opacity:0.75;margin:0 0 0.8rem;">Repartiment amb flota pròpia per València, Castelló i Alacant. Carnet C valorable, no imprescindible.</p>
+        <span style="font-size:0.78rem;color:#888;">📍 València · Jornada completa</span>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <span style="display:inline-block;background:var(--green-cream);color:var(--green-deep);font-size:0.7rem;font-weight:700;padding:0.25rem 0.6rem;border-radius:20px;text-transform:uppercase;letter-spacing:0.03em;">Atenció al client</span>
+        <h4 style="color:var(--green-deep);margin:0.7rem 0 0.3rem;font-size:1rem;">Tècnic/a d'Atenció al Client</h4>
+        <p style="font-size:0.83rem;opacity:0.75;margin:0 0 0.8rem;">Gestió de comandes, incidències i seguiment postvenda. Bon tracte telefònic i orientació a la resolució.</p>
+        <span style="font-size:0.78rem;color:#888;">📍 València · Jornada completa</span>
+      </div>
+    </div>
+
+    <div style="background:#0B3D6B;border-radius:14px;padding:1.2rem 1.4rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;margin-top:1.6rem;">
+      <span style="font-size:1.3rem;">🌱</span>
+      <span style="color:#DEEEFB;font-size:0.86rem;">No trobes la vacant ideal? Envia'ns igualment la teva candidatura: valorem cada perfil per a futures incorporacions.</span>
+    </div>
+
+    <div style="max-width:640px;margin-top:2.2rem;">
+      <h3 style="color:var(--green-deep);font-size:1.1rem;margin-bottom:0.9rem;">Envia'ns la teva candidatura</h3>
+      <form class="contact-form" onsubmit="submitTreballaForm(event)">
+        <div class="form-row">
+          <div class="form-field"><label for="jbNom">Nom i Cognoms *</label><input id="jbNom" type="text" name="nom" required autocomplete="name" placeholder="Laura Martínez Soler"></div>
+          <div class="form-field"><label for="jbEmail">Email *</label><input id="jbEmail" type="email" name="email" required autocomplete="email" placeholder="laura@email.com"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label for="jbTelefon">Telèfon</label><input id="jbTelefon" type="tel" name="telefon" autocomplete="tel" placeholder="600 000 000"></div>
+          <div class="form-field"><label for="jbPosicio">Lloc al qual optes *</label>
+            <select id="jbPosicio" name="posicio" required>
+              <option value="">Selecciona una opció...</option>
+              <option>Tècnic/a de Formulació Química</option>
+              <option>Comercial Sector Sanitari</option>
+              <option>Conductor/a Repartiment</option>
+              <option>Tècnic/a d'Atenció al Client</option>
+              <option>Candidatura espontània</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-field"><label for="jbMissatge">Presenta't breument *</label><textarea id="jbMissatge" name="missatge" required placeholder="Experiència, formació i per què vols formar part de l'equip HIGIENEX..."></textarea></div>
+        <div class="form-field"><label for="jbCV">Enllaç al CV (LinkedIn, Drive...)</label><input id="jbCV" type="url" name="cv" placeholder="https://..."></div>
+        <button type="submit" class="btn-submit">Enviar Candidatura →</button>
+      </form>
+      <div id="treballaSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;">✅ Candidatura rebuda! El nostre equip de RRHH la revisarà i et contactarà si encaixa amb el perfil.</div>
     </div>
   </div>
 </section>
@@ -7641,6 +7707,43 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 </section>
 
 <!-- ═══════════════════════════════════════
+     PROGRAMA DE FIDELITZACIÓ
+     ═══════════════════════════════════════ -->
+<section id="fidelitzacio">
+  <div class="container">
+    <span class="section-tag">🎖️ HIGIENEX Club</span>
+    <h2>Programa de Fidelització</h2>
+    <p class="section-sub">Com més confies en HIGIENEX, més avantatges tens. Punts automàtics per cada comanda, sense res a fer.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;margin-top:1.8rem;">
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);position:relative;">
+        <div style="font-size:1.6rem;">🥉</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;">Bronze · 0-999 pts</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;">Nivell d'entrada. 1 punt per cada euro de compra. Newsletter amb ofertes exclusives.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:2px solid var(--gold,#F2A900);position:relative;">
+        <div style="font-size:1.6rem;">🥈</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;">Plata · 1.000-2.999 pts</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;">5% de descompte permanent + enviament prioritari en 24h a la Comunitat Valenciana.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <div style="font-size:1.6rem;">🥇</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;">Or · 3.000-6.999 pts</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;">10% de descompte + gestor/a de compte dedicat/da + mostres gratuïtes de nous productes.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <div style="font-size:1.6rem;">💎</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;">Platí · +7.000 pts</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;">15% de descompte + condicions de pagament a mida + accés anticipat a nous llançaments.</p>
+      </div>
+    </div>
+    <div style="margin-top:1.6rem;background:var(--green-cream);border-radius:14px;padding:1.2rem 1.4rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+      <span style="font-size:1.3rem;">🔁</span>
+      <span style="color:var(--green-deep);font-size:0.86rem;">Recorda: el simulador de comanda recurrent suma punts automàticament cada vegada que es processa una reposició programada.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
      ZONES DE REPARTIMENT
      ═══════════════════════════════════════ -->
 <section id="zones-reparti" style="background:var(--warm-white);">
@@ -7673,6 +7776,43 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     <div style="margin-top:1.6rem;background:#0B3D6B;border-radius:14px;padding:1rem 1.4rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
       <span style="font-size:1.3rem;">💰</span>
       <span style="color:#DEEEFB;font-size:0.86rem;" data-i18n-key="t633">Transport gratuït a partir de 300 € de comanda. Per sota d'aquest import, càrrec fix de 5,00 €.</span>
+    </div>
+  </div>
+</section>
+<!-- ═══════════════════════════════════════
+     GARANTIES I DEVOLUCIONS
+     ═══════════════════════════════════════ -->
+<section id="garanties" style="background:var(--warm-white);">
+  <div class="container">
+    <span class="section-tag">🛡️ Compra amb confiança</span>
+    <h2>Garanties i Devolucions</h2>
+    <p class="section-sub">Compromís total amb la qualitat: si un producte no compleix les especificacions, ho solucionem.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.2rem;margin-top:1.8rem;">
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <div style="font-size:1.6rem;">✅</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;">Garantia de qualitat 100%</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;">Tots els lots passen control de qualitat certificat abans d'expedir-se. Si detectes cap incidència, ho reportes des del teu compte i el resolem en 48h.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <div style="font-size:1.6rem;">📦</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;">14 dies per a devolucions</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;">Envasos sense obrir es poden retornar en un termini de 14 dies naturals des de la recepció, sense cap cost per al client.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <div style="font-size:1.6rem;">🔄</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;">Reposició immediata</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;">Producte danyat en transport o error en la comanda: enviem la reposició en 24-48h sense esperar la devolució física.</p>
+      </div>
+      <div style="background:#fff;border-radius:16px;padding:1.4rem;border:1.5px solid var(--border);">
+        <div style="font-size:1.6rem;">🧑‍💼</div>
+        <h4 style="color:var(--green-deep);margin:0.4rem 0 0.2rem;font-size:0.95rem;">Suport tècnic dedicat</h4>
+        <p style="font-size:0.82rem;opacity:0.75;margin:0;">Dubtes sobre dosificació, compatibilitat o ús del producte? El nostre equip tècnic respon en menys de 24h laborables.</p>
+      </div>
+    </div>
+    <div style="margin-top:1.6rem;background:#0B3D6B;border-radius:14px;padding:1.2rem 1.4rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
+      <span style="font-size:1.3rem;">📞</span>
+      <span style="color:#DEEEFB;font-size:0.86rem;">Per iniciar una devolució o reportar una incidència, contacta amb nosaltres indicant el número de comanda.</span>
+      <a href="#" onclick="navTo('contacte');return false;" class="btn-outline" style="margin-left:auto;color:#fff;border-color:#fff;">Contactar →</a>
     </div>
   </div>
 </section>
@@ -7780,6 +7920,7 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
       <li><a href="#" onclick="navTo('missio');return false;" data-i18n-key="t153">Missió i Valors</a></li>
       <li><a href="#" onclick="navTo('organitzacio');return false;" data-i18n-key="t154">Organigrama</a></li>
       <li><a href="#" onclick="navTo('rrhh');return false;" data-i18n-key="t155">Equip Humà</a></li>
+      <li><a href="#" onclick="navTo('treballa');return false;">Treballa amb Nosaltres</a></li>
       <li><a href="#" onclick="navTo('rsc');return false;" data-i18n-key="t156">RSC</a></li>
     </ul></div>
     <div><h4 data-i18n-key="t157">Productes i Serveis</h4><ul>
@@ -7788,6 +7929,8 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
       <li><a href="#" onclick="navTo('sostenibilitat');return false;" data-i18n-key="t160">Sostenibilitat</a></li>
       <li><a href="#" onclick="navTo('innovacio');return false;" data-i18n-key="t161">Innovació</a></li>
       <li><a href="#" onclick="navTo('casos');return false;" data-i18n-key="t162">Casos d'Èxit</a></li>
+      <li><a href="#" onclick="navTo('fidelitzacio');return false;">Programa de Fidelització</a></li>
+      <li><a href="#" onclick="navTo('garanties');return false;">Garanties i Devolucions</a></li>
     </ul></div>
     <div><h4 data-i18n-key="t163">Contacte</h4><ul>
       <li data-i18n-key="t328">📍 Carrer de la Indústria, 25<br><span style="padding-left:1.3rem;font-size:0.78rem;" data-i18n-key="t572">46010 València</span></li>
@@ -8079,11 +8222,11 @@ function navTo(id) {
 
   // Sub-secció dins d'un grup
   var GROUP_OF = {
-    sobre:'empresa', missio:'empresa', organitzacio:'empresa', rrhh:'empresa', casos:'empresa',
+    sobre:'empresa', missio:'empresa', organitzacio:'empresa', rrhh:'empresa', casos:'empresa', treballa:'empresa',
     productes:'productes', rd:'productes', innovacio:'productes', digitalitzacio:'productes', futur:'productes',
     processos:'operacions', logistica:'operacions', internacionalitzacio:'operacions',
     sostenibilitat:'compromis', rsc:'compromis', clients:'compromis', marqueting:'compromis', competencia:'compromis', blog:'compromis',
-    faq:'contacte', contacte:'contacte'
+    faq:'contacte', contacte:'contacte', fidelitzacio:'contacte', garanties:'contacte'
   };
   var g = GROUP_OF[id];
   if (g) {
@@ -8264,6 +8407,56 @@ function submitForm(e) {
   f.reset();
 }
 window.submitForm = submitForm;
+
+function submitTreballaForm(e) {
+  e.preventDefault();
+  var f = e.target;
+  var submitBtn = f.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    if (submitBtn.disabled) return false;
+    submitBtn.disabled = true;
+    setTimeout(function(){ submitBtn.disabled = false; }, 4000);
+  }
+  var val = function(name){ var el = f.elements[name]; return el ? el.value.trim() : ''; };
+  var nom      = val('nom');
+  var email    = val('email');
+  var telefon  = val('telefon');
+  var posicio  = val('posicio');
+  var missatge = val('missatge');
+  var cv       = val('cv');
+
+  try {
+    var files = [
+      ['Nom', nom],
+      ['Lloc', posicio],
+      ['Email', email]
+    ];
+    if (telefon) files.push(['Telèfon', telefon]);
+    if (cv) files.push(['CV', cv]);
+    var filesHTML = files.map(function(row){
+      return '<tr><td style="padding:5px 4px;color:#888;width:110px;font-size:12px;text-transform:uppercase;letter-spacing:.03em;">' + escHtml(row[0]) + '</td>' +
+        '<td style="padding:5px 4px;font-weight:600;color:#333;">' + escHtml(row[1]) + '</td></tr>';
+    }).join('');
+    var cos =
+      '<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px;">' + filesHTML + '</table>' +
+      escHtml(missatge).replace(/\n/g, '<br>');
+    enviarNotificacioEmail({
+      title: 'Nova candidatura: ' + (posicio || nom) + ' — HIGIENEX',
+      name: nom || 'Candidatura web',
+      message: cos,
+      email: email,
+      badge: 'NOVA CANDIDATURA',
+      subtitle: 'S\'ha rebut una nova candidatura des de "Treballa amb nosaltres".',
+      detailLabel: 'Presentació',
+      ctaButtonHtml: hxEmailCtaButton('Respondre al candidat/a →', 'mailto:' + email, 'gold')
+    });
+  } catch(err) { console.warn('No s\'ha pogut preparar l\'email de candidatura:', err); }
+
+  var s = document.getElementById('treballaSuccess');
+  if (s) { s.style.display = 'block'; setTimeout(function() { s.style.display = 'none'; }, 5000); }
+  f.reset();
+}
+window.submitTreballaForm = submitTreballaForm;
 
 </script>
 
@@ -10327,73 +10520,6 @@ window.hxRecurrentAfegir = hxRecurrentAfegir;
 
 document.addEventListener('DOMContentLoaded', hxRecurrentInit);
 
-// ═══════════════════════════════════════════════════════════
-// CERCADOR GLOBAL DE LA WEB
-// ═══════════════════════════════════════════════════════════
-var HX_SEARCH_INDEX = [
-  {title:'ECO Concentrat Pro', desc:'Concentrat ×3, biodegradable, ISO 14001', section:'productes', icon:'🌿'},
-  {title:'Desinfectant HOSP-V', desc:'Biocida UE, quiròfans i sanitari crític', section:'productes', icon:'🏥'},
-  {title:'Detergent ALIM-PRO', desc:'HACCP, indústria alimentària', section:'productes', icon:'🏭'},
-  {title:'Net HOSTAL Premium', desc:'Hoteleria, ISO 14001', section:'productes', icon:'🏨'},
-  {title:'Gamma Superfícies QR', desc:'Traçabilitat de lot digital', section:'productes', icon:'📱'},
-  {title:'WorkSafe Antimicrobial', desc:'Col·laboració OfiNova, oficines', section:'productes', icon:'🤝'},
-  {title:'Comparador de productes', desc:'Compara fins a 3 productes costat a costat', section:'productes', icon:'⚖️'},
-  {title:'Calculadora d\'estalvi ECO', desc:'Quant estalvies amb els concentrats', section:'compromis', icon:'🧮'},
-  {title:'Descàrregues i fitxes de seguretat', desc:'Catàleg PDF i FDS de cada producte', section:'productes', icon:'📥'},
-  {title:'Certificats i segells', desc:'ISO 14001, Registre de Biocides, HACCP', section:'compromis', icon:'🏅'},
-  {title:'On repartim', desc:'Zones de cobertura i terminis d\'entrega', section:'contacte', icon:'🚚'},
-  {title:'Sol·licita una mostra gratuïta', desc:'Prova el producte abans de comprar', section:'productes', icon:'🎁'},
-  {title:'Nosaltres / Història', desc:'HIGIENEX des de 2015 a València', section:'empresa', icon:'🏢'},
-  {title:'Missió, visió i valors', desc:'Rigor tècnic, sostenibilitat, integritat', section:'empresa', icon:'🎯'},
-  {title:'Casos d\'èxit', desc:'Hospitals, hotels i indústria alimentària', section:'empresa', icon:'⭐'},
-  {title:'Laboratori R+D', desc:'19 patents pròpies, independent des de 2018', section:'productes', icon:'🧪'},
-  {title:'Sostenibilitat i ISO 14001', desc:'Gestió ambiental certificada', section:'compromis', icon:'♻️'},
-  {title:'Blog i newsletter', desc:'Novetats del sector, normativa i innovació', section:'compromis', icon:'📰'},
-  {title:'Preguntes freqüents', desc:'Sectors, garanties, exportació, concentrats', section:'contacte', icon:'❓'},
-  {title:'Contacte', desc:'Adreça, telèfon, formulari, horari', section:'contacte', icon:'📍'},
-  {title:'Simulador de comanda recurrent', desc:'Programa reposicions automàtiques', section:'productes', icon:'🔁'}
-];
-
-function hxOpenSearch(){
-  var ov = document.getElementById('hxSearchOverlay');
-  if (!ov) return;
-  ov.style.display = 'block';
-  var input = document.getElementById('hxSearchInput');
-  if (input) { input.value = ''; setTimeout(function(){ input.focus(); }, 50); }
-  hxRunSearch();
-}
-window.hxOpenSearch = hxOpenSearch;
-function hxCloseSearch(){
-  var ov = document.getElementById('hxSearchOverlay');
-  if (ov) ov.style.display = 'none';
-}
-window.hxCloseSearch = hxCloseSearch;
-function hxRunSearch(){
-  var input = document.getElementById('hxSearchInput');
-  var results = document.getElementById('hxSearchResults');
-  if (!input || !results) return;
-  var q = input.value.trim().toLowerCase();
-  var matches = q ? HX_SEARCH_INDEX.filter(function(item){
-    return (item.title + ' ' + item.desc).toLowerCase().indexOf(q) !== -1;
-  }) : HX_SEARCH_INDEX.slice(0, 6);
-  if (!matches.length) {
-    results.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--charcoal);opacity:0.6;font-size:0.85rem;">Cap resultat per «' + q.replace(/</g,'&lt;') + '».</div>';
-    return;
-  }
-  results.innerHTML = matches.map(function(item){
-    return '<button type="button" onclick="hxSearchGo(' + JSON.stringify(item.section) + ')" style="display:flex;align-items:center;gap:0.7rem;width:100%;text-align:left;padding:0.7rem 0.8rem;border:none;background:none;border-radius:10px;cursor:pointer;font-family:inherit;" onmouseover="this.style.background=\'var(--warm-white)\'" onmouseout="this.style.background=\'none\'">' +
-      '<span style="font-size:1.2rem;">' + item.icon + '</span>' +
-      '<span><span style="display:block;font-weight:700;color:var(--green-deep);font-size:0.88rem;">' + item.title.replace(/</g,'&lt;') + '</span>' +
-      '<span style="display:block;font-size:0.76rem;color:var(--charcoal);opacity:0.65;">' + item.desc.replace(/</g,'&lt;') + '</span></span>' +
-      '</button>';
-  }).join('');
-}
-window.hxRunSearch = hxRunSearch;
-function hxSearchGo(section){
-  hxCloseSearch();
-  navTo(section);
-}
-window.hxSearchGo = hxSearchGo;
 
 // ═══════════════════════════════════════════════════════════
 // VALORACIONS DE PRODUCTES (estrelles)
@@ -10555,8 +10681,6 @@ document.addEventListener('DOMContentLoaded', hxUpdateOfflineBanner);
 document.addEventListener('keydown', function(e){
   if (e.key !== 'Escape') return;
   var closed = false;
-  var searchOv = document.getElementById('hxSearchOverlay');
-  if (searchOv && searchOv.style.display !== 'none') { hxCloseSearch(); closed = true; }
   var langMenu = document.getElementById('langDropdownMenu');
   if (langMenu && langMenu.classList.contains('open')) { hxToggleLangMenu(false); closed = true; }
   var navDropdown = document.getElementById('navDropdown');
@@ -10951,17 +11075,6 @@ window.legalClose = legalClose;
 </div>
 
 <!-- CERCADOR GLOBAL DE LA WEB -->
-<div id="hxSearchOverlay" style="display:none;position:fixed;inset:0;z-index:9999999;background:rgba(11,61,107,0.45);backdrop-filter:blur(3px);padding:8vh 1rem 1rem;" onclick="if(event.target===this) hxCloseSearch()">
-  <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.25);overflow:hidden;">
-    <div style="display:flex;align-items:center;gap:0.6rem;padding:1rem 1.2rem;border-bottom:1px solid var(--border);">
-      <span style="font-size:1.1rem;">🔍</span>
-      <input id="hxSearchInput" type="text" placeholder="Cerca productes, seccions, preguntes freqüents…" oninput="hxRunSearch()" style="flex:1;border:none;outline:none;font-size:0.95rem;font-family:inherit;" autocomplete="off">
-      <button type="button" onclick="hxCloseSearch()" aria-label="Tancar cercador" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:var(--charcoal);opacity:0.6;">✕</button>
-    </div>
-    <div id="hxSearchResults" style="max-height:50vh;overflow-y:auto;padding:0.5rem;"></div>
-  </div>
-</div>
-
 <script src="i18n.js" defer></script>
 </body>
 </html>

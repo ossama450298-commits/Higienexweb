@@ -2505,7 +2505,17 @@ bancos:[
  {id:'B2',nom:'Banco Sabadell · nóminas',iban:'ES33 0081 0330 7700 0123 4567',saldo:19870.15}
 ],
 facturasE:[], facturasR:[], movimientos:[], asientos:[], pedidos:[], oportunidades:[],
-nominas:[], actividades:[], fichajes:[], movStock:[], incidencias:[], presupuestos:[]
+nominas:[], actividades:[], fichajes:[], movStock:[], incidencias:[], presupuestos:[],
+candidaturas:[
+ {id:'CAN1',fecha:'2026-08-05',nom:'Laura Martínez Soler',email:'laura.ms@email.com',tel:'611 222 333',posicio:'Tècnic/a de Formulació Química',cv:'https://linkedin.com/in/lauramartinez',msg:'Graduada en Química el 2024, 1 any d\'experiència en laboratori de control de qualitat.',estado:'Pendent'},
+ {id:'CAN2',fecha:'2026-08-09',nom:'Jordi Fernàndez Puig',email:'jordi.fp@email.com',tel:'622 333 444',posicio:'Comercial Sector Sanitari',cv:'',msg:'5 anys com a comercial en el sector sanitari, cartera pròpia de clients a la Comunitat Valenciana.',estado:'Entrevista'},
+ {id:'CAN3',fecha:'2026-08-12',nom:'Miriam Costa Bou',email:'miriam.cb@email.com',tel:'633 444 555',posicio:'Tècnic/a d\'Atenció al Client',cv:'https://drive.google.com/cv-miriam',msg:'Experiència prèvia en call center i gestió de comandes B2B.',estado:'Pendent'}
+],
+mantenimientos:[
+ {id:'MNT1',vehiculo:'Furgoneta 4218-KTX',tipo:'Revisió periòdica',fecha:'2026-07-15','proxima':'2026-10-15',km:48200,coste:145.00,taller:'Taller Mecànic Vialsa',estado:'Fet'},
+ {id:'MNT2',vehiculo:'Furgoneta 7790-LMB',tipo:'Canvi de pneumàtics',fecha:'2026-06-02','proxima':'2027-06-02',km:61500,coste:410.00,taller:'Confortauto',estado:'Fet'},
+ {id:'MNT3',vehiculo:'Camió 3301-NPZ',tipo:'ITV',fecha:'','proxima':'2026-09-01',km:112300,coste:0,taller:'ITV Paterna',estado:'Pendent'}
+]
 };
 
 /* =========================================================
@@ -3004,10 +3014,10 @@ const NAV=[
  {g:'Logística',items:[
    ['almacen','Artículos y stock','logistica'],
    ['almacenes','Almacenes','logistica'],['transportistas','Transportistas','logistica'],
-   ['expediciones','Expediciones','logistica'],['alertasstock','Alertas de stock','logistica'],['calendario','Calendario de entregas','logistica']]},
+   ['expediciones','Expediciones','logistica'],['alertasstock','Alertas de stock','logistica'],['calendario','Calendario de entregas','logistica'],['mantenimiento','Mantenimiento de flota','logistica']]},
  {g:'Fabricación',items:[['materias','Materias primas','logistica'],['formulas','Fórmulas y escandallos','logistica'],['produccion','Órdenes de fabricación','logistica'],['lotes','Lotes y trazabilidad','logistica'],['calidad','Control de calidad','logistica']]},
  {g:'Personas',items:[['fichajes','Control de fichajes','all']]},
- {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh']]},
+ {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh'],['candidaturas','Candidaturas','rrhh']]},
  {g:'Sistema',items:[['automat','Automatizaciones','admin'],['auditoria','Registro de auditoría','admin']]},
  {g:'Dirección',items:[['sistema','Administración del sistema','super'],['analitica','Analítica web','super']]}
 ];
@@ -3022,7 +3032,7 @@ const NAV_ICONS={
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
   automat:'⚡', auditoria:'🛡️',
   sistema:'⚙️',
-  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊', calendario:'📅'
+  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊', calendario:'📅', candidaturas:'📋', mantenimiento:'🔧'
 };
 function can(area){
   if(!ME) return false;
@@ -3040,6 +3050,8 @@ function avisos(v){
   if(v==='automat')  return typeof evaluarReglas==='function'?evaluarReglas().length:0;
   if(v==='alertasstock') return DB.productos.filter(p=>p.stock<p.min).length;
   if(v==='incidencias') return DB.incidencias.filter(i=>i.estado!=='Resuelta').length;
+  if(v==='candidaturas') return DB.candidaturas.filter(c=>c.estado==='Pendent').length;
+  if(v==='mantenimiento') return DB.mantenimientos.filter(m=>m.estado==='Pendent'&&m.proxima&&m.proxima<TODAY).length;
   return 0;
 }
 
@@ -3065,6 +3077,10 @@ function hxNotificaciones(){
   if(sinExpedir.length) items.push({icon:'🚚',text:sinExpedir.length+' comanda'+(sinExpedir.length>1?'es':'')+' pendent'+(sinExpedir.length>1?'s':'')+' d\'expedir',v:'expediciones',sev:'warn'});
   const incObertes=(DB.incidencias||[]).filter(i=>i.estado!=='Resuelta');
   if(incObertes.length) items.push({icon:'⚠️',text:incObertes.length+' incidència'+(incObertes.length>1?'es':'')+' de client pendent'+(incObertes.length>1?'s':'')+' de resoldre',v:'incidencias',sev:'warn'});
+  const canPendents=(DB.candidaturas||[]).filter(c=>c.estado==='Pendent');
+  if(canPendents.length) items.push({icon:'📋',text:canPendents.length+' candidatura'+(canPendents.length>1?'es':'')+' pendent'+(canPendents.length>1?'s':'')+' de revisar',v:'candidaturas',sev:'info'});
+  const mntPendents=(DB.mantenimientos||[]).filter(m=>m.estado==='Pendent'&&m.proxima&&m.proxima<TODAY);
+  if(mntPendents.length) items.push({icon:'🔧',text:mntPendents.length+' manteniment'+(mntPendents.length>1?'s':'')+' de flota vençut'+(mntPendents.length>1?'s':''),v:'mantenimiento',sev:'danger'});
   return items;
 }
 function hxRenderNotifBell(){
@@ -3804,6 +3820,128 @@ function updateIncidencia(id){
   const i=DB.incidencias.find(x=>x.id===id); if(!i) return;
   i.estado=val('inc_estado_edit'); i.resolucion=val('inc_resol').trim();
   closeModal();go('incidencias');toast('Incidència actualitzada.');
+}
+
+/* =========================================================
+   CANDIDATURES (Treballa amb nosaltres)
+   ========================================================= */
+ROUTES.candidaturas=function(){
+  const all=DB.candidaturas.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const lista=all.filter(c=>hit(c.nom+' '+c.posicio+' '+c.email+' '+c.estado));
+  const pendents=DB.candidaturas.filter(c=>c.estado==='Pendent').length;
+  let h=head('Candidatures',pendents+' pendents de revisar de '+all.length+' totals',
+    '<button class="btn ghost sm" onclick="exportarCandidaturasExcel()" type="button">📊 Excel</button><button class="btn" onclick="formCandidatura()" type="button">Nova candidatura</button>');
+  h+=buscador('Cercar per nom, lloc o email…',all.length,lista.length);
+  h+='<div class="card">'+tbl([['Data'],['Nom'],['Lloc'],['Email'],['Estat'],['']],
+    lista.map(c=>rowN([FD(c.fecha),esc(c.nom),esc(c.posicio),esc(c.email),canEstadoTag(c.estado),
+      '<button class="btn ghost sm" onclick="verCandidatura(\''+c.id+'\')" type="button">Veure</button>'],[]))
+    ,['Sense candidatures','Encara no s\'ha rebut cap candidatura des de la web.'])+'</div>';
+  return h;
+};
+function canEstadoTag(e){
+  if(e==='Contractat') return '<span class="tag t-ok">Contractat</span>';
+  if(e==='Entrevista') return '<span class="tag t-wait">Entrevista</span>';
+  if(e==='Descartat') return '<span class="tag t-late">Descartat</span>';
+  return '<span class="tag">Pendent</span>';
+}
+function formCandidatura(){
+  openModal('Nova candidatura',
+    '<div style="display:grid;gap:8px">'+
+    '<div><label class="flabel" for="can_nom">Nom</label><input id="can_nom" type="text" placeholder="Nom i cognoms"></div>'+
+    '<div><label class="flabel" for="can_email">Email</label><input id="can_email" type="email" placeholder="email@exemple.com"></div>'+
+    '<div><label class="flabel" for="can_tel">Telèfon</label><input id="can_tel" type="text" placeholder="600 000 000"></div>'+
+    fSelect('Lloc','can_pos',[['Tècnic/a de Formulació Química','Tècnic/a de Formulació Química'],['Comercial Sector Sanitari','Comercial Sector Sanitari'],['Conductor/a Repartiment','Conductor/a Repartiment'],['Tècnic/a d\'Atenció al Client','Tècnic/a d\'Atenció al Client'],['Candidatura espontània','Candidatura espontània']])+
+    '</div>'+
+    '<div style="margin-top:14px"><label class="flabel" for="can_msg">Notes / presentació</label><textarea id="can_msg" rows="3" placeholder="Resum del perfil…"></textarea></div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancel·lar</button><button class="btn" onclick="saveCandidatura()" type="button">Guardar</button>');
+}
+function saveCandidatura(){
+  const n=val('can_nom').trim();
+  if(!n){toast('Escriu el nom abans de guardar.');return;}
+  DB.candidaturas.push({id:uid('CAN'),fecha:TODAY,nom:n,email:val('can_email').trim(),tel:val('can_tel').trim(),posicio:val('can_pos'),cv:'',msg:val('can_msg').trim(),estado:'Pendent'});
+  closeModal();go('candidaturas');toast('Candidatura registrada.');
+}
+function verCandidatura(id){
+  const c=DB.candidaturas.find(x=>x.id===id); if(!c) return;
+  openModal('Candidatura · '+esc(c.nom),
+    '<div style="display:grid;gap:8px;font-size:13px;margin-bottom:14px">'+
+    '<div><b>Data:</b> '+FD(c.fecha)+'</div><div><b>Lloc:</b> '+esc(c.posicio)+'</div>'+
+    '<div><b>Email:</b> '+esc(c.email)+'</div>'+(c.tel?'<div><b>Telèfon:</b> '+esc(c.tel)+'</div>':'')+
+    (c.cv?'<div><b>CV:</b> <a href="'+esc(c.cv)+'" target="_blank" rel="noopener">'+esc(c.cv)+'</a></div>':'')+
+    '<div><b>Presentació:</b> '+esc(c.msg||'—')+'</div>'+
+    '<div><b>Estat:</b> '+canEstadoTag(c.estado)+'</div></div>'+
+    fSelect('Canviar estat','can_estado_edit',[['Pendent','Pendent'],['Entrevista','Entrevista'],['Contractat','Contractat'],['Descartat','Descartat']],c.estado),
+    '<button class="btn ghost" onclick="closeModal()" type="button">Tancar</button><button class="btn" onclick="updateCandidatura(\''+id+'\')" type="button">Guardar canvis</button>');
+}
+function updateCandidatura(id){
+  const c=DB.candidaturas.find(x=>x.id===id); if(!c) return;
+  c.estado=val('can_estado_edit');
+  closeModal();go('candidaturas');toast('Candidatura actualitzada.');
+}
+function exportarCandidaturasExcel(){
+  const filas=DB.candidaturas.map(c=>({Data:c.fecha,Nom:c.nom,Email:c.email,Telefon:c.tel,Lloc:c.posicio,Estat:c.estado,Notes:c.msg}));
+  descargarXLSX(filas, 'candidaturas-'+TODAY+'.xlsx', 'Candidaturas');
+}
+
+/* =========================================================
+   MANTENIMENT DE FLOTA
+   ========================================================= */
+ROUTES.mantenimiento=function(){
+  const all=DB.mantenimientos.slice().sort((a,b)=>(b.proxima||'').localeCompare(a.proxima||''));
+  const lista=all.filter(m=>hit(m.vehiculo+' '+m.tipo+' '+m.taller+' '+m.estado));
+  const pendents=DB.mantenimientos.filter(m=>m.estado==='Pendent').length;
+  let h=head('Manteniment de flota',pendents+' actuacions pendents de '+all.length+' totals',
+    '<button class="btn ghost sm" onclick="exportarMantenimientosExcel()" type="button">📊 Excel</button><button class="btn" onclick="formMantenimiento()" type="button">Nova actuació</button>');
+  h+=buscador('Cercar per vehicle, tipus o taller…',all.length,lista.length);
+  h+='<div class="card">'+tbl([['Vehicle'],['Tipus'],['Feta el'],['Propera'],['Km'],['Cost',''],['Estat'],['']],
+    lista.map(m=>rowN([esc(m.vehiculo),esc(m.tipo),m.fecha?FD(m.fecha):'—',m.proxima?FD(m.proxima):'—',m.km?m.km.toLocaleString('ca-ES'):'—',EUR(m.coste||0),
+      m.estado==='Fet'?'<span class="tag t-ok">Fet</span>':'<span class="tag t-late">Pendent</span>',
+      '<button class="btn ghost sm" onclick="verMantenimiento(\''+m.id+'\')" type="button">Veure</button>'],[5]))
+    ,['Sense actuacions','Registra la primera revisió o ITV.'])+'</div>';
+  return h;
+};
+function formMantenimiento(){
+  openModal('Nova actuació de manteniment',
+    '<div style="display:grid;gap:8px">'+
+    '<div><label class="flabel" for="mnt_veh">Vehicle</label><input id="mnt_veh" type="text" placeholder="Matrícula o nom del vehicle"></div>'+
+    fSelect('Tipus','mnt_tipo',[['Revisió periòdica','Revisió periòdica'],['Canvi de pneumàtics','Canvi de pneumàtics'],['ITV','ITV'],['Reparació','Reparació'],['Altres','Altres']])+
+    '<div><label class="flabel" for="mnt_fecha">Data feta (deixar buit si és pendent)</label><input id="mnt_fecha" type="date"></div>'+
+    '<div><label class="flabel" for="mnt_prox">Propera revisió/venciment</label><input id="mnt_prox" type="date"></div>'+
+    '<div><label class="flabel" for="mnt_km">Quilometratge</label><input id="mnt_km" type="number" min="0" placeholder="0"></div>'+
+    '<div><label class="flabel" for="mnt_coste">Cost (€)</label><input id="mnt_coste" type="number" min="0" step="0.01" placeholder="0.00"></div>'+
+    '<div><label class="flabel" for="mnt_taller">Taller</label><input id="mnt_taller" type="text" placeholder="Nom del taller"></div>'+
+    '</div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancel·lar</button><button class="btn" onclick="saveMantenimiento()" type="button">Guardar</button>');
+}
+function saveMantenimiento(){
+  const veh=val('mnt_veh').trim();
+  if(!veh){toast('Escriu el vehicle abans de guardar.');return;}
+  const fecha=val('mnt_fecha');
+  DB.mantenimientos.push({id:uid('MNT'),vehiculo:veh,tipo:val('mnt_tipo'),fecha:fecha,proxima:val('mnt_prox'),km:parseInt(val('mnt_km'),10)||0,coste:parseFloat(val('mnt_coste'))||0,taller:val('mnt_taller').trim(),estado:fecha?'Fet':'Pendent'});
+  closeModal();go('mantenimiento');toast('Actuació registrada.');
+}
+function verMantenimiento(id){
+  const m=DB.mantenimientos.find(x=>x.id===id); if(!m) return;
+  openModal('Manteniment · '+esc(m.vehiculo),
+    '<div style="display:grid;gap:8px;font-size:13px;margin-bottom:14px">'+
+    '<div><b>Tipus:</b> '+esc(m.tipo)+'</div>'+
+    '<div><b>Feta el:</b> '+(m.fecha?FD(m.fecha):'Pendent')+'</div>'+
+    '<div><b>Propera:</b> '+(m.proxima?FD(m.proxima):'—')+'</div>'+
+    '<div><b>Km:</b> '+(m.km?m.km.toLocaleString('ca-ES'):'—')+'</div>'+
+    '<div><b>Cost:</b> '+EUR(m.coste||0)+'</div>'+
+    '<div><b>Taller:</b> '+esc(m.taller||'—')+'</div></div>'+
+    fSelect('Marcar com','mnt_estado_edit',[['Pendent','Pendent'],['Fet','Fet']],m.estado),
+    '<button class="btn ghost" onclick="closeModal()" type="button">Tancar</button><button class="btn" onclick="updateMantenimiento(\''+id+'\')" type="button">Guardar canvis</button>');
+}
+function updateMantenimiento(id){
+  const m=DB.mantenimientos.find(x=>x.id===id); if(!m) return;
+  m.estado=val('mnt_estado_edit');
+  if(m.estado==='Fet' && !m.fecha) m.fecha=TODAY;
+  closeModal();go('mantenimiento');toast('Manteniment actualitzat.');
+}
+function exportarMantenimientosExcel(){
+  const filas=DB.mantenimientos.map(m=>({Vehicle:m.vehiculo,Tipus:m.tipo,Fet:m.fecha||'',Propera:m.proxima||'',Km:m.km,Cost:m.coste,Taller:m.taller,Estat:m.estado}));
+  descargarXLSX(filas, 'mantenimiento-flota-'+TODAY+'.xlsx', 'Mantenimiento');
 }
 
 /* =========================================================
