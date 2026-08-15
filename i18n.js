@@ -762,6 +762,26 @@ function hxToggleLangMenu(force) {
   var btn = document.getElementById('langToggleBtn');
   if (!menu) return;
   var open = (force !== undefined) ? force : !menu.classList.contains('open');
+  // Portem el menú a <body> quan s'obre, perquè un ancestre (#mainNav) té
+  // 'transform' en CSS i això trenca el 'position:fixed' del menú (l'ancestre
+  // amb transform passa a ser el seu contenidor de referència en lloc del
+  // viewport). Movent-lo a body evitem aquest problema, sobretot al mòbil.
+  if (open && menu.parentNode !== document.body) {
+    document.body.appendChild(menu);
+  }
+  if (open && btn) {
+    var r = btn.getBoundingClientRect();
+    var isMobile = window.innerWidth <= 820;
+    menu.style.position = 'fixed';
+    menu.style.top = (r.bottom + 8) + 'px';
+    if (isMobile) {
+      menu.style.right = '1rem';
+      menu.style.left = 'auto';
+    } else {
+      menu.style.left = 'auto';
+      menu.style.right = (window.innerWidth - r.right) + 'px';
+    }
+  }
   menu.classList.toggle('open', open);
   if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
@@ -769,8 +789,8 @@ window.hxToggleLangMenu = hxToggleLangMenu;
 
 document.addEventListener('click', function(e) {
   var menu = document.getElementById('langDropdownMenu');
-  var wrap = document.getElementById('langDropdownWrap');
-  if (menu && menu.classList.contains('open') && wrap && !wrap.contains(e.target)) {
+  var btn = document.getElementById('langToggleBtn');
+  if (menu && menu.classList.contains('open') && !menu.contains(e.target) && !(btn && btn.contains(e.target))) {
     hxToggleLangMenu(false);
   }
 });
