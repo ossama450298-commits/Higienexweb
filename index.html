@@ -8290,17 +8290,17 @@ function handleCinemaScroll() {
   var opacity   = 0;
   var translateY = 50;
 
-  // Cinema: empieza más pronto y acaba más tarde
-  if (progress < 0.05) {
+  // Cinema: apareix i desapareix una mica abans (avançat respecte al scroll)
+  if (progress < 0.03) {
     opacity = 0; translateY = 50;
-  } else if (progress < 0.20) {
-    var t = (progress - 0.05) / 0.15;
+  } else if (progress < 0.13) {
+    var t = (progress - 0.03) / 0.10;
     opacity = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
     translateY = 50 * (1 - opacity);
-  } else if (progress < 0.80) {
+  } else if (progress < 0.65) {
     opacity = 1; translateY = 0;
-  } else if (progress < 0.95) {
-    var t2 = (progress - 0.80) / 0.15;
+  } else if (progress < 0.78) {
+    var t2 = (progress - 0.65) / 0.13;
     opacity = 1 - (t2 < 0.5 ? 2*t2*t2 : -1+(4-2*t2)*t2);
     translateY = -40 * (1 - opacity);
   } else {
