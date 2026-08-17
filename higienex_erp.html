@@ -183,7 +183,7 @@ aside .sideLogo{display:block;width:calc(100% - 8px);margin:2px 4px 12px;padding
 .shell.collapsed aside .sideLogo{width:38px;margin:2px auto 12px;padding:6px}
 .shell.collapsed aside .logo{text-align:center;padding:2px 0}
 .navitem:focus-visible{outline:2px solid var(--blue);outline-offset:-2px}
-.topnav{background:var(--side);border-bottom:1px solid var(--side-line);padding:0 10px;display:flex;align-items:stretch;justify-content:flex-start;gap:6px;position:sticky;top:57px;z-index:19;overflow-x:auto}
+.topnav{background:var(--side);border-bottom:1px solid var(--side-line);padding:0 10px;display:flex;align-items:stretch;justify-content:flex-start;gap:6px;position:sticky;top:var(--topbar-h,57px);z-index:19;overflow-x:auto}
 .topnav::-webkit-scrollbar{height:0}
 .topnavitem{flex:0 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:7px 8px 6px;border:0;background:none;color:var(--side-ink-2);font-size:10px;font-weight:600;letter-spacing:.01em;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:8px 8px 0 0;transition:background .15s,color .15s;min-width:52px;max-width:96px}
 .topnavitem:hover{background:var(--side-h);color:#fff}
@@ -435,6 +435,8 @@ button,.navitem,.btn,a{min-height:32px}
   /* Al mòbil, les eines administratives (tema, còpia, restaurar, restablir,
      instal·lar) es col·lapsen dins del botó "⋮" en lloc d'anar totes soltes */
   .hx-admin-tool{display:none !important}
+  #hxCalTopBtn{padding:9px;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center}
+  #hxCalTopBtn .lbl{display:none}
   .exercise{display:none} /* ja es veu al selector d'exercici dins de cada secció */
   #hxNotifBell, .avatar{box-shadow:0 2px 8px rgba(11,61,107,0.14)}
   /* Els desplegables (notificacions, avatar) s'escapen del contenidor amb
@@ -446,7 +448,7 @@ button,.navitem,.btn,a{min-height:32px}
     right:1rem !important;
     left:auto !important;
   }
-  .topnav{padding:0 16px;top:calc(49px + 50px);box-shadow:0 6px 14px -6px rgba(0,0,0,0.18)}
+  .topnav{padding:0 16px;top:var(--topbar-h,99px);box-shadow:0 6px 14px -6px rgba(0,0,0,0.18)}
   .qa-bar{gap:8px}
   .qa-btn{flex:1 1 44%;justify-content:center}
   .qa-btn .qk{display:none}
@@ -3163,6 +3165,21 @@ const NAV_GROUP_ICONS={
   'Contabilidad':'📖', 'Bancos':'🏦', 'Logística':'🚚', 'Fabricación':'🧪',
   'Personas':'⏱️', 'RRHH':'👥', 'Sistema':'⚙️', 'Dirección':'🛡️'
 };
+function hxSyncTopbarHeight(){
+  const tb=document.querySelector('.topbar');
+  if(!tb) return;
+  document.documentElement.style.setProperty('--topbar-h', tb.offsetHeight+'px');
+}
+window.hxSyncTopbarHeight = hxSyncTopbarHeight;
+window.addEventListener('resize', hxSyncTopbarHeight);
+window.addEventListener('load', hxSyncTopbarHeight);
+if(window.ResizeObserver){
+  document.addEventListener('DOMContentLoaded', function(){
+    const tb=document.querySelector('.topbar');
+    if(tb) new ResizeObserver(hxSyncTopbarHeight).observe(tb);
+    hxSyncTopbarHeight();
+  });
+}
 function buildTopNav(){
   let h='<button class="topnavitem'+(!ACTIVE_GROUP?' on':'')+'" onclick="go(\'panel\')" type="button" title="Panel"><span class="topnavicon">📊</span><span>Panel</span></button>';
   NAV.forEach(sec=>{
