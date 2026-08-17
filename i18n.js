@@ -442,7 +442,7 @@ var HX_I18N = {
   t429: { ca: 'Política de cookies', es: 'Política de cookies', en: 'Cookie Policy', fr: 'Politique de cookies', de: 'Cookie-Richtlinie' },
   t430: { ca: 'Veure Pla →', es: 'Ver Plan →', en: 'View Plan →', fr: 'Voir le plan →', de: 'Plan ansehen →' },
   t431: { ca: '✉️ contacto@higienexvalencia.es', es: '✉️ contacto@higienexvalencia.es', en: '✉️ contacto@higienexvalencia.es', fr: '✉️ contacto@higienexvalencia.es', de: '✉️ contacto@higienexvalencia.es' },
-  t432: { ca: '📱 Mòbil atenció: 645 678 901', es: '📱 Móvil atención: 645 678 901', en: '📱 Support mobile: 645 678 901', fr: '📱 Mobile assistance : 645 678 901', de: '📱 Support-Handy: 645 678 901' },
+  t432: { ca: '📱 Mòbil atenció: 631 706 398', es: '📱 Móvil atención: 631 706 398', en: '📱 Support mobile: 631 706 398', fr: '📱 Mobile assistance : 631 706 398', de: '📱 Support-Handy: 631 706 398' },
   t433: { ca: 'CIF', es: 'CIF', en: 'Tax ID', fr: 'N° TVA', de: 'Steuernummer' },
   t434: { ca: 'Contrasenya', es: 'Contraseña', en: 'Password', fr: 'Mot de passe', de: 'Passwort' },
   t435: { ca: 'Contrasenya', es: 'Contraseña', en: 'Password', fr: 'Mot de passe', de: 'Passwort' },
