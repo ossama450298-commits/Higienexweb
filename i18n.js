@@ -695,6 +695,7 @@ var HX_I18N = {
   t685: { ca: 'Guardar preferències', es: 'Guardar preferencias', en: 'Save preferences', fr: 'Enregistrer les préférences', de: 'Einstellungen speichern' },
   t686: { ca: 'Catàleg complet (Excel)', es: 'Catálogo completo (Excel)', en: 'Full catalogue (Excel)', fr: 'Catalogue complet (Excel)', de: 'Vollständiger Katalog (Excel)' },
   t687: { ca: 'Ideal per importar-lo al teu propi sistema de compres.', es: 'Ideal para importarlo a tu propio sistema de compras.', en: 'Perfect for importing into your own purchasing system.', fr: "Idéal pour l'importer dans votre propre système d'achats.", de: 'Ideal zum Importieren in Ihr eigenes Einkaufssystem.' },
+  t688: { ca: 'Menú', es: 'Menú', en: 'Menu', fr: 'Menu', de: 'Menü' },
 };
 
 var HX_LANG_KEY = 'hx_lang';
