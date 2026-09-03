@@ -8456,6 +8456,61 @@ window.submitTreballaForm = submitTreballaForm;
 </script>
 
 <!-- ═══════════════════════════════════════
+     PASSAREL·LA DE PAGAMENT (FICTÍCIA)
+     ═══════════════════════════════════════ -->
+<div id="paymentModal" style="display:none;position:fixed;inset:0;z-index:99999997;background:rgba(11,61,107,0.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#fff;border-radius:18px;max-width:440px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,0.3);">
+    <div style="background:#0B3D6B;border-radius:18px 18px 0 0;padding:1.2rem 1.4rem;display:flex;align-items:center;justify-content:space-between;">
+      <span style="color:#fff;font-weight:800;font-size:1rem;">🔒 Pagament segur</span>
+      <button type="button" onclick="closePaymentModal()" aria-label="Tancar" style="background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;opacity:0.8;">✕</button>
+    </div>
+    <div style="padding:1.4rem;">
+      <div style="background:#F5FAFF;border:1px solid #D9E5F0;border-radius:12px;padding:0.9rem 1.1rem;margin-bottom:1.2rem;display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:0.82rem;color:#555;">Total a pagar</span>
+        <span id="paymentTotalDisplay" style="font-size:1.35rem;font-weight:800;color:#0B3D6B;">0,00 €</span>
+      </div>
+
+      <div style="display:flex;gap:0.5rem;margin-bottom:1.1rem;">
+        <button type="button" id="payTabCard" onclick="hxPaySetMethod('card')" class="pay-tab active" style="flex:1;padding:0.55rem;border-radius:10px;border:1.5px solid #0B3D6B;background:#0B3D6B;color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer;">💳 Targeta</button>
+        <button type="button" id="payTabTransfer" onclick="hxPaySetMethod('transfer')" class="pay-tab" style="flex:1;padding:0.55rem;border-radius:10px;border:1.5px solid #D9E5F0;background:#fff;color:#555;font-weight:700;font-size:0.8rem;cursor:pointer;">🏦 Transferència</button>
+      </div>
+
+      <form id="paymentCardForm" onsubmit="return hxProcessPayment(event)">
+        <div style="margin-bottom:0.9rem;">
+          <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Nom del titular</label>
+          <input id="payName" type="text" required placeholder="Com apareix a la targeta" style="width:100%;padding:0.65rem 0.8rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;box-sizing:border-box;">
+        </div>
+        <div style="margin-bottom:0.9rem;">
+          <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Número de targeta</label>
+          <input id="payCardNumber" type="text" inputmode="numeric" required maxlength="19" placeholder="0000 0000 0000 0000" oninput="hxPayFormatCard(this)" style="width:100%;padding:0.65rem 0.8rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;box-sizing:border-box;font-family:monospace;letter-spacing:0.05em;">
+        </div>
+        <div style="display:flex;gap:0.7rem;margin-bottom:0.4rem;">
+          <div style="flex:1;">
+            <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Caducitat</label>
+            <input id="payExpiry" type="text" required maxlength="5" placeholder="MM/AA" oninput="hxPayFormatExpiry(this)" style="width:100%;padding:0.65rem 0.8rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;box-sizing:border-box;font-family:monospace;">
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">CVV</label>
+            <input id="payCvv" type="text" inputmode="numeric" required maxlength="4" placeholder="123" style="width:100%;padding:0.65rem 0.8rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;box-sizing:border-box;font-family:monospace;">
+          </div>
+        </div>
+        <div id="paymentError" style="display:none;color:#C0392B;font-size:0.8rem;margin-top:0.6rem;background:#FDECEA;border-radius:8px;padding:0.5rem 0.7rem;"></div>
+        <button type="submit" id="paySubmitBtn" style="width:100%;margin-top:1.2rem;padding:0.8rem;border:none;border-radius:12px;background:#F2A900;color:#1A1A1A;font-weight:800;font-size:0.92rem;cursor:pointer;">Pagar ara →</button>
+        <p style="font-size:0.7rem;color:#999;text-align:center;margin:0.7rem 0 0;">🧪 Entorn de proves — no es processa cap càrrec real ni es guarden dades de targeta.</p>
+      </form>
+
+      <div id="paymentTransferForm" style="display:none;">
+        <div style="background:#FFF9E8;border:1px solid #F2E0A0;border-radius:10px;padding:0.9rem 1rem;font-size:0.83rem;color:#665500;line-height:1.6;">
+          Realitza la transferència al següent compte indicant el número de comanda com a concepte. La comanda es confirmarà quan rebem el pagament (normalment en 24-48h laborables).
+          <div style="margin-top:0.6rem;font-family:monospace;font-weight:700;color:#0B3D6B;">ES21 2100 4455 6612 3456 7890</div>
+        </div>
+        <button type="button" onclick="hxProcessPayment(null,'transfer')" style="width:100%;margin-top:1.2rem;padding:0.8rem;border:none;border-radius:12px;background:#0B3D6B;color:#fff;font-weight:800;font-size:0.92rem;cursor:pointer;">Confirmar comanda (pendent de pagament) →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
      MODAL LOGIN / REGISTRE
      ═══════════════════════════════════════ -->
 <div id="authModal">
@@ -9436,9 +9491,101 @@ function startCheckout() {
     showToast('Inicia sessió per finalitzar la teva comanda', '🔐');
     return;
   }
-  sendOrder();
+  openPaymentModal();
 }
 window.startCheckout = startCheckout;
+
+// ── PASSAREL·LA DE PAGAMENT (FICTÍCIA) ──────────────────────────────
+// Entorn de proves: no es connecta amb cap banc ni processador real.
+// Simula l'experiència de pagament (validació de targeta, retard de
+// "processament") i, en acabar, crida sendOrder() com si el pagament
+// s'hagués confirmat.
+var _hxPayMethod = 'card';
+function hxCartTotalNow() {
+  var subtotal = Object.keys(cart).reduce(function(s,k){ return s + cart[k].total; }, 0);
+  if (!subtotal) return 0;
+  var iva = subtotal * IVA_PCT;
+  return subtotal + iva + TRANSPORT;
+}
+function openPaymentModal() {
+  var keys = Object.keys(cart);
+  if (!keys.length) { alert('Afegeix almenys un producte al cistell abans de pagar.'); return; }
+  var m = document.getElementById('paymentModal');
+  if (!m) return;
+  var total = hxCartTotalNow();
+  var disp = document.getElementById('paymentTotalDisplay');
+  if (disp) disp.textContent = total.toFixed(2).replace('.', ',') + ' €';
+  var err = document.getElementById('paymentError');
+  if (err) err.style.display = 'none';
+  var f = document.getElementById('paymentCardForm');
+  if (f) f.reset();
+  hxPaySetMethod('card');
+  closeCartDrawer();
+  m.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+window.openPaymentModal = openPaymentModal;
+function closePaymentModal() {
+  var m = document.getElementById('paymentModal');
+  if (m) m.style.display = 'none';
+  document.body.style.overflow = '';
+  var btn = document.getElementById('paySubmitBtn');
+  if (btn) { btn.disabled = false; btn.textContent = 'Pagar ara →'; }
+}
+window.closePaymentModal = closePaymentModal;
+function hxPaySetMethod(method) {
+  _hxPayMethod = method;
+  var isCard = method === 'card';
+  document.getElementById('paymentCardForm').style.display = isCard ? 'block' : 'none';
+  document.getElementById('paymentTransferForm').style.display = isCard ? 'none' : 'block';
+  var tCard = document.getElementById('payTabCard'), tTr = document.getElementById('payTabTransfer');
+  [tCard, tTr].forEach(function(b){ b.style.background='#fff'; b.style.color='#555'; b.style.borderColor='#D9E5F0'; });
+  var active = isCard ? tCard : tTr;
+  active.style.background = '#0B3D6B'; active.style.color = '#fff'; active.style.borderColor = '#0B3D6B';
+}
+window.hxPaySetMethod = hxPaySetMethod;
+function hxPayFormatCard(el) {
+  var digits = el.value.replace(/\D/g, '').slice(0, 16);
+  el.value = digits.replace(/(.{4})/g, '$1 ').trim();
+}
+window.hxPayFormatCard = hxPayFormatCard;
+function hxPayFormatExpiry(el) {
+  var digits = el.value.replace(/\D/g, '').slice(0, 4);
+  el.value = digits.length > 2 ? digits.slice(0,2) + '/' + digits.slice(2) : digits;
+}
+window.hxPayFormatExpiry = hxPayFormatExpiry;
+function hxProcessPayment(e, forceMethod) {
+  if (e) e.preventDefault();
+  var method = forceMethod || _hxPayMethod;
+  var err = document.getElementById('paymentError');
+  if (err) err.style.display = 'none';
+
+  if (method === 'card') {
+    var num = document.getElementById('payCardNumber').value.replace(/\s/g, '');
+    var exp = document.getElementById('payExpiry').value;
+    var cvv = document.getElementById('payCvv').value;
+    var name = document.getElementById('payName').value.trim();
+    if (!name || num.length < 13 || !/^\d{2}\/\d{2}$/.test(exp) || cvv.length < 3) {
+      if (err) { err.textContent = 'Revisa les dades de la targeta: falten camps o el format no és correcte.'; err.style.display = 'block'; }
+      return false;
+    }
+    var mm = parseInt(exp.slice(0,2), 10);
+    if (mm < 1 || mm > 12) {
+      if (err) { err.textContent = 'La data de caducitat no és vàlida.'; err.style.display = 'block'; }
+      return false;
+    }
+  }
+
+  var btn = method === 'card' ? document.getElementById('paySubmitBtn') : event && event.target;
+  if (btn) { btn.disabled = true; btn.textContent = method === 'card' ? 'Processant…' : 'Confirmant…'; }
+
+  setTimeout(function() {
+    closePaymentModal();
+    sendOrder();
+  }, method === 'card' ? 1400 : 500);
+  return false;
+}
+window.hxProcessPayment = hxProcessPayment;
 
 var cart = {};
 try {
