@@ -8470,6 +8470,21 @@ window.submitTreballaForm = submitTreballaForm;
         <span id="paymentTotalDisplay" style="font-size:1.35rem;font-weight:800;color:#0B3D6B;">0,00 €</span>
       </div>
 
+      <div style="display:flex;flex-direction:column;gap:0.55rem;margin-bottom:1.1rem;">
+        <button type="button" onclick="hxQuickPay('applepay',this)" style="display:flex;align-items:center;justify-content:center;gap:0.45rem;width:100%;padding:0.7rem;border:none;border-radius:10px;background:#000;color:#fff;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:-apple-system,'SF Pro Text',Arial,sans-serif;">
+          <span style="font-size:1.05rem;">​</span>&#63743; Pay
+        </button>
+        <button type="button" onclick="hxQuickPay('googlepay',this)" style="display:flex;align-items:center;justify-content:center;gap:0.45rem;width:100%;padding:0.7rem;border:1.5px solid #DADCE0;border-radius:10px;background:#fff;color:#3C4043;font-weight:700;font-size:0.88rem;cursor:pointer;">
+          <span style="font-weight:800;"><span style="color:#4285F4;">G</span><span style="color:#EA4335;">o</span><span style="color:#FBBC05;">o</span><span style="color:#4285F4;">g</span><span style="color:#34A853;">l</span><span style="color:#EA4335;">e</span></span> Pay
+        </button>
+        <button type="button" onclick="hxQuickPay('paypal',this)" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;width:100%;padding:0.7rem;border:none;border-radius:10px;background:#FFC439;color:#003087;font-weight:800;font-size:0.9rem;cursor:pointer;font-style:italic;">
+          Pay<span style="color:#009cde;">Pal</span>
+        </button>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.7rem;margin:0.9rem 0 1.1rem;color:#aaa;font-size:0.72rem;">
+        <div style="flex:1;height:1px;background:#eee;"></div>O paga amb targeta o transferència<div style="flex:1;height:1px;background:#eee;"></div>
+      </div>
+
       <div style="display:flex;gap:0.5rem;margin-bottom:1.1rem;">
         <button type="button" id="payTabCard" onclick="hxPaySetMethod('card')" class="pay-tab active" style="flex:1;padding:0.55rem;border-radius:10px;border:1.5px solid #0B3D6B;background:#0B3D6B;color:#fff;font-weight:700;font-size:0.8rem;cursor:pointer;">💳 Targeta</button>
         <button type="button" id="payTabTransfer" onclick="hxPaySetMethod('transfer')" class="pay-tab" style="flex:1;padding:0.55rem;border-radius:10px;border:1.5px solid #D9E5F0;background:#fff;color:#555;font-weight:700;font-size:0.8rem;cursor:pointer;">🏦 Transferència</button>
@@ -9586,6 +9601,21 @@ function hxProcessPayment(e, forceMethod) {
   return false;
 }
 window.hxProcessPayment = hxProcessPayment;
+
+function hxQuickPay(method, btn) {
+  var labels = { applepay: 'Apple Pay', googlepay: 'Google Pay', paypal: 'PayPal' };
+  var original = btn.innerHTML;
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+  btn.innerHTML = 'Confirmant amb ' + labels[method] + '…';
+  var otherBtns = btn.parentElement.querySelectorAll('button');
+  otherBtns.forEach(function(b){ if (b !== btn) b.disabled = true; });
+  setTimeout(function() {
+    closePaymentModal();
+    sendOrder();
+  }, 1300);
+}
+window.hxQuickPay = hxQuickPay;
 
 var cart = {};
 try {
