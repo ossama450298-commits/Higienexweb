@@ -9727,25 +9727,22 @@ function renderCart() {
   items.innerHTML = keys.map(function(k) {
     var it = cart[k];
     subtotal += it.total;
-    var discountBadge = it.discountRate > 0
-      ? ' <span style="background:#FFF6E0;color:#B8860B;font-size:0.68rem;font-weight:700;padding:0.1rem 0.45rem;border-radius:8px;margin-left:0.3rem;">-' + Math.round(it.discountRate*100) + '%</span>'
-      : '';
-    var priceHtml = it.discountRate > 0
-      ? '<span style="text-decoration:line-through;color:#aaa;font-size:0.72rem;margin-right:0.35rem;">' + it.rawTotal.toFixed(2) + ' €</span><span style="font-weight:700;color:#0B3D6B;">' + it.total.toFixed(2) + ' €</span>'
-      : '<span style="font-weight:700;color:#0B3D6B;">' + it.total.toFixed(2) + ' €</span>';
     return '<div style="display:flex;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid #F0F0F0;font-size:0.84rem;">' +
-      '<span style="color:#444;">' + k + ' <strong>x' + it.qty + '</strong>' + discountBadge + '</span>' +
-      '<span>' + priceHtml + '</span>' +
+      '<span style="color:#444;">' + k + ' <strong>x' + it.qty + '</strong></span>' +
+      '<span style="font-weight:700;color:#0B3D6B;">' + it.total.toFixed(2) + ' €</span>' +
       '</div>';
   }).join('');
 
   var iva   = subtotal * IVA_PCT;
   var total = subtotal + iva + TRANSPORT;
+  var totalDescompte = keys.reduce(function(s,k){ var it = cart[k]; return s + (it.discountRate > 0 ? (it.rawTotal - it.total) : 0); }, 0);
 
   items.innerHTML += '<div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px dashed #ddd;font-size:0.82rem;color:#666;">' +
+    (totalDescompte > 0 ? '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;color:#B8860B;font-weight:600;"><span>🎉 Descomptes per volum</span><span>-' + totalDescompte.toFixed(2) + ' €</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>Subtotal</span><span>' + subtotal.toFixed(2) + ' €</span></div>' +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>IVA (21%)</span><span>' + iva.toFixed(2) + ' €</span></div>' +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>Transport</span><span>' + TRANSPORT.toFixed(2) + ' €</span></div>' +
+    (totalDescompte > 0 ? '<div style="font-size:0.72rem;color:#999;margin-top:0.3rem;">El detall del descompte per producte surt a la comanda.</div>' : '') +
     '</div>';
 
   if (tot) tot.style.display = 'flex';
@@ -9765,10 +9762,19 @@ function abrirImprimibleComanda(titol, html) {
 }
 
 function htmlComanda(inv, items, clientInfo) {
+  var hiHaDescomptes = items.some(function(it){ return it.discountRate > 0; });
   var filesHTML = items.map(function(it){
+    var descompteCell = '';
+    if (hiHaDescomptes) {
+      descompteCell = it.discountRate > 0
+        ? '<td class="num" style="color:#B8860B;font-weight:700;">-' + Math.round(it.discountRate*100) + '%</td>'
+        : '<td class="num" style="color:#bbb;">—</td>';
+    }
+    var preuUnitariBase = it.rawTotal ? (it.rawTotal / it.qty) : (it.total / it.qty);
     return '<tr><td>' + escHtml(it.name) + '</td><td class="num">' + it.qty + '</td><td class="num">' +
-      (it.total / it.qty).toFixed(2) + ' €</td><td class="num">' + it.total.toFixed(2) + ' €</td></tr>';
+      preuUnitariBase.toFixed(2) + ' €</td>' + descompteCell + '<td class="num">' + it.total.toFixed(2) + ' €</td></tr>';
   }).join('');
+  var totalDescompte = items.reduce(function(s,i){ return s + (i.discountRate > 0 ? (i.rawTotal - i.total) : 0); }, 0);
   var subtotal = items.reduce(function(s,i){ return s + i.total; }, 0);
   var transport = TRANSPORT || 0;
   var base = subtotal + transport;
@@ -9806,8 +9812,9 @@ function htmlComanda(inv, items, clientInfo) {
         (clientInfo.email ? ('<br>' + escHtml(clientInfo.email)) : '') + '</p></div>' +
       '<div class="box"><h3 data-i18n-key="t172">Detalls</h3><p>Data de la comanda: ' + escHtml(inv.dateStr) + '<br>Lliurament estimat: ' + escHtml(inv.entregaStr) + '<br>Estat: Pendent de confirmació</p></div>' +
     '</div>' +
-    '<table><thead><tr><th data-i18n-key="t544">Producte</th><th class="num">Uds.</th><th class="num">Preu</th><th class="num">Import</th></tr></thead><tbody>' + filesHTML + '</tbody></table>' +
+    '<table><thead><tr><th data-i18n-key="t544">Producte</th><th class="num">Uds.</th><th class="num">Preu</th>' + (hiHaDescomptes ? '<th class="num">Descompte</th>' : '') + '<th class="num">Import</th></tr></thead><tbody>' + filesHTML + '</tbody></table>' +
     '<div class="totbox"><div class="l"><span>Subtotal productes</span><span>' + subtotal.toFixed(2) + ' €</span></div>' +
+    (totalDescompte > 0 ? ('<div class="l" style="color:#B8860B;"><span>Descomptes per volum aplicats</span><span>-' + totalDescompte.toFixed(2) + ' €</span></div>') : '') +
     (transport ? ('<div class="l"><span>Transport</span><span>' + transport.toFixed(2) + ' €</span></div>') : '') +
     '<div class="l"><span>IVA (' + Math.round(IVA_PCT*100) + '%)</span><span>' + iva.toFixed(2) + ' €</span></div>' +
     '<div class="l tot"><span>Total</span><span>' + inv.total.toFixed(2) + ' €</span></div></div>' +
@@ -9946,7 +9953,7 @@ function sendOrder() {
     return;
   }
 
-  var historyItems = keys.map(function(k){ return { name: k, qty: cart[k].qty, total: cart[k].total }; });
+  var historyItems = keys.map(function(k){ return { name: k, qty: cart[k].qty, total: cart[k].total, rawTotal: cart[k].rawTotal, discountRate: cart[k].discountRate || 0 }; });
   saveOrderToHistory(inv, historyItems);
 
   // Obrir el diàleg d'impressió amb la comanda (el client pot desar-la
