@@ -2115,7 +2115,95 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   * { box-shadow: none !important; text-shadow: none !important; }
   section { break-inside: avoid; page-break-inside: avoid; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   PORTAL DE CLIENT — dashboard (versió web pública)
+   ══════════════════════════════════════════════════════════ */
+#hxClientApp{display:none;position:fixed;inset:0;z-index:999998;background:var(--warm-white);color:var(--charcoal);font-family:inherit}
+.cp-shell{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+.cp-side{background:var(--green-deep);color:#fff;display:flex;flex-direction:column;padding:22px 16px}
+.cp-brand{font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:#fff;padding:4px 10px 22px}
+.cp-brand span{color:var(--accent)}
+.cp-nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.cp-nav button{display:flex;align-items:center;gap:11px;padding:10px 12px;border:none;background:none;color:var(--green-pale);font-size:13.5px;font-weight:600;border-radius:12px;cursor:pointer;text-align:left;transition:background .15s,color .15s;font-family:inherit}
+.cp-nav button:hover{background:rgba(255,255,255,.08);color:#fff}
+.cp-nav button.active{background:rgba(255,255,255,.14);color:#fff}
+.cp-nav button .ic{font-size:16px;width:20px;text-align:center}
+.cp-side-foot{border-top:1px solid rgba(255,255,255,.14);padding-top:14px;margin-top:10px}
+.cp-user{display:flex;align-items:center;gap:10px;padding:6px 8px 12px}
+.cp-user .av{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#1A1A1A;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.cp-user .nm{min-width:0}
+.cp-user .nm b{display:block;font-size:12.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-user .nm span{display:block;font-size:10.5px;color:var(--green-pale);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-side-btn{width:100%;padding:9px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:transparent;color:var(--green-pale);font-size:12px;font-weight:600;cursor:pointer;margin-top:6px;text-align:left;display:flex;align-items:center;gap:8px;font-family:inherit}
+.cp-side-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+.cp-main{overflow-y:auto;padding:28px 34px 60px}
+.cp-topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:26px;gap:16px;flex-wrap:wrap}
+.cp-greet h1{font-size:22px;font-weight:700;margin:0;color:var(--charcoal)}
+.cp-greet p{font-size:13px;color:rgba(26,26,26,.6);margin:4px 0 0}
+.cp-status-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:20px;margin-top:9px}
+.cp-updated{font-size:10.5px;color:rgba(26,26,26,.4);margin-top:6px}
+.cp-card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:20px}
+.cp-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.cp-kpi{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:18px}
+.cp-kpi-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px}
+.cp-kpi-val{font-family:'JetBrains Mono',Consolas,monospace;font-size:20px;font-weight:800;color:var(--charcoal)}
+.cp-kpi-lbl{font-size:10.5px;color:rgba(26,26,26,.55);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:3px}
+.cp-kpi-sub{font-size:11px;margin-top:6px;font-weight:600}
+.cp-banner{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:16px;margin-bottom:24px;animation:cpFadeUp .35s ease both}
+.cp-banner .ic{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.cp-banner h3{margin:0;font-size:14.5px}
+.cp-banner p{margin:2px 0 0;font-size:12.5px;opacity:.85}
+@keyframes cpFadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.cp-section-title{font-size:11px;font-weight:700;letter-spacing:.06em;color:rgba(26,26,26,.55);text-transform:uppercase;margin:0 0 10px 2px}
+.cp-period-row{display:flex;gap:6px;margin-bottom:12px}
+.cp-period-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;color:rgba(26,26,26,.6);font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.cp-period-btn.active{background:var(--green-deep);border-color:var(--green-deep);color:#fff}
+.cp-empty{text-align:center;padding:34px 20px;color:rgba(26,26,26,.55)}
+.cp-empty .ic{font-size:30px;margin-bottom:8px}
+.cp-empty b{display:block;font-size:13.5px;color:var(--charcoal);margin-bottom:4px}
+.cp-empty span{font-size:12px}
+.cp-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.cp-search{flex:1;min-width:180px;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--charcoal);font-size:13px;font-family:inherit}
+.cp-chip{padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:#fff;color:rgba(26,26,26,.6);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
+.cp-chip.active{background:var(--green-deep);border-color:var(--green-deep);color:#fff}
+.cp-inv-row{display:flex;align-items:center;gap:14px;padding:14px 6px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.cp-inv-row:hover{background:var(--warm-white)}
+.cp-inv-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.cp-inv-num{font-weight:700;font-size:13.5px}
+.cp-inv-date{font-size:11.5px;color:rgba(26,26,26,.55);margin-top:1px}
+.cp-inv-amt{font-family:'JetBrains Mono',Consolas,monospace;font-weight:700;font-size:13.5px}
+.cp-inv-actions{display:flex;gap:4px}
+.cp-inv-actions button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.cp-inv-actions button:hover{background:var(--warm-white)}
+.cp-notif{display:flex;gap:10px;padding:11px 4px;border-bottom:1px solid var(--border)}
+.cp-notif .ic{font-size:15px;flex-shrink:0}
+.cp-notif b{font-size:12.5px;display:block}
+.cp-notif span{font-size:11px;color:rgba(26,26,26,.55)}
+.cp-info-row{display:flex;justify-content:space-between;padding:11px 2px;border-bottom:1px solid var(--border);font-size:13px}
+.cp-info-row span:first-child{color:rgba(26,26,26,.55)}
+.cp-info-row span:last-child{font-weight:600;text-align:right}
+.cp-support-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.cp-support-card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:20px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.cp-support-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.cp-support-card .ic{font-size:26px;margin-bottom:10px}
+.cp-support-card b{display:block;font-size:13px;margin-bottom:3px}
+.cp-support-card span{font-size:11.5px;color:rgba(26,26,26,.55)}
+.cp-tag{display:inline-block;font-family:'JetBrains Mono',Consolas,monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid;white-space:nowrap}
+.cp-btn{padding:10px 18px;border-radius:10px;border:none;background:var(--accent);color:#1A1A1A;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+.cp-btn.ghost{background:#fff;border:1.5px solid var(--border);color:var(--green-deep)}
+@media(max-width:820px){
+  .cp-shell{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}
+  .cp-side{flex-direction:row;align-items:center;padding:10px 12px;order:1}
+  .cp-brand{display:none}
+  .cp-nav{flex-direction:row;flex:1;overflow-x:auto;gap:2px}
+  .cp-nav button{flex-direction:column;gap:3px;padding:7px 10px;font-size:9.5px;white-space:nowrap}
+  .cp-side-foot{display:none}
+  .cp-main{order:0;padding:18px 16px 90px}
+  .cp-kpis{grid-template-columns:repeat(2,1fr)}
+}
 </style>
+
 
   <!-- PWA -->
   <link rel="manifest" href="manifest-web.json">
@@ -4528,6 +4616,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
         🛒
         <span id="cartBadge" style="display:none;position:absolute;top:-5px;right:-6px;background:#F2A900;color:#1A1A1A;font-size:0.68rem;font-weight:800;border-radius:50%;min-width:18px;height:18px;padding:0 3px;align-items:center;justify-content:center;border:2px solid white;">0</span>
       </button>
+      <button onclick="cpOpenLoginModal()" title="Àrea de Clients" aria-label="Àrea de Clients" style="display:flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--green-deep,#0B3D6B);color:white;border:none;cursor:pointer;flex-shrink:0;font-size:1rem;line-height:1;" type="button">👤</button>
       <a href="higienex_erp.html" target="_blank" rel="noopener" title="Accés Intern (ERP)" aria-label="Accés Intern (ERP)" style="display:flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--green-deep,#0B3D6B);color:white;flex-shrink:0;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="8" r="4"></circle>
@@ -4554,6 +4643,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
       <a class="dditem" onclick="navTo('compromis')"><span data-i18n-key="t179">♻️ Compromís i Mercat</span></a>
       <a class="dditem" onclick="navTo('newsletter')"><span data-i18n-key="t180">📰 Newsletter</span></a>
       <a class="dditem" onclick="navTo('contacte')"><span data-i18n-key="t181">📞 Ajuda i Contacte</span></a>
+      <a class="dditem" onclick="cpOpenLoginModal();return false;"><span>👤 Àrea de Clients</span></a>
     </div>
   </div>
 </nav>
@@ -8054,7 +8144,373 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 //   5. Substitueix els tres valors de sota per els teus i puja l'arxiu.
 // Fins que no ho configuris, la web seguirà funcionant amb normalitat
 // (descarrega la factura igualment), simplement no s'enviarà l'email.
+
+// ═══════════════════════════════════════════════════════════
+// PORTAL DE CLIENT — dades fictícies i funcions auxiliars
+// ═══════════════════════════════════════════════════════════
+var CP_EUR = function(n){ return new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(Number(n)||0); };
+var CP_NUM = function(n){ return new Intl.NumberFormat('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0); };
+var CP_FD  = function(d){ if(!d) return '—'; var p=d.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; };
+var CP_TODAY = '2026-07-27';
+
+function svgEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+function svgHBarChart(items, opts){
+  opts = opts || {};
+  var w = opts.width || 480, rowH = opts.rowH || 34;
+  var padL = 130, padR = 105, padT = 8, padB = 8;
+  var h = padT + padB + rowH*items.length;
+  var maxV = Math.max.apply(null, items.map(function(it){ return Math.abs(it.value); }).concat([1]));
+  var plotW = w - padL - padR;
+  var rows='';
+  items.forEach(function(it,i){
+    var y = padT + i*rowH;
+    var barW = Math.abs(it.value)/maxV*plotW;
+    rows += '<text x="'+(padL-10)+'" y="'+(y+rowH/2+4)+'" font-size="11" text-anchor="end" fill="#3C5063">'+svgEsc(it.label)+'</text>';
+    rows += '<rect x="'+padL+'" y="'+(y+7)+'" width="'+Math.max(barW,2)+'" height="'+(rowH-14)+'" rx="5" fill="'+it.color+'"><title>'+svgEsc(it.label)+': '+svgEsc(it.valueLabel||it.value)+'</title></rect>';
+    rows += '<text x="'+(padL+barW+8)+'" y="'+(y+rowH/2+4)+'" font-size="9.5" fill="#0F1D2B" font-family="IBM Plex Mono, monospace" font-weight="600">'+svgEsc(it.valueLabel!==undefined?it.valueLabel:it.value)+'</text>';
+  });
+  return '<svg viewBox="0 0 '+w+' '+h+'" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;display:block">'+rows+'</svg>';
+}
+
+var CP_DB = {
+  cliente: {id:'C06', nom:'Edu', nif:'00000000T', pob:'Valencia', dir:'Carrer de la Pau 14, 3r 2a', tel:'644 210 987', mail:'edu@higienex.es', cond:30, user:'edu', pass:'Higienex2025'},
+  productos: {
+    A01:{nom:'ECO Concentrat Pro 5 L'}, A02:{nom:'Desinfectant HOSP-V 5 L'}, A03:{nom:'Det ALIM-PRO 10 L'},
+    A04:{nom:'Net HOSTAL 5 L'}, A05:{nom:'WorkSafe Antimicrobial 1 L'}, A06:{nom:'Dispensador mural INOX'}
+  },
+  facturas: [
+    {num:"FE-2026-EDU1", fecha:"2026-03-10", lineas:[{art:'A01',cant:20,precio:14.50},{art:'A02',cant:10,precio:19.90}], base:489.00, cuota:102.69, total:591.69, estado:"Cobrada", venc:"2026-04-09"},
+    {num:"FE-2026-EDU2", fecha:"2026-05-05", lineas:[{art:'A04',cant:30,precio:12.30},{art:'A05',cant:25,precio:9.95}], base:617.75, cuota:129.73, total:747.48, estado:"Cobrada", venc:"2026-06-04"},
+    {num:"FE-2026-EDU3", fecha:"2026-06-18", lineas:[{art:'A01',cant:15,precio:14.50},{art:'A03',cant:8,precio:24.75}], base:415.50, cuota:87.25, total:502.75, estado:"Pendiente", venc:"2026-07-18"},
+    {num:"FE-2026-EDU4", fecha:"2026-07-02", lineas:[{art:'A05',cant:40,precio:9.95},{art:'A02',cant:6,precio:19.90}], base:517.40, cuota:108.65, total:626.05, estado:"Pendiente", venc:"2026-08-15"},
+    {num:"FE-2026-EDU5", fecha:"2026-07-24", lineas:[{art:'A04',cant:18,precio:12.30},{art:'A06',cant:2,precio:39.00}], base:299.40, cuota:62.87, total:362.27, estado:"Cobrada", venc:"2026-08-23"}
+  ]
+};
+
 var EMAILJS_PUBLIC_KEY  = 'EITy91aX6QkGA4ppG';
+
+// ═══════════════════════════════════════════════════════════
+// PORTAL DE CLIENT — lògica del panell
+// ═══════════════════════════════════════════════════════════
+function cpOpenLoginModal(){
+  var m=document.getElementById('hxClientLoginModal'); if(!m) return;
+  document.getElementById('cpLoginErr').style.display='none';
+  document.getElementById('cpLoginUser').value='';
+  document.getElementById('cpLoginPass').value='';
+  m.style.display='flex';
+  document.body.style.overflow='hidden';
+}
+window.cpOpenLoginModal=cpOpenLoginModal;
+function cpCloseLoginModal(){
+  var m=document.getElementById('hxClientLoginModal'); if(m) m.style.display='none';
+  document.body.style.overflow='';
+}
+window.cpCloseLoginModal=cpCloseLoginModal;
+
+function cpTryLogin(){
+  var user=(document.getElementById('cpLoginUser').value||'').trim().toLowerCase();
+  var pass=document.getElementById('cpLoginPass').value||'';
+  var c=CP_DB.cliente;
+  if(user===c.user.toLowerCase() && pass===c.pass){
+    cpCloseLoginModal();
+    cpOpen();
+  } else {
+    document.getElementById('cpLoginErr').style.display='block';
+  }
+}
+window.cpTryLogin=cpTryLogin;
+
+var CP_TAB='inici', CP_FILTER='totes', CP_SEARCH='', CP_PERIOD='6m';
+var CP_NAV=[
+  ['inici','🏠','Inici'],
+  ['factures','🧾','Factures'],
+  ['empresa','👤','La meva empresa'],
+  ['suport','📞','Suport']
+];
+
+function cpOpen(){
+  CP_TAB='inici'; CP_FILTER='totes'; CP_SEARCH=''; CP_PERIOD='6m';
+  document.getElementById('hxClientApp').style.display='block';
+  document.body.style.overflow='hidden';
+  cpRenderNav(); cpRenderUser(); cpGo('inici');
+}
+window.cpOpen=cpOpen;
+
+function cpGoFaq(){ cpLogout(); navTo("faq"); }
+window.cpGoFaq=cpGoFaq;
+function cpLogout(){
+  document.getElementById('hxClientApp').style.display='none';
+  document.body.style.overflow='';
+}
+window.cpLogout=cpLogout;
+
+function cpRenderNav(){
+  document.getElementById('cpNav').innerHTML = CP_NAV.map(function(n){
+    return '<button type="button" class="'+(CP_TAB===n[0]?'active':'')+'" onclick="cpGo(\''+n[0]+'\')"><span class="ic">'+n[1]+'</span><span>'+n[2]+'</span></button>';
+  }).join('');
+}
+function cpRenderUser(){
+  var c=CP_DB.cliente;
+  var inicials=c.nom.split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
+  document.getElementById('cpUserBox').innerHTML =
+    '<div class="av">'+inicials+'</div><div class="nm"><b>'+escHtml(c.nom)+'</b><span>'+escHtml(c.mail||'')+'</span></div>';
+}
+
+function cpGo(tab){
+  CP_TAB=tab; cpRenderNav();
+  var main=document.getElementById('cpMain');
+  if(tab==='inici') main.innerHTML=cpViewInici();
+  else if(tab==='factures') main.innerHTML=cpViewFactures();
+  else if(tab==='empresa') main.innerHTML=cpViewEmpresa();
+  else if(tab==='suport') main.innerHTML=cpViewSuport();
+  main.scrollTop=0;
+  if(tab==='inici') cpBindPeriodButtons();
+}
+window.cpGo=cpGo;
+
+function cpEstatFactura(f){
+  var pagada = f.estado==='Pagada'||f.estado==='Cobrada';
+  if(pagada) return 'pagada';
+  if(f.venc && f.venc<CP_TODAY) return 'vencida';
+  return 'pendent';
+}
+function cpEstatColor(e){ return e==='pagada'?'#0B7256':e==='vencida'?'#8C281E':'#8A5900'; }
+function cpEstatLabel(e){ return e==='pagada'?'Pagada':e==='vencida'?'Vençuda':'Pendent'; }
+
+function cpViewInici(){
+  var c=CP_DB.cliente, fac=CP_DB.facturas.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
+  var saldo=fac.filter(function(f){return f.estado==='Pendiente';}).reduce(function(s,f){return s+f.total;},0);
+  var totalAny=fac.filter(function(f){return f.fecha.slice(0,4)===CP_TODAY.slice(0,4);}).reduce(function(s,f){return s+f.total;},0);
+  var vencudes=fac.filter(function(f){return cpEstatFactura(f)==='vencida';}).length;
+  var pendents=fac.filter(function(f){var e=cpEstatFactura(f);return e==='pendent'||e==='vencida';}).length;
+  var properaPendent=fac.filter(function(f){return cpEstatFactura(f)!=='pagada';}).sort(function(a,b){return a.venc.localeCompare(b.venc);})[0];
+
+  var banner;
+  if(vencudes>0){
+    banner='<div class="cp-banner" style="background:rgba(140,40,30,.1)"><div class="ic" style="background:#8C281E;color:#fff">⚠️</div><div><h3 style="color:#8C281E">Tens '+vencudes+' factura'+(vencudes>1?'es':'')+' vençuda'+(vencudes>1?'es':'')+'</h3><p>Posa\'t en contacte amb nosaltres per regularitzar el pagament.</p></div></div>';
+  } else if(pendents>0){
+    banner='<div class="cp-banner" style="background:rgba(138,89,0,.1)"><div class="ic" style="background:#8A5900;color:#fff">🟠</div><div><h3 style="color:#8A5900">Tens '+pendents+' pagament'+(pendents>1?'s':'')+' pendent'+(pendents>1?'s':'')+'</h3><p>Consulta el detall a la secció de Factures.</p></div></div>';
+  } else {
+    banner='<div class="cp-banner" style="background:rgba(11,114,86,.1)"><div class="ic" style="background:#0B7256;color:#fff">✓</div><div><h3 style="color:#0B7256">Compte al dia</h3><p>No tens pagaments pendents. Totes les teves factures estan pagades.</p></div></div>';
+  }
+  var statusPill = vencudes>0
+    ? '<span class="cp-status-pill" style="background:rgba(140,40,30,.12);color:#8C281E">🔴 '+vencudes+' factura vençuda</span>'
+    : pendents>0
+    ? '<span class="cp-status-pill" style="background:rgba(138,89,0,.12);color:#8A5900">🟠 '+pendents+' pagament pendent</span>'
+    : '<span class="cp-status-pill" style="background:rgba(11,114,86,.12);color:#0B7256">🟢 Compte al dia</span>';
+
+  var kpis =
+    '<div class="cp-kpis">'+
+      '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(138,89,0,.12);color:#8A5900">💰</div>'+
+        '<div class="cp-kpi-val">'+CP_EUR(saldo)+'</div><div class="cp-kpi-lbl">Saldo pendent</div>'+
+        '<div class="cp-kpi-sub" style="color:'+(saldo>0?'#8A5900':'#0B7256')+'">'+(saldo>0?'Per liquidar':'🟢 Sense pagaments')+'</div></div>'+
+      '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(21,101,168,.12);color:var(--green-deep)">📈</div>'+
+        '<div class="cp-kpi-val">'+CP_EUR(totalAny)+'</div><div class="cp-kpi-lbl">Facturat</div>'+
+        '<div class="cp-kpi-sub" style="color:rgba(26,26,26,.55)">Aquest any</div></div>'+
+      '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(21,101,168,.12);color:var(--green-deep)">🧾</div>'+
+        '<div class="cp-kpi-val">'+fac.length+'</div><div class="cp-kpi-lbl">Factures</div>'+
+        '<div class="cp-kpi-sub" style="color:rgba(26,26,26,.55)">Total emeses</div></div>'+
+      '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(138,89,0,.12);color:#8A5900">📅</div>'+
+        '<div class="cp-kpi-val" style="font-size:15px">'+(properaPendent?CP_FD(properaPendent.venc):'Cap')+'</div><div class="cp-kpi-lbl">Proper pagament</div>'+
+        '<div class="cp-kpi-sub" style="color:rgba(26,26,26,.55)">'+(properaPendent?properaPendent.num:'Compte al dia')+'</div></div>'+
+    '</div>';
+
+  var chart=cpChartHTML(fac);
+  var notifs=cpNotifsHTML(fac);
+
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>Bon dia, '+escHtml(c.nom.split(' ')[0])+' 👋</h1>'+
+      '<p>Aquí tens un resum actualitzat del teu compte.</p>'+statusPill+
+      '<div class="cp-updated">Actualitzat fa uns minuts</div></div></div>'+
+    banner+kpis+
+    '<div class="cp-card" style="margin-bottom:20px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+        '<div class="cp-section-title" style="margin:0">Evolució de facturació</div>'+
+        '<div class="cp-period-row" id="cpPeriodRow">'+
+          ['7d','30d','6m','any'].map(function(p){return '<button type="button" class="cp-period-btn '+(CP_PERIOD===p?'active':'')+'" data-p="'+p+'">'+p.toUpperCase()+'</button>';}).join('')+
+        '</div>'+
+      '</div>'+chart+
+    '</div>'+
+    '<div class="cp-card"><div class="cp-section-title">Notificacions</div>'+notifs+'</div>';
+}
+
+function cpChartHTML(fac){
+  if(!fac.length) return '<div class="cp-empty"><div class="ic">📊</div><b>Encara no hi ha dades suficients</b><span>Quan es registri la teva primera factura apareixerà aquí la teva evolució financera.</span></div>';
+  var now=new Date(CP_TODAY+'T00:00:00');
+  var cutoff=new Date(now);
+  if(CP_PERIOD==='7d') cutoff.setDate(cutoff.getDate()-7);
+  else if(CP_PERIOD==='30d') cutoff.setDate(cutoff.getDate()-30);
+  else if(CP_PERIOD==='6m') cutoff.setMonth(cutoff.getMonth()-6);
+  else cutoff=new Date(now.getFullYear(),0,1);
+  var cutoffStr=cutoff.toISOString().slice(0,10);
+  var enRang=fac.filter(function(f){return f.fecha>=cutoffStr;});
+  if(!enRang.length) return '<div class="cp-empty"><div class="ic">📊</div><b>Sense factures en aquest període</b><span>Prova a seleccionar un rang de temps més ampli.</span></div>';
+  var grupPerDia = CP_PERIOD==='7d'||CP_PERIOD==='30d';
+  var buckets={};
+  enRang.forEach(function(f){ var k = grupPerDia ? f.fecha : f.fecha.slice(0,7); buckets[k]=(buckets[k]||0)+f.total; });
+  var claus=Object.keys(buckets).sort();
+  var nomsCurts=['Gen','Feb','Mar','Abr','Mai','Jun','Jul','Ago','Set','Oct','Nov','Des'];
+  var items=claus.map(function(k){
+    return { label: grupPerDia ? CP_FD(k) : (nomsCurts[parseInt(k.slice(5,7),10)-1]+' '+k.slice(2,4)), value: buckets[k], valueLabel: CP_EUR(buckets[k]), color:'#0B3D6B' };
+  });
+  return '<div style="margin-top:10px">'+svgHBarChart(items,{width:600,rowH:28})+'</div>';
+}
+function cpBindPeriodButtons(){
+  var row=document.getElementById('cpPeriodRow'); if(!row) return;
+  row.querySelectorAll('.cp-period-btn').forEach(function(b){ b.onclick=function(){ CP_PERIOD=this.dataset.p; cpGo('inici'); }; });
+}
+
+function cpNotifsHTML(fac){
+  var items=[];
+  var pagadaRecent = fac.find(function(f){return cpEstatFactura(f)==='pagada';});
+  if(pagadaRecent) items.push(['✅','Factura '+pagadaRecent.num+' pagada correctament', CP_FD(pagadaRecent.fecha)]);
+  var propVenc = fac.filter(function(f){return cpEstatFactura(f)==='pendent';}).sort(function(a,b){return a.venc.localeCompare(b.venc);})[0];
+  if(propVenc){
+    var dies=Math.round((new Date(propVenc.venc+'T00:00:00')-new Date(CP_TODAY+'T00:00:00'))/86400000);
+    if(dies>=0) items.push(['⏳','La teva factura '+propVenc.num+' venç en '+dies+' dies','']);
+  }
+  if(fac[0]) items.push(['🆕','Nova factura disponible: '+fac[0].num, CP_FD(fac[0].fecha)]);
+  if(!items.length) return '<div class="cp-empty" style="padding:18px 10px"><div class="ic">🔔</div><span>Sense notificacions noves.</span></div>';
+  return items.map(function(it){ return '<div class="cp-notif"><span class="ic">'+it[0]+'</span><div><b>'+it[1]+'</b>'+(it[2]?'<span>'+it[2]+'</span>':'')+'</div></div>'; }).join('');
+}
+
+function cpViewFactures(){
+  var fac=CP_DB.facturas.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
+  if(CP_FILTER!=='totes') fac=fac.filter(function(f){return cpEstatFactura(f)===CP_FILTER;});
+  if(CP_SEARCH) fac=fac.filter(function(f){return f.num.toLowerCase().indexOf(CP_SEARCH.toLowerCase())>=0;});
+
+  var chips=[['totes','Totes'],['pagada','Pagades'],['pendent','Pendents'],['vencida','Vençudes']].map(function(ch){
+    return '<button type="button" class="cp-chip '+(CP_FILTER===ch[0]?'active':'')+'" onclick="cpFiltrar(\''+ch[0]+'\')">'+ch[1]+'</button>';
+  }).join('');
+
+  var rows=fac.map(function(f){
+    var e=cpEstatFactura(f);
+    return '<div class="cp-inv-row" onclick="cpVeureFactura(\''+f.num+'\')">'+
+      '<span class="cp-inv-dot" style="background:'+cpEstatColor(e)+'"></span>'+
+      '<div style="flex:1;min-width:0"><div class="cp-inv-num">'+escHtml(f.num)+'</div><div class="cp-inv-date">'+CP_FD(f.fecha)+' · Subministrament de productes</div></div>'+
+      '<div style="text-align:right"><div class="cp-inv-amt">'+CP_EUR(f.total)+'</div><span class="cp-tag" style="color:'+cpEstatColor(e)+';border-color:'+cpEstatColor(e)+'44;background:'+cpEstatColor(e)+'18">'+cpEstatLabel(e)+'</span></div>'+
+      '<div class="cp-inv-actions" onclick="event.stopPropagation()">'+
+        '<button type="button" title="Veure" onclick="cpVeureFactura(\''+f.num+'\')">👁</button>'+
+        '<button type="button" title="Descarregar PDF" onclick="cpDescarregarFactura(\''+f.num+'\')">⬇</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  var empty='<div class="cp-empty"><div class="ic">🧾</div><b>Sense factures</b><span>No hi ha factures que coincideixin amb la cerca o el filtre.</span></div>';
+
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>Factures</h1><p>Historial complet de les teves factures.</p></div></div>'+
+    '<div class="cp-card">'+
+      '<div class="cp-toolbar">'+
+        '<input class="cp-search" placeholder="🔍 Cercar per número de factura…" value="'+escHtml(CP_SEARCH)+'" oninput="cpCercar(this.value)">'+chips+
+      '</div>'+(rows || empty)+
+    '</div>';
+}
+function cpFiltrar(f){ CP_FILTER=f; cpGo('factures'); }
+window.cpFiltrar=cpFiltrar;
+function cpCercar(v){ CP_SEARCH=v; var main=document.getElementById('cpMain'); main.innerHTML=cpViewFactures(); var inp=main.querySelector('.cp-search'); if(inp){ inp.focus(); inp.selectionStart=inp.selectionEnd=inp.value.length; } }
+window.cpCercar=cpCercar;
+
+function cpVeureFactura(num){
+  var f=CP_DB.facturas.find(function(x){return x.num===num;}); if(!f) return;
+  var c=CP_DB.cliente, e=cpEstatFactura(f);
+  var filas=(f.lineas||[]).map(function(l){
+    var p=CP_DB.productos[l.art];
+    return '<tr><td style="padding:7px 4px;border-bottom:1px solid var(--border)">'+escHtml(p?p.nom:l.art)+'</td><td class="num" style="text-align:right;padding:7px 4px;border-bottom:1px solid var(--border)">'+CP_NUM(l.cant)+'</td><td class="num" style="text-align:right;padding:7px 4px;border-bottom:1px solid var(--border)">'+CP_EUR(l.precio)+'</td><td class="num" style="text-align:right;padding:7px 4px;border-bottom:1px solid var(--border)">'+CP_EUR(l.cant*l.precio)+'</td></tr>';
+  }).join('');
+  var body =
+    '<div style="margin-bottom:16px"><span class="cp-tag" style="color:'+cpEstatColor(e)+';border-color:'+cpEstatColor(e)+'44;background:'+cpEstatColor(e)+'18">'+cpEstatLabel(e)+'</span></div>'+
+    '<div style="display:flex;gap:24px;margin-bottom:16px;flex-wrap:wrap;font-size:13px">'+
+      '<div><b style="font-size:11px;color:rgba(26,26,26,.55);display:block">EMISSIÓ</b>'+CP_FD(f.fecha)+'</div>'+
+      '<div><b style="font-size:11px;color:rgba(26,26,26,.55);display:block">VENCIMENT</b>'+CP_FD(f.venc)+'</div>'+
+      '<div><b style="font-size:11px;color:rgba(26,26,26,.55);display:block">CLIENT</b>'+escHtml(c.nom)+'</div>'+
+    '</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr><th style="text-align:left;border-bottom:2px solid var(--charcoal);padding:6px 4px">Concepte</th><th style="text-align:right;border-bottom:2px solid var(--charcoal);padding:6px 4px">Uds.</th><th style="text-align:right;border-bottom:2px solid var(--charcoal);padding:6px 4px">Preu</th><th style="text-align:right;border-bottom:2px solid var(--charcoal);padding:6px 4px">Import</th></tr></thead><tbody>'+filas+'</tbody></table>'+
+    '<div style="margin-left:auto;width:260px;margin-top:14px;font-size:13px">'+
+      '<div style="display:flex;justify-content:space-between;padding:5px 0"><span>Base imposable</span><span>'+CP_EUR(f.base)+'</span></div>'+
+      '<div style="display:flex;justify-content:space-between;padding:5px 0"><span>IVA 21%</span><span>'+CP_EUR(f.cuota)+'</span></div>'+
+      '<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid var(--green-deep);font-weight:800;color:var(--green-deep)"><span>Total</span><span>'+CP_EUR(f.total)+'</span></div>'+
+    '</div>';
+  cpOpenModal('Factura '+escHtml(num), body,
+    '<button class="cp-btn ghost" onclick="cpCloseModal()" type="button">Tancar</button>'+
+    '<button class="cp-btn ghost" onclick="window.print()" type="button">🖨 Imprimir</button>'+
+    '<button class="cp-btn" onclick="cpDescarregarFactura(\''+num+'\')" type="button">⬇ Descarregar PDF</button>');
+}
+window.cpVeureFactura=cpVeureFactura;
+
+function cpOpenModal(title, body, footer){
+  var wrap=document.getElementById('cpModalWrap');
+  if(!wrap){
+    wrap=document.createElement('div');
+    wrap.id='cpModalWrap';
+    wrap.style.cssText='display:none;position:fixed;inset:0;z-index:9999999;background:rgba(11,61,107,0.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem;';
+    wrap.onclick=function(e){ if(e.target===wrap) cpCloseModal(); };
+    document.body.appendChild(wrap);
+  }
+  wrap.innerHTML='<div style="background:#fff;border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,0.3);">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:1.1rem 1.4rem;border-bottom:1px solid var(--border)"><h3 style="margin:0;font-size:1.05rem;color:var(--green-deep)">'+title+'</h3><button onclick="cpCloseModal()" type="button" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#888">✕</button></div>'+
+    '<div style="padding:1.4rem">'+body+'</div>'+
+    (footer?'<div style="padding:1rem 1.4rem;border-top:1px solid var(--border);display:flex;gap:0.6rem;justify-content:flex-end;flex-wrap:wrap">'+footer+'</div>':'')+
+    '</div>';
+  wrap.style.display='flex';
+}
+function cpCloseModal(){ var wrap=document.getElementById('cpModalWrap'); if(wrap) wrap.style.display='none'; }
+window.cpCloseModal=cpCloseModal;
+
+function cpDescarregarFactura(num){
+  var f=CP_DB.facturas.find(function(x){return x.num===num;}); if(!f) return;
+  var c=CP_DB.cliente;
+  var filas=(f.lineas||[]).map(function(l){
+    var p=CP_DB.productos[l.art];
+    return '<tr><td>'+(p?p.nom:l.art)+'</td><td class="num">'+CP_NUM(l.cant)+'</td><td class="num">'+CP_EUR(l.precio)+'</td><td class="num">'+CP_EUR(l.cant*l.precio)+'</td></tr>';
+  }).join('');
+  var html='<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Factura '+num+' · HIGIENEX S.L.</title>'+
+    '<style>*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:13px}'+
+    '.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0B3D6B;padding-bottom:18px;margin-bottom:24px}'+
+    '.brand{font-size:24px;font-weight:800;color:#0B3D6B}.brand span{color:#F2A900}'+
+    'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:20px}th,td{border:1px solid #D9E5F0;padding:7px 9px;text-align:left}th{background:#0B3D6B;color:#fff}td.num,th.num{text-align:right}'+
+    '.totbox{margin-left:auto;width:280px}.totbox div{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #EFF6FC}'+
+    '@media print{@page{margin:15mm}}</style></head><body>'+
+    '<div class="top"><div class="brand">HIGIENE<span>X</span></div><div style="text-align:right"><h1 style="color:#0B3D6B;font-size:20px">FACTURA</h1><div style="font-family:monospace;font-weight:700">'+num+'</div></div></div>'+
+    '<p><b>Client:</b> '+c.nom+' · '+c.nif+'<br><b>Emissió:</b> '+CP_FD(f.fecha)+' · <b>Venciment:</b> '+CP_FD(f.venc)+'</p>'+
+    '<table><thead><tr><th>Concepte</th><th class="num">Uds.</th><th class="num">Preu</th><th class="num">Import</th></tr></thead><tbody>'+filas+'</tbody></table>'+
+    '<div class="totbox"><div><span>Base</span><span>'+CP_EUR(f.base)+'</span></div><div><span>IVA 21%</span><span>'+CP_EUR(f.cuota)+'</span></div><div style="font-weight:800;font-size:16px;border-top:2px solid #0B3D6B"><span>Total</span><span>'+CP_EUR(f.total)+'</span></div></div>'+
+    '</body></html>';
+  var w=window.open('','_blank');
+  if(!w){ alert('El navegador ha bloquejat la finestra emergent. Permet finestres emergents per descarregar la factura.'); return; }
+  w.document.open(); w.document.write(html); w.document.close(); w.focus();
+  setTimeout(function(){ try{ w.print(); }catch(e){} }, 350);
+}
+window.cpDescarregarFactura=cpDescarregarFactura;
+
+function cpViewEmpresa(){
+  var c=CP_DB.cliente;
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>La meva empresa</h1><p>Dades de contacte i facturació.</p></div></div>'+
+    '<div class="cp-card" style="max-width:560px">'+
+      '<div class="cp-info-row"><span>Empresa</span><span>'+escHtml(c.nom)+'</span></div>'+
+      '<div class="cp-info-row"><span>CIF/NIF</span><span>'+escHtml(c.nif||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>Email</span><span>'+escHtml(c.mail||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>Telèfon</span><span>'+escHtml(c.tel||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>Adreça</span><span>'+escHtml(c.dir||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>Població</span><span>'+escHtml(c.pob||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>Condicions de pagament</span><span>'+(c.cond?c.cond+' dies':'Al comptat')+'</span></div>'+
+      '<button class="cp-btn ghost" style="margin-top:16px" type="button" onclick="alert(\'Contacta amb el teu gestor comercial per actualitzar aquestes dades.\')">✎ Editar informació</button>'+
+    '</div>';
+}
+
+function cpViewSuport(){
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>Necessites ajuda?</h1><p>Estem aquí per ajudar-te.</p></div></div>'+
+    '<div class="cp-support-grid">'+
+      '<div class="cp-support-card" onclick="window.open(\'mailto:contacto@higienexvalencia.es\')"><div class="ic">📧</div><b>Enviar email</b><span>contacto@higienexvalencia.es</span></div>'+
+      '<div class="cp-support-card" onclick="window.open(\'tel:963123456\')"><div class="ic">📞</div><b>Trucar-nos</b><span>963 123 456</span></div>'+
+      '<div class="cp-support-card" onclick="alert(\'Un membre de l\'equip et respondrà en menys de 24h laborables.\')"><div class="ic">💬</div><b>Contactar amb suport</b><span>Resposta en &lt;24h</span></div>'+
+      '<div class="cp-support-card" onclick="cpGoFaq()"><div class="ic">❓</div><b>Preguntes freqüents</b><span>Dubtes habituals</span></div>'+
+    '</div>';
+}
+
+
 var EMAILJS_SERVICE_ID  = 'service_x8etty8';
 var EMAILJS_TEMPLATE_ID = 'template_dae7cth';
 // Plantilla SEPARADA només per a l'avís intern de comandes noves (amb el
@@ -8576,9 +9032,49 @@ window.submitTreballaForm = submitTreballaForm;
 </div>
 
 <!-- ═══════════════════════════════════════
+     PORTAL DE CLIENT (dashboard)
+     ═══════════════════════════════════════ -->
+<div id="hxClientLoginModal" style="display:none;position:fixed;inset:0;z-index:999999;background:rgba(11,61,107,0.55);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#fff;border-radius:18px;max-width:400px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,0.3);overflow:hidden;">
+    <div style="background:var(--green-deep);padding:1.6rem 1.4rem 1.3rem;text-align:center;">
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.5rem;font-weight:700;color:#fff;">HIGIENE<span style="color:var(--accent);">X</span></div>
+      <button type="button" onclick="cpCloseLoginModal()" aria-label="Tancar" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;opacity:0.8;">✕</button>
+    </div>
+    <div style="padding:1.5rem 1.6rem;">
+      <p style="text-align:center;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:#888;font-weight:700;margin-bottom:1.2rem;">Portal de client · consulta de factures</p>
+      <div id="cpLoginErr" style="display:none;background:#FDECEA;color:#C0392B;font-size:0.8rem;border-radius:8px;padding:0.55rem 0.8rem;margin-bottom:1rem;text-align:center;">Usuari o contrasenya incorrectes.</div>
+      <div style="margin-bottom:0.9rem;">
+        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Usuari</label>
+        <input id="cpLoginUser" type="text" placeholder="usuari" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('cpLoginPass').focus();}" style="width:100%;padding:0.65rem 0.8rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:0.4rem;">
+        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Contrasenya</label>
+        <div style="position:relative;"><input id="cpLoginPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();cpTryLogin();}" style="width:100%;padding:0.65rem 0.8rem;padding-right:2.4rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;box-sizing:border-box;"><button type="button" onclick="hxTogglePass('cpLoginPass',this)" aria-label="Mostrar contrasenya" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;padding:4px;opacity:0.6;">👁️</button></div>
+      </div>
+      <button type="button" onclick="cpTryLogin()" class="cp-btn" style="width:100%;margin-top:1.1rem;padding:0.75rem;">Consultar →</button>
+    </div>
+  </div>
+</div>
+
+<div id="hxClientApp">
+  <div class="cp-shell">
+    <aside class="cp-side">
+      <div class="cp-brand">HIGIENE<span>X</span></div>
+      <nav class="cp-nav" id="cpNav"></nav>
+      <div class="cp-side-foot">
+        <div class="cp-user" id="cpUserBox"></div>
+        <button class="cp-side-btn" type="button" onclick="cpLogout()">↩ Tancar sessió</button>
+      </div>
+    </aside>
+    <main class="cp-main" id="cpMain"></main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
      MODAL LOGIN / REGISTRE
      ═══════════════════════════════════════ -->
 <div id="authModal">
+
   <div id="authModalBox">
 
     <!-- TABS -->
