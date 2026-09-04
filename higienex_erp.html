@@ -2572,7 +2572,7 @@ clientes:[
  {id:'C03',nom:'Grup Alimentari Ribera SL',nif:'B46778899',pob:'Alzira',dir:'Pol. Ind. Cotes B, nau 14',tel:'962 411 220',mail:'admin@garibera.es',cond:30,resp:'U3',alta:'2019-03-05',user:'garibera',pass:'ribera2026'},
  {id:'C04',nom:'Ajuntament de Torrent',nif:'P4624600C',pob:'Torrent',dir:'Plaça Major 1',tel:'961 111 111',mail:'contractacio@torrent.es',cond:60,resp:'U1',alta:'2021-06-14',user:'torrent',pass:'torrent2026'},
  {id:'C05',nom:'Neteges Costa Blanca SL',nif:'B03556677',pob:'Alicante',dir:'C/ Serra Grossa 8',tel:'965 220 118',mail:'pedidos@ncblanca.es',cond:0,resp:'U3',alta:'2023-01-30',user:'ncblanca',pass:'costa2026'},
- {id:'C06',nom:'Edu',nif:'00000000T',pob:'Valencia',dir:'—',tel:'—',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'}
+ {id:'C06',nom:'Edu',nif:'00000000T',pob:'Valencia',dir:'Carrer de la Pau 14, 3r 2a',tel:'644 210 987',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'}
 ],
 proveedores:[
  {id:'P01',nom:'Química Industrial Llevant SA',nif:'A46112233',pob:'Sagunt',dir:'Pol. Ind. Camí la Mar, 22',tel:'962 660 110',mail:'ventas@qillevant.es',cond:60,cta:'600',alta:'2015-05-10'},
@@ -3071,7 +3071,7 @@ function hxEnsureDemoClientLogins(){
   // el compte de prova d'Edu i que els altres clients tinguin usuari/pass.
   let existing = DB.clientes.find(c=>c.id==='C06');
   if(!existing){
-    DB.clientes.push({id:'C06',nom:'Edu',nif:'00000000T',pob:'Valencia',dir:'—',tel:'—',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'});
+    DB.clientes.push({id:'C06',nom:'Edu',nif:'00000000T',pob:'Valencia',dir:'Carrer de la Pau 14, 3r 2a',tel:'644 210 987',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'});
   } else if(!existing.user || !existing.pass){
     existing.user='edu'; existing.pass='Higienex2025';
   }
@@ -7659,7 +7659,12 @@ DB.facturasE.push(
   {num:"FE-2026-003", fecha:"2026-03-05", cli:"NC03", lineas:[{art:'A05',cant:18,precio:9.95},{art:'A06',cant:447,precio:39.00},{art:'A02',cant:321,precio:19.90}], base:24000, cuota:5040, total:29040, estado:"Pendiente", venc:"2026-05-04"},
   {num:"FE-2026-004", fecha:"2026-04-18", cli:"NC04", lineas:[{art:'A04',cant:10,precio:12.30},{art:'A03',cant:376,precio:24.75},{art:'A01',cant:1198,precio:14.50}], base:26800, cuota:5628, total:32428, estado:"Cobrada", venc:"2026-05-18"},
   {num:"FE-2026-005", fecha:"2026-06-09", cli:"NC05", lineas:[{art:'A01',cant:28,precio:14.50},{art:'A02',cant:460,precio:19.90},{art:'A05',cant:1200,precio:9.95}], base:21500, cuota:4515, total:26015, estado:"Cobrada", venc:"2026-07-09"},
-  {num:"FE-2026-006", fecha:"2026-07-20", cli:"NC01", lineas:[{art:'A03',cant:150,precio:24.75},{art:'A01',cant:375,precio:14.50},{art:'A04',cant:500,precio:12.30}], base:15300, cuota:3213, total:18513, estado:"Pendiente", venc:"2026-08-19"}
+  {num:"FE-2026-006", fecha:"2026-07-20", cli:"NC01", lineas:[{art:'A03',cant:150,precio:24.75},{art:'A01',cant:375,precio:14.50},{art:'A04',cant:500,precio:12.30}], base:15300, cuota:3213, total:18513, estado:"Pendiente", venc:"2026-08-19"},
+  {num:"FE-2026-EDU1", fecha:"2026-03-10", cli:"C06", lineas:[{art:'A01',cant:20,precio:14.50},{art:'A02',cant:10,precio:19.90}], base:489.00, cuota:102.69, total:591.69, estado:"Cobrada", venc:"2026-04-09"},
+  {num:"FE-2026-EDU2", fecha:"2026-05-05", cli:"C06", lineas:[{art:'A04',cant:30,precio:12.30},{art:'A05',cant:25,precio:9.95}], base:617.75, cuota:129.73, total:747.48, estado:"Cobrada", venc:"2026-06-04"},
+  {num:"FE-2026-EDU3", fecha:"2026-06-18", cli:"C06", lineas:[{art:'A01',cant:15,precio:14.50},{art:'A03',cant:8,precio:24.75}], base:415.50, cuota:87.25, total:502.75, estado:"Pendiente", venc:"2026-07-18"},
+  {num:"FE-2026-EDU4", fecha:"2026-07-02", cli:"C06", lineas:[{art:'A05',cant:40,precio:9.95},{art:'A02',cant:6,precio:19.90}], base:517.40, cuota:108.65, total:626.05, estado:"Pendiente", venc:"2026-08-15"},
+  {num:"FE-2026-EDU5", fecha:"2026-07-24", cli:"C06", lineas:[{art:'A04',cant:18,precio:12.30},{art:'A06',cant:2,precio:39.00}], base:299.40, cuota:62.87, total:362.27, estado:"Cobrada", venc:"2026-08-23"}
 );
 DB.facturasR.push(
   {num:"F-2026-001", fecha:"2026-01-20", prov:"NP01", concepto:"F-2026-001", lineas:[], base:22000, cuota:4620, total:26620, cuenta:"601", estado:"Pagada", venc:"2026-02-19"},
