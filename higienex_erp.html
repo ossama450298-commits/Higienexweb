@@ -1454,8 +1454,8 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
     <span class="eyebrow" style="text-align:center;display:block;margin-bottom:14px">👤 Portal de client</span>
     <p style="font-size:12.5px;color:var(--ink-2);text-align:center;margin-bottom:16px">Consulta ràpida i informativa de les teves factures amb el teu usuari i contrasenya de client.</p>
     <div id="hxPortalForm">
-      <div class="field"><label for="hxPortalUser">Usuari</label><input id="hxPortalUser" placeholder="usuari" autocomplete="username"></div>
-      <div class="field"><label for="hxPortalPass">Contrasenya</label><div style="position:relative"><input id="hxPortalPass" type="password" placeholder="••••••••" autocomplete="current-password" style="width:100%;padding-right:40px;box-sizing:border-box"><button type="button" onclick="hxTogglePass('hxPortalPass',this)" aria-label="Mostrar contraseña" title="Mostrar contraseña" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:4px;line-height:1;opacity:0.6">👁️</button></div></div>
+      <div class="field"><label for="hxPortalUser">Usuari</label><input id="hxPortalUser" placeholder="usuari" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('hxPortalPass').focus();}"></div>
+      <div class="field"><label for="hxPortalPass">Contrasenya</label><div style="position:relative"><input id="hxPortalPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();hxConsultarPortalCliente();}" style="width:100%;padding-right:40px;box-sizing:border-box"><button type="button" onclick="hxTogglePass('hxPortalPass',this)" aria-label="Mostrar contraseña" title="Mostrar contraseña" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:4px;line-height:1;opacity:0.6">👁️</button></div></div>
       <div class="err" id="hxPortalErr" style="display:none">Usuari o contrasenya incorrectes.</div>
       <button class="btn block" onclick="hxConsultarPortalCliente()" type="button">Consultar</button>
     </div>
@@ -3005,12 +3005,33 @@ function hxConsultarPortalCliente(){
   if(!c){ document.getElementById('hxPortalErr').textContent='Usuari o contrasenya incorrectes.'; document.getElementById('hxPortalErr').style.display='block'; return; }
   document.getElementById('hxPortalErr').style.display='none';
   const fac=DB.facturasE.filter(f=>f.cli===c.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  const rows=fac.map(f=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px">'+
-    '<span>'+esc(f.num)+' · '+FD(f.fecha)+'</span><span class="mono">'+EUR(f.total)+' · '+f.estado+'</span></div>').join('');
+  const saldo=saldoCliente(c.id);
+  const inicials=c.nom.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const rows=fac.map(f=>{
+    const pagada=f.estado==='Pagada'||f.estado==='Cobrada';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line)">'+
+      '<div style="min-width:0"><div style="font-weight:700;font-size:13px;color:var(--ink)">'+esc(f.num)+'</div>'+
+      '<div style="font-size:11px;color:var(--ink-2);margin-top:1px">'+FD(f.fecha)+'</div></div>'+
+      '<div style="text-align:right;flex-shrink:0"><div class="mono" style="font-weight:700;font-size:13px">'+EUR(f.total)+'</div>'+
+      '<span style="display:inline-block;margin-top:2px;font-size:10px;font-weight:700;letter-spacing:.02em;padding:2px 8px;border-radius:20px;background:'+(pagada?'#E6F4EA':'#FFF3E0')+';color:'+(pagada?'#1E7B34':'#B8720B')+'">'+esc(f.estado).toUpperCase()+'</span></div>'+
+    '</div>';
+  }).join('');
+  const empty='<div style="text-align:center;padding:26px 10px;color:var(--ink-2)">'+
+    '<div style="font-size:28px;margin-bottom:6px">✅</div>'+
+    '<div style="font-size:13px;font-weight:600;color:var(--ink)">Estàs al dia</div>'+
+    '<div style="font-size:12px;margin-top:2px">Encara no hi ha factures registrades.</div></div>';
   document.getElementById('hxPortalResult').innerHTML =
-    '<p style="font-size:13px;margin-bottom:10px"><strong>'+esc(c.nom)+'</strong><br><span style="color:var(--ink-2);font-size:12px">Saldo pendent: '+EUR(saldoCliente(c.id))+'</span></p>'+
-    (rows || '<p style="color:var(--ink-2);font-size:12.5px">Encara no hi ha factures registrades.</p>')+
-    '<button class="btn ghost sm block" style="margin-top:12px" onclick="hxAbrirPortalCliente()" type="button">← Nova consulta</button>';
+    '<div style="display:flex;align-items:center;gap:12px;padding:14px 4px 16px;border-bottom:1px solid var(--line);margin-bottom:2px">'+
+      '<div style="flex-shrink:0;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue,#0B3D6B),#1565A8);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px">'+esc(inicials)+'</div>'+
+      '<div style="min-width:0"><div style="font-weight:700;font-size:14.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(c.nom)+'</div>'+
+      '<div style="font-size:11.5px;color:var(--ink-2);margin-top:1px">'+esc(c.mail||'')+'</div></div>'+
+    '</div>'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;margin-bottom:4px;background:var(--warm-white,#F7F9FB);border-radius:12px">'+
+      '<span style="font-size:12px;color:var(--ink-2);font-weight:600;letter-spacing:.03em">SALDO PENDENT</span>'+
+      '<span class="mono" style="font-size:19px;font-weight:800;color:'+(saldo>0?'#B8720B':'#1E7B34')+'">'+EUR(saldo)+'</span>'+
+    '</div>'+
+    (rows || empty)+
+    '<button class="btn ghost sm block" style="margin-top:16px" onclick="hxAbrirPortalCliente()" type="button">← Nova consulta</button>';
   document.getElementById('hxPortalForm').style.display='none';
   document.getElementById('hxPortalResult').style.display='block';
 }
