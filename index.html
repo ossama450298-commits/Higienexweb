@@ -8262,12 +8262,13 @@ function cpTryLogin(){
   var c=CP_DB.cliente;
   if(user===c.user.toLowerCase() && pass===c.pass){
     CP_LOGGED_IN = true;
-    var uEl=document.getElementById('userName'); if(uEl && (!window.HX_USER)) uEl.textContent=c.nom;
-    var ab=document.getElementById('authBtns'); if(ab) ab.style.display='none';
     cpUpdateNavState();
+    if (!window.HX_USER) {
+      setLoggedInUser(c.nom, '', 'client', c.mail);
+    }
     cpCloseLoginModal();
     var dd=document.getElementById('navDropdown'); if(dd) dd.classList.remove('open');
-    showToast('Sessió iniciada. Ves a "📊 El meu panel" al menú per consultar les teves factures.', '✅');
+    showToast('Sessi\u00f3 iniciada. Ves a "\ud83d\udcca El meu panel" al men\u00fa per consultar les teves factures.', '\u2705');
   } else {
     document.getElementById('cpLoginErr').style.display='block';
   }
@@ -10142,6 +10143,10 @@ window.showAdminWelcome = showAdminWelcome;
 function setLoggedInUser(name, avatar, role, email) {
   window.HX_USER = { name: name, role: role, email: email || '' };
   var uEl=document.getElementById('userName'); if(uEl) uEl.textContent=name;
+  if (email && email.toLowerCase()===CP_DB.cliente.mail.toLowerCase() && !CP_LOGGED_IN) {
+    CP_LOGGED_IN = true;
+    cpUpdateNavState();
+  }
   var navInner=document.getElementById('navRightGroup');
   var exBtn=document.getElementById('userNavBtn');
   if (!exBtn && navInner) {
