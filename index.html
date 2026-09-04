@@ -9763,16 +9763,16 @@ function abrirImprimibleComanda(titol, html) {
 
 function htmlComanda(inv, items, clientInfo) {
   var hiHaDescomptes = items.some(function(it){ return it.discountRate > 0; });
-  var filesHTML = items.map(function(it){
+  var filesHTML = items.map(function(it, idx){
     var descompteCell = '';
     if (hiHaDescomptes) {
       descompteCell = it.discountRate > 0
-        ? '<td class="num" style="color:#B8860B;font-weight:700;">-' + Math.round(it.discountRate*100) + '%</td>'
-        : '<td class="num" style="color:#bbb;">—</td>';
+        ? '<td class="num"><span class="pill">-' + Math.round(it.discountRate*100) + '%</span></td>'
+        : '<td class="num muted">—</td>';
     }
     var preuUnitariBase = it.rawTotal ? (it.rawTotal / it.qty) : (it.total / it.qty);
-    return '<tr><td>' + escHtml(it.name) + '</td><td class="num">' + it.qty + '</td><td class="num">' +
-      preuUnitariBase.toFixed(2) + ' €</td>' + descompteCell + '<td class="num">' + it.total.toFixed(2) + ' €</td></tr>';
+    return '<tr class="' + (idx % 2 ? 'alt' : '') + '"><td class="pname">' + escHtml(it.name) + '</td><td class="num">' + it.qty + '</td><td class="num muted">' +
+      preuUnitariBase.toFixed(2) + ' €</td>' + descompteCell + '<td class="num strong">' + it.total.toFixed(2) + ' €</td></tr>';
   }).join('');
   var totalDescompte = items.reduce(function(s,i){ return s + (i.discountRate > 0 ? (i.rawTotal - i.total) : 0); }, 0);
   var subtotal = items.reduce(function(s,i){ return s + i.total; }, 0);
@@ -9781,44 +9781,77 @@ function htmlComanda(inv, items, clientInfo) {
   var iva = base * IVA_PCT;
   return '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Comanda ' + escHtml(inv.invoiceNum) + ' · HIGIENEX S.L.</title>' +
     '<style>' +
-    '*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:13px}' +
-    '.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0B3D6B;padding-bottom:18px;margin-bottom:24px}' +
-    '.brand{font-size:24px;font-weight:800;color:#0B3D6B;font-family:Georgia,\'Times New Roman\',serif}.brand span{color:#F2A900}' +
-    '.brand-sub{font-size:11px;color:#4A5A6A;margin-top:4px;line-height:1.5}' +
-    '.doc{text-align:right}.doc h1{font-size:20px;margin:0 0 4px 0;color:#0B3D6B}' +
-    '.doc .num{font-size:15px;font-weight:700;font-family:monospace}' +
-    '.meta{display:flex;justify-content:space-between;gap:24px;margin-bottom:26px}' +
-    '.box{flex:1;border:1px solid #D9E5F0;border-radius:8px;padding:12px 14px}' +
-    '.box h3{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:#4A5A6A;margin:0 0 6px 0}' +
-    '.box p{margin:0;line-height:1.5}' +
-    'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:20px}' +
-    'th,td{border:1px solid #D9E5F0;padding:7px 9px;text-align:left}' +
-    'th{background:#0B3D6B;color:#fff;font-weight:600}' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'html{background:#EDEAE2}' +
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#FBFAF7;font-size:13px;line-height:1.5;position:relative}' +
+    '.sheet{max-width:760px;margin:0 auto;padding:46px 50px 38px;position:relative;overflow:hidden}' +
+    '.watermark{position:absolute;top:-60px;right:-70px;font-family:Georgia,\'Times New Roman\',serif;font-size:460px;font-weight:700;color:#0B3D6B;opacity:0.035;line-height:1;pointer-events:none;z-index:0;user-select:none}' +
+    '.sheet > *{position:relative;z-index:1}' +
+    '.top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;margin-bottom:6px}' +
+    '.brand{font-size:27px;font-weight:700;color:#0B3D6B;font-family:Georgia,\'Times New Roman\',serif;letter-spacing:.01em}.brand span{color:#F2A900}' +
+    '.brand-sub{font-size:10.5px;color:#64748B;margin-top:7px;line-height:1.65}' +
+    '.doc{text-align:right}' +
+    '.doc .kicker{font-size:10px;letter-spacing:.12em;color:#B8860B;font-weight:700;margin-bottom:3px}' +
+    '.doc h1{font-size:21px;font-weight:700;margin:0 0 6px 0;color:#16232E;font-family:Georgia,\'Times New Roman\',serif}' +
+    '.doc .num{font-size:14px;font-weight:700;font-family:ui-monospace,Consolas,monospace;color:#0B3D6B;background:#EAF1F8;padding:3px 10px;border-radius:20px;display:inline-block}' +
+    '.rule{height:1px;background:linear-gradient(90deg,#0B3D6B 0%,#0B3D6B 60%,#F2A900 100%);margin-bottom:26px}' +
+    '.stamp{position:absolute;top:6px;right:0;width:92px;height:92px;border:2px solid #2E7D32;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;transform:rotate(-14deg);opacity:0.9}' +
+    '.stamp .st{font-size:8.5px;font-weight:800;letter-spacing:.06em;color:#2E7D32;line-height:1.35;font-family:Georgia,serif}' +
+    '.meta{display:flex;gap:0;margin-bottom:28px;border:1px solid #E3E8ED;border-radius:10px;overflow:hidden}' +
+    '.box{flex:1;padding:14px 18px;background:#fff}' +
+    '.box + .box{border-left:1px solid #E3E8ED}' +
+    '.box h3{font-size:9.5px;letter-spacing:.1em;color:#B8860B;font-weight:700;margin:0 0 7px 0}' +
+    '.box p{margin:0;line-height:1.65;color:#33424F}' +
+    '.box p strong{color:#16232E}' +
+    'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:22px}' +
+    'thead th{border-bottom:2px solid #16232E;padding:9px 4px;text-align:left;font-size:10px;letter-spacing:.07em;color:#16232E;font-weight:700}' +
+    'tbody td{padding:11px 4px;border-bottom:1px solid #EDF1F4;vertical-align:middle}' +
+    'tbody tr.alt td{background:#FAFBFC}' +
+    'td.pname{font-weight:600;color:#16232E}' +
     'td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}' +
-    '.totbox{margin-left:auto;width:280px}' +
-    '.totbox .l{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #EFF6FC}' +
-    '.totbox .tot{font-weight:800;font-size:16px;border-top:2px solid #0B3D6B;border-bottom:none;margin-top:4px;padding-top:8px;color:#0B3D6B}' +
-    '.foot{margin-top:36px;font-size:10.5px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:12px}' +
-    '@media print{ @page{margin:15mm} }' +
+    'td.muted{color:#8A9BAC}td.strong{font-weight:700;color:#0B3D6B}' +
+    '.pill{background:#FFF6E0;color:#B8860B;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}' +
+    '.totwrap{display:flex;justify-content:flex-end}' +
+    '.totbox{width:290px}' +
+    '.totbox .l{display:flex;justify-content:space-between;padding:6px 0;font-size:12.5px;color:#4A5A6A}' +
+    '.totbox .l.discount{color:#B8860B;font-weight:600}' +
+    '.totbox .tot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:14px 16px;background:#0B3D6B;border-radius:10px}' +
+    '.totbox .tot span:first-child{color:#BFD4E8;font-size:11px;letter-spacing:.08em;font-weight:700}' +
+    '.totbox .tot span:last-child{color:#fff;font-size:20px;font-weight:700;font-family:Georgia,serif}' +
+    '.foot{margin-top:34px;padding-top:16px;border-top:1px solid #E3E8ED;display:flex;justify-content:space-between;align-items:flex-end;gap:20px}' +
+    '.foot p{font-size:9.5px;color:#94A3B0;line-height:1.6;max-width:440px}' +
+    '.foot .seal{font-family:Georgia,serif;font-size:11px;color:#0B3D6B;font-weight:700;text-align:right;white-space:nowrap}' +
+    '.foot .seal small{display:block;font-family:-apple-system,Arial,sans-serif;font-weight:400;color:#94A3B0;font-size:9px;letter-spacing:.04em;margin-top:2px}' +
+    '@media print{ html,body{background:#fff} .sheet{padding:8px 4px} @page{margin:14mm} }' +
     '</style></head><body>' +
+    '<div class="sheet">' +
+    '<div class="watermark">X</div>' +
     '<div class="top">' +
       '<div><div class="brand">HIGIENE<span>X</span></div>' +
       '<div class="brand-sub">HIGIENEX S.L. · CIF B12345678<br>Carrer de la Indústria, 25, 46010 València<br>contacto@higienexvalencia.es · 963 123 456</div></div>' +
-      '<div class="doc"><h1>COMANDA</h1><div class="num">' + escHtml(inv.invoiceNum) + '</div></div>' +
+      '<div class="doc"><div class="kicker">JUSTIFICANT DE COMANDA</div><h1>Comanda</h1><div class="num">' + escHtml(inv.invoiceNum) + '</div></div>' +
     '</div>' +
+    '<div class="stamp"><div class="st">PAGAMENT<br>CONFIRMAT<br>✓</div></div>' +
+    '<div class="rule"></div>' +
     '<div class="meta">' +
-      '<div class="box"><h3 data-i18n-key="t171">Client</h3><p><strong>' + escHtml(clientInfo.name || '') + '</strong>' +
+      '<div class="box"><h3 data-i18n-key="t171">CLIENT</h3><p><strong>' + escHtml(clientInfo.name || '') + '</strong>' +
         (clientInfo.company ? ('<br>' + escHtml(clientInfo.company)) : '') +
         (clientInfo.email ? ('<br>' + escHtml(clientInfo.email)) : '') + '</p></div>' +
-      '<div class="box"><h3 data-i18n-key="t172">Detalls</h3><p>Data de la comanda: ' + escHtml(inv.dateStr) + '<br>Lliurament estimat: ' + escHtml(inv.entregaStr) + '<br>Estat: Pendent de confirmació</p></div>' +
+      '<div class="box"><h3 data-i18n-key="t172">DETALLS</h3><p>Data: <strong>' + escHtml(inv.dateStr) + '</strong><br>Lliurament estimat: <strong>' + escHtml(inv.entregaStr) + '</strong></p></div>' +
     '</div>' +
-    '<table><thead><tr><th data-i18n-key="t544">Producte</th><th class="num">Uds.</th><th class="num">Preu</th>' + (hiHaDescomptes ? '<th class="num">Descompte</th>' : '') + '<th class="num">Import</th></tr></thead><tbody>' + filesHTML + '</tbody></table>' +
-    '<div class="totbox"><div class="l"><span>Subtotal productes</span><span>' + subtotal.toFixed(2) + ' €</span></div>' +
-    (totalDescompte > 0 ? ('<div class="l" style="color:#B8860B;"><span>Descomptes per volum aplicats</span><span>-' + totalDescompte.toFixed(2) + ' €</span></div>') : '') +
+    '<table><thead><tr><th data-i18n-key="t544">PRODUCTE</th><th class="num">UDS.</th><th class="num">PREU</th>' + (hiHaDescomptes ? '<th class="num">DESCOMPTE</th>' : '') + '<th class="num">IMPORT</th></tr></thead><tbody>' + filesHTML + '</tbody></table>' +
+    '<div class="totwrap"><div class="totbox">' +
+    '<div class="l"><span>Subtotal productes</span><span>' + subtotal.toFixed(2) + ' €</span></div>' +
+    (totalDescompte > 0 ? ('<div class="l discount"><span>Descomptes per volum</span><span>-' + totalDescompte.toFixed(2) + ' €</span></div>') : '') +
     (transport ? ('<div class="l"><span>Transport</span><span>' + transport.toFixed(2) + ' €</span></div>') : '') +
     '<div class="l"><span>IVA (' + Math.round(IVA_PCT*100) + '%)</span><span>' + iva.toFixed(2) + ' €</span></div>' +
-    '<div class="l tot"><span>Total</span><span>' + inv.total.toFixed(2) + ' €</span></div></div>' +
-    '<div class="foot">Comanda generada el ' + new Date().toLocaleString('ca-ES') + ' des de la web d\'HIGIENEX. Aquest document és un justificant de comanda, no una factura oficial — la rebràs un cop confirmat el pagament.</div>' +
+    '<div class="tot"><span>TOTAL</span><span>' + inv.total.toFixed(2) + ' €</span></div>' +
+    '</div></div>' +
+    '<div class="foot">' +
+      '<p>Aquest document és un justificant de comanda, no una factura oficial. La factura es generarà un cop expedida la mercaderia. Per a qualsevol consulta, contacta amb nosaltres indicant el número de comanda.</p>' +
+      '<div class="seal">HIGIENE<span style="color:#F2A900">X</span><small>' + new Date().toLocaleString('ca-ES') + '</small></div>' +
+    '</div>' +
+    '</div>' +
     '</body></html>';
 }
 
