@@ -4616,7 +4616,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
         🛒
         <span id="cartBadge" style="display:none;position:absolute;top:-5px;right:-6px;background:#F2A900;color:#1A1A1A;font-size:0.68rem;font-weight:800;border-radius:50%;min-width:18px;height:18px;padding:0 3px;align-items:center;justify-content:center;border:2px solid white;">0</span>
       </button>
-      <button onclick="cpOpenLoginModal()" title="Àrea de Clients" aria-label="Àrea de Clients" style="display:flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--green-deep,#0B3D6B);color:white;border:none;cursor:pointer;flex-shrink:0;font-size:1rem;line-height:1;" type="button">👤</button>
+      <button id="navClientBtn" onclick="cpNavAction()" title="Àrea de Clients" aria-label="Àrea de Clients" style="display:flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--green-deep,#0B3D6B);color:white;border:none;cursor:pointer;flex-shrink:0;font-size:1rem;line-height:1;" type="button">👤</button>
       <a href="higienex_erp.html" target="_blank" rel="noopener" title="Accés Intern (ERP)" aria-label="Accés Intern (ERP)" style="display:flex;align-items:center;justify-content:center;width:2.1rem;height:2.1rem;border-radius:50%;background:var(--green-deep,#0B3D6B);color:white;flex-shrink:0;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="8" r="4"></circle>
@@ -4643,7 +4643,7 @@ dk+k+zt7oh7BvBKB1ZX97tyD5HB4yK85g/xO3/un8zVy1/q4f7p/jXkPrMjlS2LNHN9MhkiKx2UcDkN+
       <a class="dditem" onclick="navTo('compromis')"><span data-i18n-key="t179">♻️ Compromís i Mercat</span></a>
       <a class="dditem" onclick="navTo('newsletter')"><span data-i18n-key="t180">📰 Newsletter</span></a>
       <a class="dditem" onclick="navTo('contacte')"><span data-i18n-key="t181">📞 Ajuda i Contacte</span></a>
-      <a class="dditem" onclick="cpOpenLoginModal();return false;"><span>👤 Àrea de Clients</span></a>
+      <a class="dditem" id="navClientDditem" onclick="cpNavAction();return false;"><span id="navClientDditemLabel">👤 Àrea de Clients</span></a>
     </div>
   </div>
 </nav>
@@ -8192,6 +8192,29 @@ var EMAILJS_PUBLIC_KEY  = 'EITy91aX6QkGA4ppG';
 // ═══════════════════════════════════════════════════════════
 // PORTAL DE CLIENT — lògica del panell
 // ═══════════════════════════════════════════════════════════
+var CP_LOGGED_IN = false;
+
+function cpNavAction(){
+  if (CP_LOGGED_IN) { cpOpen(); }
+  else { cpOpenLoginModal(); }
+}
+window.cpNavAction = cpNavAction;
+
+function cpUpdateNavState(){
+  var btn = document.getElementById('navClientBtn');
+  var lbl = document.getElementById('navClientDditemLabel');
+  if (CP_LOGGED_IN) {
+    if (btn) btn.title = 'El meu panel';
+    if (btn) btn.textContent = '📊';
+    if (lbl) lbl.textContent = '📊 El meu panel';
+  } else {
+    if (btn) btn.title = 'Àrea de Clients';
+    if (btn) btn.textContent = '👤';
+    if (lbl) lbl.textContent = '👤 Àrea de Clients';
+  }
+}
+window.cpUpdateNavState = cpUpdateNavState;
+
 function cpOpenLoginModal(){
   var m=document.getElementById('hxClientLoginModal'); if(!m) return;
   document.getElementById('cpLoginErr').style.display='none';
@@ -8212,8 +8235,11 @@ function cpTryLogin(){
   var pass=document.getElementById('cpLoginPass').value||'';
   var c=CP_DB.cliente;
   if(user===c.user.toLowerCase() && pass===c.pass){
+    CP_LOGGED_IN = true;
+    cpUpdateNavState();
     cpCloseLoginModal();
-    cpOpen();
+    var dd=document.getElementById('navDropdown'); if(dd) dd.classList.remove('open');
+    showToast('Sessió iniciada. Ves a "📊 El meu panel" al menú per consultar les teves factures.', '✅');
   } else {
     document.getElementById('cpLoginErr').style.display='block';
   }
@@ -8229,6 +8255,7 @@ var CP_NAV=[
 ];
 
 function cpOpen(){
+  if (!CP_LOGGED_IN) { cpOpenLoginModal(); return; }
   CP_TAB='inici'; CP_FILTER='totes'; CP_SEARCH=''; CP_PERIOD='6m';
   document.getElementById('hxClientApp').style.display='block';
   document.body.style.overflow='hidden';
@@ -8239,6 +8266,8 @@ window.cpOpen=cpOpen;
 function cpGoFaq(){ cpLogout(); navTo("faq"); }
 window.cpGoFaq=cpGoFaq;
 function cpLogout(){
+  CP_LOGGED_IN = false;
+  cpUpdateNavState();
   document.getElementById('hxClientApp').style.display='none';
   document.body.style.overflow='';
 }
