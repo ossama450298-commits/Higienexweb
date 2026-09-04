@@ -2475,7 +2475,7 @@ clientes:[
  {id:'C03',nom:'Grup Alimentari Ribera SL',nif:'B46778899',pob:'Alzira',dir:'Pol. Ind. Cotes B, nau 14',tel:'962 411 220',mail:'admin@garibera.es',cond:30,resp:'U3',alta:'2019-03-05',user:'garibera',pass:'ribera2026'},
  {id:'C04',nom:'Ajuntament de Torrent',nif:'P4624600C',pob:'Torrent',dir:'Plaça Major 1',tel:'961 111 111',mail:'contractacio@torrent.es',cond:60,resp:'U1',alta:'2021-06-14',user:'torrent',pass:'torrent2026'},
  {id:'C05',nom:'Neteges Costa Blanca SL',nif:'B03556677',pob:'Alicante',dir:'C/ Serra Grossa 8',tel:'965 220 118',mail:'pedidos@ncblanca.es',cond:0,resp:'U3',alta:'2023-01-30',user:'ncblanca',pass:'costa2026'},
- {id:'C06',nom:'Edu (compte de prova)',nif:'00000000T',pob:'Valencia',dir:'—',tel:'—',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'}
+ {id:'C06',nom:'Edu',nif:'00000000T',pob:'Valencia',dir:'—',tel:'—',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'}
 ],
 proveedores:[
  {id:'P01',nom:'Química Industrial Llevant SA',nif:'A46112233',pob:'Sagunt',dir:'Pol. Ind. Camí la Mar, 22',tel:'962 660 110',mail:'ventas@qillevant.es',cond:60,cta:'600',alta:'2015-05-10'},
@@ -2974,7 +2974,7 @@ function hxEnsureDemoClientLogins(){
   // el compte de prova d'Edu i que els altres clients tinguin usuari/pass.
   let existing = DB.clientes.find(c=>c.id==='C06');
   if(!existing){
-    DB.clientes.push({id:'C06',nom:'Edu (compte de prova)',nif:'00000000T',pob:'Valencia',dir:'—',tel:'—',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'});
+    DB.clientes.push({id:'C06',nom:'Edu',nif:'00000000T',pob:'Valencia',dir:'—',tel:'—',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'});
   } else if(!existing.user || !existing.pass){
     existing.user='edu'; existing.pass='Higienex2025';
   }
