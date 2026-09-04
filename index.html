@@ -8184,6 +8184,32 @@ var CP_DB = {
     {num:"FE-2026-EDU3", fecha:"2026-06-18", lineas:[{art:'A01',cant:15,precio:14.50},{art:'A03',cant:8,precio:24.75}], base:415.50, cuota:87.25, total:502.75, estado:"Pendiente", venc:"2026-07-18"},
     {num:"FE-2026-EDU4", fecha:"2026-07-02", lineas:[{art:'A05',cant:40,precio:9.95},{art:'A02',cant:6,precio:19.90}], base:517.40, cuota:108.65, total:626.05, estado:"Pendiente", venc:"2026-08-15"},
     {num:"FE-2026-EDU5", fecha:"2026-07-24", lineas:[{art:'A04',cant:18,precio:12.30},{art:'A06',cant:2,precio:39.00}], base:299.40, cuota:62.87, total:362.27, estado:"Cobrada", venc:"2026-08-23"}
+  ],
+  comandes: [
+    {num:"C2026-EDU1", fecha:"2026-07-10", lineas:[{nom:'ECO Concentrat Pro 5 L',cant:15},{nom:'WorkSafe Antimicrobial 1 L',cant:20}], total:508.20, estat:"Entregat"},
+    {num:"C2026-EDU2", fecha:"2026-07-19", lineas:[{nom:'Net HOSTAL 5 L',cant:25},{nom:'Desinfectant HOSP-V 5 L',cant:8}], total:466.70, estat:"En repartiment"},
+    {num:"C2026-EDU3", fecha:"2026-07-23", lineas:[{nom:'Det ALIM-PRO 10 L',cant:10},{nom:'Dispensador mural INOX',cant:3}], total:364.50, estat:"Enviat"},
+    {num:"C2026-EDU4", fecha:"2026-07-26", lineas:[{nom:'ECO Concentrat Pro 5 L',cant:12},{nom:'Net HOSTAL 5 L',cant:15}], total:358.50, estat:"Processant"},
+    {num:"C2026-EDU5", fecha:"2026-05-04", lineas:[{nom:'ECO Concentrat Pro 5 L',cant:30}], total:435.00, estat:"Entregat"},
+    {num:"C2026-EDU6", fecha:"2026-05-06", lineas:[{nom:'Dispensador mural INOX',cant:15}], total:585.00, estat:"Entregat"},
+    {num:"C2026-EDU7", fecha:"2026-05-10", lineas:[{nom:'Net HOSTAL 5 L',cant:17}], total:209.10, estat:"Entregat"},
+    {num:"C2026-EDU8", fecha:"2026-05-13", lineas:[{nom:'WorkSafe Antimicrobial 1 L',cant:28}], total:278.60, estat:"Entregat"},
+    {num:"C2026-EDU9", fecha:"2026-05-15", lineas:[{nom:'Dispensador mural INOX',cant:13}], total:507.00, estat:"Entregat"},
+    {num:"C2026-EDU10", fecha:"2026-05-19", lineas:[{nom:'Dispensador mural INOX',cant:10},{nom:'Det ALIM-PRO 10 L',cant:16}], total:786.00, estat:"Entregat"},
+    {num:"C2026-EDU11", fecha:"2026-05-23", lineas:[{nom:'ECO Concentrat Pro 5 L',cant:8},{nom:'Desinfectant HOSP-V 5 L',cant:17}], total:454.30, estat:"Entregat"},
+    {num:"C2026-EDU12", fecha:"2026-05-26", lineas:[{nom:'ECO Concentrat Pro 5 L',cant:26}], total:377.00, estat:"Entregat"},
+    {num:"C2026-EDU13", fecha:"2026-05-29", lineas:[{nom:'Dispensador mural INOX',cant:16},{nom:'WorkSafe Antimicrobial 1 L',cant:23}], total:852.85, estat:"Entregat"},
+    {num:"C2026-EDU14", fecha:"2026-06-04", lineas:[{nom:'Net HOSTAL 5 L',cant:7}], total:86.10, estat:"Entregat"},
+    {num:"C2026-EDU15", fecha:"2026-06-09", lineas:[{nom:'WorkSafe Antimicrobial 1 L',cant:30},{nom:'Det ALIM-PRO 10 L',cant:6}], total:447.00, estat:"Entregat"},
+    {num:"C2026-EDU16", fecha:"2026-06-13", lineas:[{nom:'Net HOSTAL 5 L',cant:8}], total:98.40, estat:"Entregat"},
+    {num:"C2026-EDU17", fecha:"2026-06-15", lineas:[{nom:'Desinfectant HOSP-V 5 L',cant:29},{nom:'Dispensador mural INOX',cant:15}], total:1162.10, estat:"Entregat"},
+    {num:"C2026-EDU18", fecha:"2026-06-19", lineas:[{nom:'Dispensador mural INOX',cant:18}], total:702.00, estat:"Entregat"},
+    {num:"C2026-EDU19", fecha:"2026-06-21", lineas:[{nom:'Desinfectant HOSP-V 5 L',cant:23},{nom:'Net HOSTAL 5 L',cant:13}], total:617.60, estat:"Entregat"},
+    {num:"C2026-EDU20", fecha:"2026-06-27", lineas:[{nom:'WorkSafe Antimicrobial 1 L',cant:11}], total:109.45, estat:"Entregat"},
+    {num:"C2026-EDU21", fecha:"2026-06-30", lineas:[{nom:'ECO Concentrat Pro 5 L',cant:11}], total:159.50, estat:"Entregat"},
+    {num:"C2026-EDU22", fecha:"2026-07-02", lineas:[{nom:'WorkSafe Antimicrobial 1 L',cant:18}], total:179.10, estat:"Entregat"},
+    {num:"C2026-EDU23", fecha:"2026-07-04", lineas:[{nom:'Desinfectant HOSP-V 5 L',cant:28}], total:557.20, estat:"Entregat"},
+    {num:"C2026-EDU24", fecha:"2026-07-07", lineas:[{nom:'Dispensador mural INOX',cant:13}], total:507.00, estat:"Entregat"}
   ]
 };
 
@@ -8251,6 +8277,7 @@ window.cpTryLogin=cpTryLogin;
 var CP_TAB='inici', CP_FILTER='totes', CP_SEARCH='', CP_PERIOD='6m';
 var CP_NAV=[
   ['inici','🏠','Inici'],
+  ['comandes','📦','Comandes'],
   ['factures','🧾','Factures'],
   ['empresa','👤','La meva empresa'],
   ['suport','📞','Suport'],
@@ -8270,6 +8297,11 @@ function cpRegistrarComanda(inv, items){
     num: inv.invoiceNum, fecha: fecha, lineas: lineas,
     base: Math.round(base*100)/100, cuota: cuota, total: inv.total,
     estado: 'Pendiente', venc: venc
+  });
+  var lineasComanda = items.map(function(it){ return { nom: it.name, cant: it.qty }; });
+  CP_DB.comandes.unshift({
+    num: 'C' + inv.invoiceNum.replace('FE-',''), fecha: fecha, lineas: lineasComanda,
+    total: inv.total, estat: 'Processant'
   });
 }
 window.cpRegistrarComanda = cpRegistrarComanda;
@@ -8323,6 +8355,7 @@ function cpGo(tab){
   CP_TAB=tab; cpRenderNav();
   var main=document.getElementById('cpMain');
   if(tab==='inici') main.innerHTML=cpViewInici();
+  else if(tab==='comandes') main.innerHTML=cpViewComandes();
   else if(tab==='factures') main.innerHTML=cpViewFactures();
   else if(tab==='empresa') main.innerHTML=cpViewEmpresa();
   else if(tab==='suport') main.innerHTML=cpViewSuport();
@@ -8435,6 +8468,54 @@ function cpNotifsHTML(fac){
   if(fac[0]) items.push(['🆕','Nova factura disponible: '+fac[0].num, CP_FD(fac[0].fecha)]);
   if(!items.length) return '<div class="cp-empty" style="padding:18px 10px"><div class="ic">🔔</div><span>Sense notificacions noves.</span></div>';
   return items.map(function(it){ return '<div class="cp-notif"><span class="ic">'+it[0]+'</span><div><b>'+it[1]+'</b>'+(it[2]?'<span>'+it[2]+'</span>':'')+'</div></div>'; }).join('');
+}
+
+var CP_ESTATS_COMANDA = ['Processant','Enviat','En repartiment','Entregat'];
+var CP_ESTATS_ICONS = {Processant:'📋', Enviat:'📦', 'En repartiment':'🚚', Entregat:'✅'};
+
+function cpEstatComandaColor(estat){
+  var i = CP_ESTATS_COMANDA.indexOf(estat);
+  return i===3 ? '#0B7256' : i===2 ? 'var(--green-mid)' : i===1 ? '#8A5900' : '#666';
+}
+
+function cpStepperHTML(estatActual){
+  var idxActual = CP_ESTATS_COMANDA.indexOf(estatActual);
+  return '<div style="display:flex;align-items:center;margin-top:14px">' +
+    CP_ESTATS_COMANDA.map(function(estat, i){
+      var done = i <= idxActual;
+      var isLast = i === CP_ESTATS_COMANDA.length - 1;
+      var circle = '<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:64px">' +
+        '<div style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;background:'+(done?'var(--green-deep)':'#E8ECEF')+';color:'+(done?'#fff':'#999')+';box-shadow:'+(i===idxActual?'0 0 0 4px rgba(11,61,107,.15)':'none')+';">'+(done?'✓':(i+1))+'</div>' +
+        '<span style="font-size:9.5px;color:'+(done?'var(--charcoal)':'#999')+';font-weight:'+(done?'700':'500')+';margin-top:5px;text-align:center;line-height:1.2">'+estat+'</span>' +
+      '</div>';
+      var line = isLast ? '' : '<div style="flex:1;height:3px;background:'+(i<idxActual?'var(--green-deep)':'#E8ECEF')+';margin:0 -4px;margin-bottom:19px"></div>';
+      return circle + line;
+    }).join('') +
+  '</div>';
+}
+
+function cpViewComandes(){
+  var com=CP_DB.comandes.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
+  if(!com.length){
+    return '<div class="cp-topbar"><div class="cp-greet"><h1>Comandes</h1><p>Segueix l\'estat dels teus pedidos.</p></div></div>'+
+      '<div class="cp-empty"><div class="ic">📦</div><b>Encara no has fet cap comanda</b><span>Quan facis una comanda, apareixerà aquí amb el seu estat d\'enviament.</span></div>';
+  }
+  var cards=com.map(function(c){
+    var color=cpEstatComandaColor(c.estat);
+    var linies=c.lineas.map(function(l){ return escHtml(l.nom)+' ×'+l.cant; }).join(', ');
+    return '<div class="cp-card" style="margin-bottom:16px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">'+
+        '<div><div style="font-weight:700;font-size:14.5px;color:var(--charcoal)">'+escHtml(c.num)+'</div>'+
+        '<div style="font-size:11.5px;color:rgba(26,26,26,.55);margin-top:2px">'+CP_FD(c.fecha)+' · '+linies+'</div></div>'+
+        '<div style="text-align:right"><div class="cp-inv-amt" style="font-size:15px">'+CP_EUR(c.total)+'</div>'+
+        '<span class="cp-tag" style="color:'+color+';border-color:'+color+'44;background:'+color+'18">'+CP_ESTATS_ICONS[c.estat]+' '+escHtml(c.estat)+'</span></div>'+
+      '</div>'+
+      cpStepperHTML(c.estat)+
+    '</div>';
+  }).join('');
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>Comandes</h1><p>Segueix l\'estat dels teus pedidos, des que es processen fins que arriben.</p></div></div>'+
+    cards;
 }
 
 function cpViewFactures(){
