@@ -8236,6 +8236,8 @@ function cpTryLogin(){
   var c=CP_DB.cliente;
   if(user===c.user.toLowerCase() && pass===c.pass){
     CP_LOGGED_IN = true;
+    var uEl=document.getElementById('userName'); if(uEl && (!window.HX_USER)) uEl.textContent=c.nom;
+    var ab=document.getElementById('authBtns'); if(ab) ab.style.display='none';
     cpUpdateNavState();
     cpCloseLoginModal();
     var dd=document.getElementById('navDropdown'); if(dd) dd.classList.remove('open');
@@ -8294,6 +8296,10 @@ window.cpAnarABotiga = cpAnarABotiga;
 function cpLogout(){
   CP_LOGGED_IN = false;
   cpUpdateNavState();
+  if (!window.HX_USER) {
+    var ab=document.getElementById('authBtns'); if(ab) ab.style.display='flex';
+    var uEl=document.getElementById('userName'); if(uEl) uEl.textContent='Client';
+  }
   document.getElementById('hxClientApp').style.display='none';
   document.body.style.overflow='';
 }
@@ -10103,7 +10109,7 @@ var _pendingCheckout = false;
 function startCheckout() {
   var keys = Object.keys(cart);
   if (!keys.length) { alert('Afegeix almenys un producte al cistell abans de tramitar la comanda.'); return; }
-  if (!window.HX_USER) {
+  if (!window.HX_USER && !CP_LOGGED_IN) {
     _pendingCheckout = true;
     closeCartDrawer();
     openAuthModal(); switchTab('login');
