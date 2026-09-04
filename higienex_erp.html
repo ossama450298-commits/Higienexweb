@@ -2986,7 +2986,9 @@ function hxEnsureDemoClientLogins(){
 function hxAbrirPortalCliente(){
   hxEnsureDemoClientLogins();
   document.querySelectorAll('#login .box')[0].style.display='none';
-  document.getElementById('hxPortalCliente').style.display='block';
+  const box=document.getElementById('hxPortalCliente');
+  box.style.display='block';
+  box.style.maxWidth='400px';
   document.getElementById('hxPortalForm').style.display='block';
   document.getElementById('hxPortalResult').style.display='none';
   document.getElementById('hxPortalErr').style.display='none';
@@ -3006,7 +3008,26 @@ function hxConsultarPortalCliente(){
   document.getElementById('hxPortalErr').style.display='none';
   const fac=DB.facturasE.filter(f=>f.cli===c.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const saldo=saldoCliente(c.id);
+  const totalFacturat=fac.reduce((s,f)=>s+f.total,0);
+  const pendents=fac.filter(f=>f.estado!=='Pagada'&&f.estado!=='Cobrada').length;
+  const darrera=fac.length?FD(fac[0].fecha):'—';
   const inicials=c.nom.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+  // Facturació dels últims 6 mesos amb dades (per al gràfic)
+  const mesos={};
+  fac.forEach(f=>{ const m=f.fecha.slice(0,7); mesos[m]=(mesos[m]||0)+f.total; });
+  const mesosOrdenats=Object.keys(mesos).sort().slice(-6);
+  const nomsCurts=['Gen','Feb','Mar','Abr','Mai','Jun','Jul','Ago','Set','Oct','Nov','Des'];
+  const chartItems=mesosOrdenats.map(m=>({
+    label: nomsCurts[parseInt(m.slice(5,7),10)-1]+' '+m.slice(2,4),
+    value: mesos[m],
+    valueLabel: EUR(mesos[m]),
+    color: '#0B3D6B'
+  }));
+  const chartHTML = chartItems.length
+    ? '<div style="margin-top:6px">'+svgHBarChart(chartItems,{width:460,rowH:30})+'</div>'
+    : '';
+
   const rows=fac.map(f=>{
     const pagada=f.estado==='Pagada'||f.estado==='Cobrada';
     return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line)">'+
@@ -3020,18 +3041,36 @@ function hxConsultarPortalCliente(){
     '<div style="font-size:28px;margin-bottom:6px">✅</div>'+
     '<div style="font-size:13px;font-weight:600;color:var(--ink)">Estàs al dia</div>'+
     '<div style="font-size:12px;margin-top:2px">Encara no hi ha factures registrades.</div></div>';
+
+  function kpiCard(label,value,color){
+    return '<div style="flex:1;min-width:0;background:var(--warm-white,#F7F9FB);border-radius:12px;padding:12px 10px;text-align:center">'+
+      '<div class="mono" style="font-size:16px;font-weight:800;color:'+color+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+value+'</div>'+
+      '<div style="font-size:9.5px;color:var(--ink-2);font-weight:700;letter-spacing:.04em;margin-top:3px">'+label+'</div>'+
+    '</div>';
+  }
+
   document.getElementById('hxPortalResult').innerHTML =
-    '<div style="display:flex;align-items:center;gap:12px;padding:14px 4px 16px;border-bottom:1px solid var(--line);margin-bottom:2px">'+
-      '<div style="flex-shrink:0;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--blue,#0B3D6B),#1565A8);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px">'+esc(inicials)+'</div>'+
-      '<div style="min-width:0"><div style="font-weight:700;font-size:14.5px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(c.nom)+'</div>'+
-      '<div style="font-size:11.5px;color:var(--ink-2);margin-top:1px">'+esc(c.mail||'')+'</div></div>'+
+    '<div style="display:flex;align-items:center;gap:12px;padding:14px 4px 16px;border-bottom:1px solid var(--line);margin-bottom:14px">'+
+      '<div style="flex-shrink:0;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--blue,#0B3D6B),#1565A8);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;box-shadow:0 3px 10px rgba(11,61,107,.25)">'+esc(inicials)+'</div>'+
+      '<div style="min-width:0"><div style="font-weight:700;font-size:15px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(c.nom)+'</div>'+
+      '<div style="font-size:11.5px;color:var(--ink-2);margin-top:1px">'+esc(c.mail||'')+(c.pob?' · '+esc(c.pob):'')+'</div></div>'+
     '</div>'+
-    '<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;margin-bottom:4px;background:var(--warm-white,#F7F9FB);border-radius:12px">'+
-      '<span style="font-size:12px;color:var(--ink-2);font-weight:600;letter-spacing:.03em">SALDO PENDENT</span>'+
-      '<span class="mono" style="font-size:19px;font-weight:800;color:'+(saldo>0?'#B8720B':'#1E7B34')+'">'+EUR(saldo)+'</span>'+
+
+    '<div style="display:flex;gap:8px;margin-bottom:16px">'+
+      kpiCard('SALDO PENDENT', EUR(saldo), saldo>0?'#B8720B':'#1E7B34')+
+      kpiCard('FACTURAT TOTAL', EUR(totalFacturat), 'var(--blue,#0B3D6B)')+
+      kpiCard('FACTURES', fac.length+(pendents?' ('+pendents+' pend.)':''), 'var(--ink)')+
     '</div>'+
-    (rows || empty)+
-    '<button class="btn ghost sm block" style="margin-top:16px" onclick="hxAbrirPortalCliente()" type="button">← Nova consulta</button>';
+
+    (chartHTML ? '<div style="margin-bottom:14px"><div style="font-size:10.5px;font-weight:700;color:var(--ink-2);letter-spacing:.05em;margin-bottom:4px;padding:0 4px">FACTURACIÓ RECENT</div>'+chartHTML+'</div>' : '')+
+
+    '<div style="font-size:10.5px;font-weight:700;color:var(--ink-2);letter-spacing:.05em;margin-bottom:2px;padding:0 4px">HISTORIAL DE FACTURES</div>'+
+    '<div style="max-height:220px;overflow-y:auto">'+(rows || empty)+'</div>'+
+
+    '<button class="btn ghost sm block" style="margin-top:18px" onclick="hxAbrirPortalCliente()" type="button">← Nova consulta</button>';
+
+  const box=document.getElementById('hxPortalCliente');
+  box.style.maxWidth='560px';
   document.getElementById('hxPortalForm').style.display='none';
   document.getElementById('hxPortalResult').style.display='block';
 }
