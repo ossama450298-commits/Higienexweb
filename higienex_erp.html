@@ -537,6 +537,87 @@ button,.navitem,.btn,a{min-height:32px}
 #hxChatSendBtn:hover { opacity: 0.9; }
 @media (max-width: 480px) { #hxChatWindow { right: 1rem; left: 1rem; width: auto; bottom: 5.6rem; } }
 
+/* ══════════════════════════════════════════════════════════
+   PORTAL DE CLIENT — dashboard premium
+   ══════════════════════════════════════════════════════════ */
+#hxClientApp{display:none;position:fixed;inset:0;z-index:200;background:var(--paper);color:var(--ink);font-family:inherit}
+.cp-shell{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+.cp-side{background:var(--side);color:var(--side-ink);display:flex;flex-direction:column;padding:22px 16px}
+.cp-brand{font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:#fff;padding:4px 10px 22px}
+.cp-brand span{color:var(--gold)}
+.cp-nav{display:flex;flex-direction:column;gap:3px;flex:1}
+.cp-nav button{display:flex;align-items:center;gap:11px;padding:10px 12px;border:none;background:none;color:var(--side-ink-2);font-size:13.5px;font-weight:600;border-radius:12px;cursor:pointer;text-align:left;transition:background .15s,color .15s}
+.cp-nav button:hover{background:rgba(255,255,255,.06);color:var(--side-ink)}
+.cp-nav button.active{background:rgba(255,255,255,.12);color:#fff}
+.cp-nav button .ic{font-size:16px;width:20px;text-align:center}
+.cp-side-foot{border-top:1px solid var(--side-line);padding-top:14px;margin-top:10px}
+.cp-user{display:flex;align-items:center;gap:10px;padding:6px 8px 12px}
+.cp-user .av{width:36px;height:36px;border-radius:50%;background:var(--gold);color:#1A1A1A;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0}
+.cp-user .nm{min-width:0}
+.cp-user .nm b{display:block;font-size:12.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-user .nm span{display:block;font-size:10.5px;color:var(--side-ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-side-btn{width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--side-line);background:transparent;color:var(--side-ink-2);font-size:12px;font-weight:600;cursor:pointer;margin-top:6px;text-align:left;display:flex;align-items:center;gap:8px}
+.cp-side-btn:hover{background:rgba(255,255,255,.06);color:#fff}
+.cp-main{overflow-y:auto;padding:28px 34px 60px}
+.cp-topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:26px;gap:16px;flex-wrap:wrap}
+.cp-greet h1{font-size:22px;font-weight:700;margin:0}
+.cp-greet p{font-size:13px;color:var(--ink-2);margin:4px 0 0}
+.cp-status-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:20px;margin-top:9px}
+.cp-updated{font-size:10.5px;color:var(--ink-3);margin-top:6px}
+.cp-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
+.cp-kpi-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px}
+.cp-kpi-val{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:800;color:var(--ink)}
+.cp-kpi-lbl{font-size:10.5px;color:var(--ink-2);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:3px}
+.cp-kpi-sub{font-size:11px;margin-top:6px;font-weight:600}
+.cp-banner{display:flex;align-items:center;gap:14px;padding:18px 20px;border-radius:var(--radius-lg);margin-bottom:24px;animation:cpFadeUp .35s ease both}
+.cp-banner .ic{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.cp-banner h3{margin:0;font-size:14.5px}
+.cp-banner p{margin:2px 0 0;font-size:12.5px;opacity:.85}
+@keyframes cpFadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.cp-section-title{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--ink-2);text-transform:uppercase;margin:0 0 10px 2px}
+.cp-period-row{display:flex;gap:6px;margin-bottom:12px}
+.cp-period-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);font-size:11.5px;font-weight:600;cursor:pointer}
+.cp-period-btn.active{background:var(--blue-dk);border-color:var(--blue-dk);color:#fff}
+.cp-empty{text-align:center;padding:34px 20px;color:var(--ink-2)}
+.cp-empty .ic{font-size:30px;margin-bottom:8px}
+.cp-empty b{display:block;font-size:13.5px;color:var(--ink);margin-bottom:4px}
+.cp-empty span{font-size:12px}
+.cp-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.cp-search{flex:1;min-width:180px;padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-size:13px}
+.cp-chip{padding:6px 13px;border-radius:20px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cp-chip.active{background:var(--blue-dk);border-color:var(--blue-dk);color:#fff}
+.cp-inv-row{display:flex;align-items:center;gap:14px;padding:14px 6px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
+.cp-inv-row:hover{background:var(--hover)}
+.cp-inv-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.cp-inv-num{font-weight:700;font-size:13.5px}
+.cp-inv-date{font-size:11.5px;color:var(--ink-2);margin-top:1px}
+.cp-inv-amt{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13.5px}
+.cp-inv-actions{display:flex;gap:4px}
+.cp-inv-actions button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.cp-inv-actions button:hover{background:var(--hover)}
+.cp-notif{display:flex;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line)}
+.cp-notif .ic{font-size:15px;flex-shrink:0}
+.cp-notif b{font-size:12.5px;display:block}
+.cp-notif span{font-size:11px;color:var(--ink-2)}
+.cp-info-row{display:flex;justify-content:space-between;padding:11px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.cp-info-row span:first-child{color:var(--ink-2)}
+.cp-info-row span:last-child{font-weight:600;text-align:right}
+.cp-support-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.cp-support-card{padding:20px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.cp-support-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.cp-support-card .ic{font-size:26px;margin-bottom:10px}
+.cp-support-card b{display:block;font-size:13px;margin-bottom:3px}
+.cp-support-card span{font-size:11.5px;color:var(--ink-2)}
+@media(max-width:820px){
+  .cp-shell{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}
+  .cp-side{flex-direction:row;align-items:center;padding:10px 12px;order:1}
+  .cp-brand{display:none}
+  .cp-nav{flex-direction:row;flex:1;overflow-x:auto;gap:2px}
+  .cp-nav button{flex-direction:column;gap:3px;padding:7px 10px;font-size:9.5px;white-space:nowrap}
+  .cp-side-foot{display:none}
+  .cp-main{order:0;padding:18px 16px 90px}
+  .cp-kpis{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
@@ -2390,6 +2471,22 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
   <div class="pfoot">↑↓ moverse · ENTER abrir · ESC cerrar</div>
 </div></div>
 <div id="modal"><div class="box" id="modalBox"></div></div>
+
+<div id="hxClientApp">
+  <div class="cp-shell">
+    <aside class="cp-side">
+      <div class="cp-brand">HIGIENE<span>X</span></div>
+      <nav class="cp-nav" id="cpNav"></nav>
+      <div class="cp-side-foot">
+        <div class="cp-user" id="cpUserBox"></div>
+        <button class="cp-side-btn" type="button" onclick="toggleTema()">🌓 Mode fosc/clar</button>
+        <button class="cp-side-btn" type="button" onclick="cpLogout()">↩ Tancar sessió</button>
+      </div>
+    </aside>
+    <main class="cp-main" id="cpMain"></main>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -3006,75 +3103,285 @@ function hxConsultarPortalCliente(){
   const c=DB.clientes.find(x=>(x.user||'').toLowerCase()===user && x.pass===pass);
   if(!c){ document.getElementById('hxPortalErr').textContent='Usuari o contrasenya incorrectes.'; document.getElementById('hxPortalErr').style.display='block'; return; }
   document.getElementById('hxPortalErr').style.display='none';
-  const fac=DB.facturasE.filter(f=>f.cli===c.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
-  const saldo=saldoCliente(c.id);
-  const totalFacturat=fac.reduce((s,f)=>s+f.total,0);
-  const pendents=fac.filter(f=>f.estado!=='Pagada'&&f.estado!=='Cobrada').length;
-  const darrera=fac.length?FD(fac[0].fecha):'—';
-  const inicials=c.nom.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-
-  // Facturació dels últims 6 mesos amb dades (per al gràfic)
-  const mesos={};
-  fac.forEach(f=>{ const m=f.fecha.slice(0,7); mesos[m]=(mesos[m]||0)+f.total; });
-  const mesosOrdenats=Object.keys(mesos).sort().slice(-6);
-  const nomsCurts=['Gen','Feb','Mar','Abr','Mai','Jun','Jul','Ago','Set','Oct','Nov','Des'];
-  const chartItems=mesosOrdenats.map(m=>({
-    label: nomsCurts[parseInt(m.slice(5,7),10)-1]+' '+m.slice(2,4),
-    value: mesos[m],
-    valueLabel: EUR(mesos[m]),
-    color: '#0B3D6B'
-  }));
-  const chartHTML = chartItems.length
-    ? '<div style="margin-top:6px">'+svgHBarChart(chartItems,{width:460,rowH:30})+'</div>'
-    : '';
-
-  const rows=fac.map(f=>{
-    const pagada=f.estado==='Pagada'||f.estado==='Cobrada';
-    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 4px;border-bottom:1px solid var(--line)">'+
-      '<div style="min-width:0"><div style="font-weight:700;font-size:13px;color:var(--ink)">'+esc(f.num)+'</div>'+
-      '<div style="font-size:11px;color:var(--ink-2);margin-top:1px">'+FD(f.fecha)+'</div></div>'+
-      '<div style="text-align:right;flex-shrink:0"><div class="mono" style="font-weight:700;font-size:13px">'+EUR(f.total)+'</div>'+
-      '<span style="display:inline-block;margin-top:2px;font-size:10px;font-weight:700;letter-spacing:.02em;padding:2px 8px;border-radius:20px;background:'+(pagada?'#E6F4EA':'#FFF3E0')+';color:'+(pagada?'#1E7B34':'#B8720B')+'">'+esc(f.estado).toUpperCase()+'</span></div>'+
-    '</div>';
-  }).join('');
-  const empty='<div style="text-align:center;padding:26px 10px;color:var(--ink-2)">'+
-    '<div style="font-size:28px;margin-bottom:6px">✅</div>'+
-    '<div style="font-size:13px;font-weight:600;color:var(--ink)">Estàs al dia</div>'+
-    '<div style="font-size:12px;margin-top:2px">Encara no hi ha factures registrades.</div></div>';
-
-  function kpiCard(label,value,color){
-    return '<div style="flex:1;min-width:0;background:var(--warm-white,#F7F9FB);border-radius:12px;padding:12px 10px;text-align:center">'+
-      '<div class="mono" style="font-size:16px;font-weight:800;color:'+color+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+value+'</div>'+
-      '<div style="font-size:9.5px;color:var(--ink-2);font-weight:700;letter-spacing:.04em;margin-top:3px">'+label+'</div>'+
-    '</div>';
-  }
-
-  document.getElementById('hxPortalResult').innerHTML =
-    '<div style="display:flex;align-items:center;gap:12px;padding:14px 4px 16px;border-bottom:1px solid var(--line);margin-bottom:14px">'+
-      '<div style="flex-shrink:0;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--blue,#0B3D6B),#1565A8);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;box-shadow:0 3px 10px rgba(11,61,107,.25)">'+esc(inicials)+'</div>'+
-      '<div style="min-width:0"><div style="font-weight:700;font-size:15px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(c.nom)+'</div>'+
-      '<div style="font-size:11.5px;color:var(--ink-2);margin-top:1px">'+esc(c.mail||'')+(c.pob?' · '+esc(c.pob):'')+'</div></div>'+
-    '</div>'+
-
-    '<div style="display:flex;gap:8px;margin-bottom:16px">'+
-      kpiCard('SALDO PENDENT', EUR(saldo), saldo>0?'#B8720B':'#1E7B34')+
-      kpiCard('FACTURAT TOTAL', EUR(totalFacturat), 'var(--blue,#0B3D6B)')+
-      kpiCard('FACTURES', fac.length+(pendents?' ('+pendents+' pend.)':''), 'var(--ink)')+
-    '</div>'+
-
-    (chartHTML ? '<div style="margin-bottom:14px"><div style="font-size:10.5px;font-weight:700;color:var(--ink-2);letter-spacing:.05em;margin-bottom:4px;padding:0 4px">FACTURACIÓ RECENT</div>'+chartHTML+'</div>' : '')+
-
-    '<div style="font-size:10.5px;font-weight:700;color:var(--ink-2);letter-spacing:.05em;margin-bottom:2px;padding:0 4px">HISTORIAL DE FACTURES</div>'+
-    '<div style="max-height:220px;overflow-y:auto">'+(rows || empty)+'</div>'+
-
-    '<button class="btn ghost sm block" style="margin-top:18px" onclick="hxAbrirPortalCliente()" type="button">← Nova consulta</button>';
-
-  const box=document.getElementById('hxPortalCliente');
-  box.style.maxWidth='560px';
-  document.getElementById('hxPortalForm').style.display='none';
-  document.getElementById('hxPortalResult').style.display='block';
+  cpOpen(c);
 }
 window.hxConsultarPortalCliente=hxConsultarPortalCliente;
+
+/* =========================================================
+   PORTAL DE CLIENT — dashboard premium
+   ========================================================= */
+let CP_CLIENT=null, CP_TAB='inici', CP_FILTER='totes', CP_SEARCH='', CP_PERIOD='6m';
+
+const CP_NAV=[
+  ['inici','🏠','Inici'],
+  ['factures','🧾','Factures'],
+  ['empresa','👤','La meva empresa'],
+  ['suport','📞','Suport']
+];
+
+function cpOpen(c){
+  CP_CLIENT=c; CP_TAB='inici'; CP_FILTER='totes'; CP_SEARCH=''; CP_PERIOD='6m';
+  document.getElementById('hxPortalCliente').style.display='none';
+  document.getElementById('hxClientApp').style.display='block';
+  cpRenderNav(); cpRenderUser(); cpGo('inici');
+}
+window.cpOpen=cpOpen;
+
+function cpLogout(){
+  CP_CLIENT=null;
+  document.getElementById('hxClientApp').style.display='none';
+  hxAbrirPortalCliente();
+}
+window.cpLogout=cpLogout;
+
+function cpRenderNav(){
+  document.getElementById('cpNav').innerHTML = CP_NAV.map(n=>
+    '<button type="button" class="'+(CP_TAB===n[0]?'active':'')+'" onclick="cpGo(\''+n[0]+'\')"><span class="ic">'+n[1]+'</span><span>'+n[2]+'</span></button>'
+  ).join('');
+}
+function cpRenderUser(){
+  const c=CP_CLIENT;
+  const inicials=c.nom.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('cpUserBox').innerHTML =
+    '<div class="av">'+esc(inicials)+'</div>'+
+    '<div class="nm"><b>'+esc(c.nom)+'</b><span>'+esc(c.mail||'')+'</span></div>';
+}
+
+function cpGo(tab){
+  CP_TAB=tab; cpRenderNav();
+  const main=document.getElementById('cpMain');
+  if(tab==='inici') main.innerHTML=cpViewInici();
+  else if(tab==='factures') main.innerHTML=cpViewFactures();
+  else if(tab==='empresa') main.innerHTML=cpViewEmpresa();
+  else if(tab==='suport') main.innerHTML=cpViewSuport();
+  main.scrollTop=0;
+  if(tab==='inici') cpBindPeriodButtons();
+}
+window.cpGo=cpGo;
+
+function cpFacturesCliente(){
+  return (DB.facturasE||[]).filter(f=>f.cli===CP_CLIENT.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+}
+function cpEstatFactura(f){
+  const pagada = f.estado==='Pagada'||f.estado==='Cobrada';
+  if(pagada) return 'pagada';
+  if(f.venc && f.venc<TODAY) return 'vencida';
+  if(f.estado && f.estado.toLowerCase().indexOf('procés')>=0) return 'proces';
+  return 'pendent';
+}
+function cpEstatColor(e){
+  return e==='pagada'?'var(--teal-dk)':e==='vencida'?'var(--red-dk)':e==='proces'?'var(--blue-dk)':'var(--amber-dk)';
+}
+function cpEstatLabel(e){
+  return e==='pagada'?'Pagada':e==='vencida'?'Vençuda':e==='proces'?'En procés':'Pendent';
+}
+
+function cpViewInici(){
+  const c=CP_CLIENT;
+  const fac=cpFacturesCliente();
+  const saldo=saldoCliente(c.id);
+  const totalAny=fac.filter(f=>f.fecha.slice(0,4)===TODAY.slice(0,4)).reduce((s,f)=>s+f.total,0);
+  const vencudes=fac.filter(f=>cpEstatFactura(f)==='vencida').length;
+  const pendents=fac.filter(f=>cpEstatFactura(f)==='pendent'||cpEstatFactura(f)==='vencida').length;
+  const properaPendent=fac.filter(f=>cpEstatFactura(f)!=='pagada').sort((a,b)=>a.venc.localeCompare(b.venc))[0];
+
+  let banner;
+  if(vencudes>0){
+    banner='<div class="cp-banner" style="background:rgba(174,52,39,.1)"><div class="ic" style="background:var(--red-dk);color:#fff">⚠️</div><div><h3 style="color:var(--red-dk)">Tens '+vencudes+' factura'+(vencudes>1?'es':'')+' vençuda'+(vencudes>1?'es':'')+'</h3><p>Posa\'t en contacte amb nosaltres per regularitzar el pagament.</p></div></div>';
+  } else if(pendents>0){
+    banner='<div class="cp-banner" style="background:rgba(176,114,12,.1)"><div class="ic" style="background:var(--amber-dk);color:#fff">🟠</div><div><h3 style="color:var(--amber-dk)">Tens '+pendents+' pagament'+(pendents>1?'s':'')+' pendent'+(pendents>1?'s':'')+'</h3><p>Consulta el detall a la secció de Factures.</p></div></div>';
+  } else {
+    banner='<div class="cp-banner" style="background:rgba(14,143,106,.1)"><div class="ic" style="background:var(--teal-dk);color:#fff">✓</div><div><h3 style="color:var(--teal-dk)">Compte al dia</h3><p>No tens pagaments pendents. Totes les teves factures estan pagades.</p></div></div>';
+  }
+
+  const statusPill = vencudes>0
+    ? '<span class="cp-status-pill" style="background:rgba(174,52,39,.12);color:var(--red-dk)">🔴 '+vencudes+' factura vençuda</span>'
+    : pendents>0
+    ? '<span class="cp-status-pill" style="background:rgba(176,114,12,.12);color:var(--amber-dk)">🟠 '+pendents+' pagament pendent</span>'
+    : '<span class="cp-status-pill" style="background:rgba(14,143,106,.12);color:var(--teal-dk)">🟢 Compte al dia</span>';
+
+  const kpis =
+    '<div class="cp-kpis">'+
+      '<div class="kpi"><div class="cp-kpi-ic" style="background:rgba(176,114,12,.12);color:var(--amber-dk)">💰</div>'+
+        '<div class="cp-kpi-val">'+EUR(saldo)+'</div><div class="cp-kpi-lbl">Saldo pendent</div>'+
+        '<div class="cp-kpi-sub" style="color:'+(saldo>0?'var(--amber-dk)':'var(--teal-dk)')+'">'+(saldo>0?'Per liquidar':'🟢 Sense pagaments')+'</div></div>'+
+      '<div class="kpi"><div class="cp-kpi-ic" style="background:rgba(21,101,168,.12);color:var(--blue-dk)">📈</div>'+
+        '<div class="cp-kpi-val">'+EUR(totalAny)+'</div><div class="cp-kpi-lbl">Facturat</div>'+
+        '<div class="cp-kpi-sub" style="color:var(--ink-2)">Aquest any</div></div>'+
+      '<div class="kpi"><div class="cp-kpi-ic" style="background:rgba(21,101,168,.12);color:var(--blue-dk)">🧾</div>'+
+        '<div class="cp-kpi-val">'+fac.length+'</div><div class="cp-kpi-lbl">Factures</div>'+
+        '<div class="cp-kpi-sub" style="color:var(--ink-2)">Total emeses</div></div>'+
+      '<div class="kpi"><div class="cp-kpi-ic" style="background:rgba(139,90,0,.12);color:var(--amber-dk)">📅</div>'+
+        '<div class="cp-kpi-val" style="font-size:15px">'+(properaPendent?FD(properaPendent.venc):'Cap')+'</div><div class="cp-kpi-lbl">Proper pagament</div>'+
+        '<div class="cp-kpi-sub" style="color:var(--ink-2)">'+(properaPendent?properaPendent.num:'Compte al dia')+'</div></div>'+
+    '</div>';
+
+  const chart=cpChartHTML(fac);
+  const notifs=cpNotifsHTML(fac);
+
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>Bon dia, '+esc(c.nom.split(' ')[0])+' 👋</h1>'+
+      '<p>Aquí tens un resum actualitzat del teu compte.</p>'+statusPill+
+      '<div class="cp-updated">Actualitzat fa uns minuts</div></div></div>'+
+    banner+
+    kpis+
+    '<div class="card" style="padding:20px;margin-bottom:20px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
+        '<div class="cp-section-title" style="margin:0">Evolució de facturació</div>'+
+        '<div class="cp-period-row" id="cpPeriodRow">'+
+          ['7d','30d','6m','any'].map(p=>'<button type="button" class="cp-period-btn '+(CP_PERIOD===p?'active':'')+'" data-p="'+p+'">'+p.toUpperCase()+'</button>').join('')+
+        '</div>'+
+      '</div>'+chart+
+    '</div>'+
+    '<div class="card" style="padding:20px">'+
+      '<div class="cp-section-title">Notificacions</div>'+notifs+
+    '</div>';
+}
+
+function cpChartHTML(fac){
+  if(!fac.length){
+    return '<div class="cp-empty"><div class="ic">📊</div><b>Encara no hi ha dades suficients</b><span>Quan es registri la teva primera factura apareixerà aquí la teva evolució financera.</span></div>';
+  }
+  const now=new Date(TODAY+'T00:00:00');
+  let cutoff=new Date(now);
+  if(CP_PERIOD==='7d') cutoff.setDate(cutoff.getDate()-7);
+  else if(CP_PERIOD==='30d') cutoff.setDate(cutoff.getDate()-30);
+  else if(CP_PERIOD==='6m') cutoff.setMonth(cutoff.getMonth()-6);
+  else cutoff=new Date(now.getFullYear(),0,1);
+  const cutoffStr=cutoff.toISOString().slice(0,10);
+  const enRang=fac.filter(f=>f.fecha>=cutoffStr);
+  if(!enRang.length){
+    return '<div class="cp-empty"><div class="ic">📊</div><b>Sense factures en aquest període</b><span>Prova a seleccionar un rang de temps més ampli.</span></div>';
+  }
+  const grupPerDia = CP_PERIOD==='7d'||CP_PERIOD==='30d';
+  const buckets={};
+  enRang.forEach(f=>{
+    const k = grupPerDia ? f.fecha : f.fecha.slice(0,7);
+    buckets[k]=(buckets[k]||0)+f.total;
+  });
+  const claus=Object.keys(buckets).sort();
+  const nomsCurts=['Gen','Feb','Mar','Abr','Mai','Jun','Jul','Ago','Set','Oct','Nov','Des'];
+  const items=claus.map(k=>({
+    label: grupPerDia ? FD(k) : (nomsCurts[parseInt(k.slice(5,7),10)-1]+' '+k.slice(2,4)),
+    value: buckets[k], valueLabel: EUR(buckets[k]), color:'#0B3D6B'
+  }));
+  return '<div style="margin-top:10px">'+svgHBarChart(items,{width:600,rowH:28})+'</div>';
+}
+function cpBindPeriodButtons(){
+  const row=document.getElementById('cpPeriodRow'); if(!row) return;
+  row.querySelectorAll('.cp-period-btn').forEach(b=>{
+    b.onclick=function(){ CP_PERIOD=this.dataset.p; cpGo('inici'); };
+  });
+}
+
+function cpNotifsHTML(fac){
+  const items=[];
+  const pagadaRecent = fac.find(f=>cpEstatFactura(f)==='pagada');
+  if(pagadaRecent) items.push(['✅','Factura '+pagadaRecent.num+' pagada correctament', FD(pagadaRecent.fecha)]);
+  const propVenc = fac.filter(f=>cpEstatFactura(f)==='pendent').sort((a,b)=>a.venc.localeCompare(b.venc))[0];
+  if(propVenc){
+    const dies=Math.round((new Date(propVenc.venc+'T00:00:00')-new Date(TODAY+'T00:00:00'))/86400000);
+    if(dies>=0) items.push(['⏳','La teva factura '+propVenc.num+' venç en '+dies+' dies','']);
+  }
+  if(fac[0]) items.push(['🆕','Nova factura disponible: '+fac[0].num, FD(fac[0].fecha)]);
+  if(!items.length) return '<div class="cp-empty" style="padding:18px 10px"><div class="ic">🔔</div><span>Sense notificacions noves.</span></div>';
+  return items.map(it=>'<div class="cp-notif"><span class="ic">'+it[0]+'</span><div><b>'+it[1]+'</b>'+(it[2]?'<span>'+it[2]+'</span>':'')+'</div></div>').join('');
+}
+
+function cpViewFactures(){
+  let fac=cpFacturesCliente();
+  if(CP_FILTER!=='totes') fac=fac.filter(f=>cpEstatFactura(f)===CP_FILTER);
+  if(CP_SEARCH) fac=fac.filter(f=>f.num.toLowerCase().indexOf(CP_SEARCH.toLowerCase())>=0);
+
+  const chips=[['totes','Totes'],['pagada','Pagades'],['pendent','Pendents'],['vencida','Vençudes']].map(ch=>
+    '<button type="button" class="cp-chip '+(CP_FILTER===ch[0]?'active':'')+'" onclick="cpFiltrar(\''+ch[0]+'\')">'+ch[1]+'</button>'
+  ).join('');
+
+  const rows=fac.map(f=>{
+    const e=cpEstatFactura(f);
+    return '<div class="cp-inv-row" onclick="cpVeureFactura(\''+f.num+'\')">'+
+      '<span class="cp-inv-dot" style="background:'+cpEstatColor(e)+'"></span>'+
+      '<div style="flex:1;min-width:0"><div class="cp-inv-num">'+esc(f.num)+'</div><div class="cp-inv-date">'+FD(f.fecha)+' · '+(f.concepto?esc(f.concepto):'Subministrament de productes')+'</div></div>'+
+      '<div style="text-align:right"><div class="cp-inv-amt">'+EUR(f.total)+'</div><span class="tag" style="color:'+cpEstatColor(e)+';border-color:'+cpEstatColor(e)+'44;background:'+cpEstatColor(e)+'18">'+cpEstatLabel(e)+'</span></div>'+
+      '<div class="cp-inv-actions" onclick="event.stopPropagation()">'+
+        '<button type="button" title="Veure" onclick="cpVeureFactura(\''+f.num+'\')">👁</button>'+
+        '<button type="button" title="Descarregar PDF" onclick="cpDescarregarFactura(\''+f.num+'\')">⬇</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  const empty='<div class="cp-empty"><div class="ic">🧾</div><b>Sense factures</b><span>No hi ha factures que coincideixin amb la cerca o el filtre.</span></div>';
+
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>Factures</h1><p>Historial complet de les teves factures.</p></div></div>'+
+    '<div class="card" style="padding:18px 20px">'+
+      '<div class="cp-toolbar">'+
+        '<input class="cp-search" placeholder="🔍 Cercar per número de factura…" value="'+esc(CP_SEARCH)+'" oninput="cpCercar(this.value)">'+
+        chips+
+      '</div>'+
+      (rows || empty)+
+    '</div>';
+}
+function cpFiltrar(f){ CP_FILTER=f; cpGo('factures'); }
+window.cpFiltrar=cpFiltrar;
+function cpCercar(v){ CP_SEARCH=v; const main=document.getElementById('cpMain'); main.innerHTML=cpViewFactures(); const inp=main.querySelector('.cp-search'); if(inp){ inp.focus(); inp.selectionStart=inp.selectionEnd=inp.value.length; } }
+window.cpCercar=cpCercar;
+
+function cpVeureFactura(num){
+  const f=DB.facturasE.find(x=>x.num===num); if(!f) return;
+  const c=CP_CLIENT;
+  const e=cpEstatFactura(f);
+  const filas=(f.lineas||[]).map(l=>{
+    const p=(typeof art==='function')?art(l.art):null;
+    return '<tr><td>'+esc(p?p.nom:l.art)+'</td><td class="num">'+NUM(l.cant)+'</td><td class="num">'+EUR(l.precio)+'</td><td class="num">'+EUR(l.cant*l.precio)+'</td></tr>';
+  }).join('');
+  openModal('Factura '+esc(num),
+    '<div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">'+
+      '<span class="tag" style="color:'+cpEstatColor(e)+';border-color:'+cpEstatColor(e)+'44;background:'+cpEstatColor(e)+'18">'+cpEstatLabel(e)+'</span>'+
+    '</div>'+
+    '<div class="frow f3" style="margin-bottom:16px">'+
+      '<div><b style="font-size:11px;color:var(--ink-2)">EMISSIÓ</b><div>'+FD(f.fecha)+'</div></div>'+
+      '<div><b style="font-size:11px;color:var(--ink-2)">VENCIMENT</b><div>'+FD(f.venc)+'</div></div>'+
+      '<div><b style="font-size:11px;color:var(--ink-2)">CLIENT</b><div>'+esc(c.nom)+'</div></div>'+
+    '</div>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr><th style="text-align:left;border-bottom:2px solid var(--ink);padding:6px 4px">Concepte</th><th class="num" style="border-bottom:2px solid var(--ink);padding:6px 4px">Uds.</th><th class="num" style="border-bottom:2px solid var(--ink);padding:6px 4px">Preu</th><th class="num" style="border-bottom:2px solid var(--ink);padding:6px 4px">Import</th></tr></thead><tbody>'+filas+'</tbody></table>'+
+    '<div class="totbox" style="margin-left:auto;width:260px;margin-top:14px"><div><span>Base imposable</span><span>'+EUR(f.base)+'</span></div><div><span>IVA 21%</span><span>'+EUR(f.cuota)+'</span></div><div><span>Total</span><span>'+EUR(f.total)+'</span></div></div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Tancar</button>'+
+    '<button class="btn ghost" onclick="window.print()" type="button">🖨 Imprimir</button>'+
+    '<button class="btn" onclick="cpDescarregarFactura(\''+num+'\')" type="button">⬇ Descarregar PDF</button>');
+}
+window.cpVeureFactura=cpVeureFactura;
+function cpDescarregarFactura(num){
+  abrirImprimible('Factura '+num, htmlFacturaE(num));
+}
+window.cpDescarregarFactura=cpDescarregarFactura;
+
+function cpViewEmpresa(){
+  const c=CP_CLIENT;
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>La meva empresa</h1><p>Dades de contacte i facturació.</p></div></div>'+
+    '<div class="card" style="padding:20px;max-width:560px">'+
+      '<div class="cp-info-row"><span>Empresa</span><span>'+esc(c.nom)+'</span></div>'+
+      '<div class="cp-info-row"><span>CIF/NIF</span><span>'+esc(c.nif||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>Email</span><span>'+esc(c.mail||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>Telèfon</span><span>'+esc(c.tel||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>Adreça</span><span>'+esc(c.dir||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>Població</span><span>'+esc(c.pob||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>Condicions de pagament</span><span>'+(c.cond?c.cond+' dies':'Al comptat')+'</span></div>'+
+      '<button class="btn ghost" style="margin-top:16px" type="button" onclick="toast(\'Contacta amb el teu gestor comercial per actualitzar aquestes dades.\')">✎ Editar informació</button>'+
+    '</div>';
+}
+
+function cpViewSuport(){
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>Necessites ajuda?</h1><p>Estem aquí per ajudar-te.</p></div></div>'+
+    '<div class="cp-support-grid">'+
+      '<div class="card cp-support-card" onclick="window.open(\'mailto:contacto@higienexvalencia.es\')"><div class="ic">📧</div><b>Enviar email</b><span>contacto@higienexvalencia.es</span></div>'+
+      '<div class="card cp-support-card" onclick="window.open(\'tel:963123456\')"><div class="ic">📞</div><b>Trucar-nos</b><span>963 123 456</span></div>'+
+      '<div class="card cp-support-card" onclick="toast(\'Un membre de l\'equip et respondrà en menys de 24h laborables.\')"><div class="ic">💬</div><b>Contactar amb suport</b><span>Resposta en &lt;24h</span></div>'+
+      '<div class="card cp-support-card" onclick="toast(\'Consulta les preguntes freqüents a la web pública d\'HIGIENEX.\')"><div class="ic">❓</div><b>Preguntes freqüents</b><span>Dubtes habituals</span></div>'+
+    '</div>';
+}
 
 // ── PWA: registre del Service Worker + botó d'instal·lació ───────────
 if ('serviceWorker' in navigator) {
