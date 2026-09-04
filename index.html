@@ -8251,8 +8251,26 @@ var CP_NAV=[
   ['inici','🏠','Inici'],
   ['factures','🧾','Factures'],
   ['empresa','👤','La meva empresa'],
-  ['suport','📞','Suport']
+  ['suport','📞','Suport'],
+  ['botiga','🛍️','Fer comanda'],
+  ['sortir','↩','Sortir']
 ];
+
+function cpRegistrarComanda(inv, items){
+  if (!CP_LOGGED_IN) return;
+  var now = new Date();
+  var fecha = now.toISOString().slice(0,10);
+  var venc  = new Date(now.getTime() + 30*24*60*60*1000).toISOString().slice(0,10);
+  var lineas = items.map(function(it){ return { nom: it.name, cant: it.qty, precio: it.qty ? (it.total/it.qty) : 0 }; });
+  var base = items.reduce(function(s,it){ return s + it.total; }, 0);
+  var cuota = Math.round((inv.total - base) * 100) / 100;
+  CP_DB.facturas.unshift({
+    num: inv.invoiceNum, fecha: fecha, lineas: lineas,
+    base: Math.round(base*100)/100, cuota: cuota, total: inv.total,
+    estado: 'Pendiente', venc: venc
+  });
+}
+window.cpRegistrarComanda = cpRegistrarComanda;
 
 function cpOpen(){
   if (!CP_LOGGED_IN) { cpOpenLoginModal(); return; }
@@ -8265,6 +8283,14 @@ window.cpOpen=cpOpen;
 
 function cpGoFaq(){ cpLogout(); navTo("faq"); }
 window.cpGoFaq=cpGoFaq;
+function cpAnarABotiga(){
+  document.getElementById('hxClientApp').style.display='none';
+  document.body.style.overflow='';
+  navTo('productes');
+  showToast('Segueixes amb la sessió de client oberta.', '🛍️');
+}
+window.cpAnarABotiga = cpAnarABotiga;
+
 function cpLogout(){
   CP_LOGGED_IN = false;
   cpUpdateNavState();
@@ -8286,6 +8312,8 @@ function cpRenderUser(){
 }
 
 function cpGo(tab){
+  if(tab==='botiga'){ cpAnarABotiga(); return; }
+  if(tab==='sortir'){ cpLogout(); return; }
   CP_TAB=tab; cpRenderNav();
   var main=document.getElementById('cpMain');
   if(tab==='inici') main.innerHTML=cpViewInici();
@@ -8445,7 +8473,8 @@ function cpVeureFactura(num){
   var c=CP_DB.cliente, e=cpEstatFactura(f);
   var filas=(f.lineas||[]).map(function(l){
     var p=CP_DB.productos[l.art];
-    return '<tr><td style="padding:7px 4px;border-bottom:1px solid var(--border)">'+escHtml(p?p.nom:l.art)+'</td><td class="num" style="text-align:right;padding:7px 4px;border-bottom:1px solid var(--border)">'+CP_NUM(l.cant)+'</td><td class="num" style="text-align:right;padding:7px 4px;border-bottom:1px solid var(--border)">'+CP_EUR(l.precio)+'</td><td class="num" style="text-align:right;padding:7px 4px;border-bottom:1px solid var(--border)">'+CP_EUR(l.cant*l.precio)+'</td></tr>';
+    var nomProd = l.nom || (p?p.nom:l.art);
+    return '<tr><td style="padding:7px 4px;border-bottom:1px solid var(--border)">'+escHtml(nomProd)+'</td><td class="num" style="text-align:right;padding:7px 4px;border-bottom:1px solid var(--border)">'+CP_NUM(l.cant)+'</td><td class="num" style="text-align:right;padding:7px 4px;border-bottom:1px solid var(--border)">'+CP_EUR(l.precio)+'</td><td class="num" style="text-align:right;padding:7px 4px;border-bottom:1px solid var(--border)">'+CP_EUR(l.cant*l.precio)+'</td></tr>';
   }).join('');
   var body =
     '<div style="margin-bottom:16px"><span class="cp-tag" style="color:'+cpEstatColor(e)+';border-color:'+cpEstatColor(e)+'44;background:'+cpEstatColor(e)+'18">'+cpEstatLabel(e)+'</span></div>'+
@@ -8491,7 +8520,8 @@ function cpDescarregarFactura(num){
   var c=CP_DB.cliente;
   var filas=(f.lineas||[]).map(function(l){
     var p=CP_DB.productos[l.art];
-    return '<tr><td>'+(p?p.nom:l.art)+'</td><td class="num">'+CP_NUM(l.cant)+'</td><td class="num">'+CP_EUR(l.precio)+'</td><td class="num">'+CP_EUR(l.cant*l.precio)+'</td></tr>';
+    var nomProd = l.nom || (p?p.nom:l.art);
+    return '<tr><td>'+escHtml(nomProd)+'</td><td class="num">'+CP_NUM(l.cant)+'</td><td class="num">'+CP_EUR(l.precio)+'</td><td class="num">'+CP_EUR(l.cant*l.precio)+'</td></tr>';
   }).join('');
   var html='<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Factura '+num+' · HIGIENEX S.L.</title>'+
     '<style>*{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:13px}'+
@@ -9092,7 +9122,6 @@ window.submitTreballaForm = submitTreballaForm;
       <nav class="cp-nav" id="cpNav"></nav>
       <div class="cp-side-foot">
         <div class="cp-user" id="cpUserBox"></div>
-        <button class="cp-side-btn" type="button" onclick="cpLogout()">↩ Tancar sessió</button>
       </div>
     </aside>
     <main class="cp-main" id="cpMain"></main>
@@ -10571,6 +10600,7 @@ function sendOrder() {
 
   var historyItems = keys.map(function(k){ return { name: k, qty: cart[k].qty, total: cart[k].total, rawTotal: cart[k].rawTotal, discountRate: cart[k].discountRate || 0 }; });
   saveOrderToHistory(inv, historyItems);
+  try { cpRegistrarComanda(inv, historyItems); } catch(err) { console.warn('No s\'ha pogut registrar la comanda al panel de client:', err); }
 
   // Obrir el diàleg d'impressió amb la comanda (el client pot desar-la
   // com a PDF directament) — mateix mecanisme que ja fas servir al ERP.
