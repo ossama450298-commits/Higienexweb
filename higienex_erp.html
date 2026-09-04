@@ -1452,11 +1452,11 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
   </div>
   <div class="box" id="hxPortalCliente" style="display:none">
     <span class="eyebrow" style="text-align:center;display:block;margin-bottom:14px">👤 Portal de client</span>
-    <p style="font-size:12.5px;color:var(--ink-2);text-align:center;margin-bottom:16px">Consulta ràpida i informativa de les teves factures. No requereix contrasenya — no s'hi mostren dades de pagament ni documents interns.</p>
+    <p style="font-size:12.5px;color:var(--ink-2);text-align:center;margin-bottom:16px">Consulta ràpida i informativa de les teves factures amb el teu usuari i contrasenya de client.</p>
     <div id="hxPortalForm">
-      <div class="field"><label for="hxPortalNif">NIF de l'empresa</label><input id="hxPortalNif" placeholder="B12345678" style="text-transform:uppercase"></div>
-      <div class="field"><label for="hxPortalMail">Email registrat</label><input id="hxPortalMail" type="email" placeholder="contacte@empresa.com"></div>
-      <div class="err" id="hxPortalErr" style="display:none">No hem trobat cap client amb aquestes dades.</div>
+      <div class="field"><label for="hxPortalUser">Usuari</label><input id="hxPortalUser" placeholder="usuari" autocomplete="username"></div>
+      <div class="field"><label for="hxPortalPass">Contrasenya</label><div style="position:relative"><input id="hxPortalPass" type="password" placeholder="••••••••" autocomplete="current-password" style="width:100%;padding-right:40px;box-sizing:border-box"><button type="button" onclick="hxTogglePass('hxPortalPass',this)" aria-label="Mostrar contraseña" title="Mostrar contraseña" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;padding:4px;line-height:1;opacity:0.6">👁️</button></div></div>
+      <div class="err" id="hxPortalErr" style="display:none">Usuari o contrasenya incorrectes.</div>
       <button class="btn block" onclick="hxConsultarPortalCliente()" type="button">Consultar</button>
     </div>
     <div id="hxPortalResult" style="display:none"></div>
@@ -2470,11 +2470,12 @@ let ME = null;
 /* ---------- Datos ---------- */
 const DB = {
 clientes:[
- {id:'C01',nom:'Hospital Universitari La Fe',nif:'Q4600001A',pob:'Valencia',dir:'Av. Fernando Abril Martorell 106',tel:'961 244 000',mail:'compras@lafe.es',cond:60,resp:'U3',alta:'2016-04-02'},
- {id:'C02',nom:'Hotel Meliá València',nif:'B46223344',pob:'Valencia',dir:'Av. de les Corts Valencianes 52',tel:'963 350 500',mail:'fyb@melia.com',cond:30,resp:'U3',alta:'2017-11-20'},
- {id:'C03',nom:'Grup Alimentari Ribera SL',nif:'B46778899',pob:'Alzira',dir:'Pol. Ind. Cotes B, nau 14',tel:'962 411 220',mail:'admin@garibera.es',cond:30,resp:'U3',alta:'2019-03-05'},
- {id:'C04',nom:'Ajuntament de Torrent',nif:'P4624600C',pob:'Torrent',dir:'Plaça Major 1',tel:'961 111 111',mail:'contractacio@torrent.es',cond:60,resp:'U1',alta:'2021-06-14'},
- {id:'C05',nom:'Neteges Costa Blanca SL',nif:'B03556677',pob:'Alicante',dir:'C/ Serra Grossa 8',tel:'965 220 118',mail:'pedidos@ncblanca.es',cond:0,resp:'U3',alta:'2023-01-30'}
+ {id:'C01',nom:'Hospital Universitari La Fe',nif:'Q4600001A',pob:'Valencia',dir:'Av. Fernando Abril Martorell 106',tel:'961 244 000',mail:'compras@lafe.es',cond:60,resp:'U3',alta:'2016-04-02',user:'lafe',pass:'lafe2026'},
+ {id:'C02',nom:'Hotel Meliá València',nif:'B46223344',pob:'Valencia',dir:'Av. de les Corts Valencianes 52',tel:'963 350 500',mail:'fyb@melia.com',cond:30,resp:'U3',alta:'2017-11-20',user:'meliavlc',pass:'melia2026'},
+ {id:'C03',nom:'Grup Alimentari Ribera SL',nif:'B46778899',pob:'Alzira',dir:'Pol. Ind. Cotes B, nau 14',tel:'962 411 220',mail:'admin@garibera.es',cond:30,resp:'U3',alta:'2019-03-05',user:'garibera',pass:'ribera2026'},
+ {id:'C04',nom:'Ajuntament de Torrent',nif:'P4624600C',pob:'Torrent',dir:'Plaça Major 1',tel:'961 111 111',mail:'contractacio@torrent.es',cond:60,resp:'U1',alta:'2021-06-14',user:'torrent',pass:'torrent2026'},
+ {id:'C05',nom:'Neteges Costa Blanca SL',nif:'B03556677',pob:'Alicante',dir:'C/ Serra Grossa 8',tel:'965 220 118',mail:'pedidos@ncblanca.es',cond:0,resp:'U3',alta:'2023-01-30',user:'ncblanca',pass:'costa2026'},
+ {id:'C06',nom:'Edu (compte de prova)',nif:'00000000T',pob:'Valencia',dir:'—',tel:'—',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'}
 ],
 proveedores:[
  {id:'P01',nom:'Química Industrial Llevant SA',nif:'A46112233',pob:'Sagunt',dir:'Pol. Ind. Camí la Mar, 22',tel:'962 660 110',mail:'ventas@qillevant.es',cond:60,cta:'600',alta:'2015-05-10'},
@@ -2963,11 +2964,27 @@ function completeLogin(found){
 function logout(){ME=null;document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex';document.querySelectorAll('#login .box')[0].style.display='block';document.getElementById('hxPortalCliente').style.display='none';document.getElementById('lp').value='';document.getElementById('loginErr').style.display='none';}
 
 // ── PORTAL DE CLIENT ───────────────────────────────────────
-// Consulta informativa i de només lectura: NO és un accés amb contrasenya
-// real, ni mostra dades sensibles (sous, contrasenyes, marges, adjunts
-// interns) — només les seves pròpies factures emeses. Per a un ús real
-// caldria autenticació de veritat (p. ex. enllaç únic per email).
+// Consulta informativa i de només lectura amb usuari i contrasenya
+// (dades fictícies, en pla text, pensades per a la demo/pràctica).
+// No mostra dades sensibles internes (sous, marges, adjunts interns)
+// — només les seves pròpies factures emeses.
+function hxEnsureDemoClientLogins(){
+  // Salvaguarda: si el navegador tenia dades antigues guardades (d'una
+  // sessió anterior a afegir aquest compte), assegura que sempre existeixi
+  // el compte de prova d'Edu i que els altres clients tinguin usuari/pass.
+  let existing = DB.clientes.find(c=>c.id==='C06');
+  if(!existing){
+    DB.clientes.push({id:'C06',nom:'Edu (compte de prova)',nif:'00000000T',pob:'Valencia',dir:'—',tel:'—',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'});
+  } else if(!existing.user || !existing.pass){
+    existing.user='edu'; existing.pass='Higienex2025';
+  }
+  const defaults={C01:['lafe','lafe2026'],C02:['meliavlc','melia2026'],C03:['garibera','ribera2026'],C04:['torrent','torrent2026'],C05:['ncblanca','costa2026']};
+  DB.clientes.forEach(c=>{
+    if((!c.user||!c.pass) && defaults[c.id]){ c.user=defaults[c.id][0]; c.pass=defaults[c.id][1]; }
+  });
+}
 function hxAbrirPortalCliente(){
+  hxEnsureDemoClientLogins();
   document.querySelectorAll('#login .box')[0].style.display='none';
   document.getElementById('hxPortalCliente').style.display='block';
   document.getElementById('hxPortalForm').style.display='block';
@@ -2981,11 +2998,11 @@ function hxCerrarPortalCliente(){
 }
 window.hxCerrarPortalCliente=hxCerrarPortalCliente;
 function hxConsultarPortalCliente(){
-  const nif=(document.getElementById('hxPortalNif').value||'').trim().toUpperCase();
-  const mail=(document.getElementById('hxPortalMail').value||'').trim().toLowerCase();
-  if(!nif||!mail){ document.getElementById('hxPortalErr').textContent='Omple els dos camps.'; document.getElementById('hxPortalErr').style.display='block'; return; }
-  const c=DB.clientes.find(x=>x.nif===nif && (x.mail||'').toLowerCase()===mail);
-  if(!c){ document.getElementById('hxPortalErr').textContent='No hem trobat cap client amb aquestes dades.'; document.getElementById('hxPortalErr').style.display='block'; return; }
+  const user=(document.getElementById('hxPortalUser').value||'').trim().toLowerCase();
+  const pass=document.getElementById('hxPortalPass').value||'';
+  if(!user||!pass){ document.getElementById('hxPortalErr').textContent='Omple els dos camps.'; document.getElementById('hxPortalErr').style.display='block'; return; }
+  const c=DB.clientes.find(x=>(x.user||'').toLowerCase()===user && x.pass===pass);
+  if(!c){ document.getElementById('hxPortalErr').textContent='Usuari o contrasenya incorrectes.'; document.getElementById('hxPortalErr').style.display='block'; return; }
   document.getElementById('hxPortalErr').style.display='none';
   const fac=DB.facturasE.filter(f=>f.cli===c.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const rows=fac.map(f=>'<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px">'+
