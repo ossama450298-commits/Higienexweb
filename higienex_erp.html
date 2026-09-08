@@ -6086,6 +6086,14 @@ function vSistema(){
       fInput('Teléfono','sis_tel','text',e.tel)+
     '</div><button class="btn gold" style="margin-top:14px" onclick="guardarEmpresa()" type="button">Guardar datos</button></div></div>';
 
+  h += '<div class="card" style="margin-bottom:16px"><h3>Còpia de seguretat</h3><div class="cardbody" style="font-size:13px;line-height:1.7">'+
+    'Totes les dades del sistema es guarden únicament en aquest navegador. Si canvies d\'ordinador o esborres les dades del navegador, es perdran. Descarrega una còpia periòdicament per no perdre res.'+
+    '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">'+
+      '<button class="btn gold" onclick="exportarBackupDB()" type="button">⬇ Exportar còpia de seguretat</button>'+
+      '<button class="btn ghost" onclick="document.getElementById(\'inputRestaurarBackup\').click()" type="button">⬆ Importar còpia de seguretat</button>'+
+      '<input type="file" id="inputRestaurarBackup" accept=".json" style="display:none" onchange="importarBackupDB(this)">'+
+    '</div></div></div>';
+
   h += '<div class="card"><h3>Permisos ampliados de Dirección</h3><div class="cardbody" style="font-size:13px;line-height:1.8">'+
     '· Puedes eliminar clientes, productos y empleados desde sus fichas — el resto de roles solo puede editar.<br>'+
     '· Puedes crear, desactivar y restablecer la contraseña de cualquier acceso al sistema.<br>'+
@@ -6095,6 +6103,48 @@ function vSistema(){
 
   return h;
 }
+function exportarBackupDB(){
+  const payload = { exportat: new Date().toISOString(), db: DB };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'higienex-backup-'+TODAY+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  toast('Còpia de seguretat descarregada.');
+}
+window.exportarBackupDB = exportarBackupDB;
+
+function importarBackupDB(input){
+  const file = input.files && input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const payload = JSON.parse(e.target.result);
+      const dades = payload.db || payload;
+      if(!confirm('Això substituirà TOTES les dades actuals per les del fitxer. Vols continuar?')) { input.value=''; return; }
+      Object.keys(dades).forEach(k=>{
+        if(Array.isArray(dades[k])){
+          if(!Array.isArray(DB[k])) DB[k]=[];
+          DB[k].length = 0;
+          DB[k].push(...dades[k]);
+        } else {
+          DB[k] = dades[k];
+        }
+      });
+      guardarDB();
+      toast('Còpia de seguretat restaurada correctament.');
+      go('sistema');
+    }catch(err){
+      alert('El fitxer no és una còpia de seguretat vàlida.');
+    }
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+window.importarBackupDB = importarBackupDB;
+
 function etiquetaPermiso(p){
   return {all:'Acceso total', admin:'Administración y contabilidad', comercial:'CRM y facturación', logistica:'Logística y fabricación'}[p] || p;
 }
