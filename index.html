@@ -26,6 +26,8 @@
   --border: rgba(21,101,168,0.15);
   --shadow: 0 4px 32px rgba(11,61,107,0.10);
   --shadow-lg: 0 16px 64px rgba(11,61,107,0.18);
+  --cp-surface:#fff;
+  --cp-muted:rgba(26,26,26,.55);
 }
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible,
 textarea:focus-visible, [tabindex]:focus-visible {
@@ -2116,8 +2118,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   section { break-inside: avoid; page-break-inside: avoid; }
 }
 
-/* ══════════════════════════════════════════════════════════
-   PORTAL DE CLIENT — dashboard (versió web pública)
+/* ═════   PORTAL DE CLIENT — dashboard (versió web pública)
    ══════════════════════════════════════════════════════════ */
 #hxClientApp{display:none;position:fixed;inset:0;z-index:999998;background:var(--warm-white);color:var(--charcoal);font-family:inherit;overflow:hidden}
 .cp-shell{display:grid;grid-template-columns:248px 1fr;height:100vh}
@@ -2144,9 +2145,9 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 .cp-greet p{font-size:13px;color:rgba(26,26,26,.6);margin:4px 0 0}
 .cp-status-pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:20px;margin-top:9px}
 .cp-updated{font-size:10.5px;color:rgba(26,26,26,.4);margin-top:6px}
-.cp-card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:20px}
+.cp-card{background:var(--cp-surface,#fff);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:20px}
 .cp-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:24px}
-.cp-kpi{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:18px}
+.cp-kpi{background:var(--cp-surface,#fff);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:18px}
 .cp-kpi-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px}
 .cp-kpi-val{font-family:'JetBrains Mono',Consolas,monospace;font-size:20px;font-weight:800;color:var(--charcoal)}
 .cp-kpi-lbl{font-size:10.5px;color:rgba(26,26,26,.55);font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-top:3px}
@@ -2158,15 +2159,15 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 @keyframes cpFadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .cp-section-title{font-size:11px;font-weight:700;letter-spacing:.06em;color:rgba(26,26,26,.55);text-transform:uppercase;margin:0 0 10px 2px}
 .cp-period-row{display:flex;gap:6px;margin-bottom:12px}
-.cp-period-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;color:rgba(26,26,26,.6);font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.cp-period-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--cp-surface,#fff);color:rgba(26,26,26,.6);font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit}
 .cp-period-btn.active{background:var(--green-deep);border-color:var(--green-deep);color:#fff}
 .cp-empty{text-align:center;padding:34px 20px;color:rgba(26,26,26,.55)}
 .cp-empty .ic{font-size:30px;margin-bottom:8px}
 .cp-empty b{display:block;font-size:13.5px;color:var(--charcoal);margin-bottom:4px}
 .cp-empty span{font-size:12px}
 .cp-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-.cp-search{flex:1;min-width:180px;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;color:var(--charcoal);font-size:13px;font-family:inherit}
-.cp-chip{padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:#fff;color:rgba(26,26,26,.6);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
+.cp-search{flex:1;min-width:180px;padding:9px 14px;border-radius:10px;border:1px solid var(--border);background:var(--cp-surface,#fff);color:var(--charcoal);font-size:13px;font-family:inherit}
+.cp-chip{padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:var(--cp-surface,#fff);color:rgba(26,26,26,.6);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
 .cp-chip.active{background:var(--green-deep);border-color:var(--green-deep);color:#fff}
 .cp-inv-row{display:flex;align-items:center;gap:14px;padding:14px 6px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
 .cp-inv-row:hover{background:var(--warm-white)}
@@ -2175,7 +2176,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 .cp-inv-date{font-size:11.5px;color:rgba(26,26,26,.55);margin-top:1px}
 .cp-inv-amt{font-family:'JetBrains Mono',Consolas,monospace;font-weight:700;font-size:13.5px}
 .cp-inv-actions{display:flex;gap:4px}
-.cp-inv-actions button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.cp-inv-actions button{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--cp-surface,#fff);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
 .cp-inv-actions button:hover{background:var(--warm-white)}
 .cp-notif{display:flex;gap:10px;padding:11px 4px;border-bottom:1px solid var(--border)}
 .cp-notif .ic{font-size:15px;flex-shrink:0}
@@ -2185,14 +2186,19 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 .cp-info-row span:first-child{color:rgba(26,26,26,.55)}
 .cp-info-row span:last-child{font-weight:600;text-align:right}
 .cp-support-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
-.cp-support-card{background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:20px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.cp-support-card{background:var(--cp-surface,#fff);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:20px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s}
 .cp-support-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
 .cp-support-card .ic{font-size:26px;margin-bottom:10px}
 .cp-support-card b{display:block;font-size:13px;margin-bottom:3px}
 .cp-support-card span{font-size:11.5px;color:rgba(26,26,26,.55)}
 .cp-tag{display:inline-block;font-family:'JetBrains Mono',Consolas,monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid;white-space:nowrap}
 .cp-btn{padding:10px 18px;border-radius:10px;border:none;background:var(--accent);color:#1A1A1A;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
-.cp-btn.ghost{background:#fff;border:1.5px solid var(--border);color:var(--green-deep)}
+.cp-btn.ghost{background:var(--cp-surface,#fff);border:1.5px solid var(--border);color:var(--green-deep)}
+#hxClientApp.cp-dark{--charcoal:#EAEEF1;--border:#2B3542;--warm-white:#141a21;--green-cream:#1c2733;--cp-surface:#1E2731;--cp-muted:rgba(234,238,241,.55)}
+#hxClientApp.cp-dark .cp-brand{color:#fff}
+#hxClientApp.cp-dark .cp-search::placeholder{color:rgba(234,238,241,.4)}
+#hxClientApp.cp-dark table thead th{background:#0B3D6B}
+#hxClientApp.cp-dark .cp-empty{color:var(--cp-muted)}
 @media(max-width:820px){
   .cp-shell{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}
   .cp-side{flex-direction:row;align-items:center;padding:10px 12px;order:1}
@@ -2201,6 +2207,9 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   .cp-nav button{flex-direction:column;gap:3px;padding:7px 10px;font-size:9.5px;white-space:nowrap}
   .cp-side-foot{display:none}
   .cp-main{order:0;padding:18px 16px 90px}
+  .cp-kpis{grid-template-columns:repeat(2,1fr)}
+}
+px}
   .cp-kpis{grid-template-columns:repeat(2,1fr)}
 }
 </style>
@@ -8314,8 +8323,55 @@ var CP_NAV=[
   ['empresa','👤','La meva empresa'],
   ['suport','📞','Suport'],
   ['botiga','🛍️','Fer comanda'],
+  ['fosc','🌙','Mode fosc'],
   ['sortir','↩','Sortir']
 ];
+
+var CP_PRODUCT_MAP = {
+  'ECO Concentrat Pro': { nom:'ECO Concentrat Pro', preu:12.50 },
+  'ECO Concentrat Pro 5 L': { nom:'ECO Concentrat Pro', preu:12.50 },
+  'Desinfectant HOSP-V': { nom:'Desinfectant HOSP-V', preu:18.00 },
+  'Desinfectant HOSP-V 5 L': { nom:'Desinfectant HOSP-V', preu:18.00 },
+  'Detergent ALIM-PRO': { nom:'Detergent ALIM-PRO', preu:9.80 },
+  'Det ALIM-PRO 10 L': { nom:'Detergent ALIM-PRO', preu:9.80 },
+  'Net HOSTAL Premium': { nom:'Net HOSTAL Premium', preu:11.20 },
+  'Net HOSTAL 5 L': { nom:'Net HOSTAL Premium', preu:11.20 },
+  'Gamma Superfícies QR': { nom:'Gamma Superfícies QR', preu:14.00 },
+  'WorkSafe Antimicrobial': { nom:'WorkSafe Antimicrobial', preu:22.00 },
+  'WorkSafe Antimicrobial 1 L': { nom:'WorkSafe Antimicrobial', preu:22.00 }
+};
+
+function cpAddDirectToCart(name, price, qty){
+  if (cart[name]) { cart[name].qty += qty; }
+  else { cart[name] = { qty: qty, price: price }; }
+  recalcCartLine(name);
+}
+
+function cpTornarAComprar(lineas){
+  var afegits = 0, omesos = [];
+  (lineas || []).forEach(function(l){
+    var nomOriginal = l.nom || (CP_DB.productos[l.art] ? CP_DB.productos[l.art].nom : l.art);
+    var map = CP_PRODUCT_MAP[nomOriginal];
+    if (map) {
+      cpAddDirectToCart(map.nom, map.preu, l.cant);
+      afegits++;
+    } else {
+      omesos.push(nomOriginal);
+    }
+  });
+  if (afegits > 0) {
+    renderCart();
+    if (typeof updateCartBadge === 'function') updateCartBadge();
+  }
+  if (afegits > 0 && omesos.length === 0) {
+    showToast('Comanda afegida al cistell (' + afegits + ' producte' + (afegits>1?'s':'') + ').', '🔁');
+  } else if (afegits > 0 && omesos.length > 0) {
+    showToast(afegits + ' producte(s) afegits. ' + omesos.length + ' no disponible(s) actualment: ' + omesos.join(', '), '⚠️');
+  } else {
+    showToast('Cap dels productes d\'aquesta comanda està disponible actualment al catàleg.', '⚠️');
+  }
+}
+window.cpTornarAComprar = cpTornarAComprar;
 
 function cpRegistrarComanda(inv, items){
   if (!CP_LOGGED_IN) return;
@@ -8335,6 +8391,7 @@ function cpRegistrarComanda(inv, items){
     num: 'C' + inv.invoiceNum.replace('FE-',''), fecha: fecha, lineas: lineasComanda,
     total: inv.total, estat: 'Processant'
   });
+  cpAfegirNotificacio('🆕', 'Comanda '+inv.invoiceNum+' registrada correctament, ja s\'està processant.');
 }
 window.cpRegistrarComanda = cpRegistrarComanda;
 
@@ -8344,9 +8401,18 @@ function cpOpen(){
   document.getElementById('hxClientApp').style.display='block';
   var nav=document.getElementById('mainNav'); if(nav) nav.style.display='none';
   document.body.style.overflow='hidden';
+  try { if (localStorage.getItem('hx_cp_dark')==='1') document.getElementById('hxClientApp').classList.add('cp-dark'); } catch(e) {}
   cpRenderNav(); cpRenderUser(); cpGo('inici');
 }
 window.cpOpen=cpOpen;
+
+function cpToggleDarkMode(){
+  var app=document.getElementById('hxClientApp');
+  var isDark = app.classList.toggle('cp-dark');
+  try { localStorage.setItem('hx_cp_dark', isDark ? '1' : '0'); } catch(e) {}
+  cpRenderNav();
+}
+window.cpToggleDarkMode = cpToggleDarkMode;
 
 function cpGoFaq(){ cpLogout(); navTo("faq"); }
 window.cpGoFaq=cpGoFaq;
@@ -8374,7 +8440,11 @@ function cpLogout(){
 window.cpLogout=cpLogout;
 
 function cpRenderNav(){
+  var isDark = document.getElementById('hxClientApp').classList.contains('cp-dark');
   document.getElementById('cpNav').innerHTML = CP_NAV.map(function(n){
+    if (n[0]==='fosc') {
+      return '<button type="button" onclick="cpToggleDarkMode()"><span class="ic">'+(isDark?'☀️':'🌙')+'</span><span>'+(isDark?'Mode clar':'Mode fosc')+'</span></button>';
+    }
     return '<button type="button" class="'+(CP_TAB===n[0]?'active':'')+'" onclick="cpGo(\''+n[0]+'\')"><span class="ic">'+n[1]+'</span><span>'+n[2]+'</span></button>';
   }).join('');
 }
@@ -8438,13 +8508,13 @@ function cpViewInici(){
         '<div class="cp-kpi-sub" style="color:'+(saldo>0?'#8A5900':'#0B7256')+'">'+(saldo>0?'Per liquidar':'🟢 Sense pagaments')+'</div></div>'+
       '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(21,101,168,.12);color:var(--green-deep)">📈</div>'+
         '<div class="cp-kpi-val">'+CP_EUR(totalAny)+'</div><div class="cp-kpi-lbl">Facturat</div>'+
-        '<div class="cp-kpi-sub" style="color:rgba(26,26,26,.55)">Aquest any</div></div>'+
+        '<div class="cp-kpi-sub" style="color:var(--cp-muted,rgba(26,26,26,.55))">Aquest any</div></div>'+
       '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(21,101,168,.12);color:var(--green-deep)">🧾</div>'+
         '<div class="cp-kpi-val">'+fac.length+'</div><div class="cp-kpi-lbl">Factures</div>'+
-        '<div class="cp-kpi-sub" style="color:rgba(26,26,26,.55)">Total emeses</div></div>'+
+        '<div class="cp-kpi-sub" style="color:var(--cp-muted,rgba(26,26,26,.55))">Total emeses</div></div>'+
       '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(138,89,0,.12);color:#8A5900">📅</div>'+
         '<div class="cp-kpi-val" style="font-size:15px">'+(properaPendent?CP_FD(properaPendent.venc):'Cap')+'</div><div class="cp-kpi-lbl">Proper pagament</div>'+
-        '<div class="cp-kpi-sub" style="color:rgba(26,26,26,.55)">'+(properaPendent?properaPendent.num:'Compte al dia')+'</div></div>'+
+        '<div class="cp-kpi-sub" style="color:var(--cp-muted,rgba(26,26,26,.55))">'+(properaPendent?properaPendent.num:'Compte al dia')+'</div></div>'+
     '</div>';
 
   var chart=cpChartHTML(fac);
@@ -8492,18 +8562,74 @@ function cpBindPeriodButtons(){
   row.querySelectorAll('.cp-period-btn').forEach(function(b){ b.onclick=function(){ CP_PERIOD=this.dataset.p; cpGo('inici'); }; });
 }
 
-function cpNotifsHTML(fac){
-  var items=[];
-  var pagadaRecent = fac.find(function(f){return cpEstatFactura(f)==='pagada';});
-  if(pagadaRecent) items.push(['✅','Factura '+pagadaRecent.num+' pagada correctament', CP_FD(pagadaRecent.fecha)]);
+var CP_NOTIF_KEY = 'hx_cp_notifs';
+
+function cpLoadNotifs(){
+  try {
+    var raw = localStorage.getItem(CP_NOTIF_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return null;
+}
+function cpSaveNotifs(list){
+  try { localStorage.setItem(CP_NOTIF_KEY, JSON.stringify(list)); } catch(e) {}
+}
+function cpSeedNotifsIfNeeded(fac){
+  var existing = cpLoadNotifs();
+  if (existing) return existing;
+  var items = [];
+  var pagades = fac.filter(function(f){ return cpEstatFactura(f)==='pagada'; });
+  pagades.forEach(function(f){
+    items.push({ id:'pag-'+f.num, icon:'✅', title:'Factura '+f.num+' pagada correctament', date:f.fecha, read:true });
+  });
   var propVenc = fac.filter(function(f){return cpEstatFactura(f)==='pendent';}).sort(function(a,b){return a.venc.localeCompare(b.venc);})[0];
-  if(propVenc){
+  if (propVenc) {
     var dies=Math.round((new Date(propVenc.venc+'T00:00:00')-new Date(CP_TODAY+'T00:00:00'))/86400000);
-    if(dies>=0) items.push(['⏳','La teva factura '+propVenc.num+' venç en '+dies+' dies','']);
+    if (dies>=0) items.push({ id:'venc-'+propVenc.num, icon:'⏳', title:'La teva factura '+propVenc.num+' venç en '+dies+' dies', date:'', read:false });
   }
-  if(fac[0]) items.push(['🆕','Nova factura disponible: '+fac[0].num, CP_FD(fac[0].fecha)]);
-  if(!items.length) return '<div class="cp-empty" style="padding:18px 10px"><div class="ic">🔔</div><span>Sense notificacions noves.</span></div>';
-  return items.map(function(it){ return '<div class="cp-notif"><span class="ic">'+it[0]+'</span><div><b>'+it[1]+'</b>'+(it[2]?'<span>'+it[2]+'</span>':'')+'</div></div>'; }).join('');
+  if (fac[0]) items.push({ id:'nova-'+fac[0].num, icon:'🆕', title:'Nova factura disponible: '+fac[0].num, date:fac[0].fecha, read:false });
+  items.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+  cpSaveNotifs(items);
+  return items;
+}
+function cpAfegirNotificacio(icon, title){
+  var list = cpLoadNotifs() || [];
+  list.unshift({ id:'n'+Date.now(), icon:icon, title:title, date:new Date().toISOString().slice(0,10), read:false });
+  cpSaveNotifs(list);
+}
+window.cpAfegirNotificacio = cpAfegirNotificacio;
+function cpMarkNotifRead(id){
+  var list = cpLoadNotifs() || [];
+  var n = list.find(function(x){ return x.id===id; });
+  if (n) n.read = true;
+  cpSaveNotifs(list);
+  if (CP_TAB==='inici') { document.getElementById('cpMain').innerHTML = cpViewInici(); cpBindPeriodButtons(); }
+}
+window.cpMarkNotifRead = cpMarkNotifRead;
+function cpMarkAllNotifsRead(){
+  var list = cpLoadNotifs() || [];
+  list.forEach(function(n){ n.read = true; });
+  cpSaveNotifs(list);
+  if (CP_TAB==='inici') { document.getElementById('cpMain').innerHTML = cpViewInici(); cpBindPeriodButtons(); }
+}
+window.cpMarkAllNotifsRead = cpMarkAllNotifsRead;
+
+function cpNotifsHTML(fac){
+  var items = cpSeedNotifsIfNeeded(fac);
+  if(!items.length) return '<div class="cp-empty" style="padding:18px 10px"><div class="ic">🔔</div><span>Sense notificacions.</span></div>';
+  var noLlegides = items.filter(function(n){ return !n.read; }).length;
+  var header = noLlegides > 0
+    ? '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:11.5px;color:#8A5900;font-weight:700">'+noLlegides+' sense llegir</span><button type="button" onclick="cpMarkAllNotifsRead()" style="background:none;border:none;color:var(--green-deep);font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:underline">Marcar totes com llegides</button></div>'
+    : '';
+  var rows = items.map(function(n){
+    var unreadStyle = n.read ? '' : 'background:#F5FAFF;';
+    return '<div class="cp-notif" style="'+unreadStyle+'align-items:center">'+
+      (n.read ? '' : '<span style="width:7px;height:7px;border-radius:50%;background:var(--green-deep);flex-shrink:0;margin-right:2px"></span>')+
+      '<span class="ic">'+n.icon+'</span><div style="flex:1"><b>'+escHtml(n.title)+'</b>'+(n.date?'<span>'+CP_FD(n.date)+'</span>':'')+'</div>'+
+      (n.read ? '' : '<button type="button" onclick="cpMarkNotifRead(\''+n.id+'\')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:4px 9px;font-size:10.5px;color:var(--green-deep);cursor:pointer;flex-shrink:0">Marcar llegit</button>')+
+    '</div>';
+  }).join('');
+  return header + rows;
 }
 
 var CP_ESTATS_COMANDA = ['Processant','Enviat','En repartiment','Entregat'];
@@ -8530,6 +8656,17 @@ function cpStepperHTML(estatActual){
   '</div>';
 }
 
+function cpTornarAComprarComanda(num){
+  var c = CP_DB.comandes.find(function(x){ return x.num===num; });
+  if (c) cpTornarAComprar(c.lineas);
+}
+window.cpTornarAComprarComanda = cpTornarAComprarComanda;
+function cpTornarAComprarFactura(num){
+  var f = CP_DB.facturas.find(function(x){ return x.num===num; });
+  if (f) cpTornarAComprar(f.lineas);
+}
+window.cpTornarAComprarFactura = cpTornarAComprarFactura;
+
 function cpViewComandes(){
   var com=CP_DB.comandes.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
   if(!com.length){
@@ -8542,11 +8679,12 @@ function cpViewComandes(){
     return '<div class="cp-card" style="margin-bottom:16px">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px">'+
         '<div><div style="font-weight:700;font-size:14.5px;color:var(--charcoal)">'+escHtml(c.num)+'</div>'+
-        '<div style="font-size:11.5px;color:rgba(26,26,26,.55);margin-top:2px">'+CP_FD(c.fecha)+' · '+linies+'</div></div>'+
+        '<div style="font-size:11.5px;color:var(--cp-muted,rgba(26,26,26,.55));margin-top:2px">'+CP_FD(c.fecha)+' · '+linies+'</div></div>'+
         '<div style="text-align:right"><div class="cp-inv-amt" style="font-size:15px">'+CP_EUR(c.total)+'</div>'+
         '<span class="cp-tag" style="color:'+color+';border-color:'+color+'44;background:'+color+'18">'+CP_ESTATS_ICONS[c.estat]+' '+escHtml(c.estat)+'</span></div>'+
       '</div>'+
       cpStepperHTML(c.estat)+
+      (c.estat==='Entregat' ? '<div style="text-align:right;margin-top:14px"><button type="button" onclick="cpTornarAComprarComanda(\''+c.num+'\')" class="cp-btn ghost" style="padding:7px 14px;font-size:12px">🔁 Tornar a comprar</button></div>' : '')+
     '</div>';
   }).join('');
   return ''+
@@ -8572,6 +8710,7 @@ function cpViewFactures(){
       '<div class="cp-inv-actions" onclick="event.stopPropagation()">'+
         '<button type="button" title="Veure" onclick="cpVeureFactura(\''+f.num+'\')">👁</button>'+
         '<button type="button" title="Descarregar PDF" onclick="cpDescarregarFactura(\''+f.num+'\')">⬇</button>'+
+        '<button type="button" title="Tornar a comprar" onclick="cpTornarAComprarFactura(\''+f.num+'\')">🔁</button>'+
       '</div>'+
     '</div>';
   }).join('');
@@ -8579,7 +8718,9 @@ function cpViewFactures(){
   var empty='<div class="cp-empty"><div class="ic">🧾</div><b>Sense factures</b><span>No hi ha factures que coincideixin amb la cerca o el filtre.</span></div>';
 
   return ''+
-    '<div class="cp-topbar"><div class="cp-greet"><h1>Factures</h1><p>Historial complet de les teves factures.</p></div></div>'+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>Factures</h1><p>Historial complet de les teves factures.</p></div>'+
+      '<button type="button" onclick="cpDescarregarExtracte()" class="cp-btn ghost">📄 Extracte de compte</button>'+
+    '</div>'+
     '<div class="cp-card">'+
       '<div class="cp-toolbar">'+
         '<input class="cp-search" placeholder="🔍 Cercar per número de factura…" value="'+escHtml(CP_SEARCH)+'" oninput="cpCercar(this.value)">'+chips+
@@ -8602,8 +8743,8 @@ function cpVeureFactura(num){
   var body =
     '<div style="margin-bottom:16px"><span class="cp-tag" style="color:'+cpEstatColor(e)+';border-color:'+cpEstatColor(e)+'44;background:'+cpEstatColor(e)+'18">'+cpEstatLabel(e)+'</span></div>'+
     '<div style="display:flex;gap:24px;margin-bottom:18px;flex-wrap:wrap;font-size:13px">'+
-      '<div><b style="font-size:11px;color:rgba(26,26,26,.55);display:block">EMISSIÓ</b>'+CP_FD(f.fecha)+'</div>'+
-      '<div><b style="font-size:11px;color:rgba(26,26,26,.55);display:block">VENCIMENT</b>'+CP_FD(f.venc)+'</div>'+
+      '<div><b style="font-size:11px;color:var(--cp-muted,rgba(26,26,26,.55));display:block">EMISSIÓ</b>'+CP_FD(f.fecha)+'</div>'+
+      '<div><b style="font-size:11px;color:var(--cp-muted,rgba(26,26,26,.55));display:block">VENCIMENT</b>'+CP_FD(f.venc)+'</div>'+
     '</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">'+
       '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px">'+
@@ -8624,6 +8765,7 @@ function cpVeureFactura(num){
   cpOpenModal('Factura '+escHtml(num), body,
     '<button class="cp-btn ghost" onclick="cpCloseModal()" type="button">Tancar</button>'+
     '<button class="cp-btn ghost" onclick="window.print()" type="button">🖨 Imprimir</button>'+
+    '<button class="cp-btn ghost" onclick="cpTornarAComprarFactura(\''+num+'\')" type="button">🔁 Tornar a comprar</button>'+
     '<button class="cp-btn" onclick="cpDescarregarFactura(\''+num+'\')" type="button">⬇ Descarregar PDF</button>');
 }
 window.cpVeureFactura=cpVeureFactura;
@@ -8637,7 +8779,7 @@ function cpOpenModal(title, body, footer){
     wrap.onclick=function(e){ if(e.target===wrap) cpCloseModal(); };
     document.body.appendChild(wrap);
   }
-  wrap.innerHTML='<div style="background:#fff;border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,0.3);">'+
+  wrap.innerHTML='<div style="background:var(--cp-surface,#fff);border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 24px 70px rgba(0,0,0,0.3);">'+
     '<div style="display:flex;justify-content:space-between;align-items:center;padding:1.1rem 1.4rem;border-bottom:1px solid var(--border)"><h3 style="margin:0;font-size:1.05rem;color:var(--green-deep)">'+title+'</h3><button onclick="cpCloseModal()" type="button" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#888">✕</button></div>'+
     '<div style="padding:1.4rem">'+body+'</div>'+
     (footer?'<div style="padding:1rem 1.4rem;border-top:1px solid var(--border);display:flex;gap:0.6rem;justify-content:flex-end;flex-wrap:wrap">'+footer+'</div>':'')+
@@ -8646,6 +8788,55 @@ function cpOpenModal(title, body, footer){
 }
 function cpCloseModal(){ var wrap=document.getElementById('cpModalWrap'); if(wrap) wrap.style.display='none'; }
 window.cpCloseModal=cpCloseModal;
+
+function cpDescarregarExtracte(){
+  var fac = CP_DB.facturas.slice().sort(function(a,b){ return a.fecha.localeCompare(b.fecha); });
+  var c = CP_DB.cliente;
+  if (!fac.length) { alert('Encara no hi ha factures per generar un extracte.'); return; }
+  var totalFacturat = fac.reduce(function(s,f){ return s+f.total; }, 0);
+  var totalPagat = fac.filter(function(f){ return cpEstatFactura(f)==='pagada'; }).reduce(function(s,f){ return s+f.total; }, 0);
+  var totalPendent = totalFacturat - totalPagat;
+  var primera = fac[0].fecha, ultima = fac[fac.length-1].fecha;
+  var files = fac.map(function(f, idx){
+    var e = cpEstatFactura(f);
+    var color = e==='pagada'?'#0B7256':e==='vencida'?'#8C281E':'#8A5900';
+    var label = e==='pagada'?'Pagada':e==='vencida'?'Vençuda':'Pendent';
+    return '<tr style="background:'+(idx%2?'#F7F9FB':'#fff')+'"><td>'+escHtml(f.num)+'</td><td>'+CP_FD(f.fecha)+'</td><td>'+CP_FD(f.venc)+'</td>'+
+      '<td class="num strong">'+CP_EUR(f.total)+'</td><td><span style="color:'+color+';font-weight:700;font-size:11px">'+label+'</span></td></tr>';
+  }).join('');
+  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Extracte de compte · HIGIENEX S.L.</title>'+
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;padding:40px 46px;font-size:13px}'+
+    '.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0B3D6B;padding-bottom:18px;margin-bottom:22px}'+
+    '.brand{font-family:Georgia,\'Times New Roman\',serif;font-size:24px;font-weight:700;color:#0B3D6B}.brand span{color:#F2A900}'+
+    '.brand-sub{font-size:10px;color:#7A8794;margin-top:6px;line-height:1.6}'+
+    '.doc h1{font-family:Georgia,serif;font-size:19px;color:#16232E;text-align:right}'+
+    '.doc p{text-align:right;font-size:11px;color:#7A8794;margin-top:4px}'+
+    '.summary{display:flex;gap:14px;margin-bottom:24px}'+
+    '.summary div{flex:1;border:1px solid #E3E8ED;border-radius:10px;padding:14px 16px;text-align:center}'+
+    '.summary .v{font-family:ui-monospace,Consolas,monospace;font-size:18px;font-weight:800}'+
+    '.summary .l{font-size:9.5px;letter-spacing:.06em;color:#7A8794;font-weight:700;margin-top:4px}'+
+    'table{width:100%;border-collapse:collapse;font-size:12px}'+
+    'thead th{background:#0B3D6B;color:#fff;padding:8px 10px;text-align:left;font-size:10.5px}'+
+    'tbody td{padding:8px 10px}.num,td.num{text-align:right}'+
+    '.foot{margin-top:24px;font-size:9.5px;color:#94A3B0;text-align:center;border-top:1px solid #E3E8ED;padding-top:12px}'+
+    '@media print{@page{margin:14mm}}</style></head><body>'+
+    '<div class="top"><div><div class="brand">HIGIENE<span>X</span></div><div class="brand-sub">HIGIENEX S.L. · CIF B12345678<br>Carrer de la Indústria, 25 · 46010 València</div></div>'+
+    '<div class="doc"><h1>Extracte de compte</h1><p>'+escHtml(c.nom)+' · NIF '+escHtml(c.nif||'—')+'<br>Període: '+CP_FD(primera)+' – '+CP_FD(ultima)+'</p></div></div>'+
+    '<div class="summary">'+
+      '<div><div class="v" style="color:#0B3D6B">'+CP_EUR(totalFacturat)+'</div><div class="l">TOTAL FACTURAT</div></div>'+
+      '<div><div class="v" style="color:#0B7256">'+CP_EUR(totalPagat)+'</div><div class="l">TOTAL PAGAT</div></div>'+
+      '<div><div class="v" style="color:'+(totalPendent>0?'#8A5900':'#0B7256')+'">'+CP_EUR(totalPendent)+'</div><div class="l">SALDO PENDENT</div></div>'+
+      '<div><div class="v">'+fac.length+'</div><div class="l">FACTURES</div></div>'+
+    '</div>'+
+    '<table><thead><tr><th>Núm. factura</th><th>Emissió</th><th>Venciment</th><th class="num">Import</th><th>Estat</th></tr></thead><tbody>'+files+'</tbody></table>'+
+    '<div class="foot">HIGIENEX S.L. · Extracte generat automàticament des del portal de client · '+new Date().toLocaleString('ca-ES')+'</div>'+
+    '</body></html>';
+  var w=window.open('','_blank');
+  if(!w){ alert('El navegador ha bloquejat la finestra emergent. Permet finestres emergents per descarregar l\'extracte.'); return; }
+  w.document.open(); w.document.write(html); w.document.close(); w.focus();
+  setTimeout(function(){ try{ w.print(); }catch(e){} }, 350);
+}
+window.cpDescarregarExtracte = cpDescarregarExtracte;
 
 function cpDescarregarFactura(num){
   var f=CP_DB.facturas.find(function(x){return x.num===num;}); if(!f) return;
@@ -8663,7 +8854,7 @@ function cpDescarregarFactura(num){
     '<style>'+
     '*{box-sizing:border-box;margin:0;padding:0}'+
     'html{background:#EDEAE2}'+
-    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#fff;font-size:13px;line-height:1.5}'+
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:var(--cp-surface,#fff);font-size:13px;line-height:1.5}'+
     '.spine{position:fixed;top:0;left:0;bottom:0;width:9px;background:linear-gradient(180deg,#0B3D6B 0%,#0B3D6B 75%,#F2A900 100%)}'+
     '.sheet{max-width:740px;margin:0 auto;padding:44px 46px 40px 54px}'+
     '.top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}'+
