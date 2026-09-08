@@ -8240,13 +8240,13 @@ function cpUpdateNavState(){
   var btn = document.getElementById('navClientBtn');
   var lbl = document.getElementById('navClientDditemLabel');
   if (CP_LOGGED_IN) {
-    if (btn) btn.title = 'El meu panel';
+    if (btn) btn.title = cpT('t727');
     if (btn) btn.textContent = '📊';
-    if (lbl) lbl.textContent = '📊 El meu panel';
+    if (lbl) lbl.textContent = '📊 ' + cpT('t727');
   } else {
-    if (btn) btn.title = 'Àrea de Clients';
+    if (btn) btn.title = cpT('t726');
     if (btn) btn.textContent = '👤';
-    if (lbl) lbl.textContent = '👤 Àrea de Clients';
+    if (lbl) lbl.textContent = '👤 ' + cpT('t726');
   }
 }
 window.cpUpdateNavState = cpUpdateNavState;
@@ -8265,6 +8265,18 @@ function cpRestoreSession(){
   } catch(e) {}
 }
 window.addEventListener('DOMContentLoaded', cpRestoreSession);
+
+function cpLang(){
+  try { return localStorage.getItem('hx_lang') || 'ca'; } catch(e) { return 'ca'; }
+}
+window.cpLang = cpLang;
+function cpT(key){
+  var entry = (typeof HX_I18N !== 'undefined') ? HX_I18N[key] : null;
+  if (!entry) return key;
+  var lang = cpLang();
+  return entry[lang] || entry.ca || key;
+}
+window.cpT = cpT;
 
 function cpOpenLoginModal(){
   var m=document.getElementById('hxClientLoginModal'); if(!m) return;
@@ -8317,14 +8329,14 @@ window.cpTryLogin=cpTryLogin;
 
 var CP_TAB='inici', CP_FILTER='totes', CP_SEARCH='', CP_PERIOD='6m';
 var CP_NAV=[
-  ['inici','🏠','Inici'],
-  ['comandes','📦','Comandes'],
-  ['factures','🧾','Factures'],
-  ['empresa','👤','La meva empresa'],
-  ['suport','📞','Suport'],
-  ['botiga','🛍️','Fer comanda'],
-  ['fosc','🌙','Mode fosc'],
-  ['sortir','↩','Sortir']
+  ['inici','🏠','t717'],
+  ['comandes','📦','t718'],
+  ['factures','🧾','t719'],
+  ['empresa','👤','t720'],
+  ['suport','📞','t721'],
+  ['botiga','🛍️','t722'],
+  ['fosc','🌙','t723'],
+  ['sortir','↩','t725']
 ];
 
 var CP_PRODUCT_MAP = {
@@ -8391,7 +8403,7 @@ function cpRegistrarComanda(inv, items){
     num: 'C' + inv.invoiceNum.replace('FE-',''), fecha: fecha, lineas: lineasComanda,
     total: inv.total, estat: 'Processant'
   });
-  cpAfegirNotificacio('🆕', 'Comanda '+inv.invoiceNum+' registrada correctament, ja s\'està processant.');
+  cpAfegirNotificacio('🆕', 't756', {num: inv.invoiceNum});
 }
 window.cpRegistrarComanda = cpRegistrarComanda;
 
@@ -8443,9 +8455,9 @@ function cpRenderNav(){
   var isDark = document.getElementById('hxClientApp').classList.contains('cp-dark');
   document.getElementById('cpNav').innerHTML = CP_NAV.map(function(n){
     if (n[0]==='fosc') {
-      return '<button type="button" onclick="cpToggleDarkMode()"><span class="ic">'+(isDark?'☀️':'🌙')+'</span><span>'+(isDark?'Mode clar':'Mode fosc')+'</span></button>';
+      return '<button type="button" onclick="cpToggleDarkMode()"><span class="ic">'+(isDark?'☀️':'🌙')+'</span><span>'+(isDark?cpT('t724'):cpT('t723'))+'</span></button>';
     }
-    return '<button type="button" class="'+(CP_TAB===n[0]?'active':'')+'" onclick="cpGo(\''+n[0]+'\')"><span class="ic">'+n[1]+'</span><span>'+n[2]+'</span></button>';
+    return '<button type="button" class="'+(CP_TAB===n[0]?'active':'')+'" onclick="cpGo(\''+n[0]+'\')"><span class="ic">'+n[1]+'</span><span>'+cpT(n[2])+'</span></button>';
   }).join('');
 }
 function cpRenderUser(){
@@ -8477,7 +8489,7 @@ function cpEstatFactura(f){
   return 'pendent';
 }
 function cpEstatColor(e){ return e==='pagada'?'#0B7256':e==='vencida'?'#8C281E':'#8A5900'; }
-function cpEstatLabel(e){ return e==='pagada'?'Pagada':e==='vencida'?'Vençuda':'Pendent'; }
+function cpEstatLabel(e){ return e==='pagada'?cpT('t773'):e==='vencida'?cpT('t774'):cpT('t775'); }
 
 function cpViewInici(){
   var c=CP_DB.cliente, fac=CP_DB.facturas.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
@@ -8487,57 +8499,67 @@ function cpViewInici(){
   var pendents=fac.filter(function(f){var e=cpEstatFactura(f);return e==='pendent'||e==='vencida';}).length;
   var properaPendent=fac.filter(function(f){return cpEstatFactura(f)!=='pagada';}).sort(function(a,b){return a.venc.localeCompare(b.venc);})[0];
 
+  var vencudesTxt = (vencudes===1 ? cpT('t728') : cpT('t729')).replace('{n}', vencudes);
+  var pendentsTxt = (pendents===1 ? cpT('t730') : cpT('t731')).replace('{n}', pendents);
+
   var banner;
   if(vencudes>0){
-    banner='<div class="cp-banner" style="background:rgba(140,40,30,.1)"><div class="ic" style="background:#8C281E;color:#fff">⚠️</div><div><h3 style="color:#8C281E">Tens '+vencudes+' factura'+(vencudes>1?'es':'')+' vençuda'+(vencudes>1?'es':'')+'</h3><p>Posa\'t en contacte amb nosaltres per regularitzar el pagament.</p></div></div>';
+    banner='<div class="cp-banner" style="background:rgba(140,40,30,.1)"><div class="ic" style="background:#8C281E;color:#fff">⚠️</div><div><h3 style="color:#8C281E">'+vencudesTxt+'</h3><p>'+cpT('t732')+'</p></div></div>';
   } else if(pendents>0){
-    banner='<div class="cp-banner" style="background:rgba(138,89,0,.1)"><div class="ic" style="background:#8A5900;color:#fff">🟠</div><div><h3 style="color:#8A5900">Tens '+pendents+' pagament'+(pendents>1?'s':'')+' pendent'+(pendents>1?'s':'')+'</h3><p>Consulta el detall a la secció de Factures.</p></div></div>';
+    banner='<div class="cp-banner" style="background:rgba(138,89,0,.1)"><div class="ic" style="background:#8A5900;color:#fff">🟠</div><div><h3 style="color:#8A5900">'+pendentsTxt+'</h3><p>'+cpT('t733')+'</p></div></div>';
   } else {
-    banner='<div class="cp-banner" style="background:rgba(11,114,86,.1)"><div class="ic" style="background:#0B7256;color:#fff">✓</div><div><h3 style="color:#0B7256">Compte al dia</h3><p>No tens pagaments pendents. Totes les teves factures estan pagades.</p></div></div>';
+    banner='<div class="cp-banner" style="background:rgba(11,114,86,.1)"><div class="ic" style="background:#0B7256;color:#fff">✓</div><div><h3 style="color:#0B7256">'+cpT('t734')+'</h3><p>'+cpT('t735')+'</p></div></div>';
   }
   var statusPill = vencudes>0
-    ? '<span class="cp-status-pill" style="background:rgba(140,40,30,.12);color:#8C281E">🔴 '+vencudes+' factura vençuda</span>'
+    ? '<span class="cp-status-pill" style="background:rgba(140,40,30,.12);color:#8C281E">🔴 '+vencudesTxt+'</span>'
     : pendents>0
-    ? '<span class="cp-status-pill" style="background:rgba(138,89,0,.12);color:#8A5900">🟠 '+pendents+' pagament pendent</span>'
-    : '<span class="cp-status-pill" style="background:rgba(11,114,86,.12);color:#0B7256">🟢 Compte al dia</span>';
+    ? '<span class="cp-status-pill" style="background:rgba(138,89,0,.12);color:#8A5900">🟠 '+pendentsTxt+'</span>'
+    : '<span class="cp-status-pill" style="background:rgba(11,114,86,.12);color:#0B7256">🟢 '+cpT('t734')+'</span>';
 
   var kpis =
     '<div class="cp-kpis">'+
       '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(138,89,0,.12);color:#8A5900">💰</div>'+
-        '<div class="cp-kpi-val">'+CP_EUR(saldo)+'</div><div class="cp-kpi-lbl">Saldo pendent</div>'+
-        '<div class="cp-kpi-sub" style="color:'+(saldo>0?'#8A5900':'#0B7256')+'">'+(saldo>0?'Per liquidar':'🟢 Sense pagaments')+'</div></div>'+
+        '<div class="cp-kpi-val">'+CP_EUR(saldo)+'</div><div class="cp-kpi-lbl">'+cpT('t736')+'</div>'+
+        '<div class="cp-kpi-sub" style="color:'+(saldo>0?'#8A5900':'#0B7256')+'">'+(saldo>0?cpT('t737'):'🟢 '+cpT('t738'))+'</div></div>'+
       '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(21,101,168,.12);color:var(--green-deep)">📈</div>'+
-        '<div class="cp-kpi-val">'+CP_EUR(totalAny)+'</div><div class="cp-kpi-lbl">Facturat</div>'+
-        '<div class="cp-kpi-sub" style="color:var(--cp-muted,rgba(26,26,26,.55))">Aquest any</div></div>'+
+        '<div class="cp-kpi-val">'+CP_EUR(totalAny)+'</div><div class="cp-kpi-lbl">'+cpT('t739')+'</div>'+
+        '<div class="cp-kpi-sub" style="color:var(--cp-muted,rgba(26,26,26,.55))">'+cpT('t740')+'</div></div>'+
       '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(21,101,168,.12);color:var(--green-deep)">🧾</div>'+
-        '<div class="cp-kpi-val">'+fac.length+'</div><div class="cp-kpi-lbl">Factures</div>'+
-        '<div class="cp-kpi-sub" style="color:var(--cp-muted,rgba(26,26,26,.55))">Total emeses</div></div>'+
+        '<div class="cp-kpi-val">'+fac.length+'</div><div class="cp-kpi-lbl">'+cpT('t719')+'</div>'+
+        '<div class="cp-kpi-sub" style="color:var(--cp-muted,rgba(26,26,26,.55))">'+cpT('t741')+'</div></div>'+
       '<div class="cp-kpi"><div class="cp-kpi-ic" style="background:rgba(138,89,0,.12);color:#8A5900">📅</div>'+
-        '<div class="cp-kpi-val" style="font-size:15px">'+(properaPendent?CP_FD(properaPendent.venc):'Cap')+'</div><div class="cp-kpi-lbl">Proper pagament</div>'+
-        '<div class="cp-kpi-sub" style="color:var(--cp-muted,rgba(26,26,26,.55))">'+(properaPendent?properaPendent.num:'Compte al dia')+'</div></div>'+
+        '<div class="cp-kpi-val" style="font-size:15px">'+(properaPendent?CP_FD(properaPendent.venc):cpT('t743'))+'</div><div class="cp-kpi-lbl">'+cpT('t742')+'</div>'+
+        '<div class="cp-kpi-sub" style="color:var(--cp-muted,rgba(26,26,26,.55))">'+(properaPendent?properaPendent.num:cpT('t734'))+'</div></div>'+
     '</div>';
 
   var chart=cpChartHTML(fac);
   var notifs=cpNotifsHTML(fac);
 
   return ''+
-    '<div class="cp-topbar"><div class="cp-greet"><h1>Bon dia, '+escHtml(c.nom.split(' ')[0])+' 👋</h1>'+
-      '<p>Aquí tens un resum actualitzat del teu compte.</p>'+statusPill+
-      '<div class="cp-updated">Actualitzat fa uns minuts</div></div></div>'+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>'+cpT('t744')+', '+escHtml(c.nom.split(' ')[0])+' 👋</h1>'+
+      '<p>'+cpT('t745')+'</p>'+statusPill+
+      '<div class="cp-updated">'+cpT('t746')+'</div></div></div>'+
     banner+kpis+
     '<div class="cp-card" style="margin-bottom:20px">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
-        '<div class="cp-section-title" style="margin:0">Evolució de facturació</div>'+
+        '<div class="cp-section-title" style="margin:0">'+cpT('t747')+'</div>'+
         '<div class="cp-period-row" id="cpPeriodRow">'+
           ['7d','30d','6m','any'].map(function(p){return '<button type="button" class="cp-period-btn '+(CP_PERIOD===p?'active':'')+'" data-p="'+p+'">'+p.toUpperCase()+'</button>';}).join('')+
         '</div>'+
       '</div>'+chart+
     '</div>'+
-    '<div class="cp-card"><div class="cp-section-title">Notificacions</div>'+notifs+'</div>';
+    '<div class="cp-card"><div class="cp-section-title">'+cpT('t748')+'</div>'+notifs+'</div>';
 }
 
+var CP_MESOS = {
+  ca: ['Gen','Feb','Mar','Abr','Mai','Jun','Jul','Ago','Set','Oct','Nov','Des'],
+  es: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+  en: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+  fr: ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'],
+  de: ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez']
+};
 function cpChartHTML(fac){
-  if(!fac.length) return '<div class="cp-empty"><div class="ic">📊</div><b>Encara no hi ha dades suficients</b><span>Quan es registri la teva primera factura apareixerà aquí la teva evolució financera.</span></div>';
+  if(!fac.length) return '<div class="cp-empty"><div class="ic">📊</div><b>'+cpT('t749')+'</b><span>'+cpT('t750')+'</span></div>';
   var now=new Date(CP_TODAY+'T00:00:00');
   var cutoff=new Date(now);
   if(CP_PERIOD==='7d') cutoff.setDate(cutoff.getDate()-7);
@@ -8546,12 +8568,12 @@ function cpChartHTML(fac){
   else cutoff=new Date(now.getFullYear(),0,1);
   var cutoffStr=cutoff.toISOString().slice(0,10);
   var enRang=fac.filter(function(f){return f.fecha>=cutoffStr;});
-  if(!enRang.length) return '<div class="cp-empty"><div class="ic">📊</div><b>Sense factures en aquest període</b><span>Prova a seleccionar un rang de temps més ampli.</span></div>';
+  if(!enRang.length) return '<div class="cp-empty"><div class="ic">📊</div><b>'+cpT('t751')+'</b><span>'+cpT('t752')+'</span></div>';
   var grupPerDia = CP_PERIOD==='7d'||CP_PERIOD==='30d';
   var buckets={};
   enRang.forEach(function(f){ var k = grupPerDia ? f.fecha : f.fecha.slice(0,7); buckets[k]=(buckets[k]||0)+f.total; });
   var claus=Object.keys(buckets).sort();
-  var nomsCurts=['Gen','Feb','Mar','Abr','Mai','Jun','Jul','Ago','Set','Oct','Nov','Des'];
+  var nomsCurts=CP_MESOS[cpLang()] || CP_MESOS.ca;
   var items=claus.map(function(k){
     return { label: grupPerDia ? CP_FD(k) : (nomsCurts[parseInt(k.slice(5,7),10)-1]+' '+k.slice(2,4)), value: buckets[k], valueLabel: CP_EUR(buckets[k]), color:'#0B3D6B' };
   });
@@ -8580,21 +8602,21 @@ function cpSeedNotifsIfNeeded(fac){
   var items = [];
   var pagades = fac.filter(function(f){ return cpEstatFactura(f)==='pagada'; });
   pagades.forEach(function(f){
-    items.push({ id:'pag-'+f.num, icon:'✅', title:'Factura '+f.num+' pagada correctament', date:f.fecha, read:true });
+    items.push({ id:'pag-'+f.num, icon:'✅', key:'t753', params:{num:f.num}, date:f.fecha, read:true });
   });
   var propVenc = fac.filter(function(f){return cpEstatFactura(f)==='pendent';}).sort(function(a,b){return a.venc.localeCompare(b.venc);})[0];
   if (propVenc) {
     var dies=Math.round((new Date(propVenc.venc+'T00:00:00')-new Date(CP_TODAY+'T00:00:00'))/86400000);
-    if (dies>=0) items.push({ id:'venc-'+propVenc.num, icon:'⏳', title:'La teva factura '+propVenc.num+' venç en '+dies+' dies', date:'', read:false });
+    if (dies>=0) items.push({ id:'venc-'+propVenc.num, icon:'⏳', key:'t754', params:{num:propVenc.num, dies:dies}, date:'', read:false });
   }
-  if (fac[0]) items.push({ id:'nova-'+fac[0].num, icon:'🆕', title:'Nova factura disponible: '+fac[0].num, date:fac[0].fecha, read:false });
+  if (fac[0]) items.push({ id:'nova-'+fac[0].num, icon:'🆕', key:'t755', params:{num:fac[0].num}, date:fac[0].fecha, read:false });
   items.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
   cpSaveNotifs(items);
   return items;
 }
-function cpAfegirNotificacio(icon, title){
+function cpAfegirNotificacio(icon, key, params){
   var list = cpLoadNotifs() || [];
-  list.unshift({ id:'n'+Date.now(), icon:icon, title:title, date:new Date().toISOString().slice(0,10), read:false });
+  list.unshift({ id:'n'+Date.now(), icon:icon, key:key, params:params||{}, date:new Date().toISOString().slice(0,10), read:false });
   cpSaveNotifs(list);
 }
 window.cpAfegirNotificacio = cpAfegirNotificacio;
@@ -8614,19 +8636,25 @@ function cpMarkAllNotifsRead(){
 }
 window.cpMarkAllNotifsRead = cpMarkAllNotifsRead;
 
+function cpNotifTitle(n){
+  var txt = cpT(n.key || 't757');
+  var params = n.params || {};
+  Object.keys(params).forEach(function(k){ txt = txt.replace('{'+k+'}', params[k]); });
+  return txt;
+}
 function cpNotifsHTML(fac){
   var items = cpSeedNotifsIfNeeded(fac);
-  if(!items.length) return '<div class="cp-empty" style="padding:18px 10px"><div class="ic">🔔</div><span>Sense notificacions.</span></div>';
+  if(!items.length) return '<div class="cp-empty" style="padding:18px 10px"><div class="ic">🔔</div><span>'+cpT('t757')+'</span></div>';
   var noLlegides = items.filter(function(n){ return !n.read; }).length;
   var header = noLlegides > 0
-    ? '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:11.5px;color:#8A5900;font-weight:700">'+noLlegides+' sense llegir</span><button type="button" onclick="cpMarkAllNotifsRead()" style="background:none;border:none;color:var(--green-deep);font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:underline">Marcar totes com llegides</button></div>'
+    ? '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span style="font-size:11.5px;color:#8A5900;font-weight:700">'+noLlegides+' '+cpT('t758')+'</span><button type="button" onclick="cpMarkAllNotifsRead()" style="background:none;border:none;color:var(--green-deep);font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:underline">'+cpT('t759')+'</button></div>'
     : '';
   var rows = items.map(function(n){
     var unreadStyle = n.read ? '' : 'background:#F5FAFF;';
     return '<div class="cp-notif" style="'+unreadStyle+'align-items:center">'+
       (n.read ? '' : '<span style="width:7px;height:7px;border-radius:50%;background:var(--green-deep);flex-shrink:0;margin-right:2px"></span>')+
-      '<span class="ic">'+n.icon+'</span><div style="flex:1"><b>'+escHtml(n.title)+'</b>'+(n.date?'<span>'+CP_FD(n.date)+'</span>':'')+'</div>'+
-      (n.read ? '' : '<button type="button" onclick="cpMarkNotifRead(\''+n.id+'\')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:4px 9px;font-size:10.5px;color:var(--green-deep);cursor:pointer;flex-shrink:0">Marcar llegit</button>')+
+      '<span class="ic">'+n.icon+'</span><div style="flex:1"><b>'+escHtml(cpNotifTitle(n))+'</b>'+(n.date?'<span>'+CP_FD(n.date)+'</span>':'')+'</div>'+
+      (n.read ? '' : '<button type="button" onclick="cpMarkNotifRead(\''+n.id+'\')" style="background:none;border:1px solid var(--border);border-radius:8px;padding:4px 9px;font-size:10.5px;color:var(--green-deep);cursor:pointer;flex-shrink:0">'+cpT('t760')+'</button>')+
     '</div>';
   }).join('');
   return header + rows;
@@ -8634,6 +8662,7 @@ function cpNotifsHTML(fac){
 
 var CP_ESTATS_COMANDA = ['Processant','Enviat','En repartiment','Entregat'];
 var CP_ESTATS_ICONS = {Processant:'📋', Enviat:'📦', 'En repartiment':'🚚', Entregat:'✅'};
+var CP_ESTATS_KEY = {Processant:'t761', Enviat:'t762', 'En repartiment':'t763', Entregat:'t764'};
 
 function cpEstatComandaColor(estat){
   var i = CP_ESTATS_COMANDA.indexOf(estat);
@@ -8648,7 +8677,7 @@ function cpStepperHTML(estatActual){
       var isLast = i === CP_ESTATS_COMANDA.length - 1;
       var circle = '<div style="display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:64px">' +
         '<div style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;background:'+(done?'var(--green-deep)':'#E8ECEF')+';color:'+(done?'#fff':'#999')+';box-shadow:'+(i===idxActual?'0 0 0 4px rgba(11,61,107,.15)':'none')+';">'+(done?'✓':(i+1))+'</div>' +
-        '<span style="font-size:9.5px;color:'+(done?'var(--charcoal)':'#999')+';font-weight:'+(done?'700':'500')+';margin-top:5px;text-align:center;line-height:1.2">'+estat+'</span>' +
+        '<span style="font-size:9.5px;color:'+(done?'var(--charcoal)':'#999')+';font-weight:'+(done?'700':'500')+';margin-top:5px;text-align:center;line-height:1.2">'+cpT(CP_ESTATS_KEY[estat])+'</span>' +
       '</div>';
       var line = isLast ? '' : '<div style="flex:1;height:3px;background:'+(i<idxActual?'var(--green-deep)':'#E8ECEF')+';margin:0 -4px;margin-bottom:19px"></div>';
       return circle + line;
@@ -8670,8 +8699,8 @@ window.cpTornarAComprarFactura = cpTornarAComprarFactura;
 function cpViewComandes(){
   var com=CP_DB.comandes.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
   if(!com.length){
-    return '<div class="cp-topbar"><div class="cp-greet"><h1>Comandes</h1><p>Segueix l\'estat dels teus pedidos.</p></div></div>'+
-      '<div class="cp-empty"><div class="ic">📦</div><b>Encara no has fet cap comanda</b><span>Quan facis una comanda, apareixerà aquí amb el seu estat d\'enviament.</span></div>';
+    return '<div class="cp-topbar"><div class="cp-greet"><h1>'+cpT('t718')+'</h1><p>'+cpT('t765')+'</p></div></div>'+
+      '<div class="cp-empty"><div class="ic">📦</div><b>'+cpT('t766')+'</b><span>'+cpT('t767')+'</span></div>';
   }
   var cards=com.map(function(c){
     var color=cpEstatComandaColor(c.estat);
@@ -8681,14 +8710,14 @@ function cpViewComandes(){
         '<div><div style="font-weight:700;font-size:14.5px;color:var(--charcoal)">'+escHtml(c.num)+'</div>'+
         '<div style="font-size:11.5px;color:var(--cp-muted,rgba(26,26,26,.55));margin-top:2px">'+CP_FD(c.fecha)+' · '+linies+'</div></div>'+
         '<div style="text-align:right"><div class="cp-inv-amt" style="font-size:15px">'+CP_EUR(c.total)+'</div>'+
-        '<span class="cp-tag" style="color:'+color+';border-color:'+color+'44;background:'+color+'18">'+CP_ESTATS_ICONS[c.estat]+' '+escHtml(c.estat)+'</span></div>'+
+        '<span class="cp-tag" style="color:'+color+';border-color:'+color+'44;background:'+color+'18">'+CP_ESTATS_ICONS[c.estat]+' '+cpT(CP_ESTATS_KEY[c.estat])+'</span></div>'+
       '</div>'+
       cpStepperHTML(c.estat)+
-      (c.estat==='Entregat' ? '<div style="text-align:right;margin-top:14px"><button type="button" onclick="cpTornarAComprarComanda(\''+c.num+'\')" class="cp-btn ghost" style="padding:7px 14px;font-size:12px">🔁 Tornar a comprar</button></div>' : '')+
+      (c.estat==='Entregat' ? '<div style="text-align:right;margin-top:14px"><button type="button" onclick="cpTornarAComprarComanda(\''+c.num+'\')" class="cp-btn ghost" style="padding:7px 14px;font-size:12px">'+cpT('t768')+'</button></div>' : '')+
     '</div>';
   }).join('');
   return ''+
-    '<div class="cp-topbar"><div class="cp-greet"><h1>Comandes</h1><p>Segueix l\'estat dels teus pedidos, des que es processen fins que arriben.</p></div></div>'+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>'+cpT('t718')+'</h1><p>'+cpT('t765')+'</p></div></div>'+
     cards;
 }
 
@@ -8697,33 +8726,33 @@ function cpViewFactures(){
   if(CP_FILTER!=='totes') fac=fac.filter(function(f){return cpEstatFactura(f)===CP_FILTER;});
   if(CP_SEARCH) fac=fac.filter(function(f){return f.num.toLowerCase().indexOf(CP_SEARCH.toLowerCase())>=0;});
 
-  var chips=[['totes','Totes'],['pagada','Pagades'],['pendent','Pendents'],['vencida','Vençudes']].map(function(ch){
-    return '<button type="button" class="cp-chip '+(CP_FILTER===ch[0]?'active':'')+'" onclick="cpFiltrar(\''+ch[0]+'\')">'+ch[1]+'</button>';
+  var chips=[['totes','t769'],['pagada','t770'],['pendent','t771'],['vencida','t772']].map(function(ch){
+    return '<button type="button" class="cp-chip '+(CP_FILTER===ch[0]?'active':'')+'" onclick="cpFiltrar(\''+ch[0]+'\')">'+cpT(ch[1])+'</button>';
   }).join('');
 
   var rows=fac.map(function(f){
     var e=cpEstatFactura(f);
     return '<div class="cp-inv-row" onclick="cpVeureFactura(\''+f.num+'\')">'+
       '<span class="cp-inv-dot" style="background:'+cpEstatColor(e)+'"></span>'+
-      '<div style="flex:1;min-width:0"><div class="cp-inv-num">'+escHtml(f.num)+'</div><div class="cp-inv-date">'+CP_FD(f.fecha)+' · Subministrament de productes</div></div>'+
+      '<div style="flex:1;min-width:0"><div class="cp-inv-num">'+escHtml(f.num)+'</div><div class="cp-inv-date">'+CP_FD(f.fecha)+' · '+cpT('t776')+'</div></div>'+
       '<div style="text-align:right"><div class="cp-inv-amt">'+CP_EUR(f.total)+'</div><span class="cp-tag" style="color:'+cpEstatColor(e)+';border-color:'+cpEstatColor(e)+'44;background:'+cpEstatColor(e)+'18">'+cpEstatLabel(e)+'</span></div>'+
       '<div class="cp-inv-actions" onclick="event.stopPropagation()">'+
-        '<button type="button" title="Veure" onclick="cpVeureFactura(\''+f.num+'\')">👁</button>'+
-        '<button type="button" title="Descarregar PDF" onclick="cpDescarregarFactura(\''+f.num+'\')">⬇</button>'+
-        '<button type="button" title="Tornar a comprar" onclick="cpTornarAComprarFactura(\''+f.num+'\')">🔁</button>'+
+        '<button type="button" title="'+cpT('t777')+'" onclick="cpVeureFactura(\''+f.num+'\')">👁</button>'+
+        '<button type="button" title="'+cpT('t778')+'" onclick="cpDescarregarFactura(\''+f.num+'\')">⬇</button>'+
+        '<button type="button" title="'+cpT('t768').replace('🔁 ','')+'" onclick="cpTornarAComprarFactura(\''+f.num+'\')">🔁</button>'+
       '</div>'+
     '</div>';
   }).join('');
 
-  var empty='<div class="cp-empty"><div class="ic">🧾</div><b>Sense factures</b><span>No hi ha factures que coincideixin amb la cerca o el filtre.</span></div>';
+  var empty='<div class="cp-empty"><div class="ic">🧾</div><b>'+cpT('t782')+'</b><span>'+cpT('t783')+'</span></div>';
 
   return ''+
-    '<div class="cp-topbar"><div class="cp-greet"><h1>Factures</h1><p>Historial complet de les teves factures.</p></div>'+
-      '<button type="button" onclick="cpDescarregarExtracte()" class="cp-btn ghost">📄 Extracte de compte</button>'+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>'+cpT('t719')+'</h1><p>'+cpT('t779')+'</p></div>'+
+      '<button type="button" onclick="cpDescarregarExtracte()" class="cp-btn ghost">'+cpT('t780')+'</button>'+
     '</div>'+
     '<div class="cp-card">'+
       '<div class="cp-toolbar">'+
-        '<input class="cp-search" placeholder="🔍 Cercar per número de factura…" value="'+escHtml(CP_SEARCH)+'" oninput="cpCercar(this.value)">'+chips+
+        '<input class="cp-search" placeholder="'+cpT('t781')+'" value="'+escHtml(CP_SEARCH)+'" oninput="cpCercar(this.value)">'+chips+
       '</div>'+(rows || empty)+
     '</div>';
 }
@@ -8743,30 +8772,30 @@ function cpVeureFactura(num){
   var body =
     '<div style="margin-bottom:16px"><span class="cp-tag" style="color:'+cpEstatColor(e)+';border-color:'+cpEstatColor(e)+'44;background:'+cpEstatColor(e)+'18">'+cpEstatLabel(e)+'</span></div>'+
     '<div style="display:flex;gap:24px;margin-bottom:18px;flex-wrap:wrap;font-size:13px">'+
-      '<div><b style="font-size:11px;color:var(--cp-muted,rgba(26,26,26,.55));display:block">EMISSIÓ</b>'+CP_FD(f.fecha)+'</div>'+
-      '<div><b style="font-size:11px;color:var(--cp-muted,rgba(26,26,26,.55));display:block">VENCIMENT</b>'+CP_FD(f.venc)+'</div>'+
+      '<div><b style="font-size:11px;color:var(--cp-muted,rgba(26,26,26,.55));display:block">'+cpT('t784')+'</b>'+CP_FD(f.fecha)+'</div>'+
+      '<div><b style="font-size:11px;color:var(--cp-muted,rgba(26,26,26,.55));display:block">'+cpT('t785')+'</b>'+CP_FD(f.venc)+'</div>'+
     '</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">'+
       '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px">'+
-        '<div style="font-size:9.5px;letter-spacing:.08em;color:#B8860B;font-weight:700;margin-bottom:6px">FACTURAR A</div>'+
+        '<div style="font-size:9.5px;letter-spacing:.08em;color:#B8860B;font-weight:700;margin-bottom:6px">'+cpT('t786')+'</div>'+
         '<div style="font-size:12.5px;color:#33424F;line-height:1.7"><b style="display:block;color:var(--charcoal);font-size:13px">'+escHtml(c.nom)+'</b>NIF: '+escHtml(c.nif||'—')+'<br>'+escHtml(c.dir||'—')+'<br>'+escHtml(c.pob||'—')+'</div>'+
       '</div>'+
       '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px">'+
-        '<div style="font-size:9.5px;letter-spacing:.08em;color:#B8860B;font-weight:700;margin-bottom:6px">DADES D\'HIGIENEX S.L.</div>'+
+        '<div style="font-size:9.5px;letter-spacing:.08em;color:#B8860B;font-weight:700;margin-bottom:6px">'+cpT('t787')+'</div>'+
         '<div style="font-size:12.5px;color:#33424F;line-height:1.7"><b style="display:block;color:var(--charcoal);font-size:13px">HIGIENEX S.L.</b>CIF: B12345678<br>Carrer de la Indústria, 25<br>46010 València</div>'+
       '</div>'+
     '</div>'+
-    '<table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr><th style="text-align:left;border-bottom:2px solid var(--charcoal);padding:6px 4px">Concepte</th><th style="text-align:right;border-bottom:2px solid var(--charcoal);padding:6px 4px">Uds.</th><th style="text-align:right;border-bottom:2px solid var(--charcoal);padding:6px 4px">Preu</th><th style="text-align:right;border-bottom:2px solid var(--charcoal);padding:6px 4px">Import</th></tr></thead><tbody>'+filas+'</tbody></table>'+
+    '<table style="width:100%;border-collapse:collapse;font-size:12.5px"><thead><tr><th style="text-align:left;border-bottom:2px solid var(--charcoal);padding:6px 4px">'+cpT('t788')+'</th><th style="text-align:right;border-bottom:2px solid var(--charcoal);padding:6px 4px">'+cpT('t789')+'</th><th style="text-align:right;border-bottom:2px solid var(--charcoal);padding:6px 4px">'+cpT('t790')+'</th><th style="text-align:right;border-bottom:2px solid var(--charcoal);padding:6px 4px">'+cpT('t791')+'</th></tr></thead><tbody>'+filas+'</tbody></table>'+
     '<div style="margin-left:auto;width:260px;margin-top:14px;font-size:13px">'+
-      '<div style="display:flex;justify-content:space-between;padding:5px 0"><span>Base imposable</span><span>'+CP_EUR(f.base)+'</span></div>'+
-      '<div style="display:flex;justify-content:space-between;padding:5px 0"><span>IVA 21%</span><span>'+CP_EUR(f.cuota)+'</span></div>'+
-      '<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid var(--green-deep);font-weight:800;color:var(--green-deep)"><span>Total</span><span>'+CP_EUR(f.total)+'</span></div>'+
+      '<div style="display:flex;justify-content:space-between;padding:5px 0"><span>'+cpT('t792')+'</span><span>'+CP_EUR(f.base)+'</span></div>'+
+      '<div style="display:flex;justify-content:space-between;padding:5px 0"><span>'+cpT('t793')+'</span><span>'+CP_EUR(f.cuota)+'</span></div>'+
+      '<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid var(--green-deep);font-weight:800;color:var(--green-deep)"><span>'+cpT('t794')+'</span><span>'+CP_EUR(f.total)+'</span></div>'+
     '</div>';
-  cpOpenModal('Factura '+escHtml(num), body,
-    '<button class="cp-btn ghost" onclick="cpCloseModal()" type="button">Tancar</button>'+
-    '<button class="cp-btn ghost" onclick="window.print()" type="button">🖨 Imprimir</button>'+
-    '<button class="cp-btn ghost" onclick="cpTornarAComprarFactura(\''+num+'\')" type="button">🔁 Tornar a comprar</button>'+
-    '<button class="cp-btn" onclick="cpDescarregarFactura(\''+num+'\')" type="button">⬇ Descarregar PDF</button>');
+  cpOpenModal(cpT('t795')+' '+escHtml(num), body,
+    '<button class="cp-btn ghost" onclick="cpCloseModal()" type="button">'+cpT('t796')+'</button>'+
+    '<button class="cp-btn ghost" onclick="window.print()" type="button">'+cpT('t797')+'</button>'+
+    '<button class="cp-btn ghost" onclick="cpTornarAComprarFactura(\''+num+'\')" type="button">'+cpT('t768')+'</button>'+
+    '<button class="cp-btn" onclick="cpDescarregarFactura(\''+num+'\')" type="button">'+cpT('t798')+'</button>');
 }
 window.cpVeureFactura=cpVeureFactura;
 
@@ -8792,19 +8821,20 @@ window.cpCloseModal=cpCloseModal;
 function cpDescarregarExtracte(){
   var fac = CP_DB.facturas.slice().sort(function(a,b){ return a.fecha.localeCompare(b.fecha); });
   var c = CP_DB.cliente;
-  if (!fac.length) { alert('Encara no hi ha factures per generar un extracte.'); return; }
+  if (!fac.length) { alert(cpT('t827')); return; }
   var totalFacturat = fac.reduce(function(s,f){ return s+f.total; }, 0);
   var totalPagat = fac.filter(function(f){ return cpEstatFactura(f)==='pagada'; }).reduce(function(s,f){ return s+f.total; }, 0);
   var totalPendent = totalFacturat - totalPagat;
   var primera = fac[0].fecha, ultima = fac[fac.length-1].fecha;
+  var htmlLang = cpLang();
   var files = fac.map(function(f, idx){
     var e = cpEstatFactura(f);
     var color = e==='pagada'?'#0B7256':e==='vencida'?'#8C281E':'#8A5900';
-    var label = e==='pagada'?'Pagada':e==='vencida'?'Vençuda':'Pendent';
+    var label = cpEstatLabel(e);
     return '<tr style="background:'+(idx%2?'#F7F9FB':'#fff')+'"><td>'+escHtml(f.num)+'</td><td>'+CP_FD(f.fecha)+'</td><td>'+CP_FD(f.venc)+'</td>'+
       '<td class="num strong">'+CP_EUR(f.total)+'</td><td><span style="color:'+color+';font-weight:700;font-size:11px">'+label+'</span></td></tr>';
   }).join('');
-  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Extracte de compte · HIGIENEX S.L.</title>'+
+  var html = '<!DOCTYPE html><html lang="'+htmlLang+'"><head><meta charset="UTF-8"><title>'+cpT('t828')+' · HIGIENEX S.L.</title>'+
     '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;padding:40px 46px;font-size:13px}'+
     '.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0B3D6B;padding-bottom:18px;margin-bottom:22px}'+
     '.brand{font-family:Georgia,\'Times New Roman\',serif;font-size:24px;font-weight:700;color:#0B3D6B}.brand span{color:#F2A900}'+
@@ -8821,22 +8851,23 @@ function cpDescarregarExtracte(){
     '.foot{margin-top:24px;font-size:9.5px;color:#94A3B0;text-align:center;border-top:1px solid #E3E8ED;padding-top:12px}'+
     '@media print{@page{margin:14mm}}</style></head><body>'+
     '<div class="top"><div><div class="brand">HIGIENE<span>X</span></div><div class="brand-sub">HIGIENEX S.L. · CIF B12345678<br>Carrer de la Indústria, 25 · 46010 València</div></div>'+
-    '<div class="doc"><h1>Extracte de compte</h1><p>'+escHtml(c.nom)+' · NIF '+escHtml(c.nif||'—')+'<br>Període: '+CP_FD(primera)+' – '+CP_FD(ultima)+'</p></div></div>'+
+    '<div class="doc"><h1>'+cpT('t828')+'</h1><p>'+escHtml(c.nom)+' · NIF '+escHtml(c.nif||'—')+'<br>'+cpT('t837')+' '+CP_FD(primera)+' – '+CP_FD(ultima)+'</p></div></div>'+
     '<div class="summary">'+
-      '<div><div class="v" style="color:#0B3D6B">'+CP_EUR(totalFacturat)+'</div><div class="l">TOTAL FACTURAT</div></div>'+
-      '<div><div class="v" style="color:#0B7256">'+CP_EUR(totalPagat)+'</div><div class="l">TOTAL PAGAT</div></div>'+
-      '<div><div class="v" style="color:'+(totalPendent>0?'#8A5900':'#0B7256')+'">'+CP_EUR(totalPendent)+'</div><div class="l">SALDO PENDENT</div></div>'+
-      '<div><div class="v">'+fac.length+'</div><div class="l">FACTURES</div></div>'+
+      '<div><div class="v" style="color:#0B3D6B">'+CP_EUR(totalFacturat)+'</div><div class="l">'+cpT('t829')+'</div></div>'+
+      '<div><div class="v" style="color:#0B7256">'+CP_EUR(totalPagat)+'</div><div class="l">'+cpT('t830')+'</div></div>'+
+      '<div><div class="v" style="color:'+(totalPendent>0?'#8A5900':'#0B7256')+'">'+CP_EUR(totalPendent)+'</div><div class="l">'+cpT('t831')+'</div></div>'+
+      '<div><div class="v">'+fac.length+'</div><div class="l">'+cpT('t832')+'</div></div>'+
     '</div>'+
-    '<table><thead><tr><th>Núm. factura</th><th>Emissió</th><th>Venciment</th><th class="num">Import</th><th>Estat</th></tr></thead><tbody>'+files+'</tbody></table>'+
-    '<div class="foot">HIGIENEX S.L. · Extracte generat automàticament des del portal de client · '+new Date().toLocaleString('ca-ES')+'</div>'+
+    '<table><thead><tr><th>'+cpT('t833')+'</th><th>'+cpT('t834')+'</th><th>'+cpT('t835')+'</th><th class="num">'+cpT('t791')+'</th><th>'+cpT('t836')+'</th></tr></thead><tbody>'+files+'</tbody></table>'+
+    '<div class="foot">HIGIENEX S.L. · '+cpT('t838')+' · '+new Date().toLocaleString(htmlLang)+'</div>'+
     '</body></html>';
   var w=window.open('','_blank');
-  if(!w){ alert('El navegador ha bloquejat la finestra emergent. Permet finestres emergents per descarregar l\'extracte.'); return; }
+  if(!w){ alert(cpT('t839')); return; }
   w.document.open(); w.document.write(html); w.document.close(); w.focus();
   setTimeout(function(){ try{ w.print(); }catch(e){} }, 350);
 }
 window.cpDescarregarExtracte = cpDescarregarExtracte;
+
 
 function cpDescarregarFactura(num){
   var f=CP_DB.facturas.find(function(x){return x.num===num;}); if(!f) return;
@@ -8844,17 +8875,18 @@ function cpDescarregarFactura(num){
   var e=cpEstatFactura(f);
   var estatColor = e==='pagada'?'#0B7256':e==='vencida'?'#8C281E':'#8A5900';
   var estatBg = e==='pagada'?'#E5F3EE':e==='vencida'?'#F7E6E4':'#F7F0E0';
-  var estatLabel = e==='pagada'?'PAGADA':e==='vencida'?'VENÇUDA':'PENDENT';
+  var estatLabel = cpEstatLabel(e).toUpperCase();
   var filas=(f.lineas||[]).map(function(l, idx){
     var p=CP_DB.productos[l.art];
     var nomProd = l.nom || (p?p.nom:l.art);
     return '<tr style="background:'+(idx%2?'#F7F9FB':'#fff')+'"><td>'+escHtml(nomProd)+'</td><td class="num">'+CP_NUM(l.cant)+'</td><td class="num">'+CP_EUR(l.precio)+'</td><td class="num strong">'+CP_EUR(l.cant*l.precio)+'</td></tr>';
   }).join('');
-  var html='<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Factura '+num+' · HIGIENEX S.L.</title>'+
+  var htmlLang = cpLang();
+  var html='<!DOCTYPE html><html lang="'+htmlLang+'"><head><meta charset="UTF-8"><title>'+cpT('t795')+' '+num+' · HIGIENEX S.L.</title>'+
     '<style>'+
     '*{box-sizing:border-box;margin:0;padding:0}'+
     'html{background:#EDEAE2}'+
-    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:var(--cp-surface,#fff);font-size:13px;line-height:1.5}'+
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#fff;font-size:13px;line-height:1.5}'+
     '.spine{position:fixed;top:0;left:0;bottom:0;width:9px;background:linear-gradient(180deg,#0B3D6B 0%,#0B3D6B 75%,#F2A900 100%)}'+
     '.sheet{max-width:740px;margin:0 auto;padding:44px 46px 40px 54px}'+
     '.top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}'+
@@ -8893,30 +8925,30 @@ function cpDescarregarFactura(num){
       '<div class="top">'+
         '<div><div class="brand">HIGIENE<span>X</span></div>'+
         '<div class="brand-sub">HIGIENEX S.L. · CIF B12345678<br>Carrer de la Indústria, 25 · 46010 València<br>contacto@higienexvalencia.es · 963 123 456</div></div>'+
-        '<div class="doc"><h1>Factura</h1><div class="num">'+escHtml(num)+'</div><div class="pill">'+estatLabel+'</div></div>'+
+        '<div class="doc"><h1>'+cpT('t795')+'</h1><div class="num">'+escHtml(num)+'</div><div class="pill">'+estatLabel+'</div></div>'+
       '</div>'+
       '<div class="divider"></div>'+
       '<div class="meta-row">'+
-        '<div><b>DATA D\'EMISSIÓ</b>'+CP_FD(f.fecha)+'</div>'+
-        '<div><b>DATA DE VENCIMENT</b>'+CP_FD(f.venc)+'</div>'+
-        '<div><b>FORMA DE PAGAMENT</b>Transferència bancària</div>'+
+        '<div><b>'+cpT('t799')+'</b>'+CP_FD(f.fecha)+'</div>'+
+        '<div><b>'+cpT('t800')+'</b>'+CP_FD(f.venc)+'</div>'+
+        '<div><b>'+cpT('t801')+'</b>'+cpT('t802')+'</div>'+
       '</div>'+
       '<div class="info-grid">'+
-        '<div class="info-box"><h3>FACTURAR A</h3><p><b>'+escHtml(c.nom)+'</b>NIF: '+escHtml(c.nif||'—')+'<br>'+escHtml(c.dir||'—')+'<br>'+escHtml(c.pob||'—')+'<br>'+escHtml(c.mail||'')+' · '+escHtml(c.tel||'')+'</p></div>'+
-        '<div class="info-box"><h3>DADES D\'HIGIENEX S.L.</h3><p><b>HIGIENEX S.L.</b>CIF: B12345678<br>Carrer de la Indústria, 25<br>46010 València (València)<br>contacto@higienexvalencia.es · 963 123 456</p></div>'+
+        '<div class="info-box"><h3>'+cpT('t786')+'</h3><p><b>'+escHtml(c.nom)+'</b>NIF: '+escHtml(c.nif||'—')+'<br>'+escHtml(c.dir||'—')+'<br>'+escHtml(c.pob||'—')+'<br>'+escHtml(c.mail||'')+' · '+escHtml(c.tel||'')+'</p></div>'+
+        '<div class="info-box"><h3>'+cpT('t787')+'</h3><p><b>HIGIENEX S.L.</b>CIF: B12345678<br>Carrer de la Indústria, 25<br>46010 València (València)<br>contacto@higienexvalencia.es · 963 123 456</p></div>'+
       '</div>'+
-      '<table><thead><tr><th>Concepte</th><th class="num">Uds.</th><th class="num">Preu</th><th class="num">Import</th></tr></thead><tbody>'+filas+'</tbody></table>'+
+      '<table><thead><tr><th>'+cpT('t788')+'</th><th class="num">'+cpT('t789')+'</th><th class="num">'+cpT('t790')+'</th><th class="num">'+cpT('t791')+'</th></tr></thead><tbody>'+filas+'</tbody></table>'+
       '<div class="totwrap"><div class="totbox">'+
-        '<div class="l"><span>Base imposable</span><span>'+CP_EUR(f.base)+'</span></div>'+
-        '<div class="l"><span>IVA (21%)</span><span>'+CP_EUR(f.cuota)+'</span></div>'+
-        '<div class="tot"><span>TOTAL</span><span>'+CP_EUR(f.total)+'</span></div>'+
+        '<div class="l"><span>'+cpT('t792')+'</span><span>'+CP_EUR(f.base)+'</span></div>'+
+        '<div class="l"><span>'+cpT('t793')+'</span><span>'+CP_EUR(f.cuota)+'</span></div>'+
+        '<div class="tot"><span>'+cpT('t794').toUpperCase()+'</span><span>'+CP_EUR(f.total)+'</span></div>'+
       '</div></div>'+
-      '<div class="pay-info"><b>Dades per a la transferència:</b> ES21 2100 4455 6612 3456 7890 (CaixaBank) — indica el número de factura com a concepte del pagament.</div>'+
-      '<div class="foot">HIGIENEX S.L. · Document generat automàticament des del portal de client · '+new Date().toLocaleString('ca-ES')+'</div>'+
+      '<div class="pay-info"><b>'+cpT('t803')+'</b> ES21 2100 4455 6612 3456 7890 (CaixaBank) — '+cpT('t804')+'</div>'+
+      '<div class="foot">HIGIENEX S.L. · '+cpT('t805')+' · '+new Date().toLocaleString(htmlLang)+'</div>'+
     '</div>'+
     '</body></html>';
   var w=window.open('','_blank');
-  if(!w){ alert('El navegador ha bloquejat la finestra emergent. Permet finestres emergents per descarregar la factura.'); return; }
+  if(!w){ alert(cpT('t806')); return; }
   w.document.open(); w.document.write(html); w.document.close(); w.focus();
   setTimeout(function(){ try{ w.print(); }catch(e){} }, 350);
 }
@@ -8925,27 +8957,27 @@ window.cpDescarregarFactura=cpDescarregarFactura;
 function cpViewEmpresa(){
   var c=CP_DB.cliente;
   return ''+
-    '<div class="cp-topbar"><div class="cp-greet"><h1>La meva empresa</h1><p>Dades de contacte i facturació.</p></div></div>'+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>'+cpT('t720')+'</h1><p>'+cpT('t807')+'</p></div></div>'+
     '<div class="cp-card" style="max-width:560px">'+
-      '<div class="cp-info-row"><span>Empresa</span><span>'+escHtml(c.nom)+'</span></div>'+
+      '<div class="cp-info-row"><span>'+cpT('t808')+'</span><span>'+escHtml(c.nom)+'</span></div>'+
       '<div class="cp-info-row"><span>CIF/NIF</span><span>'+escHtml(c.nif||'—')+'</span></div>'+
-      '<div class="cp-info-row"><span>Email</span><span>'+escHtml(c.mail||'—')+'</span></div>'+
-      '<div class="cp-info-row"><span>Telèfon</span><span>'+escHtml(c.tel||'—')+'</span></div>'+
-      '<div class="cp-info-row"><span>Adreça</span><span>'+escHtml(c.dir||'—')+'</span></div>'+
-      '<div class="cp-info-row"><span>Població</span><span>'+escHtml(c.pob||'—')+'</span></div>'+
-      '<div class="cp-info-row"><span>Condicions de pagament</span><span>'+(c.cond?c.cond+' dies':'Al comptat')+'</span></div>'+
-      '<button class="cp-btn ghost" style="margin-top:16px" type="button" onclick="alert(\'Contacta amb el teu gestor comercial per actualitzar aquestes dades.\')">✎ Editar informació</button>'+
+      '<div class="cp-info-row"><span>'+cpT('t809')+'</span><span>'+escHtml(c.mail||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>'+cpT('t810')+'</span><span>'+escHtml(c.tel||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>'+cpT('t811')+'</span><span>'+escHtml(c.dir||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>'+cpT('t812')+'</span><span>'+escHtml(c.pob||'—')+'</span></div>'+
+      '<div class="cp-info-row"><span>'+cpT('t813')+'</span><span>'+(c.cond?c.cond+' '+cpT('t814'):cpT('t815'))+'</span></div>'+
+      '<button class="cp-btn ghost" style="margin-top:16px" type="button" onclick="alert(\''+cpT('t817').replace(/'/g,"\\'")+'\')">'+cpT('t816')+'</button>'+
     '</div>';
 }
 
 function cpViewSuport(){
   return ''+
-    '<div class="cp-topbar"><div class="cp-greet"><h1>Necessites ajuda?</h1><p>Estem aquí per ajudar-te.</p></div></div>'+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>'+cpT('t818')+'</h1><p>'+cpT('t819')+'</p></div></div>'+
     '<div class="cp-support-grid">'+
-      '<div class="cp-support-card" onclick="window.open(\'mailto:contacto@higienexvalencia.es\')"><div class="ic">📧</div><b>Enviar email</b><span>contacto@higienexvalencia.es</span></div>'+
-      '<div class="cp-support-card" onclick="window.open(\'tel:963123456\')"><div class="ic">📞</div><b>Trucar-nos</b><span>963 123 456</span></div>'+
-      '<div class="cp-support-card" onclick="alert(\'Un membre de l\'equip et respondrà en menys de 24h laborables.\')"><div class="ic">💬</div><b>Contactar amb suport</b><span>Resposta en &lt;24h</span></div>'+
-      '<div class="cp-support-card" onclick="cpGoFaq()"><div class="ic">❓</div><b>Preguntes freqüents</b><span>Dubtes habituals</span></div>'+
+      '<div class="cp-support-card" onclick="window.open(\'mailto:contacto@higienexvalencia.es\')"><div class="ic">📧</div><b>'+cpT('t820')+'</b><span>contacto@higienexvalencia.es</span></div>'+
+      '<div class="cp-support-card" onclick="window.open(\'tel:963123456\')"><div class="ic">📞</div><b>'+cpT('t821')+'</b><span>963 123 456</span></div>'+
+      '<div class="cp-support-card" onclick="alert(\''+cpT('t824').replace(/'/g,"\\'")+'\')"><div class="ic">💬</div><b>'+cpT('t822')+'</b><span>'+cpT('t823')+'</span></div>'+
+      '<div class="cp-support-card" onclick="cpGoFaq()"><div class="ic">❓</div><b>'+cpT('t825')+'</b><span>'+cpT('t826')+'</span></div>'+
     '</div>';
 }
 
@@ -9480,19 +9512,19 @@ window.submitTreballaForm = submitTreballaForm;
       <button type="button" onclick="cpCloseLoginModal()" aria-label="Tancar" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;opacity:0.8;">✕</button>
     </div>
     <div style="padding:1.5rem 1.6rem;">
-      <p style="text-align:center;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:#888;font-weight:700;margin-bottom:1.2rem;">Portal de client · consulta de factures</p>
-      <div id="cpLoginErr" style="display:none;background:#FDECEA;color:#C0392B;font-size:0.8rem;border-radius:8px;padding:0.55rem 0.8rem;margin-bottom:1rem;text-align:center;">Usuari o contrasenya incorrectes.</div>
+      <p style="text-align:center;font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:#888;font-weight:700;margin-bottom:1.2rem;" data-i18n-key="t711">Portal de client · consulta de factures</p>
+      <div id="cpLoginErr" style="display:none;background:#FDECEA;color:#C0392B;font-size:0.8rem;border-radius:8px;padding:0.55rem 0.8rem;margin-bottom:1rem;text-align:center;" data-i18n-key="t712">Usuari o contrasenya incorrectes.</div>
       <div style="margin-bottom:0.9rem;">
-        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Usuari</label>
-        <input id="cpLoginUser" type="text" placeholder="usuari" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('cpLoginPass').focus();}" style="width:100%;padding:0.65rem 0.8rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;box-sizing:border-box;">
+        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;" data-i18n-key="t713">Usuari</label>
+        <input id="cpLoginUser" type="text" placeholder="usuari" data-i18n-placeholder="t714" autocomplete="username" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('cpLoginPass').focus();}" style="width:100%;padding:0.65rem 0.8rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;box-sizing:border-box;">
       </div>
       <div style="margin-bottom:0.4rem;">
-        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;">Contrasenya</label>
+        <label style="font-size:0.78rem;color:#555;font-weight:600;display:block;margin-bottom:0.3rem;" data-i18n-key="t434">Contrasenya</label>
         <div style="position:relative;"><input id="cpLoginPass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();cpTryLogin();}" style="width:100%;padding:0.65rem 0.8rem;padding-right:2.4rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;box-sizing:border-box;"><button type="button" onclick="hxTogglePass('cpLoginPass',this)" aria-label="Mostrar contrasenya" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:1rem;padding:4px;opacity:0.6;">👁️</button></div>
       </div>
-      <button type="button" onclick="cpTryLogin()" class="cp-btn" style="width:100%;margin-top:1.1rem;padding:0.75rem;">Consultar →</button>
+      <button type="button" onclick="cpTryLogin()" class="cp-btn" style="width:100%;margin-top:1.1rem;padding:0.75rem;" data-i18n-key="t715">Consultar →</button>
       <div style="text-align:center;margin-top:0.9rem;">
-        <a href="#" onclick="cpForgotPassword();return false;" style="font-size:0.8rem;color:var(--green-deep);text-decoration:underline;cursor:pointer;">He oblidat el meu usuari o contrasenya</a>
+        <a href="#" onclick="cpForgotPassword();return false;" style="font-size:0.8rem;color:var(--green-deep);text-decoration:underline;cursor:pointer;" data-i18n-key="t716">He oblidat el meu usuari o contrasenya</a>
       </div>
     </div>
   </div>
