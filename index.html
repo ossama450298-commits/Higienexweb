@@ -8242,6 +8242,21 @@ function cpUpdateNavState(){
 }
 window.cpUpdateNavState = cpUpdateNavState;
 
+function cpRestoreSession(){
+  try {
+    var raw = localStorage.getItem('hx_user_session');
+    if (raw) {
+      var s = JSON.parse(raw);
+      if (s && s.name) setLoggedInUser(s.name, s.avatar||'', s.role||'client', s.email||'', true);
+    }
+    if (localStorage.getItem('hx_cp_logged_in') === '1') {
+      CP_LOGGED_IN = true;
+      cpUpdateNavState();
+    }
+  } catch(e) {}
+}
+window.addEventListener('DOMContentLoaded', cpRestoreSession);
+
 function cpOpenLoginModal(){
   var m=document.getElementById('hxClientLoginModal'); if(!m) return;
   document.getElementById('cpLoginErr').style.display='none';
@@ -8263,6 +8278,7 @@ function cpTryLogin(){
   var c=CP_DB.cliente;
   if(user===c.user.toLowerCase() && pass===c.pass){
     CP_LOGGED_IN = true;
+    try { localStorage.setItem('hx_cp_logged_in', '1'); } catch(e) {}
     cpUpdateNavState();
     if (!window.HX_USER) {
       setLoggedInUser(c.nom, '', 'client', c.mail);
@@ -8331,11 +8347,12 @@ window.cpAnarABotiga = cpAnarABotiga;
 
 function cpLogout(){
   CP_LOGGED_IN = false;
+  window.HX_USER = null;
+  try { localStorage.removeItem('hx_user_session'); localStorage.removeItem('hx_cp_logged_in'); } catch(e) {}
   cpUpdateNavState();
-  if (!window.HX_USER) {
-    var ab=document.getElementById('authBtns'); if(ab) ab.style.display='flex';
-    var uEl=document.getElementById('userName'); if(uEl) uEl.textContent='Client';
-  }
+  var ab=document.getElementById('authBtns'); if(ab) ab.style.display='flex';
+  var uEl=document.getElementById('userName'); if(uEl) uEl.textContent='Client';
+  var ub=document.getElementById('userNavBtn'); if(ub) ub.remove();
   document.getElementById('hxClientApp').style.display='none';
   var nav=document.getElementById('mainNav'); if(nav) nav.style.display='';
   document.body.style.overflow='';
@@ -10144,11 +10161,15 @@ function showAdminWelcome(name) {
 }
 window.showAdminWelcome = showAdminWelcome;
 
-function setLoggedInUser(name, avatar, role, email) {
+function setLoggedInUser(name, avatar, role, email, skipSave) {
   window.HX_USER = { name: name, role: role, email: email || '' };
   var uEl=document.getElementById('userName'); if(uEl) uEl.textContent=name;
+  if (!skipSave) {
+    try { localStorage.setItem('hx_user_session', JSON.stringify({name:name, avatar:avatar||'', role:role, email:email||''})); } catch(e) {}
+  }
   if (email && email.toLowerCase()===CP_DB.cliente.mail.toLowerCase() && !CP_LOGGED_IN) {
     CP_LOGGED_IN = true;
+    try { localStorage.setItem('hx_cp_logged_in', '1'); } catch(e) {}
     cpUpdateNavState();
   }
   var navInner=document.getElementById('navRightGroup');
@@ -10168,6 +10189,9 @@ function setLoggedInUser(name, avatar, role, email) {
 
 function logout() {
   window.HX_USER = null;
+  CP_LOGGED_IN = false;
+  try { localStorage.removeItem('hx_user_session'); localStorage.removeItem('hx_cp_logged_in'); } catch(e) {}
+  cpUpdateNavState();
   var p=document.getElementById('pedidosSection'); if(p) p.classList.remove('open');
   var a=document.getElementById('adminPanel'); if(a) a.classList.remove('open');
   document.body.style.overflow='';
