@@ -101,6 +101,8 @@ h1,h2,h3,h4{font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:700
 button,input,select,textarea{font:inherit;color:inherit}
 a{color:var(--blue)}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+.hx-skip-link{position:absolute;left:-9999px;top:0;z-index:100000;background:var(--blue);color:#fff;padding:.7rem 1.1rem;border-radius:0 0 8px 0;font-weight:700;text-decoration:none;font-size:13px}
+.hx-skip-link:focus{left:0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 ::selection{background:var(--sel);color:var(--ink)}
 ::-webkit-scrollbar{width:10px;height:10px}
@@ -564,6 +566,7 @@ function enviarAvisEstatClient(opts){
 </script>
 </head>
 <body>
+<a href="#view" class="hx-skip-link">Saltar al contenido principal</a>
 
 <div id="login">
   <div class="loginBgBlur"></div>
@@ -2341,7 +2344,7 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
         <button class="btn ghost sm" id="hxCalTopBtn" onclick="go('calendariolab')" title="Calendari laboral" type="button">🗓️ <span class="lbl">Calendario</span></button>
         <div style="position:relative">
           <button class="btn ghost sm" id="hxNotifBell" onclick="hxToggleNotifPanel()" title="Notificacions" aria-label="Notificacions" type="button" style="position:relative">
-            🔔<span id="hxNotifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:20px;min-width:16px;height:16px;align-items:center;justify-content:center;padding:0 3px">0</span>
+            🔔<span id="hxNotifBadge" role="status" aria-live="polite" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:20px;min-width:16px;height:16px;align-items:center;justify-content:center;padding:0 3px">0</span>
           </button>
           <div id="hxNotifPanel" class="hx-notif-panel"></div>
         </div>
@@ -2378,7 +2381,7 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
 </div></div>
 <div id="modal"><div class="box" id="modalBox"></div></div>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <script>
 /* =========================================================
@@ -2446,6 +2449,12 @@ const nomCta = c => (CUENTAS[c]||{}).nom || '';
 const tipoCta = c => (CUENTAS[c]||{}).tipo || 'activo';
 
 /* ---------- Usuarios ---------- */
+/* ⚠️ NOTA EDUCATIVA: Las contraseñas están en texto plano a propósito de forma
+   simplificada porque este es un proyecto de simulación para el ciclo de FP
+   (CFGS Administració i Finances). En una aplicación real, la autenticación
+   nunca debe hacerse en el navegador con credenciales visibles en el código
+   fuente: las contraseñas se guardarían con hash (bcrypt/argon2) en un
+   servidor, y el login se validaría mediante una API backend. */
 const USERS = [
   {id:'U1',nom:'Oussama',alias:'oussama',emp:'E01',mail:'admin@higienex.es',pass:'450298',    rol:'Dirección',     perms:'all'},
   {id:'U2',nom:'Ariadna',   alias:'ari',    emp:'E02',mail:'ari@higienex.es',  pass:'Ari2025',     rol:'Administración',perms:'admin'},
@@ -2541,8 +2550,44 @@ diascarga:[
    a los datos de ejemplo originales cuando se desee.
    ========================================================= */
 const HX_DB_KEY = 'hx_erp_db_v1';
+let _hxLastQuotaWarnAt = 0;
+function hxAvisarErrorGuardado(e){
+  const esQuota = e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014 || /quota/i.test(e.message||''));
+  const ara = Date.now();
+  // Evita bombardejar amb avisos: com a molt un cada 2 minuts mentre el problema persisteixi
+  if (ara - _hxLastQuotaWarnAt < 120000) return;
+  _hxLastQuotaWarnAt = ara;
+  if (esQuota) {
+    openModal('⚠️ No s\'estan guardant els canvis',
+      '<p style="margin-bottom:12px">S\'ha superat l\'espai d\'emmagatzematge disponible en aquest navegador (normalment uns 5-10 MB per lloc web).</p>'+
+      '<p style="margin-bottom:12px"><strong>Els canvis que facis ara mateix es veuran a la pantalla però no es desaran.</strong> Si recarregues la pàgina o la tanques, es perdran.</p>'+
+      '<p style="margin-bottom:0">Sol passar per acumular molts documents adjunts als clients. Recomanem:</p>'+
+      '<ul style="margin:8px 0 0 18px;font-size:13px;color:var(--ink-2)">'+
+      '<li>Descarregar ara una còpia de seguretat de les dades</li>'+
+      '<li>Eliminar algun document adjunt gran des de la fitxa del client</li>'+
+      '</ul>',
+      '<button class="btn ghost" onclick="closeModal()" type="button">Ho entenc</button>'+
+      '<button class="btn" onclick="exportarBackupDB()" type="button">📥 Descarregar còpia ara</button>');
+  } else {
+    openModal('⚠️ No s\'ha pogut guardar',
+      '<p>Hi ha hagut un problema desant els canvis en aquest navegador. Si continua passant, descarrega una còpia de seguretat per no perdre res.</p>',
+      '<button class="btn ghost" onclick="closeModal()" type="button">Ho entenc</button>'+
+      '<button class="btn" onclick="exportarBackupDB()" type="button">📥 Descarregar còpia ara</button>');
+  }
+}
+let _hxLastSizeWarnAt = 0;
 function guardarDB(){
-  try{ localStorage.setItem(HX_DB_KEY, JSON.stringify(DB)); }catch(e){}
+  try{
+    const json = JSON.stringify(DB);
+    localStorage.setItem(HX_DB_KEY, json);
+    // Avís preventiu: si ja ocupem molt espai, avisar abans que falli del tot
+    const mb = json.length / (1024*1024);
+    const ara = Date.now();
+    if (mb > 4 && (ara - _hxLastSizeWarnAt > 300000)) {
+      _hxLastSizeWarnAt = ara;
+      toast('⚠️ L\'espai guardat al navegador va pel '+mb.toFixed(1)+' MB. Convé fer una còpia de seguretat aviat.');
+    }
+  }catch(e){ hxAvisarErrorGuardado(e); }
 }
 let _hxSaveTimer = null;
 function guardarDBDebounced(){
@@ -3044,6 +3089,8 @@ function avisos(v){
   if(v==='candidaturas') return DB.candidaturas.filter(c=>c.estado==='Pendent').length;
   if(v==='mantenimiento') return DB.mantenimientos.filter(m=>m.estado==='Pendent'&&m.proxima&&m.proxima<TODAY).length;
   if(v==='gastos') return DB.gastos.filter(g=>g.estado==='Pendent').length;
+  if(v==='clientes') return DB.clientes.filter(c=>c.proxContacto&&c.proxContacto<TODAY).length;
+  if(v==='pipeline') return DB.oportunidades.filter(o=>o.proxContacto&&o.proxContacto<TODAY).length;
   return 0;
 }
 
@@ -3075,6 +3122,10 @@ function hxNotificaciones(){
   if(mntPendents.length) items.push({icon:'🔧',text:mntPendents.length+' manteniment'+(mntPendents.length>1?'s':'')+' de flota vençut'+(mntPendents.length>1?'s':''),v:'mantenimiento',sev:'danger'});
   const gasPendents=(DB.gastos||[]).filter(g=>g.estado==='Pendent');
   if(gasPendents.length) items.push({icon:'🧾',text:gasPendents.length+' despesa'+(gasPendents.length>1?'es':'')+' pendent'+(gasPendents.length>1?'s':'')+' d\'aprovar',v:'gastos',sev:'warn'});
+  const seguimClients=(DB.clientes||[]).filter(c=>c.proxContacto&&c.proxContacto<TODAY);
+  const seguimOps=(DB.oportunidades||[]).filter(o=>o.proxContacto&&o.proxContacto<TODAY);
+  const seguimTotal=seguimClients.length+seguimOps.length;
+  if(seguimTotal) items.push({icon:'📅',text:seguimTotal+' seguiment'+(seguimTotal>1?'s':'')+' comercial'+(seguimTotal>1?'s':'')+' vençut'+(seguimTotal>1?'s':''),v:'clientes',sev:'danger'});
   return items;
 }
 function hxRenderNotifBell(){
@@ -3388,6 +3439,8 @@ ROUTES.panel=function(){
   const incFich=DB.fichajes.filter(f=>f.entrada&&!f.salida).length;
   if(incFich) avisos.push(['<strong>'+incFich+' fichajes sin cerrar</strong><br><span style="color:var(--ink-2);font-size:12px">Hay que corregirlos en el registro de jornada</span>','Personas','fichajes','Corregir']);
   if(DB.pedidos.some(p=>p.estado==='Enviado')) avisos.push(['<strong>Pedidos pendientes de recibir</strong><br><span style="color:var(--ink-2);font-size:12px">'+DB.pedidos.filter(p=>p.estado==='Enviado').map(p=>p.id).join(', ')+'</span>','Compras','compras','Recibir']);
+  const seguimientosVencidos = DB.clientes.filter(c=>c.proxContacto&&c.proxContacto<TODAY).length + DB.oportunidades.filter(o=>o.proxContacto&&o.proxContacto<TODAY).length;
+  if(seguimientosVencidos) avisos.push(['<strong>'+seguimientosVencidos+' seguimiento'+(seguimientosVencidos>1?'s':'')+' comercial'+(seguimientosVencidos>1?'es':'')+' vencido'+(seguimientosVencidos>1?'s':'')+'</strong><br><span style="color:var(--ink-2);font-size:12px">Clientes u oportunidades con la fecha de próximo contacto ya pasada</span>','Comercial','clientes','Revisar']);
 
   h+='<div class="grid g2" style="margin-bottom:16px">';
   h+='<div class="card chartcard"><h3>Evolución de ventas <span class="tag t-neu" style="margin-left:auto">últimos 6 meses</span></h3><div class="cardbody"><div style="position:relative;height:230px"><canvas id="hxSalesChart"></canvas></div></div></div>';
@@ -3454,21 +3507,34 @@ ROUTES.panel=function(){
 /* =========================================================
    CLIENTES
    ========================================================= */
+let FiltroOrigen = '';
+function setFiltroOrigen(v){ FiltroOrigen = v; go('clientes', true); }
+window.setFiltroOrigen = setFiltroOrigen;
 ROUTES.clientes=function(){
-  const all=DB.clientes, lista=all.filter(c=>hit(c.nom+' '+c.nif+' '+c.pob+' '+c.cta));
+  const all=DB.clientes;
+  let lista=all.filter(c=>hit(c.nom+' '+c.nif+' '+c.pob+' '+c.cta+' '+(c.tags||[]).join(' ')));
+  if (FiltroOrigen) lista = lista.filter(c=>c.origen===FiltroOrigen);
+  const filtroOrigenHtml = '<select onchange="setFiltroOrigen(this.value)" aria-label="Filtrar por origen del lead" style="padding:8px 10px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface-2);font-size:13px">'+
+      '<option value="">Todos los orígenes</option>'+
+      ORIGENES_LEAD.map(o=>'<option value="'+o[0]+'"'+(FiltroOrigen===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+
+    '</select>';
   let h=head('Clientes','Cada cliente tiene su subcuenta del grupo 430 en el libro mayor','<button class="btn" onclick="formCliente()" type="button">Nuevo cliente</button>');
-  h+=buscador('Buscar por nombre, NIF, población o cuenta…',all.length,lista.length);
+  h+=buscador('Buscar por nombre, NIF, población, cuenta o etiqueta…',all.length,lista.length,filtroOrigenHtml);
   const rows=lista.map(c=>{
     const fac=DB.facturasE.filter(f=>f.cli===c.id), deuda=saldoCliente(c.id);
+    const vencido = c.proxContacto && c.proxContacto < TODAY;
+    const tagsHtml = (c.tags&&c.tags.length) ? '<br>'+c.tags.map(t=>'<span class="tag t-blue" style="margin-right:3px;margin-top:3px">'+esc(t)+'</span>').join('') : '';
     return rowN([
       '<span class="mono">'+c.cta+'</span>',
-      '<strong>'+esc(c.nom)+'</strong><br><span style="color:var(--ink-2);font-size:12px">'+esc(c.mail||'')+'</span>',
+      '<strong>'+esc(c.nom)+'</strong><br><span style="color:var(--ink-2);font-size:12px">'+esc(c.mail||'')+'</span>'+tagsHtml,
       c.nif,esc(c.pob),'<span class="tag t-neu">'+(c.cond?c.cond+' días':'Contado')+'</span>',
+      '<span class="tag t-neu">'+nomOrigen(c.origen)+'</span>',
+      c.proxContacto?('<span class="tag '+(vencido?'t-late':'t-neu')+'">'+FD(c.proxContacto)+'</span>'):'<span style="color:var(--ink-2)">—</span>',
       String(fac.length),EUR(fac.reduce((s,f)=>s+f.base,0)),
       deuda?'<span class="neg">'+EUR(deuda)+'</span>':EUR(0)
-    ],[5,6,7],' class="clickable" onclick="fichaCliente(\''+c.id+'\')"');
+    ],[7,8,9],' class="clickable" onclick="fichaCliente(\''+c.id+'\')"');
   });
-  h+='<div class="card">'+tbl([['Cuenta'],['Cliente'],['NIF'],['Población'],['Pago'],['Facturas','n'],['Facturado','n'],['Pendiente','n']],rows,
+  h+='<div class="card">'+tbl([['Cuenta'],['Cliente'],['NIF'],['Población'],['Pago'],['Origen'],['Próx. contacto'],['Facturas','n'],['Facturado','n'],['Pendiente','n']],rows,
     ['Sin clientes','Da de alta el primero con el botón «Nuevo cliente».'])+'</div>';
   return h;
 };
@@ -3500,12 +3566,16 @@ function fichaCliente(id){
   const act=DB.actividades.filter(a=>a.cli===id);
   const ops=DB.oportunidades.filter(o=>o.cli===id);
   const adj=c.adjuntos||[];
+  const vencidoProx = c.proxContacto && c.proxContacto < TODAY;
   openModal('Ficha de '+esc(c.nom),
     '<div class="frow f3" style="margin-bottom:18px">'+
       info('Subcuenta contable',c.cta)+info('NIF',c.nif)+info('Alta',FD(c.alta))+
       info('Dirección',(c.dir||'—')+', '+c.pob)+info('Teléfono',c.tel||'—')+info('Correo',c.mail||'—')+
       info('Condiciones de pago',c.cond?c.cond+' días':'Contado')+info('Responsable',(USERS.find(u=>u.id===c.resp)||{nom:'—'}).nom)+
       info('Saldo pendiente',EUR(saldoCliente(id)))+
+      info('Origen del lead',nomOrigen(c.origen))+
+      '<div><div class="eyebrow">Próximo contacto</div><div style="font-weight:600;margin-top:2px">'+(c.proxContacto?('<span class="tag '+(vencidoProx?'t-late':'t-neu')+'">'+FD(c.proxContacto)+'</span>'):'—')+'</div></div>'+
+      '<div><div class="eyebrow">Etiquetas</div><div style="font-weight:600;margin-top:2px">'+((c.tags&&c.tags.length)?c.tags.map(t=>'<span class="tag t-blue" style="margin-right:3px">'+esc(t)+'</span>').join(''):'—')+'</div></div>'+
     '</div>'+
     '<div class="eyebrow" style="display:block;margin-bottom:8px">Facturas emitidas</div>'+
     tbl([['Nº'],['Fecha'],['Base','n'],['Total','n'],['Vence'],['Estado']],
@@ -3559,6 +3629,8 @@ function hxEliminarAdjunto(clienteId, idx){
   if(box) box.innerHTML=hxRenderAdjuntos(clienteId);
 }
 window.hxEliminarAdjunto = hxEliminarAdjunto;
+const ORIGENES_LEAD = [['web','Web'],['referido','Referido'],['feria','Feria'],['llamada','Llamada fría'],['otro','Otro']];
+const nomOrigen = o => (ORIGENES_LEAD.find(x=>x[0]===o)||[,'—'])[1];
 function formCliente(id){
   const c=id?cli(id):{};
   openModal(id?'Editar cliente':'Nuevo cliente',
@@ -3568,7 +3640,11 @@ function formCliente(id){
       fInput('Teléfono','nc_tel',null,c.tel)+fInput('Correo','nc_mail','email',c.mail)+
       fSelect('Condiciones de pago','nc_cond',[[0,'Contado'],[30,'30 días'],[60,'60 días'],[90,'90 días']],c.cond===undefined?30:c.cond)+
       fSelect('Responsable comercial','nc_resp',USERS.map(u=>[u.id,u.nom]),c.resp||ME.id)+
-    '</div>'+(id?'<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">Subcuenta contable <span class="mono">'+c.cta+'</span>. No se modifica al editar los datos.</p>'
+      fSelect('Origen del lead','nc_origen',ORIGENES_LEAD,c.origen||'web')+
+      fInput('Próximo contacto','nc_prox','date',c.proxContacto)+
+    '</div>'+
+    fInput('Etiquetas (separadas por coma)','nc_tags',null,(c.tags||[]).join(', '),' placeholder="VIP, moroso, potencial…"')+
+    (id?'<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">Subcuenta contable <span class="mono">'+c.cta+'</span>. No se modifica al editar los datos.</p>'
                 :'<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">Al guardar se le abre automáticamente su subcuenta del grupo 430.</p>'),
     '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveCliente('+(id?'\''+id+'\'':'null')+')" type="button">Guardar</button>');
 }
@@ -3576,8 +3652,10 @@ function saveCliente(id){
   const nom=val('nc_nom').trim(), nif=val('nc_nif').trim().toUpperCase();
   if(!nom||!nif){toast('Hacen falta la razón social y el NIF.');return;}
   if(DB.clientes.some(c=>c.nif===nif&&c.id!==id)){toast('Ya existe un cliente con ese NIF.');return;}
+  const tags=val('nc_tags').split(',').map(t=>t.trim()).filter(Boolean);
   const datos={nom,nif,dir:val('nc_dir').trim(),pob:val('nc_pob').trim(),tel:val('nc_tel').trim(),
-               mail:val('nc_mail').trim(),cond:+val('nc_cond'),resp:val('nc_resp')};
+               mail:val('nc_mail').trim(),cond:+val('nc_cond'),resp:val('nc_resp'),
+               origen:val('nc_origen'),proxContacto:val('nc_prox')||null,tags};
   if(id){ Object.assign(cli(id),datos); CUENTAS[cli(id).cta].nom=nom; toast('Cliente actualizado.'); }
   else{
     const c={id:uid('C'),...datos,alta:TODAY};
@@ -3677,29 +3755,38 @@ ROUTES.pipeline=function(){
   h+='<div class="pipe">'+FASES.map(fase=>{
     const ops=DB.oportunidades.filter(o=>o.fase===fase);
     return '<div class="pipecol"><h4><span>'+fase+'</span><span class="mono" style="color:var(--ink-2)">'+EUR(ops.reduce((s,o)=>s+o.valor,0))+'</span></h4>'+
-      (ops.length?ops.map(o=>'<div class="opp"><div class="n">'+esc(o.nom)+'</div><div class="c">'+esc(nomCli(o.cli))+'</div><div class="v">'+EUR(o.valor)+'</div>'+
-        (fase!=='Ganada'?'<div class="mv"><button class="btn ghost sm" onclick="avanzar(\''+o.id+'\')" type="button">Avanzar →</button><button class="btn ghost sm" onclick="perder(\''+o.id+'\')" type="button">Perder</button></div>':
+      (ops.length?ops.map(o=>{
+        const vencido = o.proxContacto && o.proxContacto < TODAY;
+        const proxHtml = o.proxContacto ? '<div class="mono" style="font-size:11px;margin-top:4px"><span class="tag '+(vencido?'t-late':'t-neu')+'">'+(vencido?'⚠️ ':'')+FD(o.proxContacto)+'</span></div>' : '';
+        return '<div class="opp"><div class="n">'+esc(o.nom)+'</div><div class="c">'+esc(nomCli(o.cli))+'</div><div class="v">'+EUR(o.valor)+'</div>'+proxHtml+
+        (fase!=='Ganada'?'<div class="mv"><button class="btn ghost sm" onclick="avanzar(\''+o.id+'\')" type="button">Avanzar →</button><button class="btn ghost sm" onclick="formOportunidad(\''+o.id+'\')" type="button">Editar</button><button class="btn ghost sm" onclick="perder(\''+o.id+'\')" type="button">Perder</button></div>':
          '<div class="mv"><button class="btn sm" onclick="formFacturaE(\''+o.cli+'\')" type="button">Facturar</button></div>')+
-        '</div>').join(''):'<div style="padding:16px;color:var(--ink-2);font-size:12.5px">Nada en esta fase.</div>')+'</div>';
+        '</div>';
+      }).join(''):'<div style="padding:16px;color:var(--ink-2);font-size:12.5px">Nada en esta fase.</div>')+'</div>';
   }).join('')+'</div>';
   h += panelPlegable('Ver indicadores comerciales (embudo, conversión y RFM)', ROUTES.panelcomercial());
   return h;
 };
 function avanzar(id){const o=DB.oportunidades.find(x=>x.id===id);o.fase=FASES[FASES.indexOf(o.fase)+1];refresh();toast('«'+o.nom+'» pasa a '+o.fase+'.');}
 function perder(id){const i=DB.oportunidades.findIndex(x=>x.id===id);const o=DB.oportunidades[i];DB.oportunidades.splice(i,1);refresh();toast('Oportunidad «'+o.nom+'» marcada como perdida.');}
-function formOportunidad(){
-  openModal('Nueva oportunidad',
-    '<div class="frow">'+fInput('Descripción','no_nom')+
-      fSelect('Cliente','no_cli',DB.clientes.map(c=>[c.id,c.nom]))+
-      fInput('Valor estimado (€)','no_val','number','0')+
-      fSelect('Fase','no_fase',FASES.map(f=>[f,f]))+'</div>',
-    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveOportunidad()" type="button">Crear</button>');
+function formOportunidad(id){
+  const o=id?DB.oportunidades.find(x=>x.id===id):{};
+  openModal(id?'Editar oportunidad':'Nueva oportunidad',
+    '<div class="frow">'+fInput('Descripción','no_nom',null,o.nom)+
+      fSelect('Cliente','no_cli',DB.clientes.map(c=>[c.id,c.nom]),o.cli)+
+      fInput('Valor estimado (€)','no_val','number',o.valor!==undefined?o.valor:'0')+
+      fSelect('Fase','no_fase',FASES.map(f=>[f,f]),o.fase)+
+      fInput('Próximo contacto','no_prox','date',o.proxContacto)+
+    '</div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveOportunidad('+(id?'\''+id+'\'':'null')+')" type="button">'+(id?'Guardar':'Crear')+'</button>');
 }
-function saveOportunidad(){
+function saveOportunidad(id){
   const n=val('no_nom').trim();
   if(!n){toast('Pon una descripción.');return;}
-  DB.oportunidades.push({id:uid('OP'),nom:n,cli:val('no_cli'),valor:+val('no_val')||0,fase:val('no_fase'),resp:ME.id});
-  closeModal();go('pipeline');toast('Oportunidad creada.');
+  const datos={nom:n,cli:val('no_cli'),valor:+val('no_val')||0,fase:val('no_fase'),proxContacto:val('no_prox')||null};
+  if(id){ Object.assign(DB.oportunidades.find(x=>x.id===id),datos); toast('Oportunidad actualizada.'); }
+  else{ DB.oportunidades.push({id:uid('OP'),...datos,resp:ME.id}); toast('Oportunidad creada.'); }
+  closeModal();go('pipeline');
 }
 ROUTES.actividad=function(){
   const all=DB.actividades.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
