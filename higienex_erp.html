@@ -6,14 +6,14 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HIGIENEX · Gestión interna</title>
+<title>HIGIENEX CRM · Gestión interna</title>
 <!-- PWA -->
 <link rel="manifest" href="manifest-erp.json">
 <meta name="theme-color" content="#0F1D2B">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="HIGIENEX ERP">
+<meta name="apple-mobile-web-app-title" content="HIGIENEX CRM">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon-erp.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2333,7 +2333,7 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
   <main>
     <div class="topbar">
       <span class="eyebrow" id="crumb">Panel</span>
-      <button class="searchbtn" onclick="openPalette()" type="button"><span class="search-ic">🔍</span><span class="lbl">Buscar en todo el ERP…</span><span class="kbd">Ctrl K</span></button>
+      <button class="searchbtn" onclick="openPalette()" type="button"><span class="search-ic">🔍</span><span class="lbl">Buscar en todo el CRM…</span><span class="kbd">Ctrl K</span></button>
       <div class="who">
         <button class="btn ghost sm hx-admin-tool" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">🌓 <span class="lbl">Modo oscuro</span></button>
         <button class="btn ghost sm hx-admin-tool" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ <span class="lbl">Instal·lar</span></button>
@@ -2536,7 +2536,7 @@ diascarga:[
 
 /* =========================================================
    PERSISTENCIA LOCAL (localStorage)
-   Guarda automáticamente el estado del ERP en el navegador
+   Guarda automáticamente el estado del CRM en el navegador
    para que sobreviva a recargas de página, y permite volver
    a los datos de ejemplo originales cuando se desee.
    ========================================================= */
@@ -2580,7 +2580,7 @@ window.restablecerDatosEjemplo = restablecerDatosEjemplo;
 function hxBackupDB(){
   try{
     const payload = {
-      _meta: { app: 'HIGIENEX ERP', exportedAt: new Date().toISOString(), version: 1 },
+      _meta: { app: 'HIGIENEX CRM', exportedAt: new Date().toISOString(), version: 1 },
       DB: DB
     };
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
