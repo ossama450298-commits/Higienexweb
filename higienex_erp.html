@@ -7220,33 +7220,35 @@ DB.asientos.length = 0;
 DB.facturasE.length = 0;
 DB.facturasR.length = 0;
 DB.movimientos.length = 0;
-DB.clientes.length = 0;
 DB.bancos.length = 0;
+/* DB.clientes NO se toca: la cartera de clientes es persistente y no pertenece
+   al ejercicio contable 2025 que se reconstruye aquí (igual que oportunidades,
+   actividades y expediciones, ver nota siguiente). */
 /* oportunidades, actividades y expediciones NO se tocan: pertenecen al pipeline
    comercial y a logística de 2026, no al ejercicio contable 2025 que se reconstruye aquí. */
 
 DB.asientos2025 = [];
 DB.clientes2025 = [
-  {id:"RC01", nom:"Limpiezas Levante S.L.", nif:'—', pob:'—', cond:30, cta:'430'},
-  {id:"RC02", nom:"Hospital privado", nif:'—', pob:'—', cond:30, cta:'430'},
-  {id:"RC03", nom:"Distribuciones Hosteleras del Turia S.L.", nif:'—', pob:'—', cond:30, cta:'430'},
-  {id:"RC04", nom:"FoodClean Iberia S.L.", nif:'—', pob:'—', cond:30, cta:'430'},
-  {id:"RC05", nom:"EcoNet Servicios Integrales S.L.", nif:'—', pob:'—', cond:30, cta:'430'},
-  {id:"RC06", nom:"Organismo público", nif:'—', pob:'—', cond:60, cta:'430'},
-  {id:"RC07", nom:"Cadena hotelera nacional", nif:'—', pob:'—', cond:30, cta:'430'}
+  {id:"RC01", nom:"Limpiezas Levante S.L.", nif:'B96334521', pob:'Valencia', dir:"C/ Comte d'Altea, 8", tel:'963 220 145', mail:'administracion@limpiezaslevante.es', cond:30, cta:'430'},
+  {id:"RC02", nom:"Hospital privado", nif:'A46556677', pob:'Valencia', dir:"Av. de l'Oest, 32", tel:'963 285 500', mail:'administracion@hospitalprivadovlc.es', cond:30, cta:'430'},
+  {id:"RC03", nom:"Distribuciones Hosteleras del Turia S.L.", nif:'B96887744', pob:'Valencia', dir:'C/ Pintor Maella, 14', tel:'963 400 220', mail:'pedidos@distturia.es', cond:30, cta:'430'},
+  {id:"RC04", nom:"FoodClean Iberia S.L.", nif:'B98123456', pob:'Alboraia', dir:'Pol. Ind. Vora Riu, nau 6', tel:'961 850 330', mail:'compras@foodcleaniberia.es', cond:30, cta:'430'},
+  {id:"RC05", nom:"EcoNet Servicios Integrales S.L.", nif:'B96774411', pob:'Xàtiva', dir:'C/ Montcada, 21', tel:'962 275 810', mail:'info@econetservicios.es', cond:30, cta:'430'},
+  {id:"RC06", nom:"Organismo público", nif:'Q4629112D', pob:'Gandia', dir:"Pl. de l'Ajuntament, 1", tel:'962 959 100', mail:'contractacio@organismepublic-gandia.es', cond:60, cta:'430'},
+  {id:"RC07", nom:"Cadena hotelera nacional", nif:'A08556123', pob:'Madrid', dir:'Paseo de la Castellana, 140', tel:'915 442 200', mail:'compras.centrales@cadenahotelera.es', cond:30, cta:'430'}
 ];
 DB.proveedores2025 = [
-  {id:"RP01", nom:"Quimival S.A.", nif:'—', pob:'—', cond:30, ctaProv:'400'},
-  {id:"RP02", nom:"Suministros de oficina", nif:'—', pob:'—', cond:0, ctaProv:'400'},
-  {id:"RP03", nom:"Correduría de seguros", nif:'—', pob:'—', cond:0, ctaProv:'400'},
-  {id:"RP04", nom:"Fabricante de maquinaria (envasadora)", nif:'—', pob:'—', cond:30, ctaProv:'400'},
-  {id:"RP05", nom:"Envases y Embalajes S.L.", nif:'—', pob:'—', cond:30, ctaProv:'400'},
-  {id:"RP06", nom:"Compañía eléctrica", nif:'—', pob:'—', cond:0, ctaProv:'400'},
-  {id:"RP07", nom:"Proveedor de software de trazabilidad", nif:'—', pob:'—', cond:0, ctaProv:'400'},
-  {id:"RP08", nom:"Transportista externo", nif:'—', pob:'—', cond:30, ctaProv:'400'},
-  {id:"RP09", nom:"Asesoría laboral y fiscal", nif:'—', pob:'—', cond:0, ctaProv:'400'},
-  {id:"RP10", nom:"Agencia de marketing", nif:'—', pob:'—', cond:0, ctaProv:'400'},
-  {id:"RP11", nom:"Servicio técnico de mantenimiento", nif:'—', pob:'—', cond:0, ctaProv:'400'}
+  {id:"RP01", nom:"Quimival S.A.", nif:'A46223390', pob:'Sagunt', dir:'Pol. Ind. Parc Sagunt, nau 12', tel:'962 660 450', mail:'comercial@quimival.es', cond:30, ctaProv:'400'},
+  {id:"RP02", nom:"Suministros de oficina", nif:'B96335021', pob:'Valencia', dir:'C/ Convent de Carmelites, 6', tel:'963 810 220', mail:'pedidos@suministrosoficina.es', cond:0, ctaProv:'400'},
+  {id:"RP03", nom:"Correduría de seguros", nif:'B96229087', pob:'Valencia', dir:'Av. Aragón, 30', tel:'963 528 900', mail:'administracion@correduriaseguros.es', cond:0, ctaProv:'400'},
+  {id:"RP04", nom:"Fabricante de maquinaria (envasadora)", nif:'A46330098', pob:'Paterna', dir:'Parc Tecnològic, C/ Charles R. Darwin, 22', tel:'961 366 210', mail:'ventas@maquinenvasadora.es', cond:30, ctaProv:'400'},
+  {id:"RP05", nom:"Envases y Embalajes S.L.", nif:'B46881122', pob:'Sagunt', dir:'Pol. Ind. Parc Sagunt, nau 3', tel:'962 668 810', mail:'pedidos@envasesyembalajes.es', cond:30, ctaProv:'400'},
+  {id:"RP06", nom:"Compañía eléctrica", nif:'A28553321', pob:'Madrid', dir:'Paseo de la Castellana, 259', tel:'900 200 400', mail:'grandesclientes@companiaelectrica.es', cond:0, ctaProv:'400'},
+  {id:"RP07", nom:"Proveedor de software de trazabilidad", nif:'B96229045', pob:'Valencia', dir:'C/ Colón, 62, 4t', tel:'963 940 770', mail:'soporte@traceabilitysoft.es', cond:0, ctaProv:'400'},
+  {id:"RP08", nom:"Transportista externo", nif:'B96774920', pob:'Silla', dir:"Pol. Ind. l'Alter, nau 9", tel:'961 210 340', mail:'trafico@transportistaexterno.es', cond:30, ctaProv:'400'},
+  {id:"RP09", nom:"Asesoría laboral y fiscal", nif:'B96556432', pob:'Valencia', dir:'C/ Xàtiva, 15, 2n', tel:'963 517 640', mail:'despacho@asesorialaboralfiscal.es', cond:0, ctaProv:'400'},
+  {id:"RP10", nom:"Agencia de marketing", nif:'B96330871', pob:'Valencia', dir:'C/ Cirilo Amorós, 48', tel:'963 942 110', mail:'hola@agenciamarketing.es', cond:0, ctaProv:'400'},
+  {id:"RP11", nom:"Servicio técnico de mantenimiento", nif:'B96887033', pob:'Paterna', dir:'Pol. Ind. Fuente del Jarro, C/ 3, nau 21', tel:'961 340 200', mail:'avisos@serviciotecnicomant.es', cond:0, ctaProv:'400'}
 ];
 DB.bancos2025 = [
   {id:'X1', nom:'Banco c/c (572)', saldo:-47125.65, cta:'572'},
@@ -7382,19 +7384,23 @@ DB.movimientos2025 = [
   DB.asientos2025.push(asiento);
 });
 DB.clientes.push(
-  {id:"NC01", nom:"FoodClean Iberia S.L.", nif:'—', pob:'—', dir:'—', tel:'', mail:'', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'430'},
-  {id:"NC02", nom:"Grup Hoteler Mediterrani S.L.", nif:'—', pob:'—', dir:'—', tel:'', mail:'', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'430'},
-  {id:"NC03", nom:"Organismo público", nif:'—', pob:'—', dir:'—', tel:'', mail:'', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'430'},
-  {id:"NC04", nom:"Distribuciones Hosteleras del Turia S.L.", nif:'—', pob:'—', dir:'—', tel:'', mail:'', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'430'},
-  {id:"NC05", nom:"Neteja Industrial Bàltica S.L.", nif:'—', pob:'—', dir:'—', tel:'', mail:'', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'430'}
+  {id:"NC01", nom:"FoodClean Iberia S.L.", nif:'B98123456', pob:'Alboraia', dir:'Pol. Ind. Vora Riu, nau 6', tel:'961 850 330', mail:'compras@foodcleaniberia.es', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'4300007'},
+  {id:"NC02", nom:"Grup Hoteler Mediterrani S.L.", nif:'B96410098', pob:'Cullera', dir:"Av. del Racó, 5", tel:'961 720 340', mail:'reservas@grupmediterrani.es', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'4300008'},
+  {id:"NC03", nom:"Organismo público", nif:'Q4629112D', pob:'Gandia', dir:"Pl. de l'Ajuntament, 1", tel:'962 959 100', mail:'contractacio@organismepublic-gandia.es', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'4300009'},
+  {id:"NC04", nom:"Distribuciones Hosteleras del Turia S.L.", nif:'B96887744', pob:'Valencia', dir:'C/ Pintor Maella, 14', tel:'963 400 220', mail:'pedidos@distturia.es', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'4300010'},
+  {id:"NC05", nom:"Neteja Industrial Bàltica S.L.", nif:'B96884477', pob:'Sueca', dir:"C/ de l'Assut, 9", tel:'961 703 210', mail:'administracio@baltica-neteja.es', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'4300011'}
 );
 DB.proveedores.push(
-  {id:"NP01", nom:"Quimival S.A.", nif:'—', pob:'—', dir:'', tel:'', mail:'', cond:30, ctaProv:'400'},
-  {id:"NP02", nom:"Compañía eléctrica", nif:'—', pob:'—', dir:'', tel:'', mail:'', cond:30, ctaProv:'400'},
-  {id:"NP03", nom:"Envases y Embalajes S.L.", nif:'—', pob:'—', dir:'', tel:'', mail:'', cond:30, ctaProv:'400'},
-  {id:"NP04", nom:"Asesoría laboral y fiscal", nif:'—', pob:'—', dir:'', tel:'', mail:'', cond:30, ctaProv:'400'},
-  {id:"NP05", nom:"Correduría de seguros", nif:'—', pob:'—', dir:'', tel:'', mail:'', cond:30, ctaProv:'400'}
+  {id:"NP01", nom:"Quimival S.A.", nif:'A46223390', pob:'Sagunt', dir:'Pol. Ind. Parc Sagunt, nau 12', tel:'962 660 450', mail:'comercial@quimival.es', cond:30, ctaProv:'4000005'},
+  {id:"NP02", nom:"Compañía eléctrica", nif:'A28553321', pob:'Madrid', dir:'Paseo de la Castellana, 259', tel:'900 200 400', mail:'grandesclientes@companiaelectrica.es', cond:30, ctaProv:'4000006'},
+  {id:"NP03", nom:"Envases y Embalajes S.L.", nif:'B46881122', pob:'Sagunt', dir:'Pol. Ind. Parc Sagunt, nau 3', tel:'962 668 810', mail:'pedidos@envasesyembalajes.es', cond:30, ctaProv:'4000007'},
+  {id:"NP04", nom:"Asesoría laboral y fiscal", nif:'B96556432', pob:'Valencia', dir:'C/ Xàtiva, 15, 2n', tel:'963 517 640', mail:'despacho@asesorialaboralfiscal.es', cond:30, ctaProv:'4000008'},
+  {id:"NP05", nom:"Correduría de seguros", nif:'B96229087', pob:'Valencia', dir:'Av. Aragón, 30', tel:'963 528 900', mail:'administracion@correduriaseguros.es', cond:30, ctaProv:'4000009'}
 );
+// Las subcuentas de NC01-NC05 y NP01-NP05 se registran a mano porque se dan de alta
+// después de que abrirSubcuentas() ya se haya ejecutado en la carga inicial.
+DB.clientes.slice(-5).forEach(c=>defCta(c.cta, c.nom, 'activo'));
+DB.proveedores.slice(-5).forEach(p=>defCta(p.ctaProv, p.nom, 'pasivo'));
 
 DB.bancos.push(
   {id:'B1', nom:'Banco c/c (572)', iban:'—', saldo:-132204.65, cta:'572'},
