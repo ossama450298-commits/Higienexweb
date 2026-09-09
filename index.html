@@ -4017,6 +4017,18 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
           <button type="button" class="btn-primary" id="fpAddBtn" onclick="fpAddToCart()" data-i18n-key="t415">🛒 Afegeix al cistell</button>
           <button type="button" class="btn-fp-outline" onclick="fpDescarregarFitxaTecnica()" data-i18n-key="t413">📄 Fitxa tècnica (PDF)</button>
         </div>
+        <div id="fpDosifWrap" style="display:none;margin-top:1.4rem;background:var(--warm-white);border-radius:14px;padding:1.1rem 1.2rem;">
+          <div style="font-weight:700;color:var(--green-deep);font-size:0.88rem;margin-bottom:0.3rem;">🧪 Calculadora de dosificació</div>
+          <div id="fpDosifRatioLabel" style="font-size:0.78rem;color:var(--ink-2, #6b6b6b);margin-bottom:0.7rem;"></div>
+          <label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.3rem;">Litres de solució final que vols preparar</label>
+          <input id="fpDosifLiters" type="number" min="0.1" step="0.1" value="5" oninput="fpCalcularDosi()" style="width:100%;padding:0.6rem;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;box-sizing:border-box;margin-bottom:0.7rem;">
+          <div id="fpDosifResult" style="font-size:0.9rem;font-weight:700;color:var(--accent);"></div>
+        </div>
+        <div id="fpVolumWrap" style="display:none;margin-top:1rem;background:var(--warm-white);border-radius:14px;padding:1.1rem 1.2rem;">
+          <div style="font-weight:700;color:var(--green-deep);font-size:0.88rem;margin-bottom:0.6rem;">📦 Preu per volum de compra</div>
+          <div id="fpVolumTable" style="display:grid;gap:0.4rem;font-size:0.85rem;"></div>
+          <div style="font-size:0.72rem;color:var(--ink-2, #6b6b6b);margin-top:0.6rem;">El descompte s'aplica automàticament al cistell.</div>
+        </div>
       </div>
     </div>
     <div style="margin-top:3rem;">
@@ -4189,6 +4201,50 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
     </div>
   </div>
   <iframe class="map-embed" loading="lazy" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3079.5!2d-0.3769!3d39.4738!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd6048a0eefcb0a9%3A0x1a5c5f3d0b6b7f5e!2sCalle%20de%20la%20Industria%2C%2025%2C%2046010%20Valencia!5e0!3m2!1sca!2ses!4v1" allowfullscreen loading="lazy" allowfullscreen></iframe>
+</section>
+
+<!-- ═══════════════════════════════════════
+     SOL·LICITUD D'AUDITORIA D'HIGIENE GRATUÏTA
+     ═══════════════════════════════════════ -->
+<section id="auditoria" style="background:var(--warm-white);">
+  <div class="container">
+    <span class="section-tag">🔍 Servei gratuït</span>
+    <h2>Sol·licita una auditoria d'higiene gratuïta</h2>
+    <p class="section-sub">Un tècnic visita les teves instal·lacions, avalua les necessitats reals i et proposa un pla d'higiene a mida — sense cap compromís.</p>
+    <div class="contact-grid fade-in">
+      <div class="contact-info">
+        <div class="contact-item"><div class="contact-icon">🕐</div><div><h4>Què inclou</h4><p>Visita presencial, informe amb recomanacions i pressupost orientatiu, en menys de 5 dies laborables.</p></div></div>
+        <div class="contact-item"><div class="contact-icon">💬</div><div><h4>Sense compromís</h4><p>L'auditoria és gratuïta i no suposa cap obligació de contractació.</p></div></div>
+      </div>
+      <div>
+        <form class="contact-form" onsubmit="submitAuditoria(event)">
+          <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"><label for="auWebsite">Deixa aquest camp buit</label><input type="text" id="auWebsite" name="website" tabindex="-1" autocomplete="off"></div>
+          <div class="form-row">
+            <div class="form-field"><label for="auNom">Nom i Cognoms *</label><input id="auNom" type="text" name="nom" required autocomplete="name" placeholder="Maria Garcia López"></div>
+            <div class="form-field"><label for="auEmpresa">Empresa *</label><input id="auEmpresa" type="text" name="empresa" required autocomplete="organization" placeholder="Hospital Sant Josep"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="auEmail">Email *</label><input id="auEmail" type="email" name="email" required autocomplete="email" placeholder="maria@hospital.com"></div>
+            <div class="form-field"><label for="auTelefon">Telèfon *</label><input id="auTelefon" type="tel" name="telefon" required autocomplete="tel" placeholder="600 000 000"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-field"><label for="auSector">Sector *</label><select id="auSector" name="sector" required>
+              <option value="">Selecciona el teu sector...</option>
+              <option>Sanitari / Hospitals</option><option>Hotels / Turisme</option>
+              <option>Indústria Alimentària</option><option>Oficines / Empreses</option>
+              <option>Administració Pública</option><option>Altres</option>
+            </select></div>
+            <div class="form-field"><label for="auFranja">Franja horària preferida</label><select id="auFranja" name="franja">
+              <option value="Indiferent">Indiferent</option><option value="Matí (9h-14h)">Matí (9h-14h)</option><option value="Tarda (15h-18h)">Tarda (15h-18h)</option>
+            </select></div>
+          </div>
+          <div class="form-field"><label for="auMida">Mida de les instal·lacions (m², habitacions o llits)</label><input id="auMida" type="text" name="mida" placeholder="Ex: 40 habitacions, 1.200 m²"></div>
+          <button type="submit" class="btn-submit">Sol·licitar auditoria gratuïta →</button>
+        </form>
+        <div id="auditoriaSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;">✅ Sol·licitud enviada! Un tècnic et contactarà en menys de 24 hores per concretar la visita.</div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════
@@ -4524,7 +4580,13 @@ function svgHBarChart(items, opts){
 }
 
 var CP_DB = {
-  cliente: {id:'C06', nom:'Edu', nif:'00000000T', pob:'Valencia', dir:'Carrer de la Pau 14, 3r 2a', tel:'644 210 987', mail:'edu@higienex.es', cond:30, user:'edu', pass:'Higienex2025'},
+  cliente: {id:'C06', nom:'Edu', nif:'00000000T', pob:'Valencia', dir:'Carrer de la Pau 14, 3r 2a', tel:'644 210 987', mail:'edu@higienex.es', cond:30, user:'edu', pass:'Higienex2025',
+    team: [
+      {id:'T1', nom:'Edu', email:'edu@higienex.es', user:'edu', pass:'Higienex2025', rol:'admin'},
+      {id:'T2', nom:'Marta Soler', email:'marta.soler@higienex.es', user:'marta', pass:'Marta2026', rol:'comprador'},
+      {id:'T3', nom:'Jordi Puig', email:'jordi.puig@higienex.es', user:'jordi', pass:'Jordi2026', rol:'lector'}
+    ]
+  },
   productos: {
     A01:{nom:'ECO Concentrat Pro 5 L'}, A02:{nom:'Desinfectant HOSP-V 5 L'}, A03:{nom:'Det ALIM-PRO 10 L'},
     A04:{nom:'Net HOSTAL 5 L'}, A05:{nom:'WorkSafe Antimicrobial 1 L'}, A06:{nom:'Dispensador mural INOX'}
@@ -4620,6 +4682,9 @@ function cpRestoreSession(){
     }
     if (localStorage.getItem('hx_cp_logged_in') === '1') {
       CP_LOGGED_IN = true;
+      var savedId = localStorage.getItem('hx_cp_current_user');
+      var team = (CP_DB.cliente.team || []);
+      for (var i=0; i<team.length; i++) { if (team[i].id === savedId) { CP_CURRENT_USER = team[i]; break; } }
       cpUpdateNavState();
     }
     if (raw || CP_LOGGED_IN) cpTouchSession();
@@ -4668,21 +4733,31 @@ function cpForgotPassword(){
 }
 window.cpForgotPassword = cpForgotPassword;
 
+var CP_CURRENT_USER = null;
+function cpNomRol(rol) {
+  return rol === 'admin' ? 'Administrador' : rol === 'comprador' ? 'Comprador' : 'Nom\u00e9s lectura';
+}
 function cpTryLogin(){
   var user=(document.getElementById('cpLoginUser').value||'').trim().toLowerCase();
   var pass=document.getElementById('cpLoginPass').value||'';
   var c=CP_DB.cliente;
-  if(user===c.user.toLowerCase() && pass===c.pass){
+  var team = c.team || [{id:'T1', nom:c.nom, email:c.mail, user:c.user, pass:c.pass, rol:'admin'}];
+  var membre = null;
+  for (var i=0; i<team.length; i++) {
+    if (team[i].user.toLowerCase() === user && team[i].pass === pass) { membre = team[i]; break; }
+  }
+  if(membre){
     CP_LOGGED_IN = true;
-    try { localStorage.setItem('hx_cp_logged_in', '1'); } catch(e) {}
+    CP_CURRENT_USER = membre;
+    try { localStorage.setItem('hx_cp_logged_in', '1'); localStorage.setItem('hx_cp_current_user', membre.id); } catch(e) {}
     cpTouchSession();
     cpUpdateNavState();
     if (!window.HX_USER) {
-      setLoggedInUser(c.nom, '', 'client', c.mail);
+      setLoggedInUser(membre.nom, '', 'client', membre.email);
     }
     cpCloseLoginModal();
     var dd=document.getElementById('navDropdown'); if(dd) dd.classList.remove('open');
-    showToast('Sessi\u00f3 iniciada. Ves a "\ud83d\udcca El meu panel" al men\u00fa per consultar les teves factures.', '\u2705');
+    showToast('Sessi\u00f3 iniciada com a ' + membre.nom + ' (' + cpNomRol(membre.rol) + ').', '\u2705');
   } else {
     document.getElementById('cpLoginErr').style.display='block';
   }
@@ -4695,6 +4770,7 @@ var CP_NAV=[
   ['comandes','📦','t718'],
   ['factures','🧾','t719'],
   ['empresa','👤','t720'],
+  ['equip','👥','Equip'],
   ['suport','📞','t721'],
   ['botiga','🛍️','t722'],
   ['fosc','🌙','t723'],
@@ -4722,6 +4798,10 @@ function cpAddDirectToCart(name, price, qty){
 }
 
 function cpTornarAComprar(lineas){
+  if (CP_CURRENT_USER && CP_CURRENT_USER.rol === 'lector') {
+    showToast('El teu accés és només de lectura: no pots fer comandes. Demana-ho a un administrador de l\'equip.', '🔒');
+    return;
+  }
   var afegits = 0, omesos = [];
   (lineas || []).forEach(function(l){
     var nomOriginal = l.nom || (CP_DB.productos[l.art] ? CP_DB.productos[l.art].nom : l.art);
@@ -4847,8 +4927,9 @@ window.cpAnarABotiga = cpAnarABotiga;
 
 function cpLogout(){
   CP_LOGGED_IN = false;
+  CP_CURRENT_USER = null;
   window.HX_USER = null;
-  try { localStorage.removeItem('hx_user_session'); localStorage.removeItem('hx_cp_logged_in'); localStorage.removeItem('hx_session_expiry'); } catch(e) {}
+  try { localStorage.removeItem('hx_user_session'); localStorage.removeItem('hx_cp_logged_in'); localStorage.removeItem('hx_cp_current_user'); localStorage.removeItem('hx_session_expiry'); } catch(e) {}
   if (CP_SESSION_WATCH) { clearInterval(CP_SESSION_WATCH); CP_SESSION_WATCH = null; }
   cpUpdateNavState();
   var ab=document.getElementById('authBtns'); if(ab) ab.style.display='flex';
@@ -4870,10 +4951,10 @@ function cpRenderNav(){
   }).join('');
 }
 function cpRenderUser(){
-  var c=CP_DB.cliente;
-  var inicials=c.nom.split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
+  var u = CP_CURRENT_USER || CP_DB.cliente;
+  var inicials=u.nom.split(' ').map(function(w){return w[0];}).slice(0,2).join('').toUpperCase();
   document.getElementById('cpUserBox').innerHTML =
-    '<div class="av">'+inicials+'</div><div class="nm"><b>'+escHtml(c.nom)+'</b><span>'+escHtml(c.mail||'')+'</span></div>';
+    '<div class="av">'+inicials+'</div><div class="nm"><b>'+escHtml(u.nom)+'</b><span>'+escHtml((u.email||u.mail)||'')+'</span></div>';
 }
 
 function cpGo(tab){
@@ -4886,6 +4967,7 @@ function cpGo(tab){
   else if(tab==='comandes') main.innerHTML=cpViewComandes();
   else if(tab==='factures') main.innerHTML=cpViewFactures();
   else if(tab==='empresa') main.innerHTML=cpViewEmpresa();
+  else if(tab==='equip') main.innerHTML=cpViewEquip();
   else if(tab==='suport') main.innerHTML=cpViewSuport();
   main.scrollTop=0;
   if(tab==='inici') cpBindPeriodButtons();
@@ -5464,6 +5546,72 @@ function cpViewEmpresa(){
     cpFidelitzacioHTML();
 }
 
+function cpRolColor(rol){ return rol==='admin' ? '#0B3D6B' : rol==='comprador' ? '#0B7256' : '#8A5900'; }
+function cpViewEquip(){
+  var team = CP_DB.cliente.team || [];
+  var esAdmin = CP_CURRENT_USER && CP_CURRENT_USER.rol === 'admin';
+  var files = team.map(function(m){
+    var esJoMateix = CP_CURRENT_USER && m.id === CP_CURRENT_USER.id;
+    return '<div class="cp-info-row" style="align-items:center">'+
+      '<span><b>'+escHtml(m.nom)+'</b>'+(esJoMateix?' <span style="color:var(--cp-muted,#888);font-size:11px">(tu)</span>':'')+
+        '<br><span style="font-size:11.5px;color:var(--cp-muted,#888)">'+escHtml(m.email)+'</span></span>'+
+      '<span style="display:flex;align-items:center;gap:10px">'+
+        '<span class="cp-tag" style="color:'+cpRolColor(m.rol)+';border-color:'+cpRolColor(m.rol)+'55;background:'+cpRolColor(m.rol)+'14">'+escHtml(cpNomRol(m.rol))+'</span>'+
+        (esAdmin && !esJoMateix ? '<button type="button" class="cp-btn ghost" style="padding:5px 10px;font-size:11px" onclick="cpEliminarMembre(\''+m.id+'\')">Elimina</button>' : '')+
+      '</span></div>';
+  }).join('');
+  var formConvidar = esAdmin ? (
+    '<div class="cp-card" style="max-width:560px;margin-top:16px">'+
+      '<div style="font-weight:700;color:var(--green-deep);margin-bottom:10px">➕ Convidar company</div>'+
+      '<div class="frow" style="display:grid;gap:10px">'+
+        '<input id="cpEquipNom" type="text" placeholder="Nom i cognoms" style="padding:0.6rem;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;">'+
+        '<input id="cpEquipEmail" type="email" placeholder="Correu electrònic" style="padding:0.6rem;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;">'+
+        '<select id="cpEquipRol" style="padding:0.6rem;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;">'+
+          '<option value="comprador">Comprador (pot fer comandes)</option>'+
+          '<option value="lector">Només lectura (només consulta)</option>'+
+          '<option value="admin">Administrador (gestiona l\'equip)</option>'+
+        '</select>'+
+      '</div>'+
+      '<button class="cp-btn" style="margin-top:12px" type="button" onclick="cpConvidarMembre()">Enviar invitació</button>'+
+    '</div>'
+  ) : '<p style="color:var(--cp-muted,#888);font-size:12.5px;margin-top:14px">Només un administrador pot convidar o eliminar membres de l\'equip.</p>';
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>👥 Equip</h1><p>Persones amb accés al portal d\'aquesta empresa.</p></div></div>'+
+    '<div class="cp-card" style="max-width:560px">'+files+'</div>'+
+    formConvidar;
+}
+function cpConvidarMembre(){
+  if (!CP_CURRENT_USER || CP_CURRENT_USER.rol !== 'admin') { showToast('Només un administrador pot convidar membres.', '⚠️'); return; }
+  var nom = (document.getElementById('cpEquipNom').value||'').trim();
+  var email = (document.getElementById('cpEquipEmail').value||'').trim();
+  var rol = document.getElementById('cpEquipRol').value;
+  if (!nom || !email) { showToast('Falta el nom o el correu.', '⚠️'); return; }
+  var team = CP_DB.cliente.team;
+  if (team.some(function(m){ return m.email.toLowerCase() === email.toLowerCase(); })) {
+    showToast('Ja hi ha algú convidat amb aquest correu.', '⚠️'); return;
+  }
+  var aliasBase = email.split('@')[0].toLowerCase();
+  var novaContrasenya = 'Higienex' + Math.floor(1000 + Math.random()*9000);
+  team.push({id:'T' + (team.length + 1), nom: nom, email: email, user: aliasBase, pass: novaContrasenya, rol: rol});
+  showToast(nom + ' convidat com a ' + cpNomRol(rol) + '. Usuari: ' + aliasBase + ' · Contrasenya provisional: ' + novaContrasenya, '✅');
+  cpGo('equip');
+}
+window.cpConvidarMembre = cpConvidarMembre;
+function cpEliminarMembre(id){
+  if (!CP_CURRENT_USER || CP_CURRENT_USER.rol !== 'admin') { showToast('Només un administrador pot eliminar membres.', '⚠️'); return; }
+  var team = CP_DB.cliente.team;
+  var admins = team.filter(function(m){ return m.rol === 'admin'; });
+  var target = team.find(function(m){ return m.id === id; });
+  if (target && target.rol === 'admin' && admins.length <= 1) {
+    showToast('No es pot eliminar l\'últim administrador de l\'equip.', '⚠️'); return;
+  }
+  if (!confirm('Vols eliminar aquesta persona de l\'equip?')) return;
+  CP_DB.cliente.team = team.filter(function(m){ return m.id !== id; });
+  showToast('Membre eliminat de l\'equip.', '🗑️');
+  cpGo('equip');
+}
+window.cpEliminarMembre = cpEliminarMembre;
+
 function cpViewSuport(){
   return ''+
     '<div class="cp-topbar"><div class="cp-greet"><h1>'+cpT('t818')+'</h1><p>'+cpT('t819')+'</p></div></div>'+
@@ -5875,6 +6023,59 @@ function submitForm(e) {
   f.reset();
 }
 window.submitForm = submitForm;
+
+function submitAuditoria(e) {
+  e.preventDefault();
+  var f = e.target;
+  var honeypot = f.elements['website'];
+  if (honeypot && honeypot.value) { return false; }
+  var submitBtn = f.querySelector('button[type="submit"]');
+  if (submitBtn) {
+    if (submitBtn.disabled) return false;
+    submitBtn.disabled = true;
+    setTimeout(function(){ submitBtn.disabled = false; }, 4000);
+  }
+  var val = function(name){ var el = f.elements[name]; return el ? el.value.trim() : ''; };
+  var nom      = val('nom');
+  var empresa  = val('empresa');
+  var email    = val('email');
+  var telefon  = val('telefon');
+  var sector   = val('sector');
+  var franja   = val('franja');
+  var mida     = val('mida');
+
+  try {
+    var files = [
+      ['Nom', nom],
+      ['Empresa', empresa],
+      ['Email', email],
+      ['Telèfon', telefon],
+      ['Sector', sector],
+      ['Franja preferida', franja || 'Indiferent']
+    ];
+    if (mida) files.push(['Mida instal·lacions', mida]);
+    var filesHTML = files.map(function(f){
+      return '<tr><td style="padding:5px 4px;color:#888;width:150px;font-size:12px;text-transform:uppercase;letter-spacing:.03em;">' + escHtml(f[0]) + '</td>' +
+        '<td style="padding:5px 4px;font-weight:600;color:#333;">' + escHtml(f[1]) + '</td></tr>';
+    }).join('');
+    var cos = '<table style="width:100%;border-collapse:collapse;font-size:14px;">' + filesHTML + '</table>';
+    enviarNotificacioEmail({
+      title: 'Nova sol·licitud d\'auditoria gratuïta: ' + (empresa || nom) + ' — HIGIENEX',
+      name: nom || 'Sol·licitud d\'auditoria',
+      message: cos,
+      email: email,
+      badge: 'AUDITORIA GRATUÏTA',
+      subtitle: 'Algú ha sol·licitat una visita tècnica gratuïta des de la web.',
+      detailLabel: 'Dades de la sol·licitud',
+      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold')
+    });
+  } catch(err) { console.warn('No s\'ha pogut preparar l\'email d\'auditoria:', err); }
+
+  var s = document.getElementById('auditoriaSuccess');
+  if (s) { s.style.display = 'block'; setTimeout(function() { s.style.display = 'none'; }, 6000); }
+  f.reset();
+}
+window.submitAuditoria = submitAuditoria;
 
 function submitTreballaForm(e) {
   e.preventDefault();
@@ -8018,6 +8219,8 @@ function obrirFitxaProducte(name) {
   else { if (emo) { emo.textContent = info.emoji; emo.style.display = 'block'; } if (img) img.style.display = 'none'; }
   var addBtn = document.getElementById('fpAddBtn');
   if (addBtn) addBtn.setAttribute('data-name', name);
+  fpMostrarDosificacio(name);
+  fpMostrarTaulaVolum(prod);
   // Productes relacionats: la resta del catàleg actiu
   var rel = document.getElementById('fpRelacionats');
   if (rel) {
@@ -8034,6 +8237,75 @@ function obrirFitxaProducte(name) {
   hxRenderReviewStarsPicker();
 }
 window.obrirFitxaProducte = obrirFitxaProducte;
+
+// Calculadora de dosificació: llegeix el ràtio de dilució del producte
+// (ex. "×3 (dilució 1:3)" -> ràtio 3) i calcula concentrat + aigua necessaris.
+function hxParseRatioDilucio(concentracioStr) {
+  if (!concentracioStr) return null;
+  var m = concentracioStr.match(/×\s*(\d+(?:[.,]\d+)?)/);
+  if (!m) return null;
+  return parseFloat(m[1].replace(',', '.'));
+}
+function fpMostrarDosificacio(name) {
+  var wrap = document.getElementById('fpDosifWrap');
+  if (!wrap) return;
+  var cmp = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[name] : null;
+  var ratio = cmp ? hxParseRatioDilucio(cmp.concentracio) : null;
+  if (!ratio) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+  wrap.setAttribute('data-ratio', ratio);
+  var lbl = document.getElementById('fpDosifRatioLabel');
+  if (lbl) lbl.textContent = 'Dilució d\'aquest producte: ' + cmp.concentracio;
+  fpCalcularDosi();
+}
+function fpCalcularDosi() {
+  var wrap = document.getElementById('fpDosifWrap');
+  if (!wrap || wrap.style.display === 'none') return;
+  var ratio = parseFloat(wrap.getAttribute('data-ratio'));
+  var litersInput = document.getElementById('fpDosifLiters');
+  var out = document.getElementById('fpDosifResult');
+  if (!ratio || !litersInput || !out) return;
+  var totalLiters = parseFloat(litersInput.value);
+  if (!totalLiters || totalLiters <= 0) { out.textContent = ''; return; }
+  var concentrateLiters = totalLiters / ratio;
+  var waterLiters = totalLiters - concentrateLiters;
+  var concentrateMl = concentrateLiters * 1000;
+  var concentrateText = concentrateMl < 1000
+    ? Math.round(concentrateMl) + ' mL de concentrat'
+    : concentrateLiters.toLocaleString('ca-ES', {maximumFractionDigits: 2}) + ' L de concentrat';
+  out.innerHTML = '🧴 ' + concentrateText + ' + 💧 ' +
+    waterLiters.toLocaleString('ca-ES', {maximumFractionDigits: 2}) + ' L d\'aigua';
+}
+window.fpCalcularDosi = fpCalcularDosi;
+window.fpMostrarDosificacio = fpMostrarDosificacio;
+
+// Taula de preus per volum a la fitxa de producte, reutilitzant el mateix
+// barem de descomptes ja aplicat automàticament al cistell (volumeDiscountRate).
+function fpMostrarTaulaVolum(prod) {
+  var wrap = document.getElementById('fpVolumWrap');
+  var body = document.getElementById('fpVolumTable');
+  if (!wrap || !body || !prod || typeof prod.price !== 'number' || typeof volumeDiscountRate !== 'function') {
+    if (wrap) wrap.style.display = 'none';
+    return;
+  }
+  var trams = [
+    {min: 1,  label: '1-4 unitats'},
+    {min: 5,  label: '5-9 unitats'},
+    {min: 10, label: '10-19 unitats'},
+    {min: 20, label: '20+ unitats'}
+  ];
+  body.innerHTML = trams.map(function(t){
+    var rate = volumeDiscountRate(t.min);
+    var preuFinal = prod.price * (1 - rate);
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0;' +
+      (rate > 0 ? 'border-top:1px dashed var(--border);' : '') + '">' +
+      '<span>' + t.label + (rate > 0 ? ' <span style="color:#B8860B;font-weight:700;">(-' + Math.round(rate*100) + '%)</span>' : '') + '</span>' +
+      '<span style="font-weight:700;color:var(--green-deep);">' + preuFinal.toLocaleString('ca-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' € / u.</span>' +
+    '</div>';
+  }).join('');
+  wrap.style.display = 'block';
+}
+window.fpMostrarTaulaVolum = fpMostrarTaulaVolum;
 
 function fpAddToCart() {
   var name = document.getElementById('fpName').textContent;
