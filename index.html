@@ -64,6 +64,15 @@ textarea:focus-visible, [tabindex]:focus-visible {
   left: 0;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: auto; }
 body {
@@ -3087,6 +3096,7 @@ px}
     <div style="max-width:640px;margin-top:2.2rem;">
       <h3 style="color:var(--green-deep);font-size:1.1rem;margin-bottom:0.9rem;" data-i18n-key="t876">Envia'ns la teva candidatura</h3>
       <form class="contact-form" onsubmit="submitTreballaForm(event)">
+        <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true"><label for="tbWebsite">Deixa aquest camp buit</label><input type="text" id="tbWebsite" name="website" tabindex="-1" autocomplete="off"></div>
         <div class="form-row">
           <div class="form-field"><label for="jbNom" data-i18n-key="t877">Nom i Cognoms *</label><input id="jbNom" type="text" name="nom" required autocomplete="name" placeholder="Laura Martínez Soler"></div>
           <div class="form-field"><label for="jbEmail">Email *</label><input id="jbEmail" type="email" name="email" required autocomplete="email" placeholder="laura@email.com"></div>
@@ -4115,7 +4125,7 @@ px}
         <div class="contact-item"><div class="contact-icon">✉️</div><div><h4 data-i18n-key="t124">Email</h4><a href="mailto:contacto@higienexvalencia.es">contacto@higienexvalencia.es</a><br><a href="mailto:administracion@higienexvalencia.es" style="font-size:0.82rem;color:#888;">administracion@higienexvalencia.es</a></div></div>
         <div class="contact-item"><div class="contact-icon">🕒</div><div><h4 data-i18n-key="t125">Horari</h4><p data-i18n-key="t306">Dilluns – Divendres: 8:00 – 17:30<br><span style="font-size:0.8rem;color:#888;" data-i18n-key="t344">Urgències 24/7 per a hospitals i centres crítics</span></p></div></div>
       </div>
-      <div><form class="contact-form" onsubmit="submitForm(event)"><div class="form-row"><div class="form-field"><label for="ctNom" data-i18n-key="t126">Nom i Cognoms *</label><input id="ctNom" type="text" name="nom" required autocomplete="name" placeholder="Maria Garcia López"></div><div class="form-field"><label for="ctEmpresa" data-i18n-key="t127">Empresa *</label><input id="ctEmpresa" type="text" name="empresa" required autocomplete="organization" placeholder="Hospital Sant Josep"></div></div><div class="form-row"><div class="form-field"><label for="ctEmail" data-i18n-key="t128">Email *</label><input id="ctEmail" type="email" name="email" required autocomplete="email" placeholder="maria@hospital.com"></div><div class="form-field"><label for="ctTelefon" data-i18n-key="t129">Telèfon</label><input id="ctTelefon" type="tel" name="telefon" autocomplete="tel" placeholder="600 000 000"></div></div><div class="form-field"><label for="ctSector" data-i18n-key="t446">Sector</label><select id="ctSector" name="sector"><option data-i18n-key="t471">Selecciona el teu sector...</option><option data-i18n-key="t469">Sanitari / Hospitals</option><option data-i18n-key="t460">Hotels / Turisme</option><option data-i18n-key="t462">Indústria Alimentària</option><option data-i18n-key="t466">Oficines / Empreses</option><option data-i18n-key="t451">Administració Pública</option><option data-i18n-key="t453">Altres</option></select></div><div class="form-field"><label for="ctMissatge" data-i18n-key="t130">Missatge *</label><textarea id="ctMissatge" name="missatge" required placeholder="Explica'ns les teves necessitats d'higiene professional..." data-i18n-placeholder="t506"></textarea></div><button type="submit" class="btn-submit" data-i18n-key="t131">Enviar Missatge →</button></form><div id="formSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;">✅ Missatge enviat correctament! Us contactarem en menys de 24 hores.</div></div>
+      <div><form class="contact-form" onsubmit="submitForm(event)"><div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true"><label for="ctWebsite">Deixa aquest camp buit</label><input type="text" id="ctWebsite" name="website" tabindex="-1" autocomplete="off"></div><div class="form-row"><div class="form-field"><label for="ctNom" data-i18n-key="t126">Nom i Cognoms *</label><input id="ctNom" type="text" name="nom" required autocomplete="name" placeholder="Maria Garcia López"></div><div class="form-field"><label for="ctEmpresa" data-i18n-key="t127">Empresa *</label><input id="ctEmpresa" type="text" name="empresa" required autocomplete="organization" placeholder="Hospital Sant Josep"></div></div><div class="form-row"><div class="form-field"><label for="ctEmail" data-i18n-key="t128">Email *</label><input id="ctEmail" type="email" name="email" required autocomplete="email" placeholder="maria@hospital.com"></div><div class="form-field"><label for="ctTelefon" data-i18n-key="t129">Telèfon</label><input id="ctTelefon" type="tel" name="telefon" autocomplete="tel" placeholder="600 000 000"></div></div><div class="form-field"><label for="ctSector" data-i18n-key="t446">Sector</label><select id="ctSector" name="sector"><option data-i18n-key="t471">Selecciona el teu sector...</option><option data-i18n-key="t469">Sanitari / Hospitals</option><option data-i18n-key="t460">Hotels / Turisme</option><option data-i18n-key="t462">Indústria Alimentària</option><option data-i18n-key="t466">Oficines / Empreses</option><option data-i18n-key="t451">Administració Pública</option><option data-i18n-key="t453">Altres</option></select></div><div class="form-field"><label for="ctMissatge" data-i18n-key="t130">Missatge *</label><textarea id="ctMissatge" name="missatge" required placeholder="Explica'ns les teves necessitats d'higiene professional..." data-i18n-placeholder="t506"></textarea></div><button type="submit" class="btn-submit" data-i18n-key="t131">Enviar Missatge →</button></form><div id="formSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;">✅ Missatge enviat correctament! Us contactarem en menys de 24 hores.</div></div>
     </div>
   </div>
   <iframe class="map-embed" loading="lazy" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3079.5!2d-0.3769!3d39.4738!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd6048a0eefcb0a9%3A0x1a5c5f3d0b6b7f5e!2sCalle%20de%20la%20Industria%2C%2025%2C%2046010%20Valencia!5e0!3m2!1sca!2ses!4v1" allowfullscreen loading="lazy" allowfullscreen></iframe>
@@ -5755,6 +5765,9 @@ window.toggleFaq = toggleFaq;
 function submitForm(e) {
   e.preventDefault();
   var f = e.target;
+  // Honeypot anti-spam: camp invisible que només un bot ompliria
+  var honeypot = f.elements['website'];
+  if (honeypot && honeypot.value) { return false; }
   // Evita l'enviament doble si algú clica dues vegades seguides
   var submitBtn = f.querySelector('button[type="submit"]');
   if (submitBtn) {
@@ -5806,6 +5819,8 @@ window.submitForm = submitForm;
 function submitTreballaForm(e) {
   e.preventDefault();
   var f = e.target;
+  var honeypot = f.elements['website'];
+  if (honeypot && honeypot.value) { return false; }
   var submitBtn = f.querySelector('button[type="submit"]');
   if (submitBtn) {
     if (submitBtn.disabled) return false;
@@ -6262,6 +6277,7 @@ window.submitTreballaForm = submitTreballaForm;
           <span class="nl-perk" data-i18n-key="t360">🚫 Baixa en 1 clic</span>
         </div>
         <form onsubmit="submitNewsletterPopup(event)">
+          <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true"><label for="nlWebsite">Deixa aquest camp buit</label><input type="text" id="nlWebsite" tabindex="-1" autocomplete="off"></div>
           <input type="email" id="newsletterPopupEmail" required autocomplete="email" aria-label="Correu electrònic" placeholder="tunom@empresa.com">
           <button type="submit" data-i18n-key="t394">Subscriu-me</button>
         </form>
@@ -6280,6 +6296,7 @@ window.submitTreballaForm = submitTreballaForm;
     <h3 data-i18n-key="t170">Demana la teva mostra gratuïta</h3>
     <p data-i18n-key="t296">T'enviem una mostra sense cost per provar el producte abans de comprar.</p>
     <form onsubmit="submitSamplePopup(event)" style="text-align:left;">
+      <div style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;" aria-hidden="true"><label for="samWebsite">Deixa aquest camp buit</label><input type="text" id="samWebsite" tabindex="-1" autocomplete="off"></div>
       <div class="form-field"><label for="samNom" data-i18n-key="t442">Nom i cognoms</label><input id="samNom" type="text" required autocomplete="name" placeholder="Maria Garcia"></div>
       <div class="form-field"><label for="samEmail" data-i18n-key="t438">Email</label><input id="samEmail" type="email" required autocomplete="email" placeholder="maria@empresa.com"></div>
       <div class="form-field"><label for="samEmpresa" data-i18n-key="t440">Empresa</label><input id="samEmpresa" type="text" autocomplete="organization" placeholder="Hotel Costa Daurada S.L."></div>
@@ -6337,6 +6354,8 @@ window.closeNewsletterPopup = closeNewsletterPopup;
 
 function submitNewsletterPopup(e) {
   e.preventDefault();
+  var honeypot = document.getElementById('nlWebsite');
+  if (honeypot && honeypot.value) { return false; }
   var input = document.getElementById('newsletterPopupEmail');
   var email = input ? input.value.trim() : '';
   if (!email) return;
@@ -6372,6 +6391,8 @@ function closeSamplePopup() {
 window.closeSamplePopup = closeSamplePopup;
 function submitSamplePopup(e) {
   e.preventDefault();
+  var honeypotSam = document.getElementById('samWebsite');
+  if (honeypotSam && honeypotSam.value) { return false; }
   var nom = document.getElementById('samNom').value.trim();
   var email = document.getElementById('samEmail').value.trim();
   var empresa = document.getElementById('samEmpresa').value.trim();
