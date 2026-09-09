@@ -6481,6 +6481,12 @@ window.submitSamplePopup = submitSamplePopup;
 function hxMaybeShowNewsletterPopup() {
   var DAYS_ABANS_DE_TORNAR_A_PREGUNTAR = 7;
   try {
+    // No mostrar si l'usuari ha iniciat sessió com a client o com a empleat/admin
+    if (typeof CP_LOGGED_IN !== 'undefined' && CP_LOGGED_IN) return;
+    var adminPanelEl = document.getElementById('adminPanel');
+    if (adminPanelEl && adminPanelEl.classList.contains('open')) return;
+    var clientAppEl = document.getElementById('hxClientApp');
+    if (clientAppEl && clientAppEl.style.display === 'block') return;
     var status = localStorage.getItem(HX_NEWSLETTER_KEY);
     if (status === 'subscribed') return;
     if (status) {
