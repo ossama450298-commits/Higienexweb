@@ -3629,6 +3629,19 @@ function hxEliminarAdjunto(clienteId, idx){
   if(box) box.innerHTML=hxRenderAdjuntos(clienteId);
 }
 window.hxEliminarAdjunto = hxEliminarAdjunto;
+const NIF_RE = /^[0-9]{8}[A-Za-z]$|^[XYZxyz][0-9]{7}[A-Za-z]$|^[A-Za-z][0-9]{7,8}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Validació bàsica de FORMAT (DNI 8 dígits+lletra, NIE X/Y/Z+7 dígits+lletra, CIF lletra+7-8 dígits).
+// NO comprova el dígit de control real (l'algorisme oficial), només que l'estructura sigui l'habitual.
+function avisarSiFormatoRaro(nif, mail){
+  if (nif && !NIF_RE.test(nif)) {
+    if (!confirm('El NIF/CIF "'+nif+'" no tiene un formato habitual (ej: 8 dígitos + letra, o letra + 7-8 dígitos). ¿Guardar igualmente?')) return false;
+  }
+  if (mail && !EMAIL_RE.test(mail)) {
+    if (!confirm('El correo "'+mail+'" no parece una dirección válida. ¿Guardar igualmente?')) return false;
+  }
+  return true;
+}
 const ORIGENES_LEAD = [['web','Web'],['referido','Referido'],['feria','Feria'],['llamada','Llamada fría'],['otro','Otro']];
 const nomOrigen = o => (ORIGENES_LEAD.find(x=>x[0]===o)||[,'—'])[1];
 function formCliente(id){
@@ -3652,9 +3665,11 @@ function saveCliente(id){
   const nom=val('nc_nom').trim(), nif=val('nc_nif').trim().toUpperCase();
   if(!nom||!nif){toast('Hacen falta la razón social y el NIF.');return;}
   if(DB.clientes.some(c=>c.nif===nif&&c.id!==id)){toast('Ya existe un cliente con ese NIF.');return;}
+  const mail=val('nc_mail').trim();
+  if(!avisarSiFormatoRaro(nif, mail)) return;
   const tags=val('nc_tags').split(',').map(t=>t.trim()).filter(Boolean);
   const datos={nom,nif,dir:val('nc_dir').trim(),pob:val('nc_pob').trim(),tel:val('nc_tel').trim(),
-               mail:val('nc_mail').trim(),cond:+val('nc_cond'),resp:val('nc_resp'),
+               mail,cond:+val('nc_cond'),resp:val('nc_resp'),
                origen:val('nc_origen'),proxContacto:val('nc_prox')||null,tags};
   if(id){ Object.assign(cli(id),datos); CUENTAS[cli(id).cta].nom=nom; toast('Cliente actualizado.'); }
   else{
@@ -3734,8 +3749,10 @@ function saveProveedor(id){
   const nom=val('np_nom').trim(), nif=val('np_nif').trim().toUpperCase();
   if(!nom||!nif){toast('Hacen falta la razón social y el NIF.');return;}
   if(DB.proveedores.some(p=>p.nif===nif&&p.id!==id)){toast('Ya existe un proveedor con ese NIF.');return;}
+  const mail=val('np_mail').trim();
+  if(!avisarSiFormatoRaro(nif, mail)) return;
   const datos={nom,nif,dir:val('np_dir').trim(),pob:val('np_pob').trim(),tel:val('np_tel').trim(),
-               mail:val('np_mail').trim(),cond:+val('np_cond'),cta:val('np_cta')};
+               mail,cond:+val('np_cond'),cta:val('np_cta')};
   if(id){ Object.assign(prov(id),datos); CUENTAS[prov(id).ctaProv].nom=nom; toast('Proveedor actualizado.'); }
   else{
     const p={id:uid('P'),...datos,alta:TODAY};
@@ -3768,7 +3785,14 @@ ROUTES.pipeline=function(){
   return h;
 };
 function avanzar(id){const o=DB.oportunidades.find(x=>x.id===id);o.fase=FASES[FASES.indexOf(o.fase)+1];refresh();toast('«'+o.nom+'» pasa a '+o.fase+'.');}
-function perder(id){const i=DB.oportunidades.findIndex(x=>x.id===id);const o=DB.oportunidades[i];DB.oportunidades.splice(i,1);refresh();toast('Oportunidad «'+o.nom+'» marcada como perdida.');}
+function perder(id){
+  const i=DB.oportunidades.findIndex(x=>x.id===id);
+  const o=DB.oportunidades[i];
+  if(!confirm('¿Marcar como perdida la oportunidad «'+o.nom+'» ('+EUR(o.valor)+')? Esta acción no se puede deshacer.')) return;
+  DB.oportunidades.splice(i,1);
+  refresh();
+  toast('Oportunidad «'+o.nom+'» marcada como perdida.');
+}
 function formOportunidad(id){
   const o=id?DB.oportunidades.find(x=>x.id===id):{};
   openModal(id?'Editar oportunidad':'Nueva oportunidad',
@@ -5342,7 +5366,11 @@ function formEmpleado(){
 function saveEmpleado(){
   const nom=val('ne_nom').trim();
   if(!nom||!(+val('ne_bruto')>0)){toast('Falta el nombre o el salario bruto.');return;}
-  DB.empleados.push({id:uid('E'),nom,dni:val('ne_dni').trim(),cat:val('ne_cat').trim()||'—',depto:val('ne_dep').trim()||'—',
+  const dni=val('ne_dni').trim().toUpperCase();
+  if(dni && !NIF_RE.test(dni)){
+    if(!confirm('El DNI/NIE "'+dni+'" no tiene un formato habitual (ej: 8 dígitos + letra, o X/Y/Z + 7 dígitos + letra). ¿Guardar igualmente?')) return;
+  }
+  DB.empleados.push({id:uid('E'),nom,dni,cat:val('ne_cat').trim()||'—',depto:val('ne_dep').trim()||'—',
     contrato:val('ne_con'),alta:val('ne_alta'),brutoAnual:+val('ne_bruto'),pagas:14,irpf:+val('ne_irpf')||0});
   closeModal(); go('rrhh'); toast('Empleado dado de alta.');
 }
@@ -6306,7 +6334,17 @@ doLogin = function(){
 function eliminarCliente(id){
   if(!isAdmin()) return;
   const c=cli(id);
-  if(!confirm('¿Eliminar definitivamente a '+c.nom+'? Esta acción no se puede deshacer.')) return;
+  const facturas = DB.facturasE.filter(f=>f.cli===id);
+  if (facturas.length) {
+    toast('No se puede eliminar a '+c.nom+': tiene '+facturas.length+' factura'+(facturas.length>1?'s':'')+' emitida'+(facturas.length>1?'s':'')+'. Elimínalas antes, o conserva el cliente para no perder el histórico contable ni romper la conciliación bancaria.');
+    return;
+  }
+  const ops=DB.oportunidades.filter(o=>o.cli===id).length;
+  const acts=DB.actividades.filter(a=>a.cli===id).length;
+  const incs=DB.incidencias.filter(i=>i.cli===id).length;
+  let extra='';
+  if (ops||acts||incs) extra=' También tiene '+[ops&&(ops+' oportunidad'+(ops>1?'es':'')),acts&&(acts+' actividad'+(acts>1?'es':'')),incs&&(incs+' incidencia'+(incs>1?'s':''))].filter(Boolean).join(', ')+' registradas, que quedarán sin cliente asociado.';
+  if(!confirm('¿Eliminar definitivamente a '+c.nom+'?'+extra+' Esta acción no se puede deshacer.')) return;
   DB.clientes = DB.clientes.filter(x=>x.id!==id);
   log('Cliente eliminado', c.nom);
   closeModal(); go('clientes'); toast('Cliente eliminado.');
