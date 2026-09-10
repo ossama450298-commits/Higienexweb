@@ -2029,6 +2029,11 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <span id="hxOfflineText" data-i18n-key="t671">📡 Sense connexió — veient contingut guardat. Alguns preus i el carret poden no actualitzar-se fins que tornis a tenir internet.</span>
 </div>
 
+<div id="hxRefBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999998;background:var(--green-deep,#0B3D6B);color:#fff;text-align:center;padding:0.55rem 1rem;font-size:0.8rem;font-weight:700;align-items:center;justify-content:center;gap:0.6rem;">
+  🎁 <span id="hxRefBannerText"></span>
+  <button type="button" onclick="document.getElementById('hxRefBanner').style.display='none';" style="background:none;border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:20px;padding:0.1rem 0.6rem;font-size:0.75rem;cursor:pointer;margin-left:0.4rem;" aria-label="Tancar">✕</button>
+</div>
+
 <!-- ═══════════════════════════════════════════════
      PANTALLA DE BENVINGUDA
      ═══════════════════════════════════════════════ -->
@@ -2737,6 +2742,29 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   from { opacity: 0; transform: scale(0.55); }
   to   { opacity: 1; transform: scale(1); }
 }
+
+/* Càrrega massiva de comanda des d'un fitxer Excel/CSV */
+#bulkUploadModal {
+  display: none; position: fixed; inset: 0; z-index: 9999996;
+  background: rgba(4,17,31,0.6); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center; padding: 1rem;
+}
+#bulkUploadModal.open { display: flex; }
+#bulkUploadBox {
+  background: white; border-radius: 20px; padding: 2rem;
+  width: min(460px, 92vw); max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(11,61,107,0.25);
+  animation: toastIn 0.3s ease; position: relative; text-align: center;
+}
+#bulkUploadBox .popup-close {
+  position: absolute; top: 1rem; right: 1rem; background: #F0F0F0; border: none;
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+}
+#bulkUploadBox .popup-close:hover { background: #E0E0E0; }
+#bulkUploadBox .popup-emoji { font-size: 2.6rem; margin-bottom: 0.5rem; }
+#bulkUploadBox h3 { color: #0B3D6B; font-size: 1.15rem; margin-bottom: 0.4rem; }
+#bulkUploadBox > p { font-size: 0.85rem; color: #666; line-height: 1.5; margin-bottom: 1.2rem; }
 
 /* Popup de subscripció a la newsletter (apareix als 30s) */
 #newsletterPopup {
@@ -4909,6 +4937,8 @@ var CP_NAV=[
   ['factures','🧾','t719'],
   ['empresa','👤','t720'],
   ['equip','👥','Equip'],
+  ['impacte','🌱','t958'],
+  ['referits','🎁','t966'],
   ['suport','📞','t721'],
   ['botiga','🛍️','t722'],
   ['fosc','🌙','t723'],
@@ -5106,6 +5136,8 @@ function cpGo(tab){
   else if(tab==='factures') main.innerHTML=cpViewFactures();
   else if(tab==='empresa') main.innerHTML=cpViewEmpresa();
   else if(tab==='equip') main.innerHTML=cpViewEquip();
+  else if(tab==='impacte') main.innerHTML=cpViewImpacte();
+  else if(tab==='referits') main.innerHTML=cpViewReferits();
   else if(tab==='suport') main.innerHTML=cpViewSuport();
   main.scrollTop=0;
   if(tab==='inici') cpBindPeriodButtons();
@@ -5749,6 +5781,216 @@ function cpEliminarMembre(id){
   cpGo('equip');
 }
 window.cpEliminarMembre = cpEliminarMembre;
+
+// ── Impacte ambiental personalitzat, calculat a partir de les comandes reals del client ──
+function hxCalcularImpacteCliente() {
+  var envasosEvitats = 0, litresConcentratComprats = 0;
+  (CP_DB.comandes || []).forEach(function(c){
+    (c.lineas || []).forEach(function(l){
+      var mapa = CP_PRODUCT_MAP[l.nom];
+      var nomCanonic = mapa ? mapa.nom : l.nom;
+      var info = (typeof CMP_DATA !== 'undefined') ? CMP_DATA[nomCanonic] : null;
+      var ratio = info ? hxParseRatioDilucio(info.concentracio) : null;
+      if (ratio && ratio > 1) {
+        envasosEvitats += l.cant * (ratio - 1);
+        litresConcentratComprats += l.cant * 5;
+      }
+    });
+  });
+  var kgPlasticEvitat = envasosEvitats * 0.15;
+  var kgCo2Evitat = envasosEvitats * 0.4;
+  return {
+    envasosEvitats: Math.round(envasosEvitats),
+    kgPlasticEvitat: kgPlasticEvitat,
+    kgCo2Evitat: kgCo2Evitat,
+    litresConcentratComprats: Math.round(litresConcentratComprats)
+  };
+}
+window.hxCalcularImpacteCliente = hxCalcularImpacteCliente;
+
+function cpViewImpacte(){
+  var d = hxCalcularImpacteCliente();
+  var c = CP_DB.cliente;
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>🌱 '+cpT('t958')+'</h1><p>'+cpT('t959')+'</p></div></div>'+
+    (d.envasosEvitats > 0 ? (
+      '<div class="cp-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.4rem;">'+
+        '<div class="cp-card" style="text-align:center;padding:1.4rem;"><div style="font-size:1.9rem;font-weight:800;color:var(--green-deep,#0B3D6B);">'+d.envasosEvitats.toLocaleString('ca-ES')+'</div><div style="font-size:0.8rem;color:var(--cp-muted,#888);margin-top:0.3rem;">'+cpT('t960')+'</div></div>'+
+        '<div class="cp-card" style="text-align:center;padding:1.4rem;"><div style="font-size:1.9rem;font-weight:800;color:var(--green-deep,#0B3D6B);">'+d.kgPlasticEvitat.toLocaleString('ca-ES',{maximumFractionDigits:1})+' kg</div><div style="font-size:0.8rem;color:var(--cp-muted,#888);margin-top:0.3rem;">'+cpT('t961')+'</div></div>'+
+        '<div class="cp-card" style="text-align:center;padding:1.4rem;"><div style="font-size:1.9rem;font-weight:800;color:var(--green-deep,#0B3D6B);">'+d.kgCo2Evitat.toLocaleString('ca-ES',{maximumFractionDigits:1})+' kg</div><div style="font-size:0.8rem;color:var(--cp-muted,#888);margin-top:0.3rem;">'+cpT('t962')+'</div></div>'+
+      '</div>'+
+      '<div class="cp-card" style="max-width:560px;">'+
+        '<p style="font-size:0.85rem;color:var(--cp-muted,#888);margin-bottom:1rem;">'+cpT('t963')+'</p>'+
+        '<button class="cp-btn" type="button" onclick="cpDescarregarCertificatImpacte()">📜 '+cpT('t964')+'</button>'+
+      '</div>'
+    ) : (
+      '<div class="cp-card" style="max-width:560px;text-align:center;padding:2rem;color:var(--cp-muted,#888);font-size:0.88rem;">'+cpT('t965')+'</div>'
+    ));
+}
+window.cpViewImpacte = cpViewImpacte;
+
+function cpDescarregarCertificatImpacte(){
+  var d = hxCalcularImpacteCliente();
+  var c = CP_DB.cliente;
+  var data = new Date().toLocaleDateString('ca-ES', {year:'numeric', month:'long', day:'numeric'});
+  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Certificat d\'impacte ambiental · HIGIENEX</title>'+
+    '<style>'+
+    '*{box-sizing:border-box;margin:0;padding:0}'+
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#EDEAE2;padding:40px 20px}'+
+    '.sheet{max-width:680px;margin:0 auto;background:#fff;border-radius:18px;padding:50px 46px;border-top:8px solid #2E7D32;box-shadow:0 20px 60px rgba(0,0,0,0.12);}'+
+    '.brand{font-family:Georgia,serif;font-size:26px;font-weight:700;color:#0B3D6B;text-align:center;}'+
+    '.brand span{color:#F2A900;}'+
+    '.eyebrow{text-align:center;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#2E7D32;font-weight:700;margin-top:18px;}'+
+    'h1{text-align:center;font-family:Georgia,serif;font-size:24px;color:#16232E;margin-top:8px;}'+
+    '.for{text-align:center;font-size:15px;color:#555;margin-top:6px;}'+
+    '.stats{display:flex;justify-content:center;gap:28px;margin:36px 0;flex-wrap:wrap;}'+
+    '.stat{text-align:center;}'+
+    '.stat b{display:block;font-size:30px;color:#2E7D32;font-family:Georgia,serif;}'+
+    '.stat span{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.05em;}'+
+    '.note{font-size:12px;color:#999;text-align:center;margin-top:30px;line-height:1.6;}'+
+    '.foot{margin-top:40px;padding-top:20px;border-top:1px solid #eee;text-align:center;font-size:11px;color:#aaa;}'+
+    '@media print{body{background:#fff;padding:0} .sheet{box-shadow:none;border-radius:0}}'+
+    '</style></head><body>'+
+    '<div class="sheet">'+
+      '<div class="brand">HIGIENE<span>X</span></div>'+
+      '<div class="eyebrow">Certificat d\'impacte ambiental</div>'+
+      '<h1>Gràcies per triar HIGIENEX ECO</h1>'+
+      '<p class="for">Emès per a <strong>'+escHtml(c.nom)+'</strong> · '+data+'</p>'+
+      '<div class="stats">'+
+        '<div class="stat"><b>'+d.envasosEvitats.toLocaleString('ca-ES')+'</b><span>Envasos evitats</span></div>'+
+        '<div class="stat"><b>'+d.kgPlasticEvitat.toLocaleString('ca-ES',{maximumFractionDigits:1})+' kg</b><span>Plàstic evitat</span></div>'+
+        '<div class="stat"><b>'+d.kgCo2Evitat.toLocaleString('ca-ES',{maximumFractionDigits:1})+' kg</b><span>CO₂ evitat (est.)</span></div>'+
+      '</div>'+
+      '<p class="note">Càlcul basat en l\'historial real de comandes de productes concentrats HIGIENEX enfront de l\'equivalent en producte ja diluït. Xifres orientatives amb finalitat informativa i de comunicació de sostenibilitat.</p>'+
+      '<div class="foot">HIGIENEX S.L. · Carrer de la Indústria, 25 · 46010 València · higienexvalencia.es</div>'+
+    '</div>'+
+    '</body></html>';
+  cpOpenOrDownloadHtml(html, 'certificat-impacte-higienex.html');
+}
+window.cpDescarregarCertificatImpacte = cpDescarregarCertificatImpacte;
+
+// ── Programa de referits entre empreses ──
+function hxCodiReferit() {
+  var c = CP_CURRENT_USER || CP_DB.cliente;
+  var base = (c.nom || 'HX').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 6) || 'HX';
+  return 'HX-' + base + '-2026';
+}
+window.hxCodiReferit = hxCodiReferit;
+function hxEnllacReferit() {
+  var url = window.location.origin + window.location.pathname;
+  return url + '?ref=' + encodeURIComponent(hxCodiReferit());
+}
+window.hxEnllacReferit = hxEnllacReferit;
+function hxLlistaReferits() {
+  try { var raw = localStorage.getItem('hx_referits_fets'); return raw ? JSON.parse(raw) : []; }
+  catch(e) { return []; }
+}
+function hxGuardarReferits(list) {
+  try { localStorage.setItem('hx_referits_fets', JSON.stringify(list)); } catch(e) {}
+}
+
+function cpViewReferits(){
+  var enllac = hxEnllacReferit();
+  var referits = hxLlistaReferits();
+  var filesReferits = referits.map(function(r){
+    var fet = r.estat === 'Primera comanda feta';
+    var estatColor = fet ? '#0B7256' : '#8A5900';
+    var estatBg = fet ? '#E5F3EE' : '#F7F0E0';
+    return '<div class="cp-info-row"><span><b>'+escHtml(r.empresa)+'</b><br><span style="font-size:11.5px;color:var(--cp-muted,#888)">'+escHtml(r.data)+'</span></span>'+
+      '<span class="cp-tag" style="color:'+estatColor+';border-color:'+estatColor+'55;background:'+estatBg+'">'+escHtml(r.estat)+'</span></div>';
+  }).join('');
+  return ''+
+    '<div class="cp-topbar"><div class="cp-greet"><h1>🎁 '+cpT('t966')+'</h1><p>'+cpT('t967')+'</p></div></div>'+
+    '<div class="cp-card" style="max-width:560px;margin-bottom:16px;">'+
+      '<div style="font-weight:700;color:var(--green-deep);margin-bottom:10px;">'+cpT('t968')+'</div>'+
+      '<div style="display:flex;gap:8px;align-items:center;background:var(--warm-white,#FAF7F0);border-radius:10px;padding:0.7rem 0.9rem;margin-bottom:14px;">'+
+        '<code id="cpReferralLink" style="flex:1;font-size:12px;color:var(--green-deep);overflow-x:auto;white-space:nowrap;">'+escHtml(enllac)+'</code>'+
+        '<button type="button" class="cp-btn" style="padding:6px 12px;font-size:12px;white-space:nowrap;" onclick="cpCopiarEnllacReferit()">📋 '+cpT('t969')+'</button>'+
+      '</div>'+
+      '<div style="font-size:12.5px;color:var(--cp-muted,#888);margin-bottom:16px;">'+cpT('t970')+'</div>'+
+      '<div style="font-weight:700;color:var(--green-deep);margin:16px 0 10px;">'+cpT('t971')+'</div>'+
+      '<div style="display:grid;gap:10px;">'+
+        '<input id="refEmpresaNom" type="text" placeholder="'+cpT('t972')+'" style="padding:0.6rem;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;">'+
+        '<input id="refEmpresaEmail" type="email" placeholder="'+cpT('t973')+'" style="padding:0.6rem;border-radius:8px;border:1.5px solid var(--border);font-size:0.85rem;">'+
+      '</div>'+
+      '<button class="cp-btn" style="margin-top:12px;" type="button" onclick="cpEnviarReferit()">'+cpT('t974')+'</button>'+
+    '</div>'+
+    '<div class="cp-card" style="max-width:560px;">'+
+      '<div style="font-weight:700;color:var(--green-deep);margin-bottom:10px;">'+cpT('t975')+'</div>'+
+      (filesReferits || '<p style="color:var(--cp-muted,#888);font-size:12.5px;">'+cpT('t976')+'</p>')+
+    '</div>';
+}
+window.cpViewReferits = cpViewReferits;
+
+function cpCopiaFallback(text) {
+  var el = document.getElementById('cpReferralLink');
+  if (el) {
+    var range = document.createRange();
+    range.selectNode(el);
+    var sel = window.getSelection();
+    sel.removeAllRanges(); sel.addRange(range);
+    try { document.execCommand('copy'); showToast(cpT('t977'), '✅'); } catch(e) {}
+    sel.removeAllRanges();
+  }
+}
+function cpCopiarEnllacReferit() {
+  var text = hxEnllacReferit();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){ showToast(cpT('t977'), '✅'); }).catch(function(){ cpCopiaFallback(text); });
+  } else {
+    cpCopiaFallback(text);
+  }
+}
+window.cpCopiarEnllacReferit = cpCopiarEnllacReferit;
+
+function cpEnviarReferit() {
+  var nomEl = document.getElementById('refEmpresaNom');
+  var emailEl = document.getElementById('refEmpresaEmail');
+  var nom = (nomEl.value || '').trim();
+  var email = (emailEl.value || '').trim();
+  if (!nom || !email) { showToast(cpT('t978'), '⚠️'); return; }
+  var c = CP_CURRENT_USER || CP_DB.cliente;
+  try {
+    enviarNotificacioEmail({
+      title: 'Nova recomanació d\'empresa: ' + nom + ' — HIGIENEX',
+      name: c.nom,
+      email: email,
+      badge: 'RECOMANACIÓ',
+      subtitle: c.nom + ' ha recomanat HIGIENEX a una altra empresa.',
+      detailLabel: 'Dades de la recomanació',
+      message: 'Empresa recomanada: ' + nom + '\nEmail de contacte: ' + email + '\nRecomanada per: ' + c.nom + ' (' + (c.email||c.mail||'') + ')\nCodi de referit: ' + hxCodiReferit(),
+      ctaButtonHtml: hxEmailCtaButton('Contactar amb l\'empresa →', 'mailto:' + email, 'gold')
+    });
+  } catch(err) { console.warn('No s\'ha pogut enviar la recomanació:', err); }
+  var referits = hxLlistaReferits();
+  referits.unshift({empresa: nom, data: new Date().toISOString().slice(0,10), estat: 'Pendent'});
+  hxGuardarReferits(referits);
+  nomEl.value = ''; emailEl.value = '';
+  showToast(cpT('t979'), '🎁');
+  cpGo('referits');
+}
+window.cpEnviarReferit = cpEnviarReferit;
+
+function hxDetectarReferit() {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var ref = params.get('ref');
+    if (ref) {
+      localStorage.setItem('hx_ref_code_actiu', ref);
+      var banner = document.getElementById('hxRefBanner');
+      var text = document.getElementById('hxRefBannerText');
+      if (banner && text) {
+        text.textContent = cpT('t980');
+        banner.style.display = 'flex';
+      }
+    }
+  } catch(e) {}
+}
+document.addEventListener('DOMContentLoaded', hxDetectarReferit);
+function hxCodiReferitActiu() {
+  try { return localStorage.getItem('hx_ref_code_actiu') || ''; } catch(e) { return ''; }
+}
+window.hxCodiReferitActiu = hxCodiReferitActiu;
 
 function cpViewSuport(){
   return ''+
@@ -6548,6 +6790,7 @@ window.submitTreballaForm = submitTreballaForm;
           <span class="hx-u24">🛒</span>
           <h3 style="margin:0;color:#0B3D6B;font-size:1rem;" data-i18n-key="t167">La teva comanda</h3>
         </div>
+        <button type="button" onclick="hxOpenBulkUpload()" style="width:100%;background:var(--warm-white);border:1.5px dashed var(--border);border-radius:12px;padding:0.6rem;font-size:0.78rem;font-weight:700;color:var(--green-deep);cursor:pointer;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;">📤 <span data-i18n-key="t954">Càrrega massiva des d'Excel/CSV</span></button>
         <div id="cartItems"><p style="color:#aaa;font-size:0.85rem;text-align:center;padding:1.5rem 0;" data-i18n-key="t292">Cap producte afegit encara</p></div>
         <div class="cart-total" id="cartTotal" style="display:none;margin-top:1rem;padding-top:1rem;border-top:2px solid #F2A900;">
           <span data-i18n-key="t419" style="font-weight:700;color:#0B3D6B;">Total estimat:</span>
@@ -6730,6 +6973,22 @@ window.submitTreballaForm = submitTreballaForm;
       <li><span class="pw-ic">❌</span><span data-i18n-key="t925">Cancel·la quan vulguis, sense permanència.</span></li>
     </ul>
     <button type="button" class="btn-primary" style="width:100%;" onclick="closePremiumWelcome();navTo('productes');" data-i18n-key="t945">Començar a comprar →</button>
+  </div>
+</div>
+
+<!-- Càrrega massiva de comanda des d'un fitxer Excel/CSV -->
+<div id="bulkUploadModal" onclick="if(event.target===this) closeBulkUpload()">
+  <div id="bulkUploadBox">
+    <button class="popup-close" onclick="closeBulkUpload()" type="button" aria-label="Tancar">✕</button>
+    <div class="popup-emoji">📤</div>
+    <h3 data-i18n-key="t954">Càrrega massiva des d'Excel/CSV</h3>
+    <p data-i18n-key="t955">Ideal si compres diverses referències cada vegada: puja un full amb "Producte" i "Quantitat" i ho afegim tot al cistell d'un cop.</p>
+    <button type="button" class="btn-fp-outline" style="width:100%;margin-bottom:1rem;" onclick="hxDownloadBulkTemplate()" data-i18n-key="t956">📥 Descarregar plantilla d'exemple</button>
+    <label for="bulkUploadInput" style="display:block;border:2px dashed var(--border);border-radius:12px;padding:1.4rem 1rem;cursor:pointer;font-size:0.85rem;color:var(--ink-2,#666);text-align:center;">
+      <span data-i18n-key="t957">Fes clic per triar el teu fitxer .xlsx o .csv</span>
+      <input id="bulkUploadInput" type="file" accept=".xlsx,.xls,.csv" style="display:none;" onchange="hxProcessBulkUpload(this)">
+    </label>
+    <div id="bulkUploadResult" style="margin-top:1rem;text-align:left;"></div>
   </div>
 </div>
 
@@ -7302,14 +7561,15 @@ function registerUser() {
   _registerInFlight = true;
   REGISTERED_USERS[email] = {name:name, company:company, cif:cif, password:password, sector:sector};
   hxSaveRegisteredUsers();
+  var refActiu = hxCodiReferitActiu();
   enviarNotificacioEmail({
     title: 'Nou usuari registrat a la web',
-    badge: 'NOU REGISTRE',
-    subtitle: 'Algú s\'ha registrat a HIGIENEX des de la web.',
+    badge: refActiu ? 'REGISTRE REFERIT' : 'NOU REGISTRE',
+    subtitle: refActiu ? ('Algú s\'ha registrat via una recomanació (codi ' + refActiu + ').') : 'Algú s\'ha registrat a HIGIENEX des de la web.',
     name: name,
     email: email,
     detailLabel: 'Dades del registre',
-    message: 'Nom: ' + name + '\nEmail: ' + email + (company ? ('\nEmpresa: ' + company) : '') + (cif ? ('\nCIF: ' + cif) : '') + (sector ? ('\nSector: ' + sector) : ''),
+    message: 'Nom: ' + name + '\nEmail: ' + email + (company ? ('\nEmpresa: ' + company) : '') + (cif ? ('\nCIF: ' + cif) : '') + (sector ? ('\nSector: ' + sector) : '') + (refActiu ? ('\nCodi de referit: ' + refActiu + ' (aplicar el descompte de benvinguda)') : ''),
     ctaButtonHtml: hxEmailCtaButton('Donar la benvinguda →', 'mailto:' + email, 'gold')
   });
   closeAuthModal(); setLoggedInUser(name,'','client',email); showWelcome(name,false);
@@ -8710,6 +8970,103 @@ function hxDescarregarCatalegExcel() {
   } catch(e) { showToast('No s\'ha pogut generar l\'Excel.', '⚠️'); }
 }
 window.hxDescarregarCatalegExcel = hxDescarregarCatalegExcel;
+
+// ═══════════════════════════════════════════════════════════
+// CÀRREGA MASSIVA DE COMANDA DES D'UN FITXER EXCEL/CSV
+// ═══════════════════════════════════════════════════════════
+function hxOpenBulkUpload() {
+  var m = document.getElementById('bulkUploadModal');
+  if (m) m.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  var result = document.getElementById('bulkUploadResult');
+  if (result) result.innerHTML = '';
+  var input = document.getElementById('bulkUploadInput');
+  if (input) input.value = '';
+}
+window.hxOpenBulkUpload = hxOpenBulkUpload;
+function closeBulkUpload() {
+  var m = document.getElementById('bulkUploadModal');
+  if (m) m.classList.remove('open');
+  document.body.style.overflow = '';
+}
+window.closeBulkUpload = closeBulkUpload;
+
+function hxDownloadBulkTemplate() {
+  if (!window.XLSX) { showToast('Encara es carrega el mòdul d\'Excel, torna-ho a provar en un segon.', '⚠️'); return; }
+  var rows = [
+    ['Producte', 'Quantitat'],
+    ['ECO Concentrat Pro', 10],
+    ['Desinfectant HOSP-V', 5],
+    ['Detergent ALIM-PRO', 3]
+  ];
+  try {
+    var ws = XLSX.utils.aoa_to_sheet(rows);
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Comanda');
+    XLSX.writeFile(wb, 'plantilla-comanda-higienex.xlsx');
+  } catch(e) { showToast('No s\'ha pogut generar la plantilla.', '⚠️'); }
+}
+window.hxDownloadBulkTemplate = hxDownloadBulkTemplate;
+
+function hxNormalitzaNomProducte(txt) {
+  return String(txt || '').trim().toLowerCase();
+}
+
+function hxProcessBulkUpload(input) {
+  var file = input.files && input.files[0];
+  var resultBox = document.getElementById('bulkUploadResult');
+  if (!file) return;
+  if (!window.XLSX) { showToast('Encara es carrega el mòdul d\'Excel, torna-ho a provar en un segon.', '⚠️'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = new Uint8Array(e.target.result);
+      var wb = XLSX.read(data, {type: 'array'});
+      var sheet = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(sheet, {header: 1});
+      var mapaNorm = {};
+      Object.keys(CP_PRODUCT_MAP).forEach(function(k){
+        mapaNorm[hxNormalitzaNomProducte(k)] = CP_PRODUCT_MAP[k];
+      });
+      var afegits = [], noReconeguts = [], filesInvalides = 0;
+      rows.forEach(function(row, idx){
+        if (idx === 0) return;
+        if (!row || row.length === 0) return;
+        var nomCell = row[0], qtyCell = row[1];
+        if (nomCell === undefined || nomCell === null || String(nomCell).trim() === '') return;
+        var qty = parseInt(qtyCell, 10);
+        if (!qty || qty <= 0) { filesInvalides++; return; }
+        var match = mapaNorm[hxNormalitzaNomProducte(nomCell)];
+        if (match) {
+          cpAddDirectToCart(match.nom, match.preu, qty);
+          afegits.push(match.nom + ' × ' + qty);
+        } else {
+          noReconeguts.push(String(nomCell));
+        }
+      });
+      renderCart();
+      var html = '';
+      if (afegits.length) {
+        html += '<div style="background:#E8F5E9;border-radius:10px;padding:0.8rem 1rem;margin-bottom:0.6rem;font-size:0.82rem;color:#2E7D32;"><strong>✅ ' + afegits.length + ' afegits al cistell:</strong><br>' + afegits.join('<br>') + '</div>';
+      }
+      if (noReconeguts.length) {
+        html += '<div style="background:#FFF3E0;border-radius:10px;padding:0.8rem 1rem;margin-bottom:0.6rem;font-size:0.82rem;color:#B8621B;"><strong>⚠️ ' + noReconeguts.length + ' no reconeguts:</strong><br>' + noReconeguts.join('<br>') + '</div>';
+      }
+      if (filesInvalides > 0) {
+        html += '<div style="font-size:0.78rem;color:#999;">' + filesInvalides + ' fila(es) amb quantitat no vàlida, ignorades.</div>';
+      }
+      if (!afegits.length && !noReconeguts.length) {
+        html = '<div style="font-size:0.85rem;color:#999;">No s\'ha trobat cap fila amb dades. Comprova el format del fitxer.</div>';
+      }
+      if (resultBox) resultBox.innerHTML = html;
+      if (afegits.length) showToast(afegits.length + ' productes afegits al cistell.', '✅');
+    } catch(err) {
+      if (resultBox) resultBox.innerHTML = '<div style="color:#B8621B;font-size:0.85rem;">No s\'ha pogut llegir el fitxer. Comprova que sigui un .xlsx o .csv vàlid.</div>';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+window.hxProcessBulkUpload = hxProcessBulkUpload;
 
 // ═══════════════════════════════════════════════════════════
 // WIDGET "ÚLTIMA ACTUALITZACIÓ DE PREUS"
