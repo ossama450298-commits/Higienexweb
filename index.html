@@ -2697,6 +2697,47 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 #samplePopupBox > p { font-size: 0.85rem; color: #666; line-height: 1.5; margin-bottom: 1.2rem; }
 #samplePopupBox .form-field { margin-bottom: 0.85rem; }
 
+/* Benvinguda especial en fer-se soci HIGIENEX Premium */
+#premiumWelcomeModal {
+  display: none; position: fixed; inset: 0; z-index: 9999999;
+  background: rgba(4,17,31,0.7); backdrop-filter: blur(5px);
+  align-items: center; justify-content: center; padding: 1rem;
+}
+#premiumWelcomeModal.open { display: flex; }
+#premiumWelcomeBox {
+  background: #fff; border-radius: 22px; padding: 2.4rem 2rem 2rem;
+  width: min(460px, 92vw); max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(11,61,107,0.28);
+  border-top: 5px solid #F2A900;
+  animation: toastIn 0.35s ease; position: relative; text-align: center;
+}
+#premiumWelcomeBox .popup-close {
+  position: absolute; top: 1rem; right: 1rem; background: #F5F5F5; border: none;
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center; color: #666;
+}
+#premiumWelcomeBox .popup-close:hover { background: #E8E8E8; }
+.premium-welcome-badge {
+  width: 4.4rem; height: 4.4rem; margin-bottom: 0.9rem;
+  animation: premiumPop 0.5s cubic-bezier(0.26,1.4,0.44,1) 0.1s both;
+}
+.premium-welcome-eyebrow {
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #C98A00; margin-bottom: 0.4rem;
+}
+#premiumWelcomeBox h3 { color: #0B3D6B; font-size: 1.35rem; margin-bottom: 0.6rem; }
+#premiumWelcomeBox > p { font-size: 0.86rem; color: #666; line-height: 1.55; margin-bottom: 1.4rem; }
+.premium-welcome-list {
+  list-style: none; padding: 0; margin: 0 0 1.5rem; display: grid; gap: 0.8rem;
+  text-align: left; background: #FBF6EB; border-radius: 14px; padding: 1.1rem 1.2rem;
+}
+.premium-welcome-list li { display: flex; gap: 0.65rem; align-items: flex-start; font-size: 0.84rem; color: #444; line-height: 1.4; }
+.premium-welcome-list .pw-ic { flex-shrink: 0; }
+@keyframes premiumPop {
+  from { opacity: 0; transform: scale(0.55); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
 /* Popup de subscripció a la newsletter (apareix als 30s) */
 #newsletterPopup {
   display: none;
@@ -6675,6 +6716,23 @@ window.submitTreballaForm = submitTreballaForm;
   </div>
 </div>
 
+<!-- Benvinguda especial en fer-se soci HIGIENEX Premium -->
+<div id="premiumWelcomeModal" onclick="if(event.target===this) closePremiumWelcome()">
+  <div id="premiumWelcomeBox">
+    <button class="popup-close" onclick="closePremiumWelcome()" type="button" aria-label="Tancar">✕</button>
+    <svg class="premium-welcome-badge" viewBox="0 0 40 40" aria-hidden="true"><use href="#hxPremiumBadge"></use></svg>
+    <div class="premium-welcome-eyebrow" data-i18n-key="t942">Ets soci des d'ara mateix</div>
+    <h3 data-i18n-key="t943">Benvingut/da a HIGIENEX Premium</h3>
+    <p data-i18n-key="t944">El teu 5% de descompte extra ja està actiu en totes les teves compres, i seràs el primer a saber quan llancem un producte nou.</p>
+    <ul class="premium-welcome-list">
+      <li><span class="pw-ic">🏷️</span><span data-i18n-key="t923"><strong>5% de descompte extra</strong> en tots els productes, acumulable amb els descomptes per volum que ja tens.</span></li>
+      <li><span class="pw-ic">🔔</span><span data-i18n-key="t924"><strong>Avís prioritari</strong> quan llancem un producte nou, abans que ningú més.</span></li>
+      <li><span class="pw-ic">❌</span><span data-i18n-key="t925">Cancel·la quan vulguis, sense permanència.</span></li>
+    </ul>
+    <button type="button" class="btn-primary" style="width:100%;" onclick="closePremiumWelcome();navTo('productes');" data-i18n-key="t945">Començar a comprar →</button>
+  </div>
+</div>
+
 <script>
 // HIGIENEX Auth, Login, Cart, Admin
 
@@ -7586,9 +7644,24 @@ function hxSubscribePremium() {
   hxRenderPremiumSection();
   Object.keys(cart).forEach(function(k){ recalcCartLine(k); });
   if (typeof renderCart === 'function') renderCart();
-  showToast(cpT('t929'), '✅');
+  openPremiumWelcome();
 }
 window.hxSubscribePremium = hxSubscribePremium;
+function openPremiumWelcome() {
+  var m = document.getElementById('premiumWelcomeModal');
+  if (m) m.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+window.openPremiumWelcome = openPremiumWelcome;
+function closePremiumWelcome() {
+  var m = document.getElementById('premiumWelcomeModal');
+  if (m) m.classList.remove('open');
+  document.body.style.overflow = '';
+}
+window.closePremiumWelcome = closePremiumWelcome;
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closePremiumWelcome();
+});
 function hxCancelPremium() {
   if (!confirm(cpT('t930'))) return;
   try { localStorage.removeItem(HX_PREMIUM_KEY); localStorage.removeItem(HX_PREMIUM_SINCE_KEY); } catch(e) {}
