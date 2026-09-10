@@ -1468,6 +1468,8 @@ html.hx-rtl .form-row { direction: rtl; }
   section:not(#home) { padding: 3.5rem 1.2rem; }
   #home { padding: 3rem 1.2rem; }
   .mvv-grid, .valors-list, .premium-grid { grid-template-columns: 1fr; }
+  #navPremiumBtn span { display: none; }
+  #navPremiumBtn { padding: 0.45rem 0.6rem; }
   .clients-grid { grid-template-columns: 1fr; }
   .casos-grid, .blog-grid, .futur-grid, .sost-grid, .rsc-grid, .rrhh-grid, .mkt-grid { grid-template-columns: 1fr; }
   .process-flow { flex-direction: column; }
@@ -2923,6 +2925,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
         </div>
       </div>
       <button id="hxInstallBtn" onclick="hxInstallApp()" type="button" title="Instal·lar l'app" aria-label="Instal·lar l'app" style="display:none;align-items:center;gap:0.4rem;background:var(--accent);border:none;color:#1A1A1A;padding:0.45rem 0.9rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;white-space:nowrap;">⬇️ <span class="hxInstallLabel" data-i18n-key="t576">Instal·lar app</span></button>
+      <button id="navPremiumBtn" onclick="navTo('premium')" type="button" title="HIGIENEX Premium" aria-label="HIGIENEX Premium" style="display:flex;align-items:center;gap:0.35rem;background:var(--accent);border:none;color:#1A1A1A;padding:0.45rem 0.9rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;white-space:nowrap;">⭐ <span data-i18n-key="t941">HIGIENEX Premium</span></button>
       <div id="authBtns" style="display:flex;gap:0.5rem;">
         <button onclick="openAuthModal();switchTab('login')" style="display:flex;align-items:center;gap:0.4rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 1rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.82rem;font-weight:600;transition:all 0.2s;white-space:nowrap;" type="button">
           <span data-i18n-key="t001">Accedir</span>
@@ -4512,7 +4515,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
       <li><a href="#" onclick="navTo('innovacio');return false;" data-i18n-key="t161">Innovació</a></li>
       <li><a href="#" onclick="navTo('casos');return false;" data-i18n-key="t162">Casos d'Èxit</a></li>
       <li><a href="#" onclick="navTo('fidelitzacio');return false;">Programa de Fidelització</a></li>
-      <li><a href="#" onclick="navTo('premium');return false;" data-i18n-key="t941">⭐ HIGIENEX Premium</a></li>
       <li><a href="#" onclick="navTo('garanties');return false;">Garanties i Devolucions</a></li>
     </ul></div>
     <div><h4 data-i18n-key="t163">Contacte</h4><ul>
