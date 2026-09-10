@@ -4298,26 +4298,26 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
      ═══════════════════════════════════════ -->
 <section id="premium" style="background:var(--green-deep);color:#fff;">
   <div class="container">
-    <span class="section-tag" style="background:rgba(255,255,255,0.12);color:#fff;">⭐ Nou</span>
+    <span class="section-tag" style="background:rgba(255,255,255,0.12);color:#fff;" data-i18n-key="t920">⭐ Nou</span>
     <h2 style="color:#fff;">HIGIENEX Premium</h2>
-    <p class="section-sub" style="color:rgba(255,255,255,0.8);">Fes-te soci per 20 €/mes i estalvia des del primer dia en totes les teves comandes.</p>
+    <p class="section-sub" style="color:rgba(255,255,255,0.8);" data-i18n-key="t921">Fes-te soci per 20 €/mes i estalvia des del primer dia en totes les teves comandes.</p>
     <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:2rem;margin-top:2rem;align-items:start;" class="premium-grid">
       <div style="background:rgba(255,255,255,0.08);border-radius:18px;padding:1.8rem;">
         <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:1.2rem;">
           <span id="premiumPriceDisplay" style="font-size:2.4rem;font-weight:800;">20 €</span>
-          <span style="opacity:0.75;">/ mes</span>
+          <span style="opacity:0.75;" data-i18n-key="t922">/ mes</span>
         </div>
         <ul style="list-style:none;padding:0;margin:0 0 1.6rem;display:grid;gap:0.9rem;">
-          <li style="display:flex;gap:0.7rem;align-items:flex-start;"><span>🏷️</span><span><strong>5% de descompte extra</strong> en tots els productes, acumulable amb els descomptes per volum que ja tens.</span></li>
-          <li style="display:flex;gap:0.7rem;align-items:flex-start;"><span>🔔</span><span><strong>Avís prioritari</strong> quan llancem un producte nou, abans que ningú més.</span></li>
-          <li style="display:flex;gap:0.7rem;align-items:flex-start;"><span>❌</span><span>Cancel·la quan vulguis, sense permanència.</span></li>
+          <li style="display:flex;gap:0.7rem;align-items:flex-start;"><span>🏷️</span><span data-i18n-key="t923"><strong>5% de descompte extra</strong> en tots els productes, acumulable amb els descomptes per volum que ja tens.</span></li>
+          <li style="display:flex;gap:0.7rem;align-items:flex-start;"><span>🔔</span><span data-i18n-key="t924"><strong>Avís prioritari</strong> quan llancem un producte nou, abans que ningú més.</span></li>
+          <li style="display:flex;gap:0.7rem;align-items:flex-start;"><span>❌</span><span data-i18n-key="t925">Cancel·la quan vulguis, sense permanència.</span></li>
         </ul>
         <div id="premiumActionWrap">
-          <button type="button" class="btn-primary" onclick="hxSubscribePremium()">Fer-me soci Premium — 20 €/mes</button>
+          <button type="button" class="btn-primary" onclick="hxSubscribePremium()" data-i18n-key="t926">Fer-me soci Premium — 20 €/mes</button>
         </div>
       </div>
       <div>
-        <div style="font-weight:700;margin-bottom:0.8rem;">📢 Novetats per a socis</div>
+        <div style="font-weight:700;margin-bottom:0.8rem;" data-i18n-key="t927">📢 Novetats per a socis</div>
         <div id="premiumNewsWrap"></div>
       </div>
     </div>
@@ -7500,6 +7500,7 @@ function hxRefreshAllPrices() {
     if (typeof obrirFitxaProducte === 'function') obrirFitxaProducte(CP_FITXA_ACTUAL);
   }
   if (typeof renderCart === 'function') renderCart();
+  if (typeof hxRenderPremiumSection === 'function') hxRenderPremiumSection();
 }
 window.hxRefreshAllPrices = hxRefreshAllPrices;
 document.addEventListener('DOMContentLoaded', hxRefreshAllPrices);
@@ -7508,8 +7509,8 @@ var HX_PREMIUM_KEY = 'hx_premium_member';
 var HX_PREMIUM_SINCE_KEY = 'hx_premium_since';
 var HX_PREMIUM_DISCOUNT = 0.05;
 var HX_PREMIUM_NEWS = [
-  {date:'2026-10-01', title:'Nou llançament: ECO Concentrat Pro XL (25L)', desc:'Format industrial per a grans consums. Preventa exclusiva per a socis Premium abans de sortir al catàleg públic.'},
-  {date:'2026-11-15', title:'Nova gamma: desinfectants amb aroma neutre', desc:'Pensada per a hospitals i residències sensibles a olors fortes. Els socis Premium en reben mostra gratuïta.'}
+  {date:'2026-10-01', titleKey:'t935', descKey:'t936'},
+  {date:'2026-11-15', titleKey:'t937', descKey:'t938'}
 ];
 function isHxPremiumMember() {
   try { return localStorage.getItem(HX_PREMIUM_KEY) === '1'; } catch(e) { return false; }
@@ -7520,7 +7521,7 @@ function hxPremiumExtraRate() {
 }
 window.hxPremiumExtraRate = hxPremiumExtraRate;
 function hxSubscribePremium() {
-  if (!confirm('Et faràs soci HIGIENEX Premium per 20 €/mes. El 5% de descompte extra s\'aplicarà a partir d\'ara mateix. Vols continuar?')) return;
+  if (!confirm(cpT('t928'))) return;
   try {
     localStorage.setItem(HX_PREMIUM_KEY, '1');
     localStorage.setItem(HX_PREMIUM_SINCE_KEY, new Date().toISOString().slice(0,10));
@@ -7528,16 +7529,16 @@ function hxSubscribePremium() {
   hxRenderPremiumSection();
   Object.keys(cart).forEach(function(k){ recalcCartLine(k); });
   if (typeof renderCart === 'function') renderCart();
-  showToast('Ja ets soci HIGIENEX Premium! El 5% extra ja s\'aplica al teu cistell. 🌟', '✅');
+  showToast(cpT('t929'), '✅');
 }
 window.hxSubscribePremium = hxSubscribePremium;
 function hxCancelPremium() {
-  if (!confirm('Vols cancel·lar la teva subscripció HIGIENEX Premium? Deixaràs de tenir el 5% de descompte extra.')) return;
+  if (!confirm(cpT('t930'))) return;
   try { localStorage.removeItem(HX_PREMIUM_KEY); localStorage.removeItem(HX_PREMIUM_SINCE_KEY); } catch(e) {}
   hxRenderPremiumSection();
   Object.keys(cart).forEach(function(k){ recalcCartLine(k); });
   if (typeof renderCart === 'function') renderCart();
-  showToast('Subscripció Premium cancel·lada.', '👋');
+  showToast(cpT('t931'), '👋');
 }
 window.hxCancelPremium = hxCancelPremium;
 function hxRenderPremiumSection() {
@@ -7549,18 +7550,18 @@ function hxRenderPremiumSection() {
     var since = '';
     try { since = localStorage.getItem(HX_PREMIUM_SINCE_KEY) || ''; } catch(e) {}
     actionWrap.innerHTML =
-      '<div style="background:rgba(255,255,255,0.14);border-radius:10px;padding:0.8rem 1rem;margin-bottom:0.8rem;font-size:0.85rem;">✅ Ets soci Premium' + (since ? ' des del ' + since : '') + '. El 5% extra ja s\'aplica.</div>' +
-      '<button type="button" class="btn-fp-outline" style="border-color:rgba(255,255,255,0.4);color:#fff;" onclick="hxCancelPremium()">Cancel·lar subscripció</button>';
+      '<div style="background:rgba(255,255,255,0.14);border-radius:10px;padding:0.8rem 1rem;margin-bottom:0.8rem;font-size:0.85rem;">' + cpT('t932') + (since ? ' ' + since : '') + '. ' + cpT('t933') + '</div>' +
+      '<button type="button" class="btn-fp-outline" style="border-color:rgba(255,255,255,0.4);color:#fff;" onclick="hxCancelPremium()">' + cpT('t934') + '</button>';
     newsWrap.innerHTML = HX_PREMIUM_NEWS.map(function(n){
       return '<div style="background:rgba(255,255,255,0.08);border-radius:12px;padding:1rem 1.1rem;margin-bottom:0.7rem;">' +
         '<div style="font-size:0.72rem;opacity:0.7;margin-bottom:0.2rem;">' + n.date + '</div>' +
-        '<div style="font-weight:700;margin-bottom:0.2rem;">' + n.title + '</div>' +
-        '<div style="font-size:0.84rem;opacity:0.85;">' + n.desc + '</div>' +
+        '<div style="font-weight:700;margin-bottom:0.2rem;">' + cpT(n.titleKey) + '</div>' +
+        '<div style="font-size:0.84rem;opacity:0.85;">' + cpT(n.descKey) + '</div>' +
       '</div>';
     }).join('');
   } else {
-    actionWrap.innerHTML = '<button type="button" class="btn-primary" onclick="hxSubscribePremium()">Fer-me soci Premium — 20 €/mes</button>';
-    newsWrap.innerHTML = '<div style="background:rgba(255,255,255,0.08);border-radius:12px;padding:1.4rem;font-size:0.85rem;opacity:0.85;">🔒 Fes-te soci Premium per veure aquí, abans que ningú, els pròxims llançaments de producte.</div>';
+    actionWrap.innerHTML = '<button type="button" class="btn-primary" onclick="hxSubscribePremium()">' + cpT('t926') + '</button>';
+    newsWrap.innerHTML = '<div style="background:rgba(255,255,255,0.08);border-radius:12px;padding:1.4rem;font-size:0.85rem;opacity:0.85;">' + cpT('t939') + '</div>';
   }
 }
 window.hxRenderPremiumSection = hxRenderPremiumSection;
@@ -7639,7 +7640,7 @@ function renderCart() {
   var totalDescompte = keys.reduce(function(s,k){ var it = cart[k]; return s + (it.discountRate > 0 ? (it.rawTotal - it.total) : 0); }, 0);
 
   items.innerHTML += '<div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px dashed #ddd;font-size:0.82rem;color:#666;">' +
-    (totalDescompte > 0 ? '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;color:#B8860B;font-weight:600;"><span>🎉 ' + (isHxPremiumMember() ? 'Descomptes (volum + Premium)' : 'Descomptes per volum') + '</span><span>-' + hxFormatPrice(totalDescompte) + '</span></div>' : '') +
+    (totalDescompte > 0 ? '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;color:#B8860B;font-weight:600;"><span>🎉 ' + (isHxPremiumMember() ? cpT('t940') : 'Descomptes per volum') + '</span><span>-' + hxFormatPrice(totalDescompte) + '</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>Subtotal</span><span>' + hxFormatPrice(subtotal) + '</span></div>' +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>IVA (21%)</span><span>' + hxFormatPrice(iva) + '</span></div>' +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>Transport</span><span>' + hxFormatPrice(TRANSPORT) + '</span></div>' +
