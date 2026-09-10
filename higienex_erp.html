@@ -3043,7 +3043,7 @@ window.addEventListener('appinstalled', function() {
 const NAV=[
  {g:null,items:[['panel','Panel','all']]},
  {g:'Comercial',items:[['clientes','Clientes','comercial'],['pipeline','Oportunidades','comercial'],['actividad','Actividad','comercial'],['kpis','Panel comercial (KPIs)','comercial'],['incidencias','Incidencias','comercial'],['presupuestos','Presupuestos','comercial']]},
- {g:'Terceros',items:[['terceros','Crear tercero','comercial'],['tercerosclientes','Clientes','comercial'],['tercerosproveedores','Proveedores','comercial']]},
+ {g:'Terceros',items:[['terceros','Crear tercero','comercial'],['tercerosclientes','Clientes','comercial','Listado'],['tercerosproveedores','Proveedores','comercial','Listado']]},
  {g:'Compras',items:[['proveedores','Proveedores','logistica'],['compras','Pedidos y aprovisionamiento','logistica']]},
  {g:'Facturación',items:[['femitidas','Facturas emitidas','comercial'],['frecibidas','Facturas recibidas','admin']]},
  {g:'Contabilidad',items:[['diario','Libro diario','admin'],['mayor','Libro mayor','admin'],['sumas','Sumas y saldos','admin'],['resultados','Balance y resultados','admin'],['ejercicio2025','Ejercicio 2025 (archivo)','admin']]},
@@ -3210,7 +3210,13 @@ function buildTopNav(){
     if(sec.g) h+='<div class="navgroup">'+sec.g+'</div>';
     vis.forEach(i=>{ const n=avisos(i[0]);
       const icon=NAV_ICONS[i[0]]||'🔹';
-      h+='<button class="navitem" data-v="'+i[0]+'" title="'+i[1]+'" onclick="go(\''+i[0]+'\')" type="button"><span class="navicon">'+icon+'</span><span class="navlabel">'+i[1]+'</span>'+(n?'<span class="badge">'+n+'</span>':'')+'</button>'; });
+      h+='<button class="navitem" data-v="'+i[0]+'" title="'+i[1]+'" onclick="go(\''+i[0]+'\')" type="button"><span class="navicon">'+icon+'</span><span class="navlabel">'+i[1]+'</span>'+(n?'<span class="badge">'+n+'</span>':'')+'</button>';
+      // Sub-apartado anidado (ej. "Listado" bajo "Clientes"): solo se muestra
+      // mientras su apartado padre es el que está activo, y desaparece en los demás.
+      if(i[3] && VIEW===i[0]){
+        h+='<button class="navitem navsub" data-v="'+i[0]+'" title="'+i[3]+'" onclick="go(\''+i[0]+'\')" type="button" style="padding-left:2.5rem;font-size:12.5px;opacity:.85"><span class="navicon">↳</span><span class="navlabel">'+i[3]+'</span></button>';
+      }
+    });
   });
   document.getElementById('nav').innerHTML=h;
   document.querySelectorAll('.navitem').forEach(b=>b.classList.toggle('on',b.dataset.v===VIEW));
