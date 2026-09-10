@@ -3902,6 +3902,9 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
         <p style="font-size:0.8rem;color:rgba(255,255,255,0.75);margin:0;">Mitigació: consolidació de comandes i ús de la mateixa flota que ja cobreix Extremadura per reduir el cost per enviament.</p>
       </div>
     </div>
+    <div style="text-align:center;margin-top:1.8rem;">
+      <button type="button" class="btn-primary" onclick="hxDescarregarPlaPortugal()" data-i18n-key="t981">📥 Descarregar pla d'expansió a Portugal (PDF)</button>
+    </div>
   </div>
 </section>
 <!-- ═══════════════════════════════════════
@@ -9140,6 +9143,105 @@ function hxDescarregarCertificats() {
   abrirImprimibleComanda('Certificacions HIGIENEX', html);
 }
 window.hxDescarregarCertificats = hxDescarregarCertificats;
+
+// ── PLA D'EXPANSIÓ A PORTUGAL EN PDF (estil informe executiu) ──────
+function hxDescarregarPlaPortugal() {
+  var timeline = [
+    {any:'2025', titol:'Consolidació nacional', desc:'Reforç de la posició al mercat espanyol. Xarxa de distribució optimitzada. Preparació del pla Portugal i adaptació d\'etiquetatge.'},
+    {any:'2026', titol:'Entrada a Portugal', desc:'Estratègia indirecta via distribuïdors locals especialitzats. Inversió: 15.000-23.000 €/any. Sectors objectiu: hostaleria, sanitari i alimentari.'},
+    {any:'2027', titol:'Filial comercial pròpia', desc:'Un cop consolidada la base de clients a Portugal, establiment d\'una filial per augmentar el control sobre la distribució i la marca.'},
+    {any:'2028+', titol:'Expansió UE: França i Alemanya', desc:'Mercats on el concepte de wellbeing corporatiu és molt avançat. WorkSafe Smart Space com a producte de bandera per a l\'entrada.'}
+  ];
+  var kpis = [
+    {val:'180.000 €', lbl:'Facturació objectiu any 1'},
+    {val:'12-15', lbl:'Clients actius objectiu any 1'},
+    {val:'2', lbl:'Distribuïdors (Lisboa i Porto)'},
+    {val:'18-24', lbl:'Mesos fins a punt d\'equilibri'}
+  ];
+  var pressupost = [
+    ['Adaptació d\'etiquetatge i documentació (PT)', '3.500 €'],
+    ['Prospecció i acords amb distribuïdors', '4.000 €'],
+    ['Logística i primer estoc a Portugal', '8.500 €'],
+    ['Màrqueting i fires sectorials (Lisboa/Porto)', '4.500 €'],
+    ['Assessoria legal i fiscal transfronterera', '2.500 €']
+  ];
+  var riscos = [
+    {tit:'Dependència del distribuïdor', desc:'Acord de distribució no exclusiu els primers 12 mesos i objectius de venda revisables trimestralment.'},
+    {tit:'Diferències normatives locals', desc:'Assessoria especialitzada en registre de biocides a Portugal abans del llançament comercial.'},
+    {tit:'Costos logístics transfronterers', desc:'Consolidació de comandes i ús de la mateixa flota que ja cobreix Extremadura per reduir el cost per enviament.'}
+  ];
+
+  var tlHtml = timeline.map(function(t, i){
+    return '<div class="tl-item">'+
+      '<div class="tl-dot">'+(i+1)+'</div>'+
+      (i < timeline.length - 1 ? '<div class="tl-line"></div>' : '')+
+      '<div class="tl-year">'+t.any+'</div>'+
+      '<div class="tl-title">'+escHtml(t.titol)+'</div>'+
+      '<div class="tl-desc">'+escHtml(t.desc)+'</div>'+
+    '</div>';
+  }).join('');
+  var kpiHtml = kpis.map(function(k){
+    return '<div class="kpi"><div class="kpi-val">'+escHtml(k.val)+'</div><div class="kpi-lbl">'+escHtml(k.lbl)+'</div></div>';
+  }).join('');
+  var pressupostHtml = pressupost.map(function(p){
+    return '<div class="bud-row"><span>'+escHtml(p[0])+'</span><strong>'+escHtml(p[1])+'</strong></div>';
+  }).join('');
+  var riscosHtml = riscos.map(function(r){
+    return '<div class="risk"><div class="risk-tit">⚠️ '+escHtml(r.tit)+'</div><div class="risk-desc">'+escHtml(r.desc)+'</div></div>';
+  }).join('');
+
+  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Pla d\'Expansió a Portugal · HIGIENEX</title>'+
+    '<style>'+
+    '*{box-sizing:border-box;margin:0;padding:0}'+
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#fff;}'+
+    '.header{background:linear-gradient(120deg,#0B3D6B 0%,#0B3D6B 60%,#072947 100%);color:#fff;padding:44px 50px 38px;position:relative;overflow:hidden;}'+
+    '.header::after{content:"";position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(242,169,0,0.08);}'+
+    '.header .tag{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#F2A900;font-weight:700;display:flex;align-items:center;gap:8px;}'+
+    '.header h1{font-family:Georgia,serif;font-size:27px;margin-top:10px;max-width:480px;}'+
+    '.header p{font-size:12.5px;color:rgba(255,255,255,0.75);margin-top:10px;max-width:460px;line-height:1.6;}'+
+    '.header .flag{font-size:15px;}'+
+    '.wrap{max-width:760px;margin:0 auto;padding:0 50px;}'+
+    '.section{margin-top:36px;}'+
+    '.section h2{font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#0B3D6B;font-weight:800;border-bottom:2px solid #F2A900;padding-bottom:8px;margin-bottom:20px;display:inline-block;}'+
+    '.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}'+
+    '.tl-item{position:relative;padding-top:6px;}'+
+    '.tl-dot{width:24px;height:24px;border-radius:50%;background:#0B3D6B;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:10px;position:relative;z-index:2;}'+
+    '.tl-line{position:absolute;top:12px;left:24px;width:100%;height:2px;background:#E3C97A;}'+
+    '.tl-year{font-family:Georgia,serif;font-weight:700;color:#F2A900;font-size:15px;}'+
+    '.tl-title{font-weight:700;font-size:12px;color:#16232E;margin-top:3px;}'+
+    '.tl-desc{font-size:10.5px;color:#666;line-height:1.5;margin-top:5px;}'+
+    '.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}'+
+    '.kpi{background:#F7F9FB;border-radius:12px;padding:16px 14px;text-align:center;border:1px solid #EDF1F4;}'+
+    '.kpi-val{font-family:Georgia,serif;font-size:19px;font-weight:700;color:#0B3D6B;}'+
+    '.kpi-lbl{font-size:9.5px;color:#8A9BAC;margin-top:5px;line-height:1.4;}'+
+    '.bud-row{display:flex;justify-content:space-between;font-size:12px;color:#444;padding:9px 0;border-bottom:1px solid #F0F0F0;}'+
+    '.bud-total{display:flex;justify-content:space-between;padding:14px 16px;margin-top:6px;background:#0B3D6B;border-radius:10px;color:#fff;}'+
+    '.bud-total span{font-size:11.5px;font-weight:700;letter-spacing:0.03em;color:#BFD4E8;}'+
+    '.bud-total strong{color:#F2A900;font-size:16px;font-family:Georgia,serif;}'+
+    '.risks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}'+
+    '.risk{background:#FBF6EB;border-radius:12px;padding:14px 15px;border:1px solid #F0E4C0;}'+
+    '.risk-tit{font-size:11px;font-weight:700;color:#8A5900;margin-bottom:6px;}'+
+    '.risk-desc{font-size:10px;color:#666;line-height:1.5;}'+
+    '.foot{margin-top:44px;padding:20px 0 40px;border-top:1px solid #eee;font-size:10px;color:#B0B8C0;text-align:center;line-height:1.7;}'+
+    '@media print{ .header{padding:30px 40px} .wrap{padding:0 40px} @page{margin:0} }'+
+    '</style></head><body>'+
+    '<div class="header"><div class="tag"><span class="flag">🇵🇹</span> Pla estratègic · Horitzó 2025-2028</div>'+
+    '<h1>Pla d\'Expansió a Portugal 2026</h1>'+
+    '<p>Mercat atractiu per proximitat, similitud cultural i estructura de demanda similar. Entrada via distribuïdors locals especialitzats en higiene professional.</p>'+
+    '</div>'+
+    '<div class="wrap">'+
+      '<div class="section"><h2>Full de ruta</h2><div class="timeline">'+tlHtml+'</div></div>'+
+      '<div class="section"><h2>Objectius clau</h2><div class="kpis">'+kpiHtml+'</div></div>'+
+      '<div class="section"><h2>Pressupost estimat · Any 1</h2>'+pressupostHtml+
+        '<div class="bud-total"><span>TOTAL ESTIMAT</span><strong>23.000 €</strong></div>'+
+      '</div>'+
+      '<div class="section"><h2>Riscos i mitigació</h2><div class="risks">'+riscosHtml+'</div></div>'+
+      '<div class="foot">HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es · 963 123 456<br>Document intern de planificació estratègica · Generat el '+new Date().toLocaleDateString('ca-ES', {day:'numeric', month:'long', year:'numeric'})+'</div>'+
+    '</div>'+
+    '</body></html>';
+  abrirImprimibleComanda('Pla Portugal HIGIENEX', html);
+}
+window.hxDescarregarPlaPortugal = hxDescarregarPlaPortugal;
 
 // ── FILTRE DEL BLOG PER CATEGORIA ──────────────────────────────────
 function hxFilterBlog(cat){
