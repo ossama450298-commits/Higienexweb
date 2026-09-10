@@ -3043,6 +3043,7 @@ window.addEventListener('appinstalled', function() {
 const NAV=[
  {g:null,items:[['panel','Panel','all']]},
  {g:'Comercial',items:[['clientes','Clientes','comercial'],['pipeline','Oportunidades','comercial'],['actividad','Actividad','comercial'],['kpis','Panel comercial (KPIs)','comercial'],['incidencias','Incidencias','comercial'],['presupuestos','Presupuestos','comercial']]},
+ {g:'Terceros',items:[['terceros','Crear tercero','comercial'],['tercerosclientes','Clientes','comercial'],['tercerosproveedores','Proveedores','comercial']]},
  {g:'Compras',items:[['proveedores','Proveedores','logistica'],['compras','Pedidos y aprovisionamiento','logistica']]},
  {g:'Facturación',items:[['femitidas','Facturas emitidas','comercial'],['frecibidas','Facturas recibidas','admin']]},
  {g:'Contabilidad',items:[['diario','Libro diario','admin'],['mayor','Libro mayor','admin'],['sumas','Sumas y saldos','admin'],['resultados','Balance y resultados','admin'],['ejercicio2025','Ejercicio 2025 (archivo)','admin']]},
@@ -3059,6 +3060,7 @@ const NAV=[
 ];
 const NAV_ICONS={
   panel:'📊', clientes:'👥', pipeline:'🎯', actividad:'📈',
+  terceros:'🆕', tercerosclientes:'👥', tercerosproveedores:'🚚',
   proveedores:'🚚', compras:'🛒',
   femitidas:'📄', frecibidas:'🧾',
   diario:'📖', mayor:'📚', sumas:'⚖️', resultados:'📊', bancos:'🏦',
@@ -3510,6 +3512,34 @@ ROUTES.panel=function(){
 let FiltroOrigen = '';
 function setFiltroOrigen(v){ FiltroOrigen = v; go('clientes', true); }
 window.setFiltroOrigen = setFiltroOrigen;
+ROUTES.terceros=function(){
+  let h=head('Alta de terceros','Da de alta un cliente o un proveedor nuevo desde un único sitio');
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:820px;">'+
+    '<div class="card" style="text-align:center;padding:32px 24px;">'+
+      '<div style="font-size:2.4rem;margin-bottom:10px;">👥</div>'+
+      '<h3 style="margin-bottom:6px;">Nuevo cliente</h3>'+
+      '<p style="color:var(--ink-2);font-size:12.5px;margin-bottom:18px;">Se le abre automáticamente su subcuenta del grupo 430.</p>'+
+      '<button class="btn" type="button" onclick="formCliente()">+ Dar de alta cliente</button>'+
+    '</div>'+
+    '<div class="card" style="text-align:center;padding:32px 24px;">'+
+      '<div style="font-size:2.4rem;margin-bottom:10px;">🚚</div>'+
+      '<h3 style="margin-bottom:6px;">Nuevo proveedor</h3>'+
+      '<p style="color:var(--ink-2);font-size:12.5px;margin-bottom:18px;">Se le abre automáticamente su subcuenta del grupo 400.</p>'+
+      '<button class="btn" type="button" onclick="formProveedor()">+ Dar de alta proveedor</button>'+
+    '</div>'+
+  '</div>'+
+  '<div style="margin-top:22px;display:flex;gap:10px;"><button class="btn ghost" type="button" onclick="go(\'tercerosclientes\')">👥 Ver listado de clientes →</button><button class="btn ghost" type="button" onclick="go(\'tercerosproveedores\')">🚚 Ver listado de proveedores →</button></div>';
+  return h;
+};
+// Reutilizan el mismo listado completo de Clientes/Proveedores (filtros, búsqueda,
+// columnas y ficha al hacer clic), solo cambia el título para dejar claro que,
+// dentro de "Terceros", esto es el LISTADO (a diferencia de "Crear tercero").
+ROUTES.tercerosclientes=function(){
+  return ROUTES.clientes().replace('<h1>Clientes</h1>', '<h1>Listado de clientes</h1>');
+};
+ROUTES.tercerosproveedores=function(){
+  return ROUTES.proveedores().replace('<h1>Proveedores</h1>', '<h1>Listado de proveedores</h1>');
+};
 ROUTES.clientes=function(){
   const all=DB.clientes;
   let lista=all.filter(c=>hit(c.nom+' '+c.nif+' '+c.pob+' '+c.cta+' '+(c.tags||[]).join(' ')));
