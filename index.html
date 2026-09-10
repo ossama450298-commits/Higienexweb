@@ -4051,7 +4051,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
       <div class="client-card"><div class="client-icon">🏢</div><div><h3 data-i18n-key="t083">Oficines i Empreses</h3><p data-i18n-key="t249">Serveis de neteja professional B2B. Projecte WorkSafe Smart Space amb OfiNova per a espais intel·ligents, segurs i sostenibles.</p></div></div>
       <div class="client-card"><div class="client-icon">🏋️</div><div><h3 data-i18n-key="t084">Gimnasos i Esports</h3><p data-i18n-key="t250">Instal·lacions esportives amb alta rotació de persones. Desinfectants ràpids d'actuació i productes professionals per a vestuaris.</p></div></div>
     </div>
-    <div class="market-banner fade-in"><div><h3 data-i18n-key="t085">🌍 Expansió a Portugal 2026</h3><p data-i18n-key="t251">Mercat atractiu per proximitat, similitud cultural i estructura de demanda similar. Entrada via distribuïdors locals especialitzats en higiene professional.</p></div><a href="#" onclick="navTo('internacionalitzacio');return false;" class="btn-primary" data-i18n-key="t430">Veure Pla →</a></div>
+    <div class="market-banner fade-in"><div><h3 data-i18n-key="t085">🌍 Expansió a Portugal 2026</h3><p data-i18n-key="t251">Mercat atractiu per proximitat, similitud cultural i estructura de demanda similar. Entrada via distribuïdors locals especialitzats en higiene professional.</p></div><a href="#" onclick="hxDescarregarPlaPortugal();return false;" class="btn-primary" data-i18n-key="t430">Veure Pla →</a></div>
   </div>
 </section>
 <!-- 10. MÀRQUETING -->
@@ -9147,24 +9147,25 @@ window.hxDescarregarCertificats = hxDescarregarCertificats;
 // ── PLA D'EXPANSIÓ A PORTUGAL EN PDF (estil informe executiu) ──────
 function hxDescarregarPlaPortugal() {
   var timeline = [
-    {any:'2025', titol:'Consolidació nacional', desc:'Reforç de la posició al mercat espanyol. Xarxa de distribució optimitzada. Preparació del pla Portugal i adaptació d\'etiquetatge.'},
-    {any:'2026', titol:'Entrada a Portugal', desc:'Estratègia indirecta via distribuïdors locals especialitzats. Inversió: 15.000-23.000 €/any. Sectors objectiu: hostaleria, sanitari i alimentari.'},
-    {any:'2027', titol:'Filial comercial pròpia', desc:'Un cop consolidada la base de clients a Portugal, establiment d\'una filial per augmentar el control sobre la distribució i la marca.'},
-    {any:'2028+', titol:'Expansió UE: França i Alemanya', desc:'Mercats on el concepte de wellbeing corporatiu és molt avançat. WorkSafe Smart Space com a producte de bandera per a l\'entrada.'}
+    {any:'2025', ic:'🏠', titol:'Consolidació nacional', desc:'Reforç de la posició al mercat espanyol. Xarxa de distribució optimitzada. Preparació del pla Portugal i adaptació d\'etiquetatge.'},
+    {any:'2026', ic:'🚀', titol:'Entrada a Portugal', desc:'Estratègia indirecta via distribuïdors locals especialitzats. Inversió: 15.000-23.000 €/any. Sectors objectiu: hostaleria, sanitari i alimentari.'},
+    {any:'2027', ic:'🏢', titol:'Filial comercial pròpia', desc:'Un cop consolidada la base de clients a Portugal, establiment d\'una filial per augmentar el control sobre la distribució i la marca.'},
+    {any:'2028+', ic:'🌍', titol:'Expansió UE: França i Alemanya', desc:'Mercats on el concepte de wellbeing corporatiu és molt avançat. WorkSafe Smart Space com a producte de bandera per a l\'entrada.'}
   ];
   var kpis = [
-    {val:'180.000 €', lbl:'Facturació objectiu any 1'},
-    {val:'12-15', lbl:'Clients actius objectiu any 1'},
-    {val:'2', lbl:'Distribuïdors (Lisboa i Porto)'},
-    {val:'18-24', lbl:'Mesos fins a punt d\'equilibri'}
+    {ic:'💰', val:'180.000 €', lbl:'Facturació objectiu any 1'},
+    {ic:'🤝', val:'12-15', lbl:'Clients actius objectiu any 1'},
+    {ic:'📦', val:'2', lbl:'Distribuïdors (Lisboa i Porto)'},
+    {ic:'⏱️', val:'18-24', lbl:'Mesos fins a punt d\'equilibri'}
   ];
   var pressupost = [
-    ['Adaptació d\'etiquetatge i documentació (PT)', '3.500 €'],
-    ['Prospecció i acords amb distribuïdors', '4.000 €'],
-    ['Logística i primer estoc a Portugal', '8.500 €'],
-    ['Màrqueting i fires sectorials (Lisboa/Porto)', '4.500 €'],
-    ['Assessoria legal i fiscal transfronterera', '2.500 €']
+    ['Adaptació d\'etiquetatge i documentació (PT)', 3500],
+    ['Prospecció i acords amb distribuïdors', 4000],
+    ['Logística i primer estoc a Portugal', 8500],
+    ['Màrqueting i fires sectorials (Lisboa/Porto)', 4500],
+    ['Assessoria legal i fiscal transfronterera', 2500]
   ];
+  var totalPressupost = pressupost.reduce(function(s,p){ return s+p[1]; }, 0);
   var riscos = [
     {tit:'Dependència del distribuïdor', desc:'Acord de distribució no exclusiu els primers 12 mesos i objectius de venda revisables trimestralment.'},
     {tit:'Diferències normatives locals', desc:'Assessoria especialitzada en registre de biocides a Portugal abans del llançament comercial.'},
@@ -9173,7 +9174,7 @@ function hxDescarregarPlaPortugal() {
 
   var tlHtml = timeline.map(function(t, i){
     return '<div class="tl-item">'+
-      '<div class="tl-dot">'+(i+1)+'</div>'+
+      '<div class="tl-dot">'+t.ic+'</div>'+
       (i < timeline.length - 1 ? '<div class="tl-line"></div>' : '')+
       '<div class="tl-year">'+t.any+'</div>'+
       '<div class="tl-title">'+escHtml(t.titol)+'</div>'+
@@ -9181,62 +9182,83 @@ function hxDescarregarPlaPortugal() {
     '</div>';
   }).join('');
   var kpiHtml = kpis.map(function(k){
-    return '<div class="kpi"><div class="kpi-val">'+escHtml(k.val)+'</div><div class="kpi-lbl">'+escHtml(k.lbl)+'</div></div>';
+    return '<div class="kpi"><div class="kpi-ic">'+k.ic+'</div><div class="kpi-val">'+escHtml(k.val)+'</div><div class="kpi-lbl">'+escHtml(k.lbl)+'</div></div>';
   }).join('');
   var pressupostHtml = pressupost.map(function(p){
-    return '<div class="bud-row"><span>'+escHtml(p[0])+'</span><strong>'+escHtml(p[1])+'</strong></div>';
+    var pct = Math.round((p[1]/totalPressupost)*100);
+    return '<div class="bud-row"><div class="bud-top"><span>'+escHtml(p[0])+'</span><strong>'+p[1].toLocaleString('ca-ES')+' €</strong></div>'+
+      '<div class="bud-bar-bg"><div class="bud-bar" style="width:'+pct+'%"></div></div></div>';
   }).join('');
   var riscosHtml = riscos.map(function(r){
-    return '<div class="risk"><div class="risk-tit">⚠️ '+escHtml(r.tit)+'</div><div class="risk-desc">'+escHtml(r.desc)+'</div></div>';
+    return '<div class="risk"><div class="risk-tit"><span class="risk-ic">⚠</span>'+escHtml(r.tit)+'</div><div class="risk-desc">'+escHtml(r.desc)+'</div></div>';
   }).join('');
 
   var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Pla d\'Expansió a Portugal · HIGIENEX</title>'+
     '<style>'+
     '*{box-sizing:border-box;margin:0;padding:0}'+
     'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#fff;}'+
-    '.header{background:linear-gradient(120deg,#0B3D6B 0%,#0B3D6B 60%,#072947 100%);color:#fff;padding:44px 50px 38px;position:relative;overflow:hidden;}'+
-    '.header::after{content:"";position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(242,169,0,0.08);}'+
-    '.header .tag{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#F2A900;font-weight:700;display:flex;align-items:center;gap:8px;}'+
-    '.header h1{font-family:Georgia,serif;font-size:27px;margin-top:10px;max-width:480px;}'+
-    '.header p{font-size:12.5px;color:rgba(255,255,255,0.75);margin-top:10px;max-width:460px;line-height:1.6;}'+
+    '.header{background:linear-gradient(135deg,#0F4A82 0%,#0B3D6B 55%,#062338 100%);color:#fff;padding:42px 50px 34px;position:relative;overflow:hidden;}'+
+    '.header::after{content:"";position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(242,169,0,0.07);}'+
+    '.header::before{content:"";position:absolute;bottom:-90px;left:30%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.03);}'+
+    '.confbadge{position:absolute;top:22px;right:26px;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:4px 12px;font-weight:700;}'+
+    '.logo{font-family:Georgia,\'Times New Roman\',serif;font-size:16px;font-weight:700;letter-spacing:0.01em;position:relative;z-index:2;}'+
+    '.logo .x{color:#F2A900;font-style:italic;}'+
+    '.header .tag{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#F2A900;font-weight:700;display:flex;align-items:center;gap:8px;margin-top:18px;position:relative;z-index:2;}'+
+    '.header h1{font-family:Georgia,serif;font-size:28px;margin-top:11px;max-width:480px;position:relative;z-index:2;}'+
+    '.header p{font-size:12.5px;color:rgba(255,255,255,0.72);margin-top:10px;max-width:460px;line-height:1.6;position:relative;z-index:2;}'+
     '.header .flag{font-size:15px;}'+
+    '.ptstripe{height:5px;display:flex;}'+
+    '.ptstripe span:first-child{flex:0 0 38%;background:#046A38;}'+
+    '.ptstripe span:last-child{flex:1;background:#DA020E;}'+
     '.wrap{max-width:760px;margin:0 auto;padding:0 50px;}'+
-    '.section{margin-top:36px;}'+
-    '.section h2{font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#0B3D6B;font-weight:800;border-bottom:2px solid #F2A900;padding-bottom:8px;margin-bottom:20px;display:inline-block;}'+
+    '.summary{margin-top:-24px;position:relative;z-index:3;background:#fff;border:1px solid #EDF1F4;border-left:4px solid #F2A900;border-radius:10px;padding:16px 20px;box-shadow:0 8px 24px rgba(11,61,107,0.08);font-size:12px;color:#4A5A6A;line-height:1.6;}'+
+    '.summary b{color:#0B3D6B;}'+
+    '.section{margin-top:38px;}'+
+    '.section h2{font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#0B3D6B;font-weight:800;border-bottom:2px solid #F2A900;padding-bottom:8px;margin-bottom:22px;display:inline-block;}'+
     '.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}'+
-    '.tl-item{position:relative;padding-top:6px;}'+
-    '.tl-dot{width:24px;height:24px;border-radius:50%;background:#0B3D6B;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-bottom:10px;position:relative;z-index:2;}'+
-    '.tl-line{position:absolute;top:12px;left:24px;width:100%;height:2px;background:#E3C97A;}'+
+    '.tl-item{position:relative;padding-top:2px;}'+
+    '.tl-dot{width:30px;height:30px;border-radius:50%;background:#F5F8FA;border:1.5px solid #0B3D6B;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;position:relative;z-index:2;}'+
+    '.tl-line{position:absolute;top:15px;left:30px;width:100%;height:1.5px;background:#E3C97A;}'+
     '.tl-year{font-family:Georgia,serif;font-weight:700;color:#F2A900;font-size:15px;}'+
     '.tl-title{font-weight:700;font-size:12px;color:#16232E;margin-top:3px;}'+
     '.tl-desc{font-size:10.5px;color:#666;line-height:1.5;margin-top:5px;}'+
     '.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}'+
-    '.kpi{background:#F7F9FB;border-radius:12px;padding:16px 14px;text-align:center;border:1px solid #EDF1F4;}'+
+    '.kpi{background:#F7F9FB;border-radius:12px;padding:18px 14px;text-align:center;border:1px solid #EDF1F4;}'+
+    '.kpi-ic{font-size:17px;margin-bottom:6px;}'+
     '.kpi-val{font-family:Georgia,serif;font-size:19px;font-weight:700;color:#0B3D6B;}'+
     '.kpi-lbl{font-size:9.5px;color:#8A9BAC;margin-top:5px;line-height:1.4;}'+
-    '.bud-row{display:flex;justify-content:space-between;font-size:12px;color:#444;padding:9px 0;border-bottom:1px solid #F0F0F0;}'+
-    '.bud-total{display:flex;justify-content:space-between;padding:14px 16px;margin-top:6px;background:#0B3D6B;border-radius:10px;color:#fff;}'+
-    '.bud-total span{font-size:11.5px;font-weight:700;letter-spacing:0.03em;color:#BFD4E8;}'+
-    '.bud-total strong{color:#F2A900;font-size:16px;font-family:Georgia,serif;}'+
+    '.bud-row{padding:10px 0;border-bottom:1px solid #F3F3F3;}'+
+    '.bud-top{display:flex;justify-content:space-between;font-size:12px;color:#333;margin-bottom:6px;}'+
+    '.bud-top strong{color:#0B3D6B;font-weight:700;}'+
+    '.bud-bar-bg{height:5px;border-radius:6px;background:#EEF2F5;overflow:hidden;}'+
+    '.bud-bar{height:100%;background:linear-gradient(90deg,#F2A900,#0B3D6B);border-radius:6px;}'+
+    '.bud-total{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;margin-top:12px;background:linear-gradient(120deg,#0B3D6B,#072947);border-radius:10px;color:#fff;}'+
+    '.bud-total span{font-size:11.5px;font-weight:700;letter-spacing:0.05em;color:#BFD4E8;}'+
+    '.bud-total strong{color:#F2A900;font-size:18px;font-family:Georgia,serif;}'+
     '.risks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}'+
-    '.risk{background:#FBF6EB;border-radius:12px;padding:14px 15px;border:1px solid #F0E4C0;}'+
-    '.risk-tit{font-size:11px;font-weight:700;color:#8A5900;margin-bottom:6px;}'+
-    '.risk-desc{font-size:10px;color:#666;line-height:1.5;}'+
-    '.foot{margin-top:44px;padding:20px 0 40px;border-top:1px solid #eee;font-size:10px;color:#B0B8C0;text-align:center;line-height:1.7;}'+
-    '@media print{ .header{padding:30px 40px} .wrap{padding:0 40px} @page{margin:0} }'+
+    '.risk{background:#FBF6EB;border-radius:12px;padding:15px 16px;border-left:3px solid #C98A00;}'+
+    '.risk-tit{font-size:11px;font-weight:700;color:#8A5900;margin-bottom:7px;display:flex;align-items:center;gap:6px;}'+
+    '.risk-ic{display:inline-flex;width:16px;height:16px;border-radius:50%;background:#F2A900;color:#fff;font-size:9px;align-items:center;justify-content:center;flex-shrink:0;}'+
+    '.risk-desc{font-size:10px;color:#666;line-height:1.55;}'+
+    '.foot{margin-top:46px;padding:20px 0 40px;border-top:1px solid #eee;font-size:9.5px;color:#B0B8C0;text-align:center;line-height:1.8;}'+
+    '.foot .ref{font-family:ui-monospace,Consolas,monospace;letter-spacing:0.04em;color:#C9B27A;font-weight:700;}'+
+    '@media print{ .header{padding:30px 40px} .wrap{padding:0 40px} .summary{margin-left:40px;margin-right:40px} @page{margin:0} .risk,.kpi,.tl-item{page-break-inside:avoid} }'+
     '</style></head><body>'+
-    '<div class="header"><div class="tag"><span class="flag">🇵🇹</span> Pla estratègic · Horitzó 2025-2028</div>'+
+    '<div class="header"><div class="confbadge">Confidencial · Ús intern</div>'+
+    '<div class="logo">HIGIENE<span class="x">X</span></div>'+
+    '<div class="tag"><span class="flag">🇵🇹</span> Pla estratègic · Horitzó 2025-2028</div>'+
     '<h1>Pla d\'Expansió a Portugal 2026</h1>'+
     '<p>Mercat atractiu per proximitat, similitud cultural i estructura de demanda similar. Entrada via distribuïdors locals especialitzats en higiene professional.</p>'+
     '</div>'+
-    '<div class="wrap">'+
+    '<div class="ptstripe"><span></span><span></span></div>'+
+    '<div class="wrap"><div class="summary"><b>Resum executiu:</b> entrada gradual i de risc controlat al mercat portuguès mitjançant distribuïdors especialitzats, amb un pressupost d\'any 1 de 23.000 € i un objectiu de facturació de 180.000 €, com a primer pas cap a una filial pròpia i l\'expansió posterior a França i Alemanya.</div>'+
       '<div class="section"><h2>Full de ruta</h2><div class="timeline">'+tlHtml+'</div></div>'+
       '<div class="section"><h2>Objectius clau</h2><div class="kpis">'+kpiHtml+'</div></div>'+
       '<div class="section"><h2>Pressupost estimat · Any 1</h2>'+pressupostHtml+
-        '<div class="bud-total"><span>TOTAL ESTIMAT</span><strong>23.000 €</strong></div>'+
+        '<div class="bud-total"><span>TOTAL ESTIMAT</span><strong>'+totalPressupost.toLocaleString('ca-ES')+' €</strong></div>'+
       '</div>'+
       '<div class="section"><h2>Riscos i mitigació</h2><div class="risks">'+riscosHtml+'</div></div>'+
-      '<div class="foot">HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es · 963 123 456<br>Document intern de planificació estratègica · Generat el '+new Date().toLocaleDateString('ca-ES', {day:'numeric', month:'long', year:'numeric'})+'</div>'+
+      '<div class="foot"><span class="ref">REF: HX-PT2026-V1</span><br>HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es · 963 123 456<br>Document intern de planificació estratègica · Generat el '+new Date().toLocaleDateString('ca-ES', {day:'numeric', month:'long', year:'numeric'})+'</div>'+
     '</div>'+
     '</body></html>';
   abrirImprimibleComanda('Pla Portugal HIGIENEX', html);
