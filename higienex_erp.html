@@ -5123,15 +5123,18 @@ function generarRemesaSepa(){
 
   const cuenta = DB.bancos.find(b=>b.id===SEPA_CTA) || DB.bancos[0];
   const ibanOrdenante = cuenta.iban.replace(/\s+/g,'');
+  const bicOrdenante = cuenta.bic || 'NOTPROVIDED';
   const ahora = new Date();
-  const msgId = 'HIGIENEX-REM-' + ahora.toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(Math.random()*9000+1000);
+  const fechaCompacta = ahora.toISOString().slice(0,10).replace(/-/g,'');
+  const contador = String(Math.floor(Math.random()*90000+10000));
+  const msgId = 'HIGIENEX/'+fechaCompacta+'/CT'+contador.slice(0,2);
   const fechaEjecucion = TODAY;
   const totalCtrl = seleccionadas.reduce((s,f)=>s+f.total,0).toFixed(2);
 
   const txs = seleccionadas.map((f,i)=>{
     const p = prov(f.prov);
     const ibanBenef = p.iban.replace(/\s+/g,'');
-    const e2e = 'FACT-' + xmlEsc(f.num).replace(/[^A-Za-z0-9-]/g,'');
+    const e2e = 'CT-'+contador+'-'+i+'-'+xmlEsc(f.num).replace(/[^A-Za-z0-9]/g,'').slice(0,15);
     return '    <CdtTrfTxInf>\n'+
       '      <PmtId>\n'+
       '        <EndToEndId>'+e2e+'</EndToEndId>\n'+
@@ -5146,45 +5149,57 @@ function generarRemesaSepa(){
       '      </CdtrAgt>\n'+
       '      <Cdtr>\n'+
       '        <Nm>'+xmlEsc(p.nom)+'</Nm>\n'+
+      '        <PstlAdr>\n'+
+      '          <Ctry>ES</Ctry>\n'+
+      (p.dir ? '          <AdrLine>'+xmlEsc(p.dir)+'</AdrLine>\n' : '')+
+      (p.pob ? '          <AdrLine>'+xmlEsc(p.pob)+'</AdrLine>\n' : '')+
+      '        </PstlAdr>\n'+
       '      </Cdtr>\n'+
       '      <CdtrAcct>\n'+
       '        <Id><IBAN>'+ibanBenef+'</IBAN></Id>\n'+
       '      </CdtrAcct>\n'+
       '      <RmtInf>\n'+
-      '        <Ustrd>Factura '+xmlEsc(f.num)+' - HIGIENEX S.L.</Ustrd>\n'+
+      '        <Ustrd>Pagament Factura '+xmlEsc(f.num)+'</Ustrd>\n'+
       '      </RmtInf>\n'+
       '    </CdtTrfTxInf>';
   }).join('\n');
 
-  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n'+
+  const xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
     '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n'+
     '  <CstmrCdtTrfInitn>\n'+
     '    <GrpHdr>\n'+
     '      <MsgId>'+msgId+'</MsgId>\n'+
-    '      <CreDtTm>'+ahora.toISOString()+'</CreDtTm>\n'+
+    '      <CreDtTm>'+ahora.toISOString().slice(0,19)+'</CreDtTm>\n'+
     '      <NbOfTxs>'+seleccionadas.length+'</NbOfTxs>\n'+
     '      <CtrlSum>'+totalCtrl+'</CtrlSum>\n'+
     '      <InitgPty>\n'+
     '        <Nm>HIGIENEX S.L.</Nm>\n'+
+    '        <Id>\n'+
+    '          <PrvtId>\n'+
+    '            <Othr><Id>B12345678</Id></Othr>\n'+
+    '          </PrvtId>\n'+
+    '        </Id>\n'+
     '      </InitgPty>\n'+
     '    </GrpHdr>\n'+
     '    <PmtInf>\n'+
-    '      <PmtInfId>'+msgId+'-1</PmtInfId>\n'+
+    '      <PmtInfId>'+msgId+'-'+contador+'</PmtInfId>\n'+
     '      <PmtMtd>TRF</PmtMtd>\n'+
     '      <NbOfTxs>'+seleccionadas.length+'</NbOfTxs>\n'+
     '      <CtrlSum>'+totalCtrl+'</CtrlSum>\n'+
-    '      <PmtTpInf>\n'+
-    '        <SvcLvl><Cd>SEPA</Cd></SvcLvl>\n'+
-    '      </PmtTpInf>\n'+
     '      <ReqdExctnDt>'+fechaEjecucion+'</ReqdExctnDt>\n'+
     '      <Dbtr>\n'+
     '        <Nm>HIGIENEX S.L.</Nm>\n'+
+    '        <PstlAdr>\n'+
+    '          <Ctry>ES</Ctry>\n'+
+    '          <AdrLine>Carrer de la Indústria, 25</AdrLine>\n'+
+    '          <AdrLine>46010 València</AdrLine>\n'+
+    '        </PstlAdr>\n'+
     '      </Dbtr>\n'+
     '      <DbtrAcct>\n'+
     '        <Id><IBAN>'+ibanOrdenante+'</IBAN></Id>\n'+
     '      </DbtrAcct>\n'+
     '      <DbtrAgt>\n'+
-    '        <FinInstnId><Othr><Id>NOTPROVIDED</Id></Othr></FinInstnId>\n'+
+    '        <FinInstnId><BIC>'+bicOrdenante+'</BIC></FinInstnId>\n'+
     '      </DbtrAgt>\n'+
     '      <ChrgBr>SLEV</ChrgBr>\n'+
     txs+'\n'+
@@ -7678,7 +7693,7 @@ DB.clientes.slice(-5).forEach(c=>defCta(c.cta, c.nom, 'activo'));
 DB.proveedores.slice(-5).forEach(p=>defCta(p.ctaProv, p.nom, 'pasivo'));
 
 DB.bancos.push(
-  {id:'B1', nom:'Banco c/c (572)', iban:'ES21 2100 4455 6612 3456 7890', saldo:-132204.65, cta:'572'},
+  {id:'B1', nom:'Banco c/c (572)', iban:'ES21 2100 4455 6612 3456 7890', bic:'CAIXESBBXXX', saldo:-132204.65, cta:'572'},
   {id:'B2', nom:'Caja (570)', iban:'—', saldo:1250.0, cta:'570'}
 );
 [
