@@ -2479,10 +2479,10 @@ clientes:[
  {id:'C06',nom:'Edu',nif:'00000000T',pob:'Valencia',dir:'Carrer de la Pau 14, 3r 2a',tel:'644 210 987',mail:'edu@higienex.es',cond:30,resp:'U5',alta:'2026-08-01',user:'edu',pass:'Higienex2025'}
 ],
 proveedores:[
- {id:'P01',nom:'Química Industrial Llevant SA',nif:'A46112233',pob:'Sagunt',dir:'Pol. Ind. Camí la Mar, 22',tel:'962 660 110',mail:'ventas@qillevant.es',cond:60,cta:'600',alta:'2015-05-10'},
- {id:'P02',nom:'Envasos Plàstics Sagunt SL',nif:'B46445566',pob:'Sagunt',dir:'C/ Indústria 45',tel:'962 661 200',mail:'pedidos@envsagunt.es',cond:30,cta:'600',alta:'2016-02-18'},
- {id:'P03',nom:'Transports Ràpid Mediterrani SL',nif:'B46990011',pob:'Valencia',dir:'C/ Logística 3',tel:'963 700 400',mail:'admin@trmed.es',cond:30,cta:'624',alta:'2018-09-01'},
- {id:'P04',nom:'Etiquetes Gràfiques Túria SL',nif:'B46334455',pob:'Paterna',dir:'Av. Tecnologia 12',tel:'961 340 990',mail:'info@egturia.es',cond:30,cta:'629',alta:'2020-10-22'}
+ {id:'P01',nom:'Química Industrial Llevant SA',nif:'A46112233',pob:'Sagunt',dir:'Pol. Ind. Camí la Mar, 22',tel:'962 660 110',mail:'ventas@qillevant.es',cond:60,cta:'600',alta:'2015-05-10',iban:'ES76 0049 1500 0512 3456 7890'},
+ {id:'P02',nom:'Envasos Plàstics Sagunt SL',nif:'B46445566',pob:'Sagunt',dir:'C/ Indústria 45',tel:'962 661 200',mail:'pedidos@envsagunt.es',cond:30,cta:'600',alta:'2016-02-18',iban:'ES60 0128 0027 4101 0007 0057'},
+ {id:'P03',nom:'Transports Ràpid Mediterrani SL',nif:'B46990011',pob:'Valencia',dir:'C/ Logística 3',tel:'963 700 400',mail:'admin@trmed.es',cond:30,cta:'624',alta:'2018-09-01',iban:'ES15 2038 5691 8830 0067 2224'},
+ {id:'P04',nom:'Etiquetes Gràfiques Túria SL',nif:'B46334455',pob:'Paterna',dir:'Av. Tecnologia 12',tel:'961 340 990',mail:'info@egturia.es',cond:30,cta:'629',alta:'2020-10-22',iban:'ES44 0081 5678 9200 0123 4567'}
 ],
 productos:[
  {id:'A01',ref:'ECO-5L', nom:'ECO Concentrat Pro 5 L',     fam:'Ecológicos',   stock:250,min:150,coste:6.80, pvp:14.50,prov:'P01',ubi:'A-01'},
@@ -3057,7 +3057,7 @@ const NAV=[
  {g:'Compras',items:[['proveedores','Proveedores','logistica'],['compras','Pedidos y aprovisionamiento','logistica']]},
  {g:'Facturación',items:[['femitidas','Facturas emitidas','comercial'],['frecibidas','Facturas recibidas','admin']]},
  {g:'Contabilidad',items:[['diario','Libro diario','admin'],['mayor','Libro mayor','admin'],['sumas','Sumas y saldos','admin'],['resultados','Balance y resultados','admin'],['ejercicio2025','Ejercicio 2025 (archivo)','admin']]},
- {g:'Bancos',items:[['bancos','Cuentas y movimientos','admin'],['concilia','Conciliación','admin']]},
+ {g:'Bancos',items:[['bancos','Cuentas y movimientos','admin'],['concilia','Conciliación','admin'],['remesa','Remesa SEPA','admin']]},
  {g:'Logística',items:[
    ['almacen','Artículos y stock','logistica'],
    ['almacenes','Almacenes','logistica'],['transportistas','Transportistas','logistica'],
@@ -3074,7 +3074,7 @@ const NAV_ICONS={
   proveedores:'🚚', compras:'🛒',
   femitidas:'📄', frecibidas:'🧾',
   diario:'📖', mayor:'📚', sumas:'⚖️', resultados:'📊', bancos:'🏦',
-  concilia:'🔄', ejercicio2025:'🗄️',
+  concilia:'🔄', ejercicio2025:'🗄️', remesa:'📤',
   almacen:'📦', almacenes:'🏬', transportistas:'🚚', expediciones:'📤',
   materias:'🧪', formulas:'⚗️', produccion:'🏭', lotes:'📦', calidad:'✅',
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
@@ -3868,7 +3868,8 @@ function formProveedor(id){
       fSelect('Condiciones de pago','np_cond',[[0,'Contado'],[30,'30 días'],[60,'60 días'],[90,'90 días']],p.cond===undefined?30:p.cond)+
       fSelect('Cuenta de gasto habitual','np_cta',CTAS_GASTO.map(c=>[c,c+' · '+nomCta(c)]),p.cta||'600')+
     '</div>'+
-    '<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">La cuenta de gasto se propone sola al registrar sus facturas, aunque siempre puedes cambiarla en cada una.</p>',
+    fInput('IBAN (para remesas SEPA)','np_iban',null,p.iban,' placeholder="ES00 0000 0000 0000 0000 0000"')+
+    '<p style="margin-top:14px;font-size:12.5px;color:var(--ink-2)">La cuenta de gasto se propone sola al registrar sus facturas, aunque siempre puedes cambiarla en cada una. El IBAN se usa para generar remesas de pago SEPA.</p>',
     '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button><button class="btn" onclick="saveProveedor('+(id?'\''+id+'\'':'null')+')" type="button">Guardar</button>');
 }
 function saveProveedor(id){
@@ -3878,7 +3879,7 @@ function saveProveedor(id){
   const mail=val('np_mail').trim();
   if(!avisarSiFormatoRaro(nif, mail)) return;
   const datos={nom,nif,dir:val('np_dir').trim(),pob:val('np_pob').trim(),tel:val('np_tel').trim(),
-               mail,cond:+val('np_cond'),cta:val('np_cta')};
+               mail,cond:+val('np_cond'),cta:val('np_cta'),iban:val('np_iban').trim()};
   if(id){ Object.assign(prov(id),datos); CUENTAS[prov(id).ctaProv].nom=nom; toast('Proveedor actualizado.'); }
   else{
     const p={id:uid('P'),...datos,alta:TODAY};
@@ -5053,6 +5054,154 @@ function conciliar(){
   const ref=SEL.doc; SEL={mov:null,doc:null};
   go('concilia'); toast('Conciliado con '+ref+'. Asiento de tesorería generado.');
 }
+
+/* =========================================================
+   REMESA SEPA — transmissió de fitxer de transferències en bloc
+   Genera un fitxer pain.001.001.03 (l'estàndard real que exigeixen
+   els bancs espanyols/europeus per carregar remeses de pagament).
+   ========================================================= */
+let SEPA_CTA = 'B1';
+let SEPA_SEL = {};
+function xmlEsc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c])); }
+function toggleSepaSel(num){ SEPA_SEL[num] = !SEPA_SEL[num]; go('remesa'); }
+window.toggleSepaSel = toggleSepaSel;
+function setSepaCta(v){ SEPA_CTA = v; go('remesa'); }
+window.setSepaCta = setSepaCta;
+
+ROUTES.remesa=function(){
+  const pendientes = pendPago();
+  let h = head('Remesa SEPA', 'Transmissió de fitxer de transferències (SEPA) per pagar factures de proveïdors en bloc',
+    '<button class="btn ghost" onclick="go(\'proveedores\')" type="button">Completar IBAN de proveedores</button>');
+
+  h += '<div class="card" style="margin-bottom:16px"><div class="cardbody" style="font-size:13px;color:var(--ink-2)">'+
+    'Selecciona las facturas de proveedor pendientes de pago que quieres incluir en la remesa. Se genera un fichero XML estándar (pain.001.001.03) listo para subir a la banca electrónica: el banco realizará las transferencias en bloque en la fecha indicada.'+
+    '</div></div>';
+
+  const cuentasConIban = DB.bancos.filter(b=>b.iban && b.iban!=='—');
+  if (!SEPA_CTA || !cuentasConIban.some(b=>b.id===SEPA_CTA)) SEPA_CTA = (cuentasConIban[0]||{}).id;
+  h += '<div class="frow" style="max-width:420px;margin-bottom:18px">'+
+    fSelect('Cuenta ordenante', 'sepaCtaSel', cuentasConIban.map(b=>[b.id, b.nom+' · '+b.iban]), SEPA_CTA, ' onchange="setSepaCta(this.value)"')+
+  '</div>';
+  if (!cuentasConIban.length) {
+    h += '<div class="card" style="margin-bottom:16px;border-left:3px solid var(--red)"><div class="cardbody" style="font-size:13px">Ninguna cuenta bancaria tiene IBAN registrado. Añade uno desde <em>Bancos → Cuentas y movimientos</em> antes de generar una remesa.</div></div>';
+    return h;
+  }
+
+  if (!pendientes.length) {
+    h += '<div class="card"><div class="cardbody" style="text-align:center;padding:30px;color:var(--ink-2)"><strong>No hay facturas de proveedor pendientes de pago.</strong><br>Cuando registres facturas recibidas sin cobrar, aparecerán aquí para incluirlas en una remesa.</div></div>';
+    return h;
+  }
+
+  const rows = pendientes.map(f=>{
+    const p = prov(f.prov);
+    const sinIban = !p.iban;
+    const marcada = !!SEPA_SEL[f.num];
+    return rowN([
+      '<input type="checkbox" '+(marcada?'checked':'')+(sinIban?' disabled title="Este proveedor no tiene IBAN registrado"':'')+' onchange="toggleSepaSel(\''+f.num+'\')">',
+      f.num,
+      esc(p.nom),
+      sinIban ? '<span class="tag t-late">Sin IBAN</span>' : '<span class="mono" style="font-size:12px">'+esc(p.iban)+'</span>',
+      FD(f.venc),
+      EUR(f.total)
+    ], [5], sinIban ? ' style="opacity:.55"' : '');
+  });
+  h += '<div class="card">'+tbl([['✓'],['Factura'],['Proveedor'],['IBAN'],['Vencimiento'],['Importe','n']], rows)+'</div>';
+
+  const seleccionadas = pendientes.filter(f=>SEPA_SEL[f.num] && prov(f.prov).iban);
+  const totalSel = seleccionadas.reduce((s,f)=>s+f.total,0);
+  h += '<div class="card" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">'+
+    '<div><strong>'+seleccionadas.length+'</strong> factura'+(seleccionadas.length===1?'':'s')+' seleccionada'+(seleccionadas.length===1?'':'s')+' · Total: <strong>'+EUR(totalSel)+'</strong></div>'+
+    '<button class="btn" '+(seleccionadas.length?'':'disabled')+' onclick="generarRemesaSepa()" type="button">📤 Generar y descargar fichero SEPA (XML)</button>'+
+  '</div>';
+  return h;
+};
+
+function generarRemesaSepa(){
+  const pendientes = pendPago();
+  const seleccionadas = pendientes.filter(f=>SEPA_SEL[f.num] && prov(f.prov).iban);
+  if (!seleccionadas.length){ toast('Selecciona al menos una factura con IBAN registrado.'); return; }
+
+  const cuenta = DB.bancos.find(b=>b.id===SEPA_CTA) || DB.bancos[0];
+  const ibanOrdenante = cuenta.iban.replace(/\s+/g,'');
+  const ahora = new Date();
+  const msgId = 'HIGIENEX-REM-' + ahora.toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.floor(Math.random()*9000+1000);
+  const fechaEjecucion = TODAY;
+  const totalCtrl = seleccionadas.reduce((s,f)=>s+f.total,0).toFixed(2);
+
+  const txs = seleccionadas.map((f,i)=>{
+    const p = prov(f.prov);
+    const ibanBenef = p.iban.replace(/\s+/g,'');
+    const e2e = 'FACT-' + xmlEsc(f.num).replace(/[^A-Za-z0-9-]/g,'');
+    return '    <CdtTrfTxInf>\n'+
+      '      <PmtId>\n'+
+      '        <EndToEndId>'+e2e+'</EndToEndId>\n'+
+      '      </PmtId>\n'+
+      '      <Amt>\n'+
+      '        <InstdAmt Ccy="EUR">'+f.total.toFixed(2)+'</InstdAmt>\n'+
+      '      </Amt>\n'+
+      '      <CdtrAgt>\n'+
+      '        <FinInstnId>\n'+
+      '          <Othr><Id>NOTPROVIDED</Id></Othr>\n'+
+      '        </FinInstnId>\n'+
+      '      </CdtrAgt>\n'+
+      '      <Cdtr>\n'+
+      '        <Nm>'+xmlEsc(p.nom)+'</Nm>\n'+
+      '      </Cdtr>\n'+
+      '      <CdtrAcct>\n'+
+      '        <Id><IBAN>'+ibanBenef+'</IBAN></Id>\n'+
+      '      </CdtrAcct>\n'+
+      '      <RmtInf>\n'+
+      '        <Ustrd>Factura '+xmlEsc(f.num)+' - HIGIENEX S.L.</Ustrd>\n'+
+      '      </RmtInf>\n'+
+      '    </CdtTrfTxInf>';
+  }).join('\n');
+
+  const xml = '<?xml version="1.0" encoding="UTF-8"?>\n'+
+    '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n'+
+    '  <CstmrCdtTrfInitn>\n'+
+    '    <GrpHdr>\n'+
+    '      <MsgId>'+msgId+'</MsgId>\n'+
+    '      <CreDtTm>'+ahora.toISOString()+'</CreDtTm>\n'+
+    '      <NbOfTxs>'+seleccionadas.length+'</NbOfTxs>\n'+
+    '      <CtrlSum>'+totalCtrl+'</CtrlSum>\n'+
+    '      <InitgPty>\n'+
+    '        <Nm>HIGIENEX S.L.</Nm>\n'+
+    '      </InitgPty>\n'+
+    '    </GrpHdr>\n'+
+    '    <PmtInf>\n'+
+    '      <PmtInfId>'+msgId+'-1</PmtInfId>\n'+
+    '      <PmtMtd>TRF</PmtMtd>\n'+
+    '      <NbOfTxs>'+seleccionadas.length+'</NbOfTxs>\n'+
+    '      <CtrlSum>'+totalCtrl+'</CtrlSum>\n'+
+    '      <PmtTpInf>\n'+
+    '        <SvcLvl><Cd>SEPA</Cd></SvcLvl>\n'+
+    '      </PmtTpInf>\n'+
+    '      <ReqdExctnDt>'+fechaEjecucion+'</ReqdExctnDt>\n'+
+    '      <Dbtr>\n'+
+    '        <Nm>HIGIENEX S.L.</Nm>\n'+
+    '      </Dbtr>\n'+
+    '      <DbtrAcct>\n'+
+    '        <Id><IBAN>'+ibanOrdenante+'</IBAN></Id>\n'+
+    '      </DbtrAcct>\n'+
+    '      <DbtrAgt>\n'+
+    '        <FinInstnId><Othr><Id>NOTPROVIDED</Id></Othr></FinInstnId>\n'+
+    '      </DbtrAgt>\n'+
+    '      <ChrgBr>SLEV</ChrgBr>\n'+
+    txs+'\n'+
+    '    </PmtInf>\n'+
+    '  </CstmrCdtTrfInitn>\n'+
+    '</Document>\n';
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([xml], {type:'application/xml;charset=utf-8;'}));
+  a.download = 'remesa-sepa-' + TODAY + '.xml';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  toast('Fichero SEPA generado: '+seleccionadas.length+' transferencias por '+EUR(seleccionadas.reduce((s,f)=>s+f.total,0))+'.');
+  log('Remesa SEPA generada', seleccionadas.length+' transferencias, '+EUR(seleccionadas.reduce((s,f)=>s+f.total,0)));
+  SEPA_SEL = {};
+  go('remesa');
+}
+window.generarRemesaSepa = generarRemesaSepa;
 
 /* =========================================================
    ALMACÉN
@@ -7517,11 +7666,11 @@ DB.clientes.push(
   {id:"NC05", nom:"Neteja Industrial Bàltica S.L.", nif:'B96884477', pob:'Sueca', dir:"C/ de l'Assut, 9", tel:'961 703 210', mail:'administracio@baltica-neteja.es', cond:30, resp:'U3', alta:'2026-01-01', limite:20000, cta:'4300011'}
 );
 DB.proveedores.push(
-  {id:"NP01", nom:"Quimival S.A.", nif:'A46223390', pob:'Sagunt', dir:'Pol. Ind. Parc Sagunt, nau 12', tel:'962 660 450', mail:'comercial@quimival.es', cond:30, ctaProv:'4000005'},
-  {id:"NP02", nom:"Compañía eléctrica", nif:'A28553321', pob:'Madrid', dir:'Paseo de la Castellana, 259', tel:'900 200 400', mail:'grandesclientes@companiaelectrica.es', cond:30, ctaProv:'4000006'},
-  {id:"NP03", nom:"Envases y Embalajes S.L.", nif:'B46881122', pob:'Sagunt', dir:'Pol. Ind. Parc Sagunt, nau 3', tel:'962 668 810', mail:'pedidos@envasesyembalajes.es', cond:30, ctaProv:'4000007'},
-  {id:"NP04", nom:"Asesoría laboral y fiscal", nif:'B96556432', pob:'Valencia', dir:'C/ Xàtiva, 15, 2n', tel:'963 517 640', mail:'despacho@asesorialaboralfiscal.es', cond:30, ctaProv:'4000008'},
-  {id:"NP05", nom:"Correduría de seguros", nif:'B96229087', pob:'Valencia', dir:'Av. Aragón, 30', tel:'963 528 900', mail:'administracion@correduriaseguros.es', cond:30, ctaProv:'4000009'}
+  {id:"NP01", nom:"Quimival S.A.", nif:'A46223390', pob:'Sagunt', dir:'Pol. Ind. Parc Sagunt, nau 12', tel:'962 660 450', mail:'comercial@quimival.es', cond:30, ctaProv:'4000005', iban:'ES89 2100 0813 6102 0012 3456'},
+  {id:"NP02", nom:"Compañía eléctrica", nif:'A28553321', pob:'Madrid', dir:'Paseo de la Castellana, 259', tel:'900 200 400', mail:'grandesclientes@companiaelectrica.es', cond:30, ctaProv:'4000006', iban:'ES29 0075 1234 5600 0611 2233'},
+  {id:"NP03", nom:"Envases y Embalajes S.L.", nif:'B46881122', pob:'Sagunt', dir:'Pol. Ind. Parc Sagunt, nau 3', tel:'962 668 810', mail:'pedidos@envasesyembalajes.es', cond:30, ctaProv:'4000007', iban:'ES55 0182 3456 7801 2345 6789'},
+  {id:"NP04", nom:"Asesoría laboral y fiscal", nif:'B96556432', pob:'Valencia', dir:'C/ Xàtiva, 15, 2n', tel:'963 517 640', mail:'despacho@asesorialaboralfiscal.es', cond:30, ctaProv:'4000008', iban:'ES40 0049 0001 5320 1234 5678'},
+  {id:"NP05", nom:"Correduría de seguros", nif:'B96229087', pob:'Valencia', dir:'Av. Aragón, 30', tel:'963 528 900', mail:'administracion@correduriaseguros.es', cond:30, ctaProv:'4000009', iban:'ES68 2085 0123 4503 3300 1122'}
 );
 // Las subcuentas de NC01-NC05 y NP01-NP05 se registran a mano porque se dan de alta
 // después de que abrirSubcuentas() ya se haya ejecutado en la carga inicial.
@@ -7529,7 +7678,7 @@ DB.clientes.slice(-5).forEach(c=>defCta(c.cta, c.nom, 'activo'));
 DB.proveedores.slice(-5).forEach(p=>defCta(p.ctaProv, p.nom, 'pasivo'));
 
 DB.bancos.push(
-  {id:'B1', nom:'Banco c/c (572)', iban:'—', saldo:-132204.65, cta:'572'},
+  {id:'B1', nom:'Banco c/c (572)', iban:'ES21 2100 4455 6612 3456 7890', saldo:-132204.65, cta:'572'},
   {id:'B2', nom:'Caja (570)', iban:'—', saldo:1250.0, cta:'570'}
 );
 [
