@@ -3057,7 +3057,7 @@ const NAV=[
  {g:'Compras',items:[['proveedores','Proveedores','logistica'],['compras','Pedidos y aprovisionamiento','logistica']]},
  {g:'Facturación',items:[['femitidas','Facturas emitidas','comercial'],['frecibidas','Facturas recibidas','admin']]},
  {g:'Contabilidad',items:[['diario','Libro diario','admin'],['mayor','Libro mayor','admin'],['sumas','Sumas y saldos','admin'],['resultados','Balance y resultados','admin'],['ejercicio2025','Ejercicio 2025 (archivo)','admin']]},
- {g:'Bancos',items:[['bancos','Cuentas y movimientos','admin'],['concilia','Conciliación','admin'],['remesa','Remesa SEPA','admin'],['remesascreadas','Remesas creadas','admin']]},
+ {g:'Bancos',items:[['bancos','Cuentas y movimientos','admin'],['concilia','Conciliación','admin'],['remesa','Remesa SEPA (pagos)','admin'],['remesacobros','Remesa SEPA (cobros)','admin'],['remesascreadas','Remesas creadas','admin'],['tesoreria','Previsión de tesorería','admin']]},
  {g:'Logística',items:[
    ['almacen','Artículos y stock','logistica'],
    ['almacenes','Almacenes','logistica'],['transportistas','Transportistas','logistica'],
@@ -3074,7 +3074,7 @@ const NAV_ICONS={
   proveedores:'🚚', compras:'🛒',
   femitidas:'📄', frecibidas:'🧾',
   diario:'📖', mayor:'📚', sumas:'⚖️', resultados:'📊', bancos:'🏦',
-  concilia:'🔄', ejercicio2025:'🗄️', remesa:'📤', remesascreadas:'🗂️',
+  concilia:'🔄', ejercicio2025:'🗄️', remesa:'📤', remesacobros:'📥', remesascreadas:'🗂️', tesoreria:'📈',
   almacen:'📦', almacenes:'🏬', transportistas:'🚚', expediciones:'📤',
   materias:'🧪', formulas:'⚗️', produccion:'🏭', lotes:'📦', calidad:'✅',
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
@@ -5237,6 +5237,7 @@ function generarRemesaSepa(){
   const totalRemesa = seleccionadas.reduce((s,f)=>s+f.total,0);
   DB.remesas.push({
     id: msgId,
+    tipo: 'pago',
     fecha: fechaEjecucion,
     cta: SEPA_CTA,
     facturas: seleccionadas.map(f=>f.num),
@@ -5254,10 +5255,226 @@ function generarRemesaSepa(){
 window.generarRemesaSepa = generarRemesaSepa;
 
 /* =========================================================
+   REMESA SEPA DE COBROS — domiciliacions (adeudos directes) a clients
+   Genera un fitxer pain.008.001.02, l'estàndard real per carregar
+   remeses de cobrament (domiciliació bancària) a la banca electrònica.
+   ========================================================= */
+let SEPA_COBRO_CTA = 'B1';
+let SEPA_COBRO_SEL = {};
+let SEPA_COBRO_FECHA = TODAY;
+function setSepaCobroCta(v){ SEPA_COBRO_CTA = v; go('remesacobros'); }
+window.setSepaCobroCta = setSepaCobroCta;
+function setSepaCobroFecha(v){ SEPA_COBRO_FECHA = v || TODAY; }
+window.setSepaCobroFecha = setSepaCobroFecha;
+function toggleSepaCobroSel(num){ SEPA_COBRO_SEL[num] = !SEPA_COBRO_SEL[num]; go('remesacobros'); }
+window.toggleSepaCobroSel = toggleSepaCobroSel;
+function seleccionarTodasSepaCobro(){
+  pendCobro().filter(f=>cli(f.cli).iban).forEach(f=>{ SEPA_COBRO_SEL[f.num] = true; });
+  go('remesacobros');
+}
+window.seleccionarTodasSepaCobro = seleccionarTodasSepaCobro;
+function deseleccionarTodasSepaCobro(){
+  pendCobro().forEach(f=>{ SEPA_COBRO_SEL[f.num] = false; });
+  go('remesacobros');
+}
+window.deseleccionarTodasSepaCobro = deseleccionarTodasSepaCobro;
+
+// Mandato SEPA: si el client encara no en té, se li genera un al incloure'l
+// per primera vegada en una remesa de cobrament (com passaria en la realitat
+// quan el client signa l'autorització de domiciliació).
+function mandatoCliente(c){
+  if (!c.mandatoSepa) {
+    c.mandatoSepa = { ref: 'MND-'+c.id+'-'+TODAY.replace(/-/g,''), fecha: c.alta||TODAY };
+  }
+  return c.mandatoSepa;
+}
+window.mandatoCliente = mandatoCliente;
+
+ROUTES.remesacobros=function(){
+  const pendientes = pendCobro();
+  let h = head('Remesa SEPA de cobros', 'Domiciliació bancària (adeudo directe) per cobrar factures de client en bloc',
+    '<button class="btn ghost" onclick="go(\'clientes\')" type="button">Completar IBAN de clientes</button>');
+
+  h += '<div class="card" style="margin-bottom:16px"><div class="cardbody" style="font-size:13px;color:var(--ink-2)">'+
+    'Selecciona las facturas emitidas pendientes de cobro que quieres incluir en la domiciliación. Se genera un fichero XML estándar (pain.008.001.02) listo para subir a la banca electrónica: el banco cargará el adeudo en la cuenta de cada cliente en la fecha indicada. Cada cliente necesita un mandato SEPA firmado (se genera automáticamente la primera vez que se incluye).'+
+    '</div></div>';
+
+  const cuentasConIban = DB.bancos.filter(b=>b.iban && b.iban!=='—');
+  if (!SEPA_COBRO_CTA || !cuentasConIban.some(b=>b.id===SEPA_COBRO_CTA)) SEPA_COBRO_CTA = (cuentasConIban[0]||{}).id;
+  if (!SEPA_COBRO_FECHA) SEPA_COBRO_FECHA = TODAY;
+  h += '<div class="frow" style="max-width:600px;margin-bottom:18px">'+
+    fSelect('Cuenta acreedora (donde se ingresa)', 'sepaCobroCtaSel', cuentasConIban.map(b=>[b.id, b.nom+' · '+b.iban]), SEPA_COBRO_CTA, ' onchange="setSepaCobroCta(this.value)"')+
+    fInput('Fecha de cobro', 'sepaCobroFechaSel', 'date', SEPA_COBRO_FECHA, ' onchange="setSepaCobroFecha(this.value)"')+
+  '</div>';
+  if (!cuentasConIban.length) {
+    h += '<div class="card" style="margin-bottom:16px;border-left:3px solid var(--red)"><div class="cardbody" style="font-size:13px">Ninguna cuenta bancaria tiene IBAN registrado.</div></div>';
+    return h;
+  }
+
+  if (!pendientes.length) {
+    h += '<div class="card"><div class="cardbody" style="text-align:center;padding:30px;color:var(--ink-2)"><strong>No hay facturas de cliente pendientes de cobro.</strong></div></div>';
+    return h;
+  }
+
+  const seleccionables = pendientes.filter(f=>cli(f.cli).iban);
+  h += '<div style="display:flex;gap:10px;margin-bottom:10px">'+
+    '<button class="btn ghost" type="button" onclick="seleccionarTodasSepaCobro()">☑ Seleccionar todas ('+seleccionables.length+')</button>'+
+    '<button class="btn ghost" type="button" onclick="deseleccionarTodasSepaCobro()">☐ Quitar selección</button>'+
+  '</div>';
+
+  const rows = pendientes.map(f=>{
+    const c = cli(f.cli);
+    const sinIban = !c.iban;
+    const marcada = !!SEPA_COBRO_SEL[f.num];
+    return rowN([
+      '<input type="checkbox" '+(marcada?'checked':'')+(sinIban?' disabled title="Este cliente no tiene IBAN registrado"':'')+' onchange="toggleSepaCobroSel(\''+f.num+'\')">',
+      f.num,
+      esc(c.nom),
+      sinIban ? '<span class="tag t-late">Sin IBAN</span>' : '<span class="mono" style="font-size:12px">'+esc(c.iban)+'</span>',
+      FD(f.venc),
+      EUR(f.total)
+    ], [5], sinIban ? ' style="opacity:.55"' : '');
+  });
+  h += '<div class="card">'+tbl([['✓'],['Factura'],['Cliente'],['IBAN'],['Vencimiento'],['Importe','n']], rows)+'</div>';
+
+  const seleccionadas = pendientes.filter(f=>SEPA_COBRO_SEL[f.num] && cli(f.cli).iban);
+  const totalSel = seleccionadas.reduce((s,f)=>s+f.total,0);
+  h += '<div class="card" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">'+
+    '<div><strong>'+seleccionadas.length+'</strong> factura'+(seleccionadas.length===1?'':'s')+' seleccionada'+(seleccionadas.length===1?'':'s')+' · Total: <strong>'+EUR(totalSel)+'</strong></div>'+
+    '<button class="btn" '+(seleccionadas.length?'':'disabled')+' onclick="generarRemesaCobros()" type="button">📥 Generar y descargar fichero SEPA (XML)</button>'+
+  '</div>';
+  return h;
+};
+
+function generarRemesaCobros(){
+  const pendientes = pendCobro();
+  const seleccionadas = pendientes.filter(f=>SEPA_COBRO_SEL[f.num] && cli(f.cli).iban);
+  if (!seleccionadas.length){ toast('Selecciona al menos una factura con IBAN registrado.'); return; }
+
+  const cuenta = DB.bancos.find(b=>b.id===SEPA_COBRO_CTA) || DB.bancos[0];
+  const ibanAcreedor = cuenta.iban.replace(/\s+/g,'');
+  const bicAcreedor = cuenta.bic || 'NOTPROVIDED';
+  const ahora = new Date();
+  const fechaCompacta = ahora.toISOString().slice(0,10).replace(/-/g,'');
+  const contador = String(Math.floor(Math.random()*90000+10000));
+  const msgId = 'HIGIENEX/'+fechaCompacta+'/DD'+contador.slice(0,2);
+  const fechaCobro = SEPA_COBRO_FECHA || TODAY;
+  const totalCtrl = seleccionadas.reduce((s,f)=>s+f.total,0).toFixed(2);
+  const idAcreedorSepa = 'ES02ZZZB12345678';
+
+  const txs = seleccionadas.map((f,i)=>{
+    const c = cli(f.cli);
+    const mnd = mandatoCliente(c);
+    const ibanDeud = c.iban.replace(/\s+/g,'');
+    const e2e = 'DD-'+contador+'-'+i+'-'+xmlEsc(f.num).replace(/[^A-Za-z0-9]/g,'').slice(0,15);
+    return '    <DrctDbtTxInf>\n'+
+      '      <PmtId>\n'+
+      '        <EndToEndId>'+e2e+'</EndToEndId>\n'+
+      '      </PmtId>\n'+
+      '      <InstdAmt Ccy="EUR">'+f.total.toFixed(2)+'</InstdAmt>\n'+
+      '      <DrctDbtTx>\n'+
+      '        <MndtRltdInf>\n'+
+      '          <MndtId>'+xmlEsc(mnd.ref)+'</MndtId>\n'+
+      '          <DtOfSgntr>'+mnd.fecha+'</DtOfSgntr>\n'+
+      '        </MndtRltdInf>\n'+
+      '      </DrctDbtTx>\n'+
+      '      <DbtrAgt>\n'+
+      '        <FinInstnId><Othr><Id>NOTPROVIDED</Id></Othr></FinInstnId>\n'+
+      '      </DbtrAgt>\n'+
+      '      <Dbtr>\n'+
+      '        <Nm>'+xmlEsc(c.nom)+'</Nm>\n'+
+      '        <PstlAdr>\n'+
+      '          <Ctry>ES</Ctry>\n'+
+      (c.dir ? '          <AdrLine>'+xmlEsc(c.dir)+'</AdrLine>\n' : '')+
+      (c.pob ? '          <AdrLine>'+xmlEsc(c.pob)+'</AdrLine>\n' : '')+
+      '        </PstlAdr>\n'+
+      '      </Dbtr>\n'+
+      '      <DbtrAcct>\n'+
+      '        <Id><IBAN>'+ibanDeud+'</IBAN></Id>\n'+
+      '      </DbtrAcct>\n'+
+      '      <RmtInf>\n'+
+      '        <Ustrd>Cobrament Factura '+xmlEsc(f.num)+'</Ustrd>\n'+
+      '      </RmtInf>\n'+
+      '    </DrctDbtTxInf>';
+  }).join('\n');
+
+  const xml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'+
+    '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n'+
+    '  <CstmrDrctDbtInitn>\n'+
+    '    <GrpHdr>\n'+
+    '      <MsgId>'+msgId+'</MsgId>\n'+
+    '      <CreDtTm>'+ahora.toISOString().slice(0,19)+'</CreDtTm>\n'+
+    '      <NbOfTxs>'+seleccionadas.length+'</NbOfTxs>\n'+
+    '      <CtrlSum>'+totalCtrl+'</CtrlSum>\n'+
+    '      <InitgPty>\n'+
+    '        <Nm>HIGIENEX S.L.</Nm>\n'+
+    '        <Id><PrvtId><Othr><Id>B12345678</Id></Othr></PrvtId></Id>\n'+
+    '      </InitgPty>\n'+
+    '    </GrpHdr>\n'+
+    '    <PmtInf>\n'+
+    '      <PmtInfId>'+msgId+'-'+contador+'</PmtInfId>\n'+
+    '      <PmtMtd>DD</PmtMtd>\n'+
+    '      <NbOfTxs>'+seleccionadas.length+'</NbOfTxs>\n'+
+    '      <CtrlSum>'+totalCtrl+'</CtrlSum>\n'+
+    '      <PmtTpInf>\n'+
+    '        <SvcLvl><Cd>SEPA</Cd></SvcLvl>\n'+
+    '        <LclInstrm><Cd>CORE</Cd></LclInstrm>\n'+
+    '        <SeqTp>RCUR</SeqTp>\n'+
+    '      </PmtTpInf>\n'+
+    '      <ReqdColltnDt>'+fechaCobro+'</ReqdColltnDt>\n'+
+    '      <Cdtr>\n'+
+    '        <Nm>HIGIENEX S.L.</Nm>\n'+
+    '        <PstlAdr>\n'+
+    '          <Ctry>ES</Ctry>\n'+
+    '          <AdrLine>Carrer de la Indústria, 25</AdrLine>\n'+
+    '          <AdrLine>46010 València</AdrLine>\n'+
+    '        </PstlAdr>\n'+
+    '      </Cdtr>\n'+
+    '      <CdtrAcct>\n'+
+    '        <Id><IBAN>'+ibanAcreedor+'</IBAN></Id>\n'+
+    '      </CdtrAcct>\n'+
+    '      <CdtrAgt>\n'+
+    '        <FinInstnId><BIC>'+bicAcreedor+'</BIC></FinInstnId>\n'+
+    '      </CdtrAgt>\n'+
+    '      <ChrgBr>SLEV</ChrgBr>\n'+
+    '      <CdtrSchmeId>\n'+
+    '        <Id><PrvtId><Othr><Id>'+idAcreedorSepa+'</Id><SchmeNm><Prtry>SEPA</Prtry></SchmeNm></Othr></PrvtId></Id>\n'+
+    '      </CdtrSchmeId>\n'+
+    txs+'\n'+
+    '    </PmtInf>\n'+
+    '  </CstmrDrctDbtInitn>\n'+
+    '</Document>\n';
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([xml], {type:'application/xml;charset=utf-8;'}));
+  a.download = 'remesa-cobros-sepa-' + TODAY + '.xml';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+
+  const totalRemesa = seleccionadas.reduce((s,f)=>s+f.total,0);
+  DB.remesas.push({
+    id: msgId,
+    tipo: 'cobro',
+    fecha: fechaCobro,
+    cta: SEPA_COBRO_CTA,
+    facturas: seleccionadas.map(f=>f.num),
+    total: totalRemesa,
+    estado: 'Pendent',
+    comprobante: null,
+    fechaPago: null
+  });
+
+  toast('Fichero SEPA de cobro generado: '+seleccionadas.length+' domiciliaciones por '+EUR(totalRemesa)+'.');
+  log('Remesa SEPA de cobro generada', seleccionadas.length+' domiciliaciones, '+EUR(totalRemesa));
+  SEPA_COBRO_SEL = {};
+  go('remesacobros');
+}
+window.generarRemesaCobros = generarRemesaCobros;
+
+/* =========================================================
    REMESAS CREADAS — seguimiento, comprobante y marcado de pago
    ========================================================= */
 ROUTES.remesascreadas=function(){
-  let h = head('Remesas creadas', 'Histórico de remesas SEPA generadas: sube el comprobante y márcalas como pagadas cuando el banco confirme la operación.');
+  let h = head('Remesas creadas', 'Histórico de remesas SEPA generadas (pagos a proveedores y cobros a clientes): sube el comprobante y confírmalas cuando el banco liquide la operación.');
 
   if (!DB.remesas.length) {
     h += '<div class="card"><div class="cardbody" style="text-align:center;padding:30px;color:var(--ink-2)"><strong>Todavía no se ha generado ninguna remesa.</strong><br>Ve a <em>Bancos → Remesa SEPA</em> para crear la primera.</div></div>';
@@ -5266,39 +5483,44 @@ ROUTES.remesascreadas=function(){
 
   const filas = [...DB.remesas].reverse().map(r=>{
     const banco = DB.bancos.find(b=>b.id===r.cta) || {};
+    const esCobro = r.tipo === 'cobro';
     const pagada = r.estado === 'Pagada';
     return rowN([
+      esCobro ? '<span class="tag t-ok">↙ Cobro</span>' : '<span class="tag t-late">↗ Pago</span>',
       FD(r.fecha),
       '<span class="mono" style="font-size:11.5px">'+esc(r.id)+'</span>',
       esc(banco.nom||'—'),
       String(r.facturas.length),
       EUR(r.total),
       r.comprobante ? '<span class="tag t-ok">Sí</span>' : '<span class="tag t-neu">No</span>',
-      pagada ? '<span class="tag t-ok">Pagada '+FD(r.fechaPago)+'</span>' : '<span class="tag t-late">Pendiente</span>'
-    ], [3,4], ' class="clickable" onclick="verRemesaCreada(\''+r.id+'\')"');
+      pagada ? '<span class="tag t-ok">'+(esCobro?'Cobrada':'Pagada')+' '+FD(r.fechaPago)+'</span>' : '<span class="tag t-late">Pendiente</span>'
+    ], [4,5], ' class="clickable" onclick="verRemesaCreada(\''+r.id+'\')"');
   });
 
-  h += '<div class="card">'+tbl([['Fecha'],['Referencia'],['Cuenta'],['Facturas','n'],['Importe','n'],['Comprobante'],['Estado']], filas)+'</div>';
+  h += '<div class="card">'+tbl([['Tipo'],['Fecha'],['Referencia'],['Cuenta'],['Facturas','n'],['Importe','n'],['Comprobante'],['Estado']], filas)+'</div>';
   return h;
 };
 
 function verRemesaCreada(id){
   const r = DB.remesas.find(x=>x.id===id);
   const banco = DB.bancos.find(b=>b.id===r.cta) || {};
+  const esCobro = r.tipo === 'cobro';
   const pagada = r.estado === 'Pagada';
-  const facturas = r.facturas.map(num => DB.facturasR.find(f=>f.num===num)).filter(Boolean);
+  const facturas = esCobro
+    ? r.facturas.map(num => DB.facturasE.find(f=>f.num===num)).filter(Boolean)
+    : r.facturas.map(num => DB.facturasR.find(f=>f.num===num)).filter(Boolean);
 
-  openModal('Remesa '+r.id,
+  openModal((esCobro?'Remesa de cobro ':'Remesa de pago ')+r.id,
     '<div class="frow f3" style="margin-bottom:18px">'+
-      info('Fecha de creación',FD(r.fecha))+info('Cuenta ordenante',banco.nom+' · '+banco.iban)+info('Importe total',EUR(r.total))+
-      info('Facturas incluidas',String(r.facturas.length))+info('Estado',pagada?'Pagada':'Pendiente de confirmación')+
-      info('Fecha de pago',r.fechaPago?FD(r.fechaPago):'—')+
+      info('Fecha de creación',FD(r.fecha))+info(esCobro?'Cuenta acreedora':'Cuenta ordenante',banco.nom+' · '+banco.iban)+info('Importe total',EUR(r.total))+
+      info('Facturas incluidas',String(r.facturas.length))+info('Estado',pagada?(esCobro?'Cobrada':'Pagada'):'Pendiente de confirmación')+
+      info(esCobro?'Fecha de cobro':'Fecha de pago',r.fechaPago?FD(r.fechaPago):'—')+
     '</div>'+
     '<div class="eyebrow" style="display:block;margin-bottom:8px">Facturas incluidas</div>'+
-    tbl([['Nº'],['Proveedor'],['Importe','n'],['Estado']],
-      facturas.map(f=>rowN([f.num,esc(prov(f.prov).nom),EUR(f.total),estadoTag(f)],[2]))
+    tbl([['Nº'],[esCobro?'Cliente':'Proveedor'],['Importe','n'],['Estado']],
+      facturas.map(f=>rowN([f.num,esc(esCobro?cli(f.cli).nom:prov(f.prov).nom),EUR(f.total),estadoTag(f)],[2]))
     )+
-    '<div class="eyebrow" style="display:block;margin:18px 0 8px">Comprobante de pago</div>'+
+    '<div class="eyebrow" style="display:block;margin:18px 0 8px">Comprobante de '+(esCobro?'cobro':'pago')+'</div>'+
     (r.comprobante
       ? '<div style="display:flex;align-items:center;gap:10px;"><span class="mono" style="font-size:12.5px">📎 '+esc(r.comprobante.nombre)+'</span>'+
         '<a href="'+r.comprobante.dataUrl+'" download="'+esc(r.comprobante.nombre)+'" class="btn ghost sm">Descargar</a></div>'
@@ -5306,12 +5528,12 @@ function verRemesaCreada(id){
         '<p style="font-size:11px;color:var(--ink-2);margin-top:6px">Máximo 2 MB. PDF o imagen del justificante bancario.</p>'
     )+
     (!pagada
-      ? '<div class="eyebrow" style="display:block;margin:18px 0 8px">Marcar como pagada</div>'+
-        '<div class="frow"><div class="ff"><label>Fecha de pago</label><input type="date" id="remesaFechaPago" value="'+TODAY+'"></div></div>'+
-        '<p style="font-size:11.5px;color:var(--ink-2);margin-top:6px">Al confirmar, las '+r.facturas.length+' facturas de esta remesa pasarán a «Pagada» y se contabilizará el pago en '+banco.nom+'.</p>'
+      ? '<div class="eyebrow" style="display:block;margin:18px 0 8px">Marcar como '+(esCobro?'cobrada':'pagada')+'</div>'+
+        '<div class="frow"><div class="ff"><label>Fecha de '+(esCobro?'cobro':'pago')+'</label><input type="date" id="remesaFechaPago" value="'+TODAY+'"></div></div>'+
+        '<p style="font-size:11.5px;color:var(--ink-2);margin-top:6px">Al confirmar, las '+r.facturas.length+' facturas de esta remesa pasarán a «'+(esCobro?'Cobrada':'Pagada')+'» y se contabilizará el '+(esCobro?'cobro':'pago')+' en '+banco.nom+'.</p>'
       : ''),
     '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
-    (!pagada ? '<button class="btn" onclick="marcarRemesaPagada(\''+id+'\')" type="button">✅ Confirmar pago de la remesa</button>' : ''),
+    (!pagada ? '<button class="btn" onclick="marcarRemesaPagada(\''+id+'\')" type="button">✅ Confirmar '+(esCobro?'cobro':'pago')+' de la remesa</button>' : ''),
     true);
 }
 window.verRemesaCreada = verRemesaCreada;
@@ -5333,18 +5555,21 @@ window.hxSubirComprobante = hxSubirComprobante;
 
 function marcarRemesaPagada(id){
   const r = DB.remesas.find(x=>x.id===id);
+  const esCobro = r.tipo === 'cobro';
   const fechaPago = val('remesaFechaPago') || TODAY;
   const banco = DB.bancos.find(b=>b.id===r.cta);
-  if (!banco) { toast('No se encuentra la cuenta ordenante de esta remesa.'); return; }
+  if (!banco) { toast('No se encuentra la cuenta de esta remesa.'); return; }
 
   let contabilizadas = 0;
   r.facturas.forEach(num=>{
-    const f = DB.facturasR.find(x=>x.num===num);
-    if (!f || f.estado === 'Pagada') return;
-    const m = {id:uid('MV'), cta:r.cta, fecha:fechaPago, con:'Pago remesa '+r.id+' · '+f.num, imp:-f.total, conc:f.num};
+    const f = esCobro ? DB.facturasE.find(x=>x.num===num) : DB.facturasR.find(x=>x.num===num);
+    const estadoFinal = esCobro ? 'Cobrada' : 'Pagada';
+    if (!f || f.estado === estadoFinal) return;
+    const importe = esCobro ? f.total : -f.total;
+    const m = {id:uid('MV'), cta:r.cta, fecha:fechaPago, con:(esCobro?'Cobro remesa ':'Pago remesa ')+r.id+' · '+f.num, imp:importe, conc:f.num};
     DB.movimientos.push(m);
     asientoCobroPago(m);
-    f.estado = 'Pagada';
+    f.estado = estadoFinal;
     banco.saldo += m.imp;
     contabilizadas++;
   });
@@ -5352,11 +5577,66 @@ function marcarRemesaPagada(id){
   r.estado = 'Pagada';
   r.fechaPago = fechaPago;
   closeModal();
-  toast(contabilizadas+' factura'+(contabilizadas===1?'':'s')+' marcada'+(contabilizadas===1?'':'s')+' como pagada'+(contabilizadas===1?'':'s')+'.');
-  log('Remesa confirmada como pagada', r.id+' · '+EUR(r.total)+' · '+banco.nom);
+  const palabra = esCobro ? 'cobrada' : 'pagada';
+  toast(contabilizadas+' factura'+(contabilizadas===1?'':'s')+' marcada'+(contabilizadas===1?'':'s')+' como '+palabra+(contabilizadas===1?'':'s')+'.');
+  log('Remesa confirmada como '+palabra, r.id+' · '+EUR(r.total)+' · '+banco.nom);
   go('remesascreadas');
 }
 window.marcarRemesaPagada = marcarRemesaPagada;
+
+/* =========================================================
+   PREVISIÓN DE TESORERÍA
+   Cruza lo que se va a cobrar (facturas emitidas pendientes) con lo
+   que se va a pagar (facturas recibidas pendientes), agrupado por
+   fecha de vencimiento, con saldo acumulado a partir de la tesorería
+   actual (todas las cuentas bancarias + caja).
+   ========================================================= */
+ROUTES.tesoreria=function(){
+  let h = head('Previsión de tesorería', 'Cruce de cobros y pagos previstos por fecha de vencimiento, a partir del saldo actual de todas las cuentas.');
+
+  const saldoActual = DB.bancos.reduce((s,b)=>s+b.saldo,0);
+  const cobros = pendCobro();
+  const pagos = pendPago();
+  const totalCobrar = cobros.reduce((s,f)=>s+f.total,0);
+  const totalPagar = pagos.reduce((s,f)=>s+f.total,0);
+
+  h += '<div class="kpirow">'+
+    kpi('Saldo actual de tesorería',EUR(saldoActual),DB.bancos.length+' cuentas','teal')+
+    kpi('Total pendiente de cobro',EUR(totalCobrar),cobros.length+' facturas','green')+
+    kpi('Total pendiente de pago',EUR(totalPagar),pagos.length+' facturas','red')+
+    kpi('Saldo proyectado',EUR(saldoActual+totalCobrar-totalPagar),'si se cobra y paga todo','blue')+
+  '</div>';
+
+  const fechas = [...new Set([...cobros.map(f=>f.venc), ...pagos.map(f=>f.venc)])].sort();
+  if (!fechas.length) {
+    h += '<div class="card"><div class="cardbody" style="text-align:center;padding:30px;color:var(--ink-2)"><strong>No hay cobros ni pagos pendientes.</strong> La tesorería se mantendrá estable.</div></div>';
+    return h;
+  }
+
+  let acumulado = saldoActual;
+  const filas = fechas.map(fecha=>{
+    const cobrosDia = cobros.filter(f=>f.venc===fecha);
+    const pagosDia = pagos.filter(f=>f.venc===fecha);
+    const totCobroDia = cobrosDia.reduce((s,f)=>s+f.total,0);
+    const totPagoDia = pagosDia.reduce((s,f)=>s+f.total,0);
+    acumulado += totCobroDia - totPagoDia;
+    const vencida = fecha < TODAY;
+    return rowN([
+      FD(fecha) + (vencida ? ' <span class="tag t-late" style="margin-left:4px">Vencido</span>' : ''),
+      cobrosDia.length ? ('<span style="color:#0B7256">+'+EUR(totCobroDia)+'</span> · '+cobrosDia.length+' fact.') : '—',
+      pagosDia.length ? ('<span style="color:#C0392B">-'+EUR(totPagoDia)+'</span> · '+pagosDia.length+' fact.') : '—',
+      '<strong>'+EUR(acumulado)+'</strong>'
+    ], [1,2,3]);
+  });
+
+  h += '<div class="card">'+tbl([['Fecha de vencimiento'],['Cobros previstos','n'],['Pagos previstos','n'],['Saldo acumulado','n']], filas)+'</div>';
+
+  // Aviso si el saldo acumulado final queda negativo
+  if (saldoActual + totalCobrar - totalPagar < 0) {
+    h += '<div class="card" style="margin-top:16px;border-left:3px solid var(--red)"><div class="cardbody" style="font-size:13px"><strong>⚠️ Atención:</strong> si se cobra y paga todo lo pendiente, la tesorería quedaría en negativo. Puede ser necesario negociar plazos o una línea de crédito.</div></div>';
+  }
+  return h;
+};
 
 /* =========================================================
    ALMACÉN
