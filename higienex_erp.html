@@ -5066,6 +5066,16 @@ let SEPA_SEL = {};
 function xmlEsc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c])); }
 function toggleSepaSel(num){ SEPA_SEL[num] = !SEPA_SEL[num]; go('remesa'); }
 window.toggleSepaSel = toggleSepaSel;
+function seleccionarTodasSepa(){
+  pendPago().filter(f=>prov(f.prov).iban).forEach(f=>{ SEPA_SEL[f.num] = true; });
+  go('remesa');
+}
+window.seleccionarTodasSepa = seleccionarTodasSepa;
+function deseleccionarTodasSepa(){
+  pendPago().forEach(f=>{ SEPA_SEL[f.num] = false; });
+  go('remesa');
+}
+window.deseleccionarTodasSepa = deseleccionarTodasSepa;
 function setSepaCta(v){ SEPA_CTA = v; go('remesa'); }
 window.setSepaCta = setSepaCta;
 
@@ -5092,6 +5102,12 @@ ROUTES.remesa=function(){
     h += '<div class="card"><div class="cardbody" style="text-align:center;padding:30px;color:var(--ink-2)"><strong>No hay facturas de proveedor pendientes de pago.</strong><br>Cuando registres facturas recibidas sin cobrar, aparecerán aquí para incluirlas en una remesa.</div></div>';
     return h;
   }
+
+  const seleccionables = pendientes.filter(f=>prov(f.prov).iban);
+  h += '<div style="display:flex;gap:10px;margin-bottom:10px">'+
+    '<button class="btn ghost" type="button" onclick="seleccionarTodasSepa()">☑ Seleccionar todas ('+seleccionables.length+')</button>'+
+    '<button class="btn ghost" type="button" onclick="deseleccionarTodasSepa()">☐ Quitar selección</button>'+
+  '</div>';
 
   const rows = pendientes.map(f=>{
     const p = prov(f.prov);
