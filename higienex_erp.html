@@ -2510,7 +2510,7 @@ bancos:[
  {id:'B2',nom:'Banco Sabadell · nóminas',iban:'ES33 0081 0330 7700 0123 4567',saldo:19870.15}
 ],
 facturasE:[], facturasR:[], movimientos:[], asientos:[], pedidos:[], oportunidades:[],
-nominas:[], actividades:[], fichajes:[], movStock:[], incidencias:[], presupuestos:[],
+nominas:[], actividades:[], fichajes:[], movStock:[], incidencias:[], presupuestos:[], remesas:[],
 candidaturas:[
  {id:'CAN1',fecha:'2026-08-05',nom:'Laura Martínez Soler',email:'laura.ms@email.com',tel:'611 222 333',posicio:'Tècnic/a de Formulació Química',cv:'https://linkedin.com/in/lauramartinez',msg:'Graduada en Química el 2024, 1 any d\'experiència en laboratori de control de qualitat.',estado:'Pendent'},
  {id:'CAN2',fecha:'2026-08-09',nom:'Jordi Fernàndez Puig',email:'jordi.fp@email.com',tel:'622 333 444',posicio:'Comercial Sector Sanitari',cv:'',msg:'5 anys com a comercial en el sector sanitari, cartera pròpia de clients a la Comunitat Valenciana.',estado:'Entrevista'},
@@ -3057,7 +3057,7 @@ const NAV=[
  {g:'Compras',items:[['proveedores','Proveedores','logistica'],['compras','Pedidos y aprovisionamiento','logistica']]},
  {g:'Facturación',items:[['femitidas','Facturas emitidas','comercial'],['frecibidas','Facturas recibidas','admin']]},
  {g:'Contabilidad',items:[['diario','Libro diario','admin'],['mayor','Libro mayor','admin'],['sumas','Sumas y saldos','admin'],['resultados','Balance y resultados','admin'],['ejercicio2025','Ejercicio 2025 (archivo)','admin']]},
- {g:'Bancos',items:[['bancos','Cuentas y movimientos','admin'],['concilia','Conciliación','admin'],['remesa','Remesa SEPA','admin']]},
+ {g:'Bancos',items:[['bancos','Cuentas y movimientos','admin'],['concilia','Conciliación','admin'],['remesa','Remesa SEPA','admin'],['remesascreadas','Remesas creadas','admin']]},
  {g:'Logística',items:[
    ['almacen','Artículos y stock','logistica'],
    ['almacenes','Almacenes','logistica'],['transportistas','Transportistas','logistica'],
@@ -3074,7 +3074,7 @@ const NAV_ICONS={
   proveedores:'🚚', compras:'🛒',
   femitidas:'📄', frecibidas:'🧾',
   diario:'📖', mayor:'📚', sumas:'⚖️', resultados:'📊', bancos:'🏦',
-  concilia:'🔄', ejercicio2025:'🗄️', remesa:'📤',
+  concilia:'🔄', ejercicio2025:'🗄️', remesa:'📤', remesascreadas:'🗂️',
   almacen:'📦', almacenes:'🏬', transportistas:'🚚', expediciones:'📤',
   materias:'🧪', formulas:'⚗️', produccion:'🏭', lotes:'📦', calidad:'✅',
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
@@ -5228,12 +5228,130 @@ function generarRemesaSepa(){
   a.href = URL.createObjectURL(new Blob([xml], {type:'application/xml;charset=utf-8;'}));
   a.download = 'remesa-sepa-' + TODAY + '.xml';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  toast('Fichero SEPA generado: '+seleccionadas.length+' transferencias por '+EUR(seleccionadas.reduce((s,f)=>s+f.total,0))+'.');
-  log('Remesa SEPA generada', seleccionadas.length+' transferencias, '+EUR(seleccionadas.reduce((s,f)=>s+f.total,0)));
+
+  const totalRemesa = seleccionadas.reduce((s,f)=>s+f.total,0);
+  DB.remesas.push({
+    id: msgId,
+    fecha: TODAY,
+    cta: SEPA_CTA,
+    facturas: seleccionadas.map(f=>f.num),
+    total: totalRemesa,
+    estado: 'Pendent',
+    comprobante: null,
+    fechaPago: null
+  });
+
+  toast('Fichero SEPA generado: '+seleccionadas.length+' transferencias por '+EUR(totalRemesa)+'.');
+  log('Remesa SEPA generada', seleccionadas.length+' transferencias, '+EUR(totalRemesa));
   SEPA_SEL = {};
   go('remesa');
 }
 window.generarRemesaSepa = generarRemesaSepa;
+
+/* =========================================================
+   REMESAS CREADAS — seguimiento, comprobante y marcado de pago
+   ========================================================= */
+ROUTES.remesascreadas=function(){
+  let h = head('Remesas creadas', 'Histórico de remesas SEPA generadas: sube el comprobante y márcalas como pagadas cuando el banco confirme la operación.');
+
+  if (!DB.remesas.length) {
+    h += '<div class="card"><div class="cardbody" style="text-align:center;padding:30px;color:var(--ink-2)"><strong>Todavía no se ha generado ninguna remesa.</strong><br>Ve a <em>Bancos → Remesa SEPA</em> para crear la primera.</div></div>';
+    return h;
+  }
+
+  const filas = [...DB.remesas].reverse().map(r=>{
+    const banco = DB.bancos.find(b=>b.id===r.cta) || {};
+    const pagada = r.estado === 'Pagada';
+    return rowN([
+      FD(r.fecha),
+      '<span class="mono" style="font-size:11.5px">'+esc(r.id)+'</span>',
+      esc(banco.nom||'—'),
+      String(r.facturas.length),
+      EUR(r.total),
+      r.comprobante ? '<span class="tag t-ok">Sí</span>' : '<span class="tag t-neu">No</span>',
+      pagada ? '<span class="tag t-ok">Pagada '+FD(r.fechaPago)+'</span>' : '<span class="tag t-late">Pendiente</span>'
+    ], [3,4], ' class="clickable" onclick="verRemesaCreada(\''+r.id+'\')"');
+  });
+
+  h += '<div class="card">'+tbl([['Fecha'],['Referencia'],['Cuenta'],['Facturas','n'],['Importe','n'],['Comprobante'],['Estado']], filas)+'</div>';
+  return h;
+};
+
+function verRemesaCreada(id){
+  const r = DB.remesas.find(x=>x.id===id);
+  const banco = DB.bancos.find(b=>b.id===r.cta) || {};
+  const pagada = r.estado === 'Pagada';
+  const facturas = r.facturas.map(num => DB.facturasR.find(f=>f.num===num)).filter(Boolean);
+
+  openModal('Remesa '+r.id,
+    '<div class="frow f3" style="margin-bottom:18px">'+
+      info('Fecha de creación',FD(r.fecha))+info('Cuenta ordenante',banco.nom+' · '+banco.iban)+info('Importe total',EUR(r.total))+
+      info('Facturas incluidas',String(r.facturas.length))+info('Estado',pagada?'Pagada':'Pendiente de confirmación')+
+      info('Fecha de pago',r.fechaPago?FD(r.fechaPago):'—')+
+    '</div>'+
+    '<div class="eyebrow" style="display:block;margin-bottom:8px">Facturas incluidas</div>'+
+    tbl([['Nº'],['Proveedor'],['Importe','n'],['Estado']],
+      facturas.map(f=>rowN([f.num,esc(prov(f.prov).nom),EUR(f.total),estadoTag(f)],[2]))
+    )+
+    '<div class="eyebrow" style="display:block;margin:18px 0 8px">Comprobante de pago</div>'+
+    (r.comprobante
+      ? '<div style="display:flex;align-items:center;gap:10px;"><span class="mono" style="font-size:12.5px">📎 '+esc(r.comprobante.nombre)+'</span>'+
+        '<a href="'+r.comprobante.dataUrl+'" download="'+esc(r.comprobante.nombre)+'" class="btn ghost sm">Descargar</a></div>'
+      : '<label class="btn ghost sm" style="display:inline-flex;cursor:pointer">📎 Subir comprobante<input type="file" style="display:none" onchange="hxSubirComprobante(\''+id+'\',event)"></label>'+
+        '<p style="font-size:11px;color:var(--ink-2);margin-top:6px">Máximo 2 MB. PDF o imagen del justificante bancario.</p>'
+    )+
+    (!pagada
+      ? '<div class="eyebrow" style="display:block;margin:18px 0 8px">Marcar como pagada</div>'+
+        '<div class="frow"><div class="ff"><label>Fecha de pago</label><input type="date" id="remesaFechaPago" value="'+TODAY+'"></div></div>'+
+        '<p style="font-size:11.5px;color:var(--ink-2);margin-top:6px">Al confirmar, las '+r.facturas.length+' facturas de esta remesa pasarán a «Pagada» y se contabilizará el pago en '+banco.nom+'.</p>'
+      : ''),
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
+    (!pagada ? '<button class="btn" onclick="marcarRemesaPagada(\''+id+'\')" type="button">✅ Confirmar pago de la remesa</button>' : ''),
+    true);
+}
+window.verRemesaCreada = verRemesaCreada;
+
+function hxSubirComprobante(id, event){
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 2*1024*1024) { toast('El archivo supera los 2 MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const r = DB.remesas.find(x=>x.id===id);
+    r.comprobante = { nombre: file.name, dataUrl: e.target.result };
+    toast('Comprobante adjuntado.');
+    verRemesaCreada(id);
+  };
+  reader.readAsDataURL(file);
+}
+window.hxSubirComprobante = hxSubirComprobante;
+
+function marcarRemesaPagada(id){
+  const r = DB.remesas.find(x=>x.id===id);
+  const fechaPago = val('remesaFechaPago') || TODAY;
+  const banco = DB.bancos.find(b=>b.id===r.cta);
+  if (!banco) { toast('No se encuentra la cuenta ordenante de esta remesa.'); return; }
+
+  let contabilizadas = 0;
+  r.facturas.forEach(num=>{
+    const f = DB.facturasR.find(x=>x.num===num);
+    if (!f || f.estado === 'Pagada') return;
+    const m = {id:uid('MV'), cta:r.cta, fecha:fechaPago, con:'Pago remesa '+r.id+' · '+f.num, imp:-f.total, conc:f.num};
+    DB.movimientos.push(m);
+    asientoCobroPago(m);
+    f.estado = 'Pagada';
+    banco.saldo += m.imp;
+    contabilizadas++;
+  });
+
+  r.estado = 'Pagada';
+  r.fechaPago = fechaPago;
+  closeModal();
+  toast(contabilizadas+' factura'+(contabilizadas===1?'':'s')+' marcada'+(contabilizadas===1?'':'s')+' como pagada'+(contabilizadas===1?'':'s')+'.');
+  log('Remesa confirmada como pagada', r.id+' · '+EUR(r.total)+' · '+banco.nom);
+  go('remesascreadas');
+}
+window.marcarRemesaPagada = marcarRemesaPagada;
 
 /* =========================================================
    ALMACÉN
@@ -7762,7 +7880,9 @@ DB.facturasR.slice(-20).forEach(f=>asientoFacturaR(f));
 
 DB.bancos.push(
   {id:'B1', nom:'Banco c/c (572)', iban:'ES21 2100 4455 6612 3456 7890', bic:'CAIXESBBXXX', saldo:-132204.65, cta:'572'},
-  {id:'B2', nom:'Caja (570)', iban:'—', saldo:1250.0, cta:'570'}
+  {id:'B2', nom:'Caja (570)', iban:'—', saldo:1250.0, cta:'570'},
+  {id:'B3', nom:'Banco Santander c/c', iban:'ES47 0049 5786 4823 1099 4321', bic:'BSCHESMMXXX', saldo:22850.30, cta:'572'},
+  {id:'B4', nom:'BBVA c/c', iban:'ES91 0182 5678 3401 7712 8765', bic:'BBVAESMMXXX', saldo:9640.00, cta:'572'}
 );
 [
   {fecha:"2026-01-01", concepto:"Apertura del ejercicio 2026 (saldos de cierre de 2025)", origen:"IMPORT26:AP-2026", apuntes:[{cta:"129",d:279359.0,h:0.0},{cta:"206",d:6300.0,h:0.0},{cta:"212",d:145000.0,h:0.0},{cta:"213",d:252000.0,h:0.0},{cta:"217",d:18000.0,h:0.0},{cta:"310",d:38500.0,h:0.0},{cta:"350",d:27400.0,h:0.0},{cta:"430",d:154230.5,h:0.0},{cta:"472",d:30201.15,h:0.0},{cta:"570",d:1250.0,h:0.0},{cta:"100",d:0.0,h:283000.0},{cta:"112",d:0.0,h:18000.0},{cta:"120",d:0.0,h:24800.0},{cta:"170",d:0.0,h:170000.0},{cta:"280",d:0.0,h:2079.0},{cta:"281",d:0.0,h:140200.0},{cta:"400",d:0.0,h:106908.0},{cta:"410",d:0.0,h:890.0},{cta:"476",d:0.0,h:87480.0},{cta:"477",d:0.0,h:33633.0},{cta:"490",d:0.0,h:2400.0},{cta:"572",d:0.0,h:47125.65},{cta:"475",d:0.0,h:6000.0},{cta:"4751",d:0.0,h:29050.0},{cta:"527",d:0.0,h:675.0}]},
