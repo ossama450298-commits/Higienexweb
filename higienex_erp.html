@@ -5063,6 +5063,9 @@ function conciliar(){
    ========================================================= */
 let SEPA_CTA = 'B1';
 let SEPA_SEL = {};
+let SEPA_FECHA = TODAY;
+function setSepaFecha(v){ SEPA_FECHA = v || TODAY; }
+window.setSepaFecha = setSepaFecha;
 function xmlEsc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c])); }
 function toggleSepaSel(num){ SEPA_SEL[num] = !SEPA_SEL[num]; go('remesa'); }
 window.toggleSepaSel = toggleSepaSel;
@@ -5090,8 +5093,10 @@ ROUTES.remesa=function(){
 
   const cuentasConIban = DB.bancos.filter(b=>b.iban && b.iban!=='—');
   if (!SEPA_CTA || !cuentasConIban.some(b=>b.id===SEPA_CTA)) SEPA_CTA = (cuentasConIban[0]||{}).id;
-  h += '<div class="frow" style="max-width:420px;margin-bottom:18px">'+
+  if (!SEPA_FECHA) SEPA_FECHA = TODAY;
+  h += '<div class="frow" style="max-width:600px;margin-bottom:18px">'+
     fSelect('Cuenta ordenante', 'sepaCtaSel', cuentasConIban.map(b=>[b.id, b.nom+' · '+b.iban]), SEPA_CTA, ' onchange="setSepaCta(this.value)"')+
+    fInput('Fecha de la remesa', 'sepaFechaSel', 'date', SEPA_FECHA, ' onchange="setSepaFecha(this.value)"')+
   '</div>';
   if (!cuentasConIban.length) {
     h += '<div class="card" style="margin-bottom:16px;border-left:3px solid var(--red)"><div class="cardbody" style="font-size:13px">Ninguna cuenta bancaria tiene IBAN registrado. Añade uno desde <em>Bancos → Cuentas y movimientos</em> antes de generar una remesa.</div></div>';
@@ -5145,7 +5150,7 @@ function generarRemesaSepa(){
   const fechaCompacta = ahora.toISOString().slice(0,10).replace(/-/g,'');
   const contador = String(Math.floor(Math.random()*90000+10000));
   const msgId = 'HIGIENEX/'+fechaCompacta+'/CT'+contador.slice(0,2);
-  const fechaEjecucion = TODAY;
+  const fechaEjecucion = SEPA_FECHA || TODAY;
   const totalCtrl = seleccionadas.reduce((s,f)=>s+f.total,0).toFixed(2);
 
   const txs = seleccionadas.map((f,i)=>{
@@ -5232,7 +5237,7 @@ function generarRemesaSepa(){
   const totalRemesa = seleccionadas.reduce((s,f)=>s+f.total,0);
   DB.remesas.push({
     id: msgId,
-    fecha: TODAY,
+    fecha: fechaEjecucion,
     cta: SEPA_CTA,
     facturas: seleccionadas.map(f=>f.num),
     total: totalRemesa,
