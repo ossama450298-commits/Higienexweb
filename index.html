@@ -7363,6 +7363,7 @@ var HX_CHAT_MAX_HISTORY = 40;
 var HX_CHAT_INTENTS = [
   {
     keys: ['hola','bon dia','bona tarda','ei','hey','hi','buenas','hello'],
+    shortOnly: true,
     reply: 'Hola! 👋 Sóc la Mònica, l\'assistent virtual d\'HIGIENEX. Puc ajudar-te amb informació sobre els nostres productes, preus, horaris, enviaments o posar-te en contacte amb el nostre equip. En què et puc ajudar?',
     followUps: ['🧴 Productes', '💰 Preus', '📞 Contacte']
   },
@@ -7524,7 +7525,46 @@ var HX_CHAT_INTENTS = [
     followUps: ['📞 Contacte']
   },
   {
+    keys: ['laboratori','r+d','recerca','investigacio','investigació','desenvolupament de productes','formulacio','formulació'],
+    reply: '🔬 Tenim un laboratori de R+D independent, operatiu des del 2018, que investiga i patenta noves formulacions sense dependre de la producció diària. És el motor de la família ECO (concentrats biodegradables ×3) i de la resta de patents pròpies.',
+    action: { label: '🔬 Veure Laboratori R+D', fn: 'navTo(\'rd\')' },
+    followUps: ['🧴 Productes', '🏭 Procés de producció']
+  },
+  {
+    keys: ['casos d exit', 'casos dexit', 'referencies', 'referències', 'clients reals', 'resultats', 'testimonis'],
+    reply: '🏆 Tenim casos d\'èxit reals documentats: reducció de costos d\'higiene d\'un -45% en el sector sanitari, i multiplicació ×3 de l\'eficiència en hostaleria i durant la COVID-19. Cada cas reflecteix la nostra capacitat d\'adaptació i rigor tècnic.',
+    action: { label: '🏆 Veure casos d\'èxit', fn: 'navTo(\'casos\')' },
+    followUps: ['🧴 Productes', '📞 Contacte']
+  },
+  {
+    keys: ['magatzem', 'flota', 'vehicles electrics', 'com repartiu', 'nau logistica'],
+    reply: '🏭 Comptem amb un magatzem automatitzat de 2.000 m², amb gestió d\'estocs en temps real via el nostre ERP corporatiu, i una flota de repartiment 100% elèctrica (0 emissions de CO₂).',
+    followUps: ['🚚 Enviaments', '♻️ RSC']
+  },
+  {
+    keys: ['rsc', 'responsabilitat social', 'economia circular', 'compromis social', 'compromís social'],
+    reply: '♻️ La nostra Responsabilitat Social Corporativa inclou productes ECO certificats, economia circular activa (reducció d\'envasos i reciclatge), compromís real amb l\'equip, compliment normatiu proactiu i aliances estratègiques amb altres empreses del sector.',
+    action: { label: '♻️ Veure RSC', fn: 'navTo(\'rsc\')' },
+    followUps: ['🧴 Productes', '🌿 Certificacions']
+  },
+  {
+    keys: ['worksafe', 'smart space', 'ofinova', 'espais de treball intel·ligents', 'espais intel·ligents'],
+    reply: '🏢 WorkSafe Smart Space és una iniciativa conjunta d\'HIGIENEX i OfiNova que dissenya espais de treball intel·ligents: OfiNova aporta mobiliari modular ergonòmic i HIGIENEX les solucions d\'higiene (superfícies antimicrobianes, dispensadors automàtics i sensors IoT).',
+    followUps: ['📞 Contacte']
+  },
+  {
+    keys: ['proces de produccio', 'procés de producció', 'com fabriqueu', 'com feu els productes', 'control de qualitat'],
+    reply: '🏭 El nostre procés està totalment controlat: 1) Recerca al lab independent de R+D, 2) Aprovació d\'un departament de Qualitat autònom, 3) Formulació amb matèries primeres certificades i proveïdors auditables, i controls posteriors fins arribar al client final.',
+    followUps: ['🔬 Laboratori R+D', '🌿 Certificacions']
+  },
+  {
+    keys: ['com em registro', 'crear compte', 'crear un compte', 'obrir compte', 'fer-me client'],
+    reply: '📝 Pots crear el teu compte de client amb el botó "Registrar-me" a la part superior de la web. Un cop registrat, podràs fer comandes, consultar-ne l\'historial, activar HIGIENEX Premium i molt més des de la teva zona de client.',
+    followUps: ['🛒 Com fer una comanda', '📞 Contacte']
+  },
+  {
     keys: ['gracies','gràcies','merci','thanks','perfecte','genial','ok val'],
+    shortOnly: true,
     reply: 'De res! 😊 Si tens qualsevol altre dubte, aquí estic. I si prefereixes parlar amb una persona, tens el botó de WhatsApp just al costat.',
     followUps: []
   },
@@ -7557,6 +7597,7 @@ function hxFindReply(userText){
   var words = norm.split(/\s+/).filter(Boolean);
   for (var i=0; i<HX_CHAT_INTENTS.length; i++) {
     var intent = HX_CHAT_INTENTS[i];
+    if (intent.shortOnly && words.length > 5) continue;
     for (var j=0; j<intent.keys.length; j++) {
       var keyNorm = hxNormalize(intent.keys[j]);
       if (keyNorm.indexOf(' ') !== -1) {
@@ -7705,11 +7746,51 @@ function hxBuildContext(){
         enviamentInternacional: 'Actualment només mercat espanyol. Pla d\'entrada a Portugal previst per al 2026 via distribuïdors locals.',
         concentratsEco: 'Dilució 1:3 (×3) o superior, redueix un 70% els envasos i el transport.',
         auditoriaGratuita: 'Visita tècnica gratuïta i sense compromís, informe i pressupost en menys de 5 dies laborables.',
-        fidelitzacio: 'Programa per punts (1 punt/€): Bronze 0-999, Plata 1.000-2.999 (5% dte), Or 3.000-6.999 (10% dte + gestor dedicat), Platí +7.000 (15% dte).'
+        fidelitzacio: 'Programa per punts (1 punt/€): Bronze 0-999, Plata 1.000-2.999 (5% dte), Or 3.000-6.999 (10% dte + gestor dedicat), Platí +7.000 (15% dte).',
+        laboratoriRD: 'Laboratori independent des del 2018, investiga i patenta noves formulacions (família ECO inclosa).',
+        casosDExit: 'Resultats reals documentats: -45% de costos en sanitari, ×3 eficiència en hostaleria i durant la COVID-19 (2020).',
+        logistica: 'Magatzem automatitzat de 2.000 m² amb ERP en temps real. Flota de repartiment 100% elèctrica (0 emissions).',
+        rsc: 'Productes ECO certificats, economia circular activa, compromís amb l\'equip, compliment normatiu proactiu, aliances estratègiques.',
+        worksafeSmartSpace: 'Iniciativa conjunta amb OfiNova per a espais de treball intel·ligents: mobiliari ergonòmic + solucions d\'higiene (superfícies antimicrobianes, dispensadors, sensors IoT).',
+        procesProduccio: 'R+D independent -> Aprovació de Qualitat autònoma -> Formulació amb matèries primeres certificades -> controls fins al client.',
+        registre: 'Crear compte amb el botó "Registrar-me" a dalt de la web, per fer comandes, consultar historial i activar Premium.'
       });
     }
   } catch(e){}
   return '';
+}
+
+// ── Corpus ampli de preguntes freqüents (monica-faq-data.js) ──
+// Segona capa de resposta: si cap intent del motor de regles principal
+// coincideix, busquem la pregunta més semblant dins del corpus ampli
+// (milers de formulacions reals) abans de recórrer a la IA. Es prepara
+// una sola vegada (tokenitza cada pregunta del corpus) per anar ràpid.
+var HX_FAQ_PREPARED = false;
+function hxPrepareFaqData(){
+  if (HX_FAQ_PREPARED || typeof HX_FAQ_DATA === 'undefined') return;
+  HX_FAQ_DATA.forEach(function(e){ e._w = hxNormalize(e.q).split(/\s+/).filter(Boolean); });
+  HX_FAQ_PREPARED = true;
+}
+function hxFindFaqMatch(userText){
+  if (typeof HX_FAQ_DATA === 'undefined') return null;
+  hxPrepareFaqData();
+  var norm = hxNormalize(userText);
+  var userWords = norm.split(/\s+/).filter(function(w){ return w.length > 1; });
+  if (!userWords.length) return null;
+  var userSet = {};
+  userWords.forEach(function(w){ userSet[w] = true; });
+  var best = null, bestScore = 0;
+  for (var i=0; i<HX_FAQ_DATA.length; i++) {
+    var entry = HX_FAQ_DATA[i];
+    if (!entry._w.length) continue;
+    var overlap = 0;
+    for (var j=0; j<entry._w.length; j++) { if (userSet[entry._w[j]]) overlap++; }
+    var score = overlap / entry._w.length;
+    if (score > bestScore) { bestScore = score; best = entry; }
+  }
+  // Exigim que com a mínim la meitat de les paraules de la pregunta del
+  // corpus coincideixin amb el que ha escrit l'usuari, per evitar falsos positius.
+  return bestScore >= 0.5 ? best : null;
 }
 
 function hxAskAI(userText){
@@ -7776,9 +7857,23 @@ function hxRespond(userText){
       if (intent.action) hxAddAction(intent.action);
       hxRenderQuickReplies(intent.followUps && intent.followUps.length ? intent.followUps : HX_QUICK_REPLIES);
     }, delay);
-  } else {
-    hxAskAI(userText);
+    return;
   }
+
+  var faqMatch = hxFindFaqMatch(userText);
+  if (faqMatch) {
+    HX_CHAT_FALLBACK_STREAK = 0;
+    var delayF = Math.min(1400, 500 + faqMatch.a.length*4 + Math.random()*400);
+    setTimeout(function(){
+      hxHideTyping();
+      hxAddMessage(faqMatch.a, 'bot');
+      if (faqMatch.action) hxAddAction(faqMatch.action);
+      hxRenderQuickReplies(HX_QUICK_REPLIES);
+    }, delayF);
+    return;
+  }
+
+  hxAskAI(userText);
 }
 
 function hxChatSend(ev){
@@ -10273,5 +10368,6 @@ window.legalClose = legalClose;
 
 <!-- CERCADOR GLOBAL DE LA WEB -->
 <script src="i18n.js" defer></script>
+<script src="monica-faq-data.js" defer></script>
 </body>
 </html>
