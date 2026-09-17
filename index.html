@@ -1431,6 +1431,15 @@ footer ul a:hover { color: var(--green-light); }
   display: flex; align-items: center; justify-content: center;
   font-size: 1.2rem;
 }
+.hxAvatarX { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-weight: 700; color: #F2A900; font-size: 1.25rem; line-height: 1; }
+.hxMsg .hxProductCard { display: block; margin-top: 0.55rem; background: #F5FAFF; border: 1px solid #DEEEFB; border-radius: 12px; padding: 0.6rem 0.75rem; }
+.hxMsg .hxProductCard .hxPName { font-weight: 700; color: #0B3D6B; font-size: 0.85rem; }
+.hxMsg .hxProductCard .hxPMeta { font-size: 0.78rem; color: #5A6B7A; margin-top: 0.15rem; }
+.hxMsg .hxProductCard .hxPBtn { margin-top: 0.5rem; background: linear-gradient(135deg,#0B3D6B,#1565A8); color: #fff; border: none; border-radius: 20px; padding: 0.4rem 0.8rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+.hxEscalate { align-self: flex-start; background: #FFF6E0; border: 1px solid #F0DFAE; color: #7A5C00; font-size: 0.8rem; padding: 0.6rem 0.85rem; border-radius: 12px; max-width: 82%; }
+.hxEscalate a { color: #0B3D6B; font-weight: 700; text-decoration: underline; }
+#hxChatLauncher.hxPulse { animation: hxLauncherPulse 1.8s ease-out 1; }
+@keyframes hxLauncherPulse { 0% { box-shadow: 0 0 0 0 rgba(11,61,107,0.45); } 70% { box-shadow: 0 0 0 14px rgba(11,61,107,0); } 100% { box-shadow: 0 0 0 0 rgba(11,61,107,0); } }
 #hxChatTitle { font-weight: 700; font-size: 0.92rem; }
 #hxChatStatus { font-size: 0.72rem; color: #DEEEFB; display: flex; align-items: center; gap: 0.35rem; }
 #hxChatDot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; display: inline-block; }
@@ -4766,7 +4775,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 <div id="hxChatWindow">
   <div id="hxChatHeader">
     <div id="hxChatHeaderInfo">
-      <div id="hxChatAvatar">🧴</div>
+      <div id="hxChatAvatar"><span class="hxAvatarX">X</span></div>
       <div>
         <div id="hxChatTitle">Assistent Mònica</div>
         <div id="hxChatStatus"><span id="hxChatDot"></span>En línia</div>
@@ -7347,80 +7356,187 @@ var STOCK_INFO = {
 // ═══════════════════════════════════════════════════════════
 var HX_CHAT_OPENED = false;
 var HX_CHAT_HISTORY = [];
+var HX_CHAT_FALLBACK_STREAK = 0;
+var HX_CHAT_STORAGE_KEY = 'hx_chat_history_v1';
+var HX_CHAT_MAX_HISTORY = 40;
 
 var HX_CHAT_INTENTS = [
   {
     keys: ['hola','bon dia','bona tarda','ei','hey','hi','buenas','hello'],
-    reply: 'Hola! 👋 Sóc la Mònica, l\'assistent virtual d\'HIGIENEX. Puc ajudar-te amb informació sobre els nostres productes, preus, horaris, enviaments o posar-te en contacte amb el nostre equip. En què et puc ajudar?'
+    reply: 'Hola! 👋 Sóc la Mònica, l\'assistent virtual d\'HIGIENEX. Puc ajudar-te amb informació sobre els nostres productes, preus, horaris, enviaments o posar-te en contacte amb el nostre equip. En què et puc ajudar?',
+    followUps: ['🧴 Productes', '💰 Preus', '📞 Contacte']
   },
   {
     keys: ['producte','productes','catàleg','cataleg','què veneu','que veneu','gamma'],
+    genericCatalog: true,
     reply: function(){
       var list = PRODUCTS.map(function(p){ return '• ' + p.name + ' — ' + p.price.toFixed(2).replace('.',',') + ' € / ' + p.unit; }).join('\n');
       return 'Aquest és el nostre catàleg actual:\n\n' + list + '\n\nSi vols, puc portar-te directament al catàleg per afegir-los al cistell.';
     },
-    action: { label: '🧴 Veure catàleg', fn: 'navTo(\'productes\')' }
+    action: { label: '🧴 Veure catàleg', fn: 'navTo(\'productes\')' },
+    followUps: ['💰 Preus', '🎉 Descomptes per volum', '🚚 Enviaments']
   },
   {
     keys: ['preu','preus','quant costa','cuanto cuesta','cost'],
+    genericCatalog: true,
     reply: function(){
       var list = PRODUCTS.map(function(p){ return '• ' + p.name + ': ' + p.price.toFixed(2).replace('.',',') + ' € / ' + p.unit; }).join('\n');
       return 'Aquests són els preus actuals (IVA no inclòs):\n\n' + list + '\n\nRecorda que a partir de 5 unitats del mateix producte s\'aplica un descompte automàtic per volum.';
-    }
+    },
+    followUps: ['🎉 Descomptes per volum', '🚚 Enviaments', '🧴 Veure productes']
   },
   {
     keys: ['descompte','descomptes','volum','oferta','ofertes'],
-    reply: '🎉 Tenim descomptes automàtics per volum: -5% a partir de 5 unitats, -10% a partir de 10, i -15% a partir de 20 unitats del mateix producte. S\'apliquen automàticament al cistell, sense necessitat de cap codi.'
+    reply: '🎉 Tenim descomptes automàtics per volum: -5% a partir de 5 unitats, -10% a partir de 10, i -15% a partir de 20 unitats del mateix producte. S\'apliquen automàticament al cistell, sense necessitat de cap codi.',
+    followUps: ['🧴 Productes', '🛒 Fer una comanda']
   },
   {
     keys: ['horari','horaris','obert','tancat','quan obriu'],
-    reply: '🕒 El nostre horari és de dilluns a divendres, de 8:00 a 17:30.\nPer a hospitals i centres crítics oferim urgències 24/7.'
+    reply: '🕒 El nostre horari és de dilluns a divendres, de 8:00 a 17:30.\nPer a hospitals i centres crítics oferim urgències 24/7.',
+    followUps: ['📞 Contacte', '📍 On esteu?']
+  },
+  {
+    keys: ['esteu oberts ara','obert ara','esteu oberts'],
+    reply: function(){
+      var ara = new Date();
+      var dia = ara.getDay();
+      var minutsAra = ara.getHours()*60 + ara.getMinutes();
+      var esLaborable = dia >= 1 && dia <= 5;
+      var dinsHorari = minutsAra >= (8*60) && minutsAra <= (17*60+30);
+      if (esLaborable && dinsHorari) return '✅ Sí, ara mateix estem oberts! El nostre horari és de dilluns a divendres, de 8:00 a 17:30.';
+      return '🕒 Ara mateix estem tancats. El nostre horari és de dilluns a divendres, de 8:00 a 17:30. Per a hospitals i centres crítics oferim urgències 24/7.';
+    },
+    followUps: ['📞 Contacte', '💬 Parlar amb algú']
   },
   {
     keys: ['telefon','teléfono','trucar','contactar','contacte','contactar-vos'],
-    reply: '📞 Pots contactar-nos per telèfon al 963 123 456 (o mòbil d\'atenció 631 706 398), per email a contacto@higienexvalencia.es, o directament per WhatsApp amb el botó verd de la cantonada.'
+    reply: '📞 Pots contactar-nos per telèfon al 963 123 456 (o mòbil d\'atenció 631 706 398), per email a contacto@higienexvalencia.es, o directament per WhatsApp amb el botó verd de la cantonada.',
+    followUps: ['✉️ Email', '📍 Adreça', '💬 Parlar amb algú']
   },
   {
     keys: ['email','correu','e-mail','mail'],
-    reply: '✉️ El nostre email de contacte és contacto@higienexvalencia.es. Per a temes d\'administració/facturació: administracion@higienexvalencia.es.'
+    reply: '✉️ El nostre email de contacte és contacto@higienexvalencia.es. Per a temes d\'administració/facturació: administracion@higienexvalencia.es.',
+    followUps: ['📞 Telèfon', '📍 Adreça']
   },
   {
     keys: ['adreça','adreca','direccio','dirección','on esteu','ubicacio','ubicación'],
-    reply: '📍 Estem a Carrer de la Indústria, 25, 46010 València, Espanya.'
+    reply: '📍 Estem a Carrer de la Indústria, 25, 46010 València, Espanya.',
+    followUps: ['📞 Contacte', '🕒 Horari']
+  },
+  {
+    keys: ['cif','nif','identificacio fiscal','identificación fiscal','dades fiscals','datos fiscales','numero fiscal'],
+    reply: '🧾 El CIF d\'HIGIENEX S.L. és B12345678. La raó social completa és HIGIENEX S.L., amb domicili a Carrer de la Indústria, 25, 46010 València.',
+    followUps: ['📞 Contacte', '📍 Adreça']
   },
   {
     keys: ['enviament','enviaments','envio','envios','transport','portes','entrega'],
-    reply: '🚚 Fem enviaments a tota la península. El termini estimat és de 5 dies laborables des de la confirmació de la comanda. El cost de transport es calcula al finalitzar la comanda.'
+    reply: '🚚 Fem enviaments a tota la península. El termini estimat és de 5 dies laborables des de la confirmació de la comanda. El cost de transport es calcula al finalitzar la comanda.',
+    followUps: ['💰 Preus', '🔄 Devolucions']
   },
   {
     keys: ['pagament','pagar','com pago','forma de pago','métodes de pagament'],
-    reply: 'Un cop tramitada la comanda des de la web, el nostre equip et contactarà en menys de 24h per confirmar-la i indicar-te com formalitzar el pagament.'
+    reply: 'Un cop tramitada la comanda des de la web, el nostre equip et contactarà en menys de 24h per confirmar-la i indicar-te com formalitzar el pagament.',
+    followUps: ['📦 Com fer una comanda', '📞 Contacte']
   },
   {
     keys: ['comanda','comandes','pedido','pedidos','historial'],
     reply: 'Pots fer una comanda directament des del catàleg: afegeix productes al cistell i prem "Tramitar comanda". Cal iniciar sessió per finalitzar-la. Un cop feta, rebràs un email de confirmació amb tots els detalls, i podràs consultar el teu historial de comandes des de la teva zona de client.',
-    action: { label: '🛒 Anar al cistell', fn: 'openCartDrawer()' }
+    action: { label: '🛒 Anar al cistell', fn: 'openCartDrawer()' },
+    followUps: ['🧴 Veure catàleg', '🔄 Devolucions']
   },
   {
-    keys: ['iso','certificat','certificacio','certificación','ecològic','ecologic','biodegradable'],
-    reply: '🌿 Els nostres productes compleixen certificació ISO 14001 i tenim línia ECO concentrada i biodegradable. Alguns productes específics (com el Desinfectant HOSP-V) compten amb registre de biocida UE.'
+    keys: ['on és la meva comanda','estat de la meva comanda','seguiment de comanda','meu pedido','mi pedido','rastreig'],
+    reply: function(){
+      if (!CP_CURRENT_USER) {
+        return 'Per consultar l\'estat d\'una comanda cal que iniciïs sessió a la teva zona de client. Un cop dins, veuràs totes les teves comandes amb el seu estat actualitzat.';
+      }
+      var comandes = (CP_DB.comandes || []).slice(-3).reverse();
+      if (!comandes.length) return 'No trobo cap comanda al teu historial recent.';
+      var list = comandes.map(function(c){ return '• ' + c.num + ' (' + CP_FD(c.fecha) + '): ' + c.estat + ' — ' + CP_EUR(c.total); }).join('\n');
+      return 'Aquestes són les teves comandes més recents:\n\n' + list + '\n\nPots veure\'n tots els detalls a la teva zona de client.';
+    },
+    followUps: ['📞 Contacte', '🔄 Devolucions']
   },
   {
-    keys: ['empresa','qui sou','sobre vosaltres','historia','història'],
-    reply: 'HIGIENEX S.L. va néixer el 2015 a València, fabricant i distribuint productes d\'higiene professional sostenible per a hospitals, hotels, indústria alimentària i oficines. Actualment som 30 professionals amb 19 patents pròpies.'
+    keys: ['devolucio','devolucions','garantia','garanties','retornar','devolver','reembors','reemborsament'],
+    reply: '🛡️ Tota la nostra mercaderia passa control de qualitat abans d\'expedir-se. Envasos sense obrir es poden retornar en 14 dies naturals des de la recepció, sense cost. Si arriba un producte danyat o hi ha un error en la comanda, enviem la reposició en 24-48h sense esperar la devolució física.',
+    action: { label: '🛡️ Veure garanties', fn: 'navTo(\'garanties\')' },
+    followUps: ['📞 Contacte', '🧴 Productes']
+  },
+  {
+    keys: ['premium','soci','socis','fer-me soci','club'],
+    reply: 'HIGIENEX Premium és el nostre programa de socis: per 20 €/mes tens estalvi des del primer dia en totes les teves comandes, entre altres avantatges. Ho pots activar des de la teva zona de client.',
+    action: { label: '⭐ Veure HIGIENEX Premium', fn: 'navTo(\'premium\')' },
+    followUps: ['🧴 Productes', '📞 Contacte']
+  },
+  {
+    keys: ['auditoria emmagatzematge','inspeccio nau','safestock','emmagatzematge quimic','emmagatzematge de productes'],
+    reply: '🧪 HIGIENEX SafeStock és el nostre servei d\'auditoria professional d\'emmagatzematge de productes químics: enviem un tècnic a inspeccionar la teva nau o naus i valorem compatibilitat, etiquetatge, ventilació i compliment normatiu.',
+    action: { label: '🧪 Veure SafeStock', fn: 'navTo(\'safestock\')' },
+    followUps: ['📞 Contacte']
+  },
+  {
+    keys: ['recomana una empresa','programa de referits','convidar amic','descompte per amic','recomanacio'],
+    reply: 'Si ja ets client, des de la teva zona de client tens un enllaç de referit propi: quan una empresa que convides fa la seva primera comanda, tots dos rebeu un 10% de descompte.',
+    followUps: ['📞 Contacte']
+  },
+  {
+    keys: ['iso','certificat','certificacio','certificación','ecològic','ecologic','biodegradable','sostenible','sostenibilitat','mediambient'],
+    reply: '🌿 Els nostres productes compleixen certificació ISO 14001 i tenim línia ECO concentrada i biodegradable. Alguns productes específics (com el Desinfectant HOSP-V) compten amb registre de biocida UE.',
+    followUps: ['🧴 Productes', '🛡️ Garanties']
+  },
+  {
+    keys: ['empresa','qui sou','sobre vosaltres','historia','història','forma juridica','forma jurídica','societat limitada'],
+    reply: 'HIGIENEX, Societat Limitada Laboral (SLL), va néixer el 2015 a València amb un capital social de 3.000 €, fabricant i distribuint productes d\'higiene professional sostenible per a hospitals, hotels, indústria alimentària i oficines. Actualment som 30 professionals amb 19 patents pròpies.',
+    followUps: ['🧴 Productes', '🛡️ Garanties']
+  },
+  {
+    keys: ['sectors','sector','a qui veneu','clients','tipus de client','quins clients'],
+    reply: '🏥 Treballem amb hospitals i clíniques, hotels i allotjaments, indústria alimentària, oficines i empreses, administracions públiques, i gimnasos i instal·lacions esportives. Qualsevol organització que necessiti un alt nivell d\'higiene professional és un client potencial.',
+    followUps: ['🧴 Productes', '📞 Contacte']
+  },
+  {
+    keys: ['portugal','internacional','exportacio','exportar','envio a europa','envio internacional','altres paisos'],
+    reply: '🌍 Actualment operem principalment al mercat espanyol. Tenim un pla d\'entrada a Portugal previst per al 2026, via distribuïdors locals amb l\'etiquetatge adaptat al portuguès. Per a consultes d\'exportació, contacta amb el nostre departament comercial.',
+    followUps: ['📞 Contacte', '🚚 Enviaments']
+  },
+  {
+    keys: ['concentrat','concentrats','dilucio','dilució','com es dilueix','proporcio'],
+    reply: '🧪 Els nostres concentrats ECO es dilueixen amb aigua en una proporció d\'1:3 (×3) o superior; el producte arriba concentrat amb instruccions clares de dilució. Això redueix un 70% els envasos, el cost de transport i l\'impacte ambiental, mantenint la màxima eficàcia professional.',
+    followUps: ['🧴 Productes', '♻️ Sostenibilitat']
+  },
+  {
+    keys: ['auditoria gratuita','auditoria gratuïta','visita tecnica','visita tècnica','auditoria d higiene'],
+    reply: '🔍 Oferim una auditoria d\'higiene totalment gratuïta i sense compromís: un tècnic visita les teves instal·lacions, avalua les necessitats reals i et proposa un pla a mida, amb informe i pressupost en menys de 5 dies laborables.',
+    action: { label: '🔍 Sol·licitar auditoria gratuïta', fn: 'navTo(\'auditoria\')' },
+    followUps: ['📞 Contacte']
+  },
+  {
+    keys: ['fidelitzacio','fidelització','punts','club higienex','nivells','bronze plata or platina'],
+    reply: '🎖️ El Programa de Fidelització HIGIENEX Club et dona 1 punt per cada euro de compra, sense fer res: Bronze (0-999 pts), Plata (1.000-2.999 pts, 5% descompte permanent), Or (3.000-6.999 pts, 10% descompte + gestor dedicat) i Platí (+7.000 pts, 15% descompte + condicions de pagament a mida).',
+    action: { label: '🎖️ Veure Programa de Fidelització', fn: 'navTo(\'fidelitzacio\')' },
+    followUps: ['⭐ Què és Premium?', '🧴 Productes']
+  },
+  {
+    keys: ['treball','treballar','feina','vacants','ofertes de feina','uniu-te','currículum','curriculum'],
+    reply: '💼 Som 30 professionals i creixent! Ara mateix tenim vacants a laboratori (Tècnic/a de Formulació Química), comercial (Comercial Sector Sanitari) i logística (Conductor/a Repartiment). Pots veure els detalls i enviar la teva candidatura des de la secció "Treballa amb Nosaltres".',
+    action: { label: '💼 Veure vacants', fn: 'navTo(\'treballa\')' },
+    followUps: ['📞 Contacte']
   },
   {
     keys: ['gracies','gràcies','merci','thanks','perfecte','genial','ok val'],
-    reply: 'De res! 😊 Si tens qualsevol altre dubte, aquí estic. I si prefereixes parlar amb una persona, tens el botó de WhatsApp just al costat.'
+    reply: 'De res! 😊 Si tens qualsevol altre dubte, aquí estic. I si prefereixes parlar amb una persona, tens el botó de WhatsApp just al costat.',
+    followUps: []
   },
   {
     keys: ['humà','humano','persona','parlar amb algú','ajuda real'],
     reply: 'Cap problema, t\'ajudo a contactar amb el nostre equip humà per WhatsApp ara mateix.',
-    action: { label: '💬 Obrir WhatsApp', fn: "window.open('https://wa.me/34631706398?text=Hola%20HIGIENEX','_blank')" }
+    action: { label: '💬 Obrir WhatsApp', fn: "window.open('https://wa.me/34631706398?text=Hola%20HIGIENEX','_blank')" },
+    followUps: []
   }
 ];
 
-var HX_CHAT_FALLBACK = 'No estic segur d\'haver entès bé la teva pregunta 🤔 Puc ajudar-te amb: productes i preus, descomptes, horaris, contacte, enviaments o comandes. També pots parlar directament amb el nostre equip per WhatsApp.';
+var HX_CHAT_FALLBACK = 'No estic segur d\'haver entès bé la teva pregunta 🤔 Puc ajudar-te amb: productes i preus, descomptes, horaris, contacte, enviaments, comandes o garanties. També pots parlar directament amb el nostre equip per WhatsApp.';
 
 var HX_QUICK_REPLIES = [
   { label: '🧴 Productes', text: 'Quins productes teniu?' },
@@ -7431,7 +7547,7 @@ var HX_QUICK_REPLIES = [
 
 function hxNormalize(s){
   return (s||'').toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // treu accents
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .replace(/[^a-z0-9\s]/g,' ')
     .trim();
 }
@@ -7444,12 +7560,10 @@ function hxFindReply(userText){
     for (var j=0; j<intent.keys.length; j++) {
       var keyNorm = hxNormalize(intent.keys[j]);
       if (keyNorm.indexOf(' ') !== -1) {
-        // Frase de diverses paraules: comprovem que la frase sencera hi sigui present
         if ((' ' + norm + ' ').indexOf(' ' + keyNorm.split(' ').join(' ') + ' ') !== -1 || norm.indexOf(keyNorm) !== -1) {
           return intent;
         }
       } else {
-        // Paraula única: només fem match si apareix com a paraula sencera (no com a subcadena d'una altra)
         if (words.indexOf(keyNorm) !== -1) {
           return intent;
         }
@@ -7459,7 +7573,49 @@ function hxFindReply(userText){
   return null;
 }
 
-function hxAddMessage(text, who){
+function hxFindProduct(userText){
+  var norm = hxNormalize(userText);
+  var words = norm.split(/\s+/).filter(Boolean);
+  var best = null, bestScore = 0;
+  PRODUCTS.forEach(function(p){
+    var nameWords = hxNormalize(p.name).split(/\s+/).filter(function(w){ return w.length > 2; });
+    var score = 0;
+    nameWords.forEach(function(w){ if (words.indexOf(w) !== -1) score++; });
+    // Exigim que coincideixi la meitat o més de les paraules significatives del nom
+    if (score > bestScore && score >= Math.ceil(nameWords.length/2)) { bestScore = score; best = p; }
+  });
+  return best;
+}
+
+function hxRenderProductCard(p){
+  var body = document.getElementById('hxChatBody');
+  if (!body) return;
+  var info = STOCK_INFO[p.stock] || {};
+  var wrap = document.createElement('div');
+  wrap.className = 'hxMsg bot';
+  wrap.innerHTML = '<div class="hxProductCard">' +
+    '<div class="hxPName">' + p.name + '</div>' +
+    '<div class="hxPMeta">' + p.price.toFixed(2).replace('.',',') + ' € / ' + p.unit + ' · ' + (info.label || '') + '</div>' +
+    '<button type="button" class="hxPBtn" onclick="hxAddProductFromChat(' + p.id + ')">🛒 Afegir al cistell</button>' +
+    '</div>';
+  body.appendChild(wrap);
+  body.scrollTop = body.scrollHeight;
+}
+
+function hxAddProductFromChat(productId){
+  var p = PRODUCTS.filter(function(x){ return x.id === productId; })[0];
+  if (!p) return;
+  try {
+    cpAddDirectToCart(p.name + ' ' + p.unit.replace('garrafes ',''), p.price, 1);
+    openCartDrawer();
+    hxAddMessage('Afegit «' + p.name + '» al cistell. ✅', 'bot');
+  } catch(e) {
+    hxAddMessage('No he pogut afegir-lo automàticament; pots fer-ho des del catàleg.', 'bot');
+  }
+}
+window.hxAddProductFromChat = hxAddProductFromChat;
+
+function hxRenderMessageDOM(text, who){
   var body = document.getElementById('hxChatBody');
   if (!body) return;
   var div = document.createElement('div');
@@ -7467,7 +7623,29 @@ function hxAddMessage(text, who){
   div.textContent = text;
   body.appendChild(div);
   body.scrollTop = body.scrollHeight;
+}
+
+function hxSaveHistory(){
+  try {
+    var trimmed = HX_CHAT_HISTORY.slice(-HX_CHAT_MAX_HISTORY);
+    localStorage.setItem(HX_CHAT_STORAGE_KEY, JSON.stringify(trimmed));
+  } catch(e) {}
+}
+
+function hxAddMessage(text, who){
+  hxRenderMessageDOM(text, who);
   HX_CHAT_HISTORY.push({who: who, text: text});
+  if (HX_CHAT_HISTORY.length > HX_CHAT_MAX_HISTORY) HX_CHAT_HISTORY = HX_CHAT_HISTORY.slice(-HX_CHAT_MAX_HISTORY);
+  hxSaveHistory();
+}
+
+function hxRestoreHistory(){
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem(HX_CHAT_STORAGE_KEY) || 'null'); } catch(e) {}
+  if (!saved || !saved.length) return false;
+  HX_CHAT_HISTORY = saved;
+  saved.forEach(function(m){ hxRenderMessageDOM(m.text, m.who); });
+  return true;
 }
 
 function hxAddAction(action){
@@ -7481,6 +7659,16 @@ function hxAddAction(action){
     try { (new Function(action.fn))(); } catch(e) { console.warn(e); }
   };
   body.appendChild(btn);
+  body.scrollTop = body.scrollHeight;
+}
+
+function hxAddEscalation(){
+  var body = document.getElementById('hxChatBody');
+  if (!body) return;
+  var div = document.createElement('div');
+  div.className = 'hxEscalate';
+  div.innerHTML = 'Sembla que no t\'estic ajudant prou bé 😅 Vols parlar directament amb el nostre equip per <a href="https://wa.me/34631706398?text=Hola%20HIGIENEX" target="_blank" rel="noopener">WhatsApp</a>?';
+  body.appendChild(div);
   body.scrollTop = body.scrollHeight;
 }
 
@@ -7499,26 +7687,25 @@ function hxHideTyping(){
   if (t) t.remove();
 }
 
-// ── Connexió opcional amb l'assistent d'IA (Claude) via el Worker intermedi ──
-// Deixa-ho buit ('') per fer servir NOMÉS el motor de respostes per paraules
-// clau (gratuït i sense dependències). Un cop desplegat el teu Worker de
-// Cloudflare (veure worker/GUIA_DESPLEGAMENT_GEMINI.md), enganxa aquí la seva URL
-// per activar respostes lliures amb IA quan el motor de regles no reconegui
-// la pregunta. El motor de paraules clau segueix responent primer i gratis;
-// la IA només entra quan cap intent conegut coincideix amb el missatge.
 var HX_WORKER_URL = 'https://higienexchat.ossama450298.workers.dev';
 
-// ── Context en viu que s'envia amb cada pregunta a la IA ──
-// A la web pública enviem el catàleg de productes actual (amb
-// disponibilitat), perquè la IA respongui amb dades reals i no
-// desactualitzades si el catàleg canvia.
 function hxBuildContext(){
   try{
     if (typeof PRODUCTS !== 'undefined') {
       return JSON.stringify({
         productes: PRODUCTS.filter(function(p){ return p.active; }).map(function(p){
           return { nom: p.name, preu: p.price, unitat: p.unit, disponibilitat: p.stock };
-        })
+        }),
+        garanties: 'Devolucions en 14 dies naturals per a envasos sense obrir, sense cost. Reposició en 24-48h si arriba un producte danyat.',
+        horari: 'Dilluns a divendres, 8:00 a 17:30. Urgències 24/7 per a hospitals i centres crítics.',
+        contacte: { telefon: '963 123 456', mobil: '631 706 398', email: 'contacto@higienexvalencia.es' },
+        empresa: { nom: 'HIGIENEX S.L.', formaJuridica: 'Societat Limitada Laboral (SLL)', any: 2015, capitalSocial: '3.000 €', cif: 'B12345678', adreca: 'Carrer de la Indústria, 25, 46010 València, Espanya', empleats: 30, patents: 19 },
+        sectors: ['hospitals i clíniques', 'hotels i allotjaments', 'indústria alimentària', 'oficines i empreses', 'administracions públiques', 'gimnasos i instal·lacions esportives'],
+        certificacions: ['ISO 14001 (gestió ambiental)', 'registre de biocides UE per als desinfectants', 'homologació HACCP per a contacte alimentari'],
+        enviamentInternacional: 'Actualment només mercat espanyol. Pla d\'entrada a Portugal previst per al 2026 via distribuïdors locals.',
+        concentratsEco: 'Dilució 1:3 (×3) o superior, redueix un 70% els envasos i el transport.',
+        auditoriaGratuita: 'Visita tècnica gratuïta i sense compromís, informe i pressupost en menys de 5 dies laborables.',
+        fidelitzacio: 'Programa per punts (1 punt/€): Bronze 0-999, Plata 1.000-2.999 (5% dte), Or 3.000-6.999 (10% dte + gestor dedicat), Platí +7.000 (15% dte).'
       });
     }
   } catch(e){}
@@ -7529,6 +7716,7 @@ function hxAskAI(userText){
   if (!HX_WORKER_URL) {
     hxHideTyping();
     hxAddMessage(HX_CHAT_FALLBACK, 'bot');
+    hxRenderQuickReplies(HX_QUICK_REPLIES);
     return;
   }
   var historyForApi = HX_CHAT_HISTORY.slice(-10).map(function(m){
@@ -7544,32 +7732,51 @@ function hxAskAI(userText){
     hxHideTyping();
     if (data && data.reply) {
       hxAddMessage(data.reply, 'bot');
+      HX_CHAT_FALLBACK_STREAK++;
     } else {
       hxAddMessage(HX_CHAT_FALLBACK, 'bot');
+      HX_CHAT_FALLBACK_STREAK++;
     }
+    if (HX_CHAT_FALLBACK_STREAK >= 2) { hxAddEscalation(); HX_CHAT_FALLBACK_STREAK = 0; }
+    hxRenderQuickReplies(HX_QUICK_REPLIES);
   })
   .catch(function(err){
     console.warn('Error connectant amb l\'assistent IA:', err);
     hxHideTyping();
     hxAddMessage('Ho sento, ara mateix no puc connectar amb l\'assistent. Prova de nou en un moment, o parla amb nosaltres per WhatsApp.', 'bot');
+    hxRenderQuickReplies(HX_QUICK_REPLIES);
   });
 }
 
 function hxRespond(userText){
   hxShowTyping();
-  var intent = hxFindReply(userText);
-  if (intent) {
-    var delay = 500 + Math.random()*500;
+
+  var producte = hxFindProduct(userText);
+  var esPreguntaGenerica = hxFindReply(userText);
+  if (producte && (!esPreguntaGenerica || esPreguntaGenerica.genericCatalog)) {
+    var delayP = 450 + Math.random()*400;
     setTimeout(function(){
       hxHideTyping();
-      var replyText = typeof intent.reply === 'function' ? intent.reply() : intent.reply;
+      hxAddMessage('Això és el que tinc sobre «' + producte.name + '»:', 'bot');
+      hxRenderProductCard(producte);
+      hxRenderQuickReplies(['💰 Preus', '🚚 Enviaments', '🧴 Veure tot el catàleg']);
+    }, delayP);
+    HX_CHAT_FALLBACK_STREAK = 0;
+    return;
+  }
+
+  var intent = esPreguntaGenerica;
+  if (intent) {
+    HX_CHAT_FALLBACK_STREAK = 0;
+    var replyText = typeof intent.reply === 'function' ? intent.reply() : intent.reply;
+    var delay = Math.min(1400, 500 + replyText.length*4 + Math.random()*400);
+    setTimeout(function(){
+      hxHideTyping();
       hxAddMessage(replyText, 'bot');
       if (intent.action) hxAddAction(intent.action);
+      hxRenderQuickReplies(intent.followUps && intent.followUps.length ? intent.followUps : HX_QUICK_REPLIES);
     }, delay);
   } else {
-    // El motor de paraules clau no ha reconegut la pregunta: si hi ha
-    // Worker configurat, la enviem a l'assistent d'IA per a una resposta
-    // lliure; si no, mostrem el missatge de fallback habitual.
     hxAskAI(userText);
   }
 }
@@ -7593,15 +7800,17 @@ function hxQuickReply(text){
 }
 window.hxQuickReply = hxQuickReply;
 
-function hxRenderQuickReplies(){
+function hxRenderQuickReplies(list){
   var box = document.getElementById('hxChatQuickReplies');
   if (!box) return;
   box.innerHTML = '';
-  HX_QUICK_REPLIES.forEach(function(q){
+  (list || HX_QUICK_REPLIES).forEach(function(q){
+    var label = typeof q === 'string' ? q : q.label;
+    var text = typeof q === 'string' ? q.replace(/^[^\wÀ-ÿ]+\s*/, '') : q.text;
     var btn = document.createElement('button');
     btn.className = 'hxQuickBtn';
-    btn.textContent = q.label;
-    btn.onclick = function(){ hxQuickReply(q.text); };
+    btn.textContent = label;
+    btn.onclick = function(){ hxQuickReply(text); };
     box.appendChild(btn);
   });
 }
@@ -7616,8 +7825,11 @@ function toggleHxChat(force){
     if (badge) badge.classList.add('hidden');
     if (!HX_CHAT_OPENED) {
       HX_CHAT_OPENED = true;
-      hxAddMessage('Hola! 👋 Sóc la Mònica, l\'assistent virtual d\'HIGIENEX. Puc ajudar-te amb informació sobre productes, preus, horaris, enviaments o contacte. En què et puc ajudar?', 'bot');
-      hxRenderQuickReplies();
+      var restored = hxRestoreHistory();
+      if (!restored) {
+        hxAddMessage('Hola! 👋 Sóc la Mònica, l\'assistent virtual d\'HIGIENEX. Puc ajudar-te amb informació sobre productes, preus, horaris, enviaments o contacte. En què et puc ajudar?', 'bot');
+      }
+      hxRenderQuickReplies(HX_QUICK_REPLIES);
     }
     var input = document.getElementById('hxChatInput');
     if (input) setTimeout(function(){ input.focus(); }, 260);
