@@ -3313,7 +3313,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
           </div>
         </div>
         <div class="form-field"><label for="jbMissatge" data-i18n-key="t882">Presenta't breument *</label><textarea id="jbMissatge" name="missatge" required placeholder="Experiència, formació i per què vols formar part de l'equip HIGIENEX..."></textarea></div>
-        <div class="form-field"><label for="jbCV" data-i18n-key="t883">Enllaç al CV (LinkedIn, Drive...)</label><input id="jbCV" type="url" name="cv" placeholder="https://..."></div>
+        <div class="form-field"><label for="jbCV" data-i18n-key="t883">Adjunta el teu CV (PDF o Word) *</label><input id="jbCV" type="file" name="cv" accept=".pdf,.doc,.docx" required onchange="hxValidarCV(this)"><p style="font-size:11px;color:#888;margin-top:4px;">Màxim 5 MB · PDF o Word</p></div>
         <button type="submit" class="btn-submit" data-i18n-key="t884">Enviar Candidatura →</button>
       </form>
       <div id="treballaSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:1rem;margin-top:1rem;color:#2E7D32;" data-i18n-key="t885">✅ Candidatura rebuda! El nostre equip de RRHH la revisarà i et contactarà si encaixa amb el perfil.</div>
@@ -6612,6 +6612,30 @@ function submitSafeStock(e) {
 }
 window.submitSafeStock = submitSafeStock;
 
+function hxValidarCV(input){
+  var file = input.files && input.files[0];
+  if (!file) return;
+  var mida = 5 * 1024 * 1024;
+  if (file.size > mida) {
+    alert('El fitxer supera els 5 MB. Si us plau, adjunta un CV més lleuger.');
+    input.value = '';
+    return;
+  }
+  var extensio = file.name.split('.').pop().toLowerCase();
+  if (['pdf','doc','docx'].indexOf(extensio) === -1) {
+    alert('Format no admès. Adjunta el CV en PDF o Word (.doc/.docx).');
+    input.value = '';
+  }
+}
+window.hxValidarCV = hxValidarCV;
+
+// Nota tècnica: aquest formulari adjunta el CV com a fitxer real (no un
+// enllaç), per la qual cosa fa servir emailjs.sendForm() en lloc del
+// enviarNotificacioEmail() genèric — és l'única manera d'EmailJS d'enviar
+// un adjunt binari real. Perquè arribi per correu, el peu de plantilla
+// d'EmailJS ha de tenir activat "Attach files" (funcionalitat disponible
+// segons el pla contractat). Si el compte no ho admet, el correu arribarà
+// igualment amb la resta de dades, sense l'adjunt.
 function submitTreballaForm(e) {
   e.preventDefault();
   var f = e.target;
@@ -6629,16 +6653,13 @@ function submitTreballaForm(e) {
   var telefon  = val('telefon');
   var posicio  = val('posicio');
   var missatge = val('missatge');
-  var cv       = val('cv');
+  var cvInput  = f.elements['cv'];
+  var cvFile   = cvInput && cvInput.files && cvInput.files[0];
+  if (!cvFile) { showToast('Adjunta el teu CV abans d\'enviar la candidatura.', '📎'); if (submitBtn) submitBtn.disabled = false; return false; }
 
   try {
-    var files = [
-      ['Nom', nom],
-      ['Lloc', posicio],
-      ['Email', email]
-    ];
+    var files = [['Nom', nom], ['Lloc', posicio], ['Email', email], ['CV adjuntat', cvFile.name]];
     if (telefon) files.push(['Telèfon', telefon]);
-    if (cv) files.push(['CV', cv]);
     var filesHTML = files.map(function(row){
       return '<tr><td style="padding:5px 4px;color:#888;width:110px;font-size:12px;text-transform:uppercase;letter-spacing:.03em;">' + escHtml(row[0]) + '</td>' +
         '<td style="padding:5px 4px;font-weight:600;color:#333;">' + escHtml(row[1]) + '</td></tr>';
@@ -6646,16 +6667,37 @@ function submitTreballaForm(e) {
     var cos =
       '<table style="width:100%;border-collapse:collapse;font-size:14px;margin-bottom:16px;">' + filesHTML + '</table>' +
       escHtml(missatge).replace(/\n/g, '<br>');
-    enviarNotificacioEmail({
+
+    // Omplim camps ocults amb les mateixes variables que fa servir la resta
+    // de plantilles de correu, perquè sendForm() els reculli junt amb el fitxer.
+    var hidden = {
       title: 'Nova candidatura: ' + (posicio || nom) + ' — HIGIENEX',
-      name: nom || 'Candidatura web',
-      message: cos,
-      email: email,
       badge: 'NOVA CANDIDATURA',
       subtitle: 'S\'ha rebut una nova candidatura des de "Treballa amb nosaltres".',
-      detailLabel: 'Presentació',
-      ctaButtonHtml: hxEmailCtaButton('Respondre al candidat/a →', 'mailto:' + email, 'gold')
+      detail_label: 'Presentació',
+      message: cos,
+      time: new Date().toLocaleString('ca-ES'),
+      erp_url: (typeof HX_ERP_URL !== 'undefined' ? HX_ERP_URL : '')
+    };
+    Object.keys(hidden).forEach(function(key){
+      var inp = f.querySelector('input[data-hidden-param="' + key + '"]');
+      if (!inp) {
+        inp = document.createElement('input');
+        inp.type = 'hidden';
+        inp.name = key;
+        inp.setAttribute('data-hidden-param', key);
+        f.appendChild(inp);
+      }
+      inp.value = hidden[key];
     });
+
+    if (window.emailjs && EMAILJS_PUBLIC_KEY !== 'LA_TEVA_PUBLIC_KEY') {
+      emailjs.sendForm(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, f).catch(function(err){
+        console.warn('No s\'ha pogut enviar la candidatura amb el CV adjunt:', err);
+      });
+    } else {
+      console.warn('EmailJS no està configurat: revisa EMAILJS_PUBLIC_KEY / SERVICE_ID / TEMPLATE_ID al principi del <script>.');
+    }
   } catch(err) { console.warn('No s\'ha pogut preparar l\'email de candidatura:', err); }
 
   var s = document.getElementById('treballaSuccess');
