@@ -3056,7 +3056,7 @@ window.addEventListener('appinstalled', function() {
 /* Navegación */
 const NAV=[
  {g:null,items:[['panel','Panel','all']]},
- {g:'Comercial',items:[['clientes','Clientes','comercial'],['pipeline','Oportunidades','comercial'],['actividad','Actividad','comercial'],['kpis','Panel comercial (KPIs)','comercial'],['incidencias','Incidencias','comercial'],['presupuestos','Presupuestos','comercial']]},
+ {g:'Comercial',items:[['clientes','Clientes','comercial'],['pipeline','Oportunidades','comercial'],['actividad','Actividad','comercial'],['kpis','Panel comercial (KPIs)','comercial'],['incidencias','Incidencias','comercial'],['presupuestos','Presupuestos','comercial'],['mensajes','Mensajes de clientes','comercial']]},
  {g:'Terceros',items:[
    ['terceros','Nuevo tercero','comercial'],
    ['_listado','Listado','comercial'],
@@ -3090,7 +3090,7 @@ const NAV_ICONS={
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
   automat:'⚡', auditoria:'🛡️',
   sistema:'⚙️',
-  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊', calendario:'📅', candidaturas:'📋', mantenimiento:'🔧', gastos:'🧾', objetivos:'🎯', calendariolab:'🗓️'
+  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊', calendario:'📅', candidaturas:'📋', mantenimiento:'🔧', gastos:'🧾', objetivos:'🎯', calendariolab:'🗓️', mensajes:'💬'
 };
 function can(area){
   if(!ME) return false;
@@ -3114,6 +3114,7 @@ function avisos(v){
   if(v==='gastos') return DB.gastos.filter(g=>g.estado==='Pendent').length;
   if(v==='clientes') return DB.clientes.filter(c=>c.proxContacto&&c.proxContacto<TODAY).length;
   if(v==='pipeline') return DB.oportunidades.filter(o=>o.proxContacto&&o.proxContacto<TODAY).length;
+  if(v==='mensajes') return hxChatTotalUnread();
   return 0;
 }
 
@@ -3468,6 +3469,15 @@ ROUTES.panel=function(){
     kpi('Fondo de maniobra',EUR(tesoreria()+cobrar-pagar),'tesorería + clientes − proveedores','teal')+
     kpi('Cartera comercial',EUR(DB.oportunidades.filter(o=>o.fase!=='Ganada').reduce((a,o)=>a+o.valor,0)),DB.oportunidades.length+' oportunidades','amber')+
   '</div>';
+
+  h+='<div class="card" id="hxBriefingCard" style="margin-bottom:16px"><div class="cardbody">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">'+
+      '<div><h3 style="margin:0 0 2px">🧠 Resumen ejecutivo con IA</h3><p style="margin:0;font-size:12.5px;color:var(--ink-2)">Una lectura rápida de cómo va el negocio ahora mismo.</p></div>'+
+      '<button class="btn ghost sm" id="hxBriefingBtn" onclick="hxBriefingGenerate()" type="button">Generar resumen</button>'+
+    '</div>'+
+    '<div id="hxBriefingBody" style="margin-top:12px;font-size:13.5px;line-height:1.6;color:var(--ink);display:none"></div>'+
+    '<p id="hxBriefingStatus" style="margin-top:8px;font-size:12px;color:var(--ink-2)"></p>'+
+  '</div></div>';
 
   const avisos=[];
   if(bajos.length) avisos.push(['<strong>'+bajos.length+' artículos bajo stock mínimo</strong><br><span style="color:var(--ink-2);font-size:12px">'+bajos.map(b=>esc(b.nom)).join(', ')+'</span>','Almacén','almacen','Reponer']);
@@ -4525,7 +4535,10 @@ ROUTES.impagados=function(){
       EUR(total),
       maxRetraso+' días',
       ultimoRecordatorio ? (FD(ultimoRecordatorio.fecha)+' · nivel '+ultimoRecordatorio.nivel) : '—',
-      '<button class="btn ghost sm" '+(c.mail?'':'disabled title="Este cliente no tiene email"')+' onclick="enviarRecordatorioImpagados(\''+clId+'\')" type="button">✉️ Enviar recordatorio</button>'
+      '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+        '<button class="btn ghost sm" '+(c.mail?'':'disabled title="Este cliente no tiene email"')+' onclick="abrirRedactorImpagados(\''+clId+'\')" type="button">✨ Redactar con IA</button>'+
+        '<button class="btn ghost sm" '+(c.mail?'':'disabled title="Este cliente no tiene email"')+' onclick="enviarRecordatorioImpagados(\''+clId+'\')" type="button">✉️ Enviar recordatorio</button>'+
+      '</div>'
     ], [1,2,3]);
   });
 
@@ -4557,6 +4570,438 @@ function enviarRecordatorioImpagados(clienteId){
   go('impagados');
 }
 window.enviarRecordatorioImpagados = enviarRecordatorioImpagados;
+
+/* =========================================================
+   REDACTOR DE RECLAMACIONES CON IA — Impagados
+   ========================================================= */
+let HX_DUN_CTX = null;
+function abrirRedactorImpagados(clienteId){
+  const c = cli(clienteId);
+  if (!c.mail) { toast('Este cliente no tiene email registrado.'); return; }
+  const facs = DB.facturasE.filter(f=>f.cli===clienteId && vencida(f));
+  if (!facs.length) return;
+  const total = facs.reduce((s,f)=>s+f.total,0);
+  const maxRetraso = Math.max(...facs.map(diasRetraso));
+  const nivel = Math.max(1, ...facs.map(f=>((f.recordatorios||[]).length + 1)));
+  HX_DUN_CTX = {clienteId, facs, total, maxRetraso, nivel};
+
+  const body =
+    '<div class="field" style="margin-bottom:14px"><label class="flabel" for="dun_tono">Tono</label>'+
+    '<select id="dun_tono" onchange="hxDunGenerate()">'+
+      '<option value="amable">Recordatorio amable</option>'+
+      '<option value="formal">Formal</option>'+
+      '<option value="ultima">Última advertencia</option>'+
+    '</select></div>'+
+    '<div class="field"><label class="flabel" for="dun_output">Mensaje</label>'+
+    '<textarea id="dun_output" rows="11" class="mono" style="font-size:12.5px;line-height:1.6" placeholder="Redactando…"></textarea></div>'+
+    '<div class="frow" style="align-items:end;margin-bottom:14px">'+
+      '<div><label class="flabel" for="dun_idioma">Traducir a</label>'+
+        '<select id="dun_idioma">'+
+          '<option value="">— Elegir idioma —</option>'+
+          '<option value="catalán">Català</option>'+
+          '<option value="inglés">English</option>'+
+          '<option value="francés">Français</option>'+
+          '<option value="árabe">العربية</option>'+
+          '<option value="alemán">Deutsch</option>'+
+          '<option value="portugués">Português</option>'+
+          '<option value="italiano">Italiano</option>'+
+        '</select></div>'+
+      '<div><button class="btn ghost" id="dun_translate_btn" onclick="hxDunTraducir()" type="button" style="width:100%">🌐 Traducir</button></div>'+
+    '</div>'+
+    '<p id="dun_status" style="font-size:12px;color:var(--ink-2);margin-top:8px"></p>';
+  const footer =
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cancelar</button>'+
+    '<button class="btn ghost" id="dun_regen_btn" onclick="hxDunGenerate()" type="button">🔄 Regenerar</button>'+
+    '<button class="btn" id="dun_send_btn" onclick="hxDunEnviar()" type="button">✉️ Enviar</button>';
+  openModal('Redactar reclamación — '+esc(c.nom), body, footer, true);
+  hxDunGenerate();
+}
+function hxDunTonoLabel(t){
+  if(t==='formal') return 'formal';
+  if(t==='ultima') return 'de última advertencia';
+  return 'amable';
+}
+function hxDunBuildMeta(c,ctx,tono){
+  const listaFacturas = ctx.facs.map(f=>'· '+f.num+' — '+EUR(f.total)+' (venció el '+FD(f.venc)+', '+diasRetraso(f)+' días de retraso)').join('\n');
+  const L=[];
+  L.push('Eres responsable de administración en HIGIENEX S.L., empresa de higiene profesional. Escribe el CUERPO de un email de reclamación de pago a un cliente, en español, listo para enviar. No incluyas asunto ni placeholders entre corchetes. No firmes con un nombre de persona concreto: termina con algo genérico como "El equipo de administración de HIGIENEX". Usa un tono '+hxDunTonoLabel(tono)+'.');
+  L.push('');
+  L.push('Datos:');
+  L.push('- Cliente: '+c.nom);
+  L.push('- Facturas pendientes:');
+  L.push(listaFacturas);
+  L.push('- Importe total pendiente: '+EUR(ctx.total));
+  L.push('- Retraso máximo: '+ctx.maxRetraso+' días');
+  if(ctx.nivel>1) L.push('- Este sería el recordatorio número '+ctx.nivel+' para este cliente.');
+  L.push('');
+  L.push('Instrucciones de tono:');
+  if(tono==='amable') L.push('Cercano y comprensivo: asume que puede ser un despiste, invita a contactar si hay cualquier problema con el pago.');
+  else if(tono==='formal') L.push('Correcto y profesional, sin informalidades, cita los datos con precisión y sobriedad.');
+  else L.push('Serio y firme, sin ser agresivo ni insultante. Indica que si no se regulariza en un plazo breve (7 días) se iniciarán gestiones de recobro. No hagas amenazas legales concretas ni cifres intereses de demora.');
+  L.push('No añadas explicaciones sobre el email ni comentarios meta. Devuelve ÚNICAMENTE el cuerpo del mensaje.');
+  return L.join('\n');
+}
+function hxDunBuildFallback(c,ctx,tono){
+  const listaFacturas = ctx.facs.map(f=>'· '+f.num+' — '+EUR(f.total)+' (venció el '+FD(f.venc)+', '+diasRetraso(f)+' días de retraso)').join('\n');
+  const nombre = (c.nom||'').split(' ')[0]||c.nom;
+  if(tono==='formal'){
+    return 'Estimado/a '+c.nom+':\n\nLe informamos de que a fecha de hoy constan pendientes de pago las siguientes facturas emitidas por HIGIENEX S.L.:\n\n'+listaFacturas+'\n\nEl importe total pendiente asciende a '+EUR(ctx.total)+'. Le rogamos proceda a su abono a la mayor brevedad posible o nos indique el motivo de la demora.\n\nQuedamos a su disposición para cualquier aclaración.\n\nAtentamente,\nEl equipo de administración de HIGIENEX';
+  }
+  if(tono==='ultima'){
+    return 'Estimado/a '+c.nom+':\n\nA pesar de nuestros recordatorios anteriores, las siguientes facturas continúan pendientes de pago:\n\n'+listaFacturas+'\n\nImporte total pendiente: '+EUR(ctx.total)+' (retraso máximo de '+ctx.maxRetraso+' días).\n\nLe solicitamos que regularice esta situación en un plazo máximo de 7 días. De no recibir el pago o una respuesta en ese plazo, nos veremos obligados a iniciar gestiones de recobro.\n\nQuedamos a la espera de su respuesta.\n\nEl equipo de administración de HIGIENEX';
+  }
+  return 'Hola '+nombre+',\n\nTe escribimos para recordarte que tienes '+ctx.facs.length+' factura'+(ctx.facs.length===1?'':'s')+' pendiente'+(ctx.facs.length===1?'':'s')+' de pago con HIGIENEX:\n\n'+listaFacturas+'\n\nEl importe total es de '+EUR(ctx.total)+'. Si ya lo has abonado, no hace falta que hagas nada — si no, te agradeceríamos que lo regularizaras cuando puedas. Cualquier duda, aquí estamos.\n\nUn saludo,\nEl equipo de administración de HIGIENEX';
+}
+async function hxDunGenerate(){
+  if(!HX_DUN_CTX) return;
+  const c = cli(HX_DUN_CTX.clienteId);
+  const tono = val('dun_tono')||'amable';
+  const out = document.getElementById('dun_output'), status = document.getElementById('dun_status');
+  const regenBtn = document.getElementById('dun_regen_btn'), sendBtn = document.getElementById('dun_send_btn');
+  if(regenBtn) regenBtn.disabled = true;
+  if(sendBtn) sendBtn.disabled = true;
+  if(out) out.value = '';
+  if(status) status.textContent = 'Redactando…';
+
+  const sample = await hxGetSample();
+  if(!sample){
+    if(out) out.value = hxDunBuildFallback(c, HX_DUN_CTX, tono);
+    if(regenBtn) regenBtn.disabled = false;
+    if(sendBtn) sendBtn.disabled = false;
+    if(status) status.textContent = 'Redactado con reglas (sin conexión de IA disponible aquí). Puedes editarlo antes de enviar.';
+    return;
+  }
+  try{
+    const meta = hxDunBuildMeta(c, HX_DUN_CTX, tono);
+    const result = await sample(meta,{
+      modelTier:'default', cache:false,
+      onText:function(o){ if(out) out.value=o.text; }
+    });
+    if(out) out.value=(result&&result.text)?result.text.trim():hxDunBuildFallback(c,HX_DUN_CTX,tono);
+    if(status) status.textContent = 'Puedes editarlo antes de enviar.';
+  }catch(e){
+    const partial = e&&e.text?e.text:'';
+    if(out) out.value = partial||hxDunBuildFallback(c,HX_DUN_CTX,tono);
+    if(status) status.textContent = partial?'Se cortó la generación — puedes regenerar o editar.':'No se pudo conectar. Redactado con reglas.';
+  }
+  if(regenBtn) regenBtn.disabled = false;
+  if(sendBtn) sendBtn.disabled = false;
+}
+function hxDunEnviar(){
+  if(!HX_DUN_CTX) return;
+  const c = cli(HX_DUN_CTX.clienteId);
+  const mensaje = val('dun_output').trim();
+  if(!mensaje){ toast('El mensaje está vacío.'); return; }
+  try{
+    enviarAvisEstatClient({
+      title: 'Recordatorio de pago pendiente — HIGIENEX',
+      name: c.nom,
+      email: c.mail,
+      message: mensaje
+    });
+  }catch(err){ console.warn('No se ha podido enviar el recordatorio:', err); }
+  HX_DUN_CTX.facs.forEach(f=>{ (f.recordatorios = f.recordatorios || []).push({fecha:TODAY, nivel:HX_DUN_CTX.nivel}); });
+  toast('Recordatorio enviado a '+c.nom+' ('+HX_DUN_CTX.facs.length+' factura'+(HX_DUN_CTX.facs.length===1?'':'s')+').');
+  log('Recordatorio de impago enviado (redactado con IA)', c.nom+' · '+EUR(HX_DUN_CTX.total)+' · nivel '+HX_DUN_CTX.nivel);
+  HX_DUN_CTX = null;
+  closeModal();
+  go('impagados');
+}
+async function hxDunTraducir(){
+  const idioma = val('dun_idioma');
+  const status = document.getElementById('dun_status'), out = document.getElementById('dun_output');
+  if(!idioma){ toast('Elige primero un idioma.'); return; }
+  const texto = val('dun_output').trim();
+  if(!texto){ toast('No hay texto que traducir todavía.'); return; }
+
+  const sample = await hxGetSample();
+  if(!sample){
+    toast('La traducción con IA necesita abrir el ERP desde claude.ai. En GitHub Pages esta función no está disponible.');
+    return;
+  }
+  const btn = document.getElementById('dun_translate_btn');
+  if(btn){ btn.disabled=true; btn.textContent='Traduciendo…'; }
+  if(status) status.textContent='Traduciendo al '+idioma+'…';
+  try{
+    const meta='Traduce el siguiente email al '+idioma+', manteniendo el tono, el registro y el sentido exacto del original. No añadas comillas, ni explicaciones, ni comentarios. Devuelve únicamente el texto traducido.\n\n'+texto;
+    const result = await sample(meta,{
+      modelTier:'default', cache:false,
+      onText:function(o){ if(out) out.value=o.text; }
+    });
+    if(out) out.value=(result&&result.text)?result.text.trim():texto;
+    if(status) status.textContent='Traducido al '+idioma+'. Puedes editarlo antes de enviar.';
+  }catch(e){
+    if(status) status.textContent='No se ha podido traducir. Revisa la conexión e inténtalo de nuevo.';
+  }
+  if(btn){ btn.disabled=false; btn.textContent='🌐 Traducir'; }
+}
+window.abrirRedactorImpagados = abrirRedactorImpagados;
+window.hxDunGenerate = hxDunGenerate;
+window.hxDunEnviar = hxDunEnviar;
+window.hxDunTraducir = hxDunTraducir;
+
+/* =========================================================
+   MENSAJES DE CLIENTES — chat con el Portal de Cliente (index.html)
+   Comparten la misma clave de localStorage (mismo origen en GitHub
+   Pages), así que los mensajes aparecen aquí en cuanto el cliente los
+   envía, siempre que este panel esté abierto en el mismo navegador.
+   Si no lo está, el cliente igualmente dispara un aviso por email
+   (EmailJS, configurado en index.html) para no perder el mensaje.
+   ========================================================= */
+var HX_CHAT_KEY = 'hx_support_chat_v1';
+
+/* Traducción en vivo ES↔EN (mismo mecanismo que index.html: detección
+   simple por palabras + API pública MyMemory, sin clave). Sin conexión,
+   se muestra el mensaje original sin más. */
+function hxDetectLang(text){
+  const t=(' '+String(text||'').toLowerCase()+' ');
+  if(/[ñ¿¡áéíóú]/.test(t)) return 'es';
+  const esWords=[' el ',' la ',' los ',' las ',' de ',' que ',' y ',' en ',' un ',' una ',' es ',' por ',' para ',' con ',' no ',' sí ',' gracias ',' hola ',' cuando ',' cuándo ',' donde ',' dónde ',' como ',' cómo ',' pedido ',' factura ',' necesito ',' quiero ',' puedo ',' podría ',' podria ',' buenos días ',' buenas tardes '];
+  const enWords=[' the ',' and ',' is ',' are ',' you ',' have ',' please ',' thanks ',' thank you ',' hello ',' hi ',' when ',' where ',' how ',' order ',' invoice ',' need ',' want ',' could ',' can ',' would ',' good morning ',' regards '];
+  let esScore=0, enScore=0;
+  esWords.forEach(w=>{ if(t.indexOf(w)!==-1) esScore++; });
+  enWords.forEach(w=>{ if(t.indexOf(w)!==-1) enScore++; });
+  return enScore>esScore ? 'en' : 'es';
+}
+function hxTranslateText(text, from, to, cb){
+  if(!text || from===to){ cb(null); return; }
+  const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(String(text).slice(0,480))+'&langpair='+from+'|'+to;
+  fetch(url).then(r=>r.json()).then(data=>{
+    const t = data && data.responseData && data.responseData.translatedText;
+    cb(t && !/MYMEMORY WARNING/i.test(t) ? t : null);
+  }).catch(()=>cb(null));
+}
+const HX_TR_PENDING={};
+function hxChatEnsureTranslation(m, from, to){
+  const key=m.id+'|'+to;
+  if(HX_TR_PENDING[key]) return;
+  HX_TR_PENDING[key]=true;
+  hxTranslateText(m.texto, from, to, function(translated){
+    delete HX_TR_PENDING[key];
+    if(!translated || !HX_CHAT_CTX) return;
+    const all=hxChatLoadAll();
+    const t=(all.threads||{})[HX_CHAT_CTX];
+    const msg=t?(t.messages||[]).find(x=>x.id===m.id):null;
+    if(msg){ msg.tr=msg.tr||{}; msg.tr[to]=translated; hxChatSaveAll(all); }
+    hxChatRenderMsgs();
+  });
+}
+function hxChatLoadAll(){
+  try{ var d=JSON.parse(localStorage.getItem(HX_CHAT_KEY)||'{}'); return d&&typeof d==='object'?d:{}; }catch(e){ return {}; }
+}
+function hxChatSaveAll(data){
+  try{ localStorage.setItem(HX_CHAT_KEY, JSON.stringify(data)); }catch(e){}
+}
+function hxChatThreads(){
+  const all=hxChatLoadAll();
+  return Object.keys(all.threads||{}).map(id=>all.threads[id]).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+}
+function hxChatTotalUnread(){
+  return hxChatThreads().reduce((s,t)=>s+(t.unreadEmpleado||0),0);
+}
+function vMensajes(){
+  const threads=hxChatThreads();
+  let h=head('Mensajes de clientes','Conversaciones abiertas desde el Portal de Cliente de la web pública.');
+  if(!threads.length){
+    h+='<div class="card"><div class="cardbody" style="text-align:center;padding:30px;color:var(--ink-2)"><strong>Todavía no hay conversaciones.</strong><br>Aparecerán aquí en cuanto un cliente escriba desde su portal.</div></div>';
+    return h;
+  }
+  const filas=threads.map(t=>{
+    const msgs=t.messages||[];
+    const ultimo=msgs[msgs.length-1];
+    return rowN([
+      esc(t.clienteNom||t.clienteId)+(t.unreadEmpleado?' <span class="tag t-late">'+t.unreadEmpleado+' nuevo'+(t.unreadEmpleado>1?'s':'')+'</span>':''),
+      ultimo?esc((ultimo.texto||'').slice(0,70))+((ultimo.texto||'').length>70?'…':''):'—',
+      ultimo?(ultimo.from==='cliente'?'Cliente':'Nosotros'):'—',
+      ultimo?new Date(ultimo.ts).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—',
+      '<button class="btn ghost sm" onclick="hxChatAbrir(\''+t.clienteId+'\')" type="button">💬 Abrir conversación</button>'
+    ],[1,2,3]);
+  });
+  h+='<div class="card">'+tbl([['Cliente'],['Último mensaje'],['De'],['Cuándo'],['Acción']],filas)+'</div>';
+  return h;
+}
+ROUTES.mensajes = vMensajes;
+
+let HX_CHAT_CTX=null;
+function hxChatAbrir(clienteId){
+  const all=hxChatLoadAll();
+  const t=(all.threads||{})[clienteId];
+  if(!t) return;
+  HX_CHAT_CTX=clienteId;
+  t.unreadEmpleado=0;
+  hxChatSaveAll(all);
+
+  const body=
+    '<div id="hxChatMsgs" style="max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px;margin-bottom:14px"></div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<input id="hxChatReplyInput" type="text" placeholder="Escribe tu respuesta…" autocomplete="off" onkeydown="if(event.key===\'Enter\'){event.preventDefault();hxChatResponder();}">'+
+      '<button class="btn" onclick="hxChatResponder()" type="button">Enviar</button>'+
+    '</div>';
+  openModal('💬 '+esc(t.clienteNom||clienteId), body, '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>', true);
+  hxChatRenderMsgs();
+  buildNav();
+  setTimeout(()=>{ const i=document.getElementById('hxChatReplyInput'); if(i) i.focus(); },60);
+}
+window.hxChatAbrir=hxChatAbrir;
+function hxChatRenderMsgs(){
+  if(!HX_CHAT_CTX) return;
+  const box=document.getElementById('hxChatMsgs'); if(!box) return;
+  const all=hxChatLoadAll();
+  const t=(all.threads||{})[HX_CHAT_CTX];
+  const msgs=t?(t.messages||[]):[];
+  const viewerLang='es'; // el ERP trabaja siempre en español
+  box.innerHTML = msgs.length ? msgs.map(m=>{
+    const mine=m.from==='empleado';
+    const lang=m.lang || hxDetectLang(m.texto);
+    const necesitaTrad = lang!==viewerLang;
+    let texto=m.texto, notaTrad='';
+    if(necesitaTrad){
+      if(m.tr && m.tr[viewerLang]){
+        notaTrad='<div style="font-size:10.5px;color:var(--ink-2);font-style:italic;margin-top:3px">🌐 '+esc(texto)+'</div>';
+        texto=m.tr[viewerLang];
+      } else {
+        hxChatEnsureTranslation(m, lang, viewerLang);
+        notaTrad='<div style="font-size:10.5px;color:var(--ink-2);font-style:italic;margin-top:3px">🌐 Traduciendo…</div>';
+      }
+    }
+    return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:80%">'+
+      '<div style="background:'+(mine?'var(--action)':'var(--surface-2)')+';color:'+(mine?'#fff':'var(--ink)')+';padding:0.55rem 0.85rem;border-radius:14px;font-size:13px;line-height:1.45;white-space:pre-wrap">'+esc(texto)+'</div>'+
+      notaTrad+
+      '<div style="font-size:10px;color:var(--ink-2);margin-top:3px;text-align:'+(mine?'right':'left')+'">'+(mine?esc(m.autor||'')+' · ':'')+new Date(m.ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})+'</div>'+
+    '</div>';
+  }).join('') : '<p style="color:var(--ink-2);font-size:13px;text-align:center;padding:20px 0">Todavía no hay mensajes en esta conversación.</p>';
+  box.scrollTop=box.scrollHeight;
+}
+function hxChatResponder(){
+  if(!HX_CHAT_CTX) return;
+  const input=document.getElementById('hxChatReplyInput');
+  const texto=(input.value||'').trim();
+  if(!texto) return;
+  const all=hxChatLoadAll();
+  const t=(all.threads||{})[HX_CHAT_CTX];
+  if(!t) return;
+  t.messages.push({id:'m'+Date.now()+Math.random().toString(36).slice(2,7), from:'empleado', autor:(ME?ME.nom:'HIGIENEX'), texto:texto, lang:hxDetectLang(texto), ts:Date.now()});
+  t.unreadCliente=(t.unreadCliente||0)+1;
+  t.updatedAt=Date.now();
+  hxChatSaveAll(all);
+  input.value='';
+  hxChatRenderMsgs();
+  toast('Respuesta enviada.');
+}
+window.hxChatResponder=hxChatResponder;
+window.addEventListener('storage', function(e){
+  if(e.key!==HX_CHAT_KEY) return;
+  try{ buildNav(); }catch(err){}
+  if(typeof VIEW!=='undefined' && VIEW==='mensajes') go('mensajes', true);
+  if(document.getElementById('hxChatMsgs')) hxChatRenderMsgs();
+});
+
+/* =========================================================
+   AUDITOR DE ANOMALÍAS CON IA — Libro diario
+   ========================================================= */
+function hxAuditDetect(){
+  const asientos = DB.asientos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)||a.n-b.n);
+  const flags=[];
+
+  // Descuadres (red de seguridad; no deberían darse si el alta pasó por saveAsiento)
+  asientos.forEach(a=>{
+    const d=a.apuntes.reduce((s,p)=>s+(p.d||0),0), h=a.apuntes.reduce((s,p)=>s+(p.h||0),0);
+    if(Math.abs(d-h)>0.01) flags.push({tipo:'Descuadre',sev:'red',detalle:'Asiento '+a.n+' ('+FD(a.fecha)+') no cuadra: debe '+EUR(d)+' frente a haber '+EUR(h)+'.'});
+  });
+
+  // Posibles duplicados: misma fecha, mismo concepto, mismo importe
+  const vistos={};
+  asientos.forEach(a=>{
+    const total=a.apuntes.reduce((s,p)=>s+(p.d||0),0);
+    const key=a.fecha+'|'+(a.concepto||'').trim().toLowerCase()+'|'+total.toFixed(2);
+    if(total>0 && vistos[key]!=null) flags.push({tipo:'Posible duplicado',sev:'amber',detalle:'Asiento '+a.n+' ('+FD(a.fecha)+') parece repetir el asiento '+vistos[key]+': mismo concepto e importe ('+EUR(total)+').'});
+    else vistos[key]=a.n;
+  });
+
+  // Importes atípicos frente a la media del ejercicio
+  const totales=asientos.map(a=>a.apuntes.reduce((s,p)=>s+(p.d||0),0)).filter(t=>t>0);
+  const media=totales.length?totales.reduce((a,b)=>a+b,0)/totales.length:0;
+  asientos.forEach(a=>{
+    const total=a.apuntes.reduce((s,p)=>s+(p.d||0),0);
+    if(media>0 && total>1000 && total>media*5) flags.push({tipo:'Importe atípico',sev:'amber',detalle:'Asiento '+a.n+' ('+FD(a.fecha)+') por '+EUR(total)+', muy por encima de la media del ejercicio ('+EUR(media)+').'});
+  });
+
+  // Ajustes manuales cerca de la última fecha registrada
+  const fechas=asientos.map(a=>a.fecha).filter(Boolean).sort();
+  if(fechas.length){
+    const ultima=new Date(fechas[fechas.length-1]);
+    const corte=new Date(ultima); corte.setDate(corte.getDate()-3);
+    const corteStr=corte.toISOString().slice(0,10);
+    asientos.filter(a=>a.origen==='Manual' && a.fecha>=corteStr).forEach(a=>{
+      flags.push({tipo:'Ajuste manual reciente',sev:'blue',detalle:'Asiento manual '+a.n+' ('+FD(a.fecha)+', "'+esc(a.concepto||'')+'") registrado en los últimos días del periodo cargado.'});
+    });
+  }
+
+  // Huecos en la numeración de asientos
+  const nums=asientos.map(a=>a.n).filter(n=>typeof n==='number').sort((a,b)=>a-b);
+  for(let i=1;i<nums.length;i++){
+    if(nums[i]-nums[i-1]>1) flags.push({tipo:'Hueco en numeración',sev:'blue',detalle:'Falta'+(nums[i]-nums[i-1]>2?'n':'')+' el asiento'+(nums[i]-nums[i-1]>2?'s':'')+' entre el nº '+nums[i-1]+' y el nº '+nums[i]+'.'});
+  }
+
+  return flags;
+}
+function hxAuditRender(flags){
+  const results=document.getElementById('hxAuditResults');
+  if(!results) return;
+  if(!flags.length){
+    results.innerHTML='<p style="color:var(--ink-2);font-size:13px">No se ha detectado ninguna anomalía con las reglas actuales. Eso no garantiza que todo esté correcto, pero no hay señales obvias.</p>';
+    results.style.display='block';
+    return;
+  }
+  const tagClass={red:'t-late',amber:'t-wait',blue:'t-blue'};
+  let html='<p style="font-size:12.5px;color:var(--ink-2);margin:0 0 10px">'+flags.length+' aviso'+(flags.length>1?'s':'')+' detectado'+(flags.length>1?'s':'')+' por reglas. No son errores confirmados: son puntos a revisar.</p>';
+  html+='<div class="feed">'+flags.map(f=>
+    '<div class="feed-item"><span class="feed-dot"></span><div><div class="t1"><span class="tag '+(tagClass[f.sev]||'t-neu')+'">'+f.tipo+'</span></div><div class="t2" style="margin-top:2px">'+f.detalle+'</div></div></div>'
+  ).join('')+'</div>';
+  html+='<div id="hxAuditAI" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:13.5px;line-height:1.6;color:var(--ink);display:none"></div>';
+  results.innerHTML=html;
+  results.style.display='block';
+}
+function hxAuditBuildMeta(flags){
+  const L=[];
+  L.push('Eres un auditor interno de HIGIENEX S.L. Te paso una lista de avisos detectados automáticamente en el libro diario mediante reglas simples (no son errores confirmados, son candidatos a revisar). Léelos y escribe en español un párrafo breve (entre 3 y 5 líneas, sin viñetas ni encabezados) que priorice cuáles merecen revisión primero y por qué, en lenguaje llano para alguien de administración. No inventes datos que no te doy ni afirmes que algo es un error si solo es un aviso.');
+  L.push('');
+  L.push('Avisos detectados:');
+  flags.slice(0,25).forEach(f=>L.push('- ['+f.tipo+'] '+f.detalle));
+  return L.join('\n');
+}
+async function hxAuditRun(){
+  const btn=document.getElementById('hxAuditBtn'), status=document.getElementById('hxAuditStatus');
+  if(btn){ btn.disabled=true; btn.textContent='Analizando…'; }
+  if(status) status.textContent='Revisando el libro diario…';
+
+  const flags=hxAuditDetect();
+  hxAuditRender(flags);
+
+  if(btn){ btn.disabled=false; btn.textContent='Volver a analizar'; }
+
+  if(!flags.length){ if(status) status.textContent='Análisis completado.'; return; }
+
+  const sample=await hxGetSample();
+  const aiBox=document.getElementById('hxAuditAI');
+  if(!sample){
+    if(status) status.textContent='Avisos listados por reglas (sin conexión de IA disponible aquí para priorizarlos).';
+    return;
+  }
+  if(status) status.textContent='Pidiendo a la IA que priorice los avisos…';
+  try{
+    const meta=hxAuditBuildMeta(flags);
+    const result=await sample(meta,{
+      modelTier:'default', cache:false,
+      onText:function(o){ if(aiBox){ aiBox.style.display='block'; aiBox.textContent=o.text; } }
+    });
+    if(aiBox) aiBox.textContent=(result&&result.text)?result.text.trim():'';
+    if(status) status.textContent='Análisis completado.';
+  }catch(e){
+    if(status) status.textContent='Avisos listados; no se pudo generar la valoración de la IA.';
+  }
+}
+window.hxAuditRun = hxAuditRun;
 
 ROUTES.femitidas=function(){
   const all=DB.facturasE.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
@@ -4952,6 +5397,14 @@ ROUTES.diario=function(){
   let h=head('Libro diario',all.length+' asientos del ejercicio '+EJERCICIO,
     '<button class="btn ghost" onclick="exportarDiario()" type="button">CSV</button><button class="btn ghost" onclick="exportarDiarioXLSX()" type="button">📊 Excel</button><button class="btn ghost" onclick="exportarDiarioOficialPDF()" type="button">📄 PDF oficial</button><button class="btn" onclick="formAsiento()" type="button">Asiento manual</button>');
   h+=buscador('Buscar por concepto, cuenta o número de asiento…',all.length,lista.length);
+  h+='<div class="card" id="hxAuditCard" style="margin-bottom:16px"><div class="cardbody">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">'+
+      '<div><h3 style="margin:0 0 2px">🔍 Auditor de anomalías</h3><p style="margin:0;font-size:12.5px;color:var(--ink-2)">Revisa el libro diario en busca de patrones que conviene mirar de cerca.</p></div>'+
+      '<button class="btn ghost sm" id="hxAuditBtn" onclick="hxAuditRun()" type="button">Analizar</button>'+
+    '</div>'+
+    '<div id="hxAuditResults" style="margin-top:12px;display:none"></div>'+
+    '<p id="hxAuditStatus" style="margin-top:8px;font-size:12px;color:var(--ink-2)"></p>'+
+  '</div></div>';
   let rows=[];
   lista.forEach(a=>{
     a.apuntes.forEach((p,i)=>rows.push('<tr>'+
@@ -10581,6 +11034,111 @@ function hxOpenPromptLab(){
   }catch(e){ toast('No se ha podido abrir el generador de prompts.'); }
 }
 window.hxOpenPromptLab=hxOpenPromptLab;
+
+/* =========================================================
+   IA compartida — capacidad "sample" reutilizable por todas
+   las herramientas de IA del ERP (briefing, auditor, etc.)
+   ========================================================= */
+let HX_SAMPLE_CAP=null, HX_SAMPLE_CHECKED=false;
+async function hxGetSample(){
+  if(HX_SAMPLE_CHECKED) return HX_SAMPLE_CAP;
+  HX_SAMPLE_CHECKED=true;
+  try{
+    if(window.claude && typeof window.claude.use==='function'){
+      HX_SAMPLE_CAP=await window.claude.use('sample');
+    }
+  }catch(e){ HX_SAMPLE_CAP=null; }
+  return HX_SAMPLE_CAP;
+}
+
+/* =========================================================
+   BRIEFING EJECUTIVO CON IA — Panel de control
+   ========================================================= */
+function hxBriefingGatherData(){
+  const cobrarFacts=pendCobro(), pagarFacts=pendPago();
+  const cobrar=cobrarFacts.reduce((s,f)=>s+f.total,0);
+  const pagar=pagarFacts.reduce((s,f)=>s+f.total,0);
+  const vencidas=DB.facturasE.filter(vencida);
+  const bajos=DB.productos.filter(p=>p.stock<p.min);
+  const sinConc=DB.movimientos.filter(m=>!m.conc).length;
+  const s=saldosCuentas(FECHA_CORTE);
+  const ingresos=Object.keys(CUENTAS).filter(c=>tipoCta(c)==='ingreso').reduce((a,c)=>a+((s[c]||{h:0}).h-(s[c]||{d:0}).d),0);
+  const gastos=Object.keys(CUENTAS).filter(c=>tipoCta(c)==='gasto').reduce((a,c)=>a+((s[c]||{d:0}).d-(s[c]||{h:0}).h),0);
+  const mes=DB.facturasE.filter(f=>f.fecha>='2026-07-01');
+  const incAbiertas=(DB.incidencias||[]).filter(i=>i.estado!=='Resuelta').length;
+  const oport=(DB.oportunidades||[]).filter(o=>o.fase!=='Ganada');
+  return {
+    ventasMes:mes.reduce((a,f)=>a+f.base,0), facturasMes:mes.length,
+    cobrar, facturasCobrar:cobrarFacts.length, vencidasN:vencidas.length,
+    pagar, facturasPagar:pagarFacts.length,
+    resultado:ingresos-gastos, ingresos, gastos,
+    tesoreria:tesoreria(),
+    stockBajoN:bajos.length,
+    sinConc,
+    incAbiertas,
+    oportN:oport.length, oportValor:oport.reduce((a,o)=>a+o.valor,0)
+  };
+}
+function hxBriefingBuildMeta(d){
+  const L=[];
+  L.push('Eres el/la director/a financiero/a de HIGIENEX S.L., una empresa de higiene profesional. Te doy los datos del panel de control de hoy. Escribe un briefing ejecutivo breve (entre 4 y 6 líneas, en español, en prosa natural, sin encabezados ni viñetas) que resuma cómo va el negocio ahora mismo y qué merece atención esta semana. Sé concreto con las cifras que te doy, no inventes otras ni redondees en exceso. Tono directo y profesional, como si se lo explicaras a la dirección en dos minutos.');
+  L.push('');
+  L.push('Datos de hoy:');
+  L.push('- Ventas del mes: '+EUR(d.ventasMes)+' ('+d.facturasMes+' facturas)');
+  L.push('- Pendiente de cobro: '+EUR(d.cobrar)+' ('+d.facturasCobrar+' facturas, '+d.vencidasN+' vencidas)');
+  L.push('- Pendiente de pago: '+EUR(d.pagar)+' ('+d.facturasPagar+' facturas)');
+  L.push('- Resultado del ejercicio: '+EUR(d.resultado)+' (ingresos '+EUR(d.ingresos)+', gastos '+EUR(d.gastos)+')');
+  L.push('- Tesorería disponible: '+EUR(d.tesoreria));
+  L.push('- Artículos bajo stock mínimo: '+d.stockBajoN);
+  L.push('- Movimientos bancarios sin conciliar: '+d.sinConc);
+  L.push('- Incidencias abiertas: '+d.incAbiertas);
+  L.push('- Cartera comercial abierta: '+d.oportN+' oportunidades por '+EUR(d.oportValor));
+  return L.join('\n');
+}
+function hxBriefingBuildFallback(d){
+  const p=[];
+  p.push('Este mes se han facturado '+EUR(d.ventasMes)+' en '+d.facturasMes+' facturas.');
+  p.push('Hay '+EUR(d.cobrar)+' pendientes de cobro'+(d.vencidasN?(', con '+d.vencidasN+' factura'+(d.vencidasN>1?'s':'')+' ya vencida'+(d.vencidasN>1?'s':'')+'.'):'.'));
+  p.push('El resultado del ejercicio es de '+EUR(d.resultado)+' y la tesorería disponible es de '+EUR(d.tesoreria)+'.');
+  if(d.stockBajoN) p.push(d.stockBajoN+' artículo'+(d.stockBajoN>1?'s están':' está')+' bajo el stock mínimo.');
+  if(d.sinConc) p.push('Quedan '+d.sinConc+' movimiento'+(d.sinConc>1?'s':'')+' bancario'+(d.sinConc>1?'s':'')+' sin conciliar.');
+  if(d.incAbiertas) p.push('Hay '+d.incAbiertas+' incidencia'+(d.incAbiertas>1?'s':'')+' abierta'+(d.incAbiertas>1?'s':'')+'.');
+  if(d.oportN) p.push('La cartera comercial abierta suma '+EUR(d.oportValor)+' en '+d.oportN+' oportunidad'+(d.oportN>1?'es':'')+'.');
+  return p.join(' ');
+}
+async function hxBriefingGenerate(){
+  const btn=document.getElementById('hxBriefingBtn'), body=document.getElementById('hxBriefingBody'), status=document.getElementById('hxBriefingStatus');
+  if(!btn) return;
+  btn.disabled=true; btn.textContent='Generando…';
+  if(status) status.textContent='Analizando los datos del panel…';
+  if(body){ body.style.display='none'; body.textContent=''; }
+
+  const d=hxBriefingGatherData();
+  const sample=await hxGetSample();
+
+  if(!sample){
+    if(body){ body.style.display='block'; body.textContent=hxBriefingBuildFallback(d); }
+    btn.disabled=false; btn.textContent='Regenerar';
+    if(status) status.textContent='Resumen generado con reglas (sin conexión de IA disponible aquí).';
+    return;
+  }
+  try{
+    const meta=hxBriefingBuildMeta(d);
+    const result=await sample(meta,{
+      modelTier:'default', cache:false,
+      onText:function(o){ if(body){ body.style.display='block'; body.textContent=o.text; } }
+    });
+    if(body) body.textContent=(result&&result.text)?result.text.trim():hxBriefingBuildFallback(d);
+    btn.disabled=false; btn.textContent='Regenerar';
+    if(status) status.textContent='Actualizado a las '+new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})+'.';
+  }catch(e){
+    const partial=e&&e.text?e.text:'';
+    if(body){ body.style.display='block'; body.textContent=partial||hxBriefingBuildFallback(d); }
+    btn.disabled=false; btn.textContent='Regenerar';
+    if(status) status.textContent=partial?'Se cortó la generación — puedes regenerar.':'No se pudo conectar. Resumen generado con reglas.';
+  }
+}
+window.hxBriefingGenerate=hxBriefingGenerate;
 </script>
 </body>
 </html>

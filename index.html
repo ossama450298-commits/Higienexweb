@@ -5129,6 +5129,7 @@ function cpOpen(){
   document.body.style.overflow='hidden';
   try { if (localStorage.getItem('hx_cp_dark')==='1') document.getElementById('hxClientApp').classList.add('cp-dark'); } catch(e) {}
   cpRenderNav(); cpRenderUser(); cpGo('inici');
+  cpChatUpdateBadges();
   if (CP_SESSION_WATCH) clearInterval(CP_SESSION_WATCH);
   CP_SESSION_WATCH = setInterval(function(){
     if (cpSessionExpired()) {
@@ -5217,7 +5218,7 @@ function cpRenderNav(){
     if (n[0]==='fosc') {
       return '<button type="button" onclick="cpToggleDarkMode()"><span class="ic">'+(isDark?'☀️':'🌙')+'</span><span>'+(isDark?cpT('t724'):cpT('t723'))+'</span></button>';
     }
-    return '<button type="button" class="'+(CP_TAB===n[0]?'active':'')+'" onclick="cpGo(\''+n[0]+'\')"><span class="ic">'+n[1]+'</span><span>'+cpT(n[2])+'</span></button>';
+    return '<button type="button" class="'+(CP_TAB===n[0]?'active':'')+'" onclick="cpGo(\''+n[0]+'\')"><span class="ic">'+n[1]+'</span><span>'+cpT(n[2])+(n[0]==='suport'?cpChatNavBadge():'')+'</span></button>';
   }).join('');
 }
 function cpRenderUser(){
@@ -6100,10 +6101,160 @@ function cpViewSuport(){
     '<div class="cp-support-grid">'+
       '<div class="cp-support-card" onclick="window.open(\'mailto:contacto@higienexvalencia.es\')"><div class="ic">📧</div><b>'+cpT('t820')+'</b><span>contacto@higienexvalencia.es</span></div>'+
       '<div class="cp-support-card" onclick="window.open(\'tel:963123456\')"><div class="ic">📞</div><b>'+cpT('t821')+'</b><span>963 123 456</span></div>'+
-      '<div class="cp-support-card" onclick="alert(\''+cpT('t824').replace(/'/g,"\\'")+'\')"><div class="ic">💬</div><b>'+cpT('t822')+'</b><span>'+cpT('t823')+'</span></div>'+
+      '<div class="cp-support-card" onclick="cpOpenChat()" style="position:relative"><div class="ic">💬</div><b>'+cpT('t822')+'</b><span>'+cpT('t823')+'</span>'+
+        '<span id="cpChatCardBadge" style="display:none;position:absolute;top:10px;right:10px;background:#C0392B;color:#fff;font-size:10px;font-weight:800;border-radius:20px;min-width:16px;height:16px;align-items:center;justify-content:center;padding:0 4px">0</span>'+
+      '</div>'+
       '<div class="cp-support-card" onclick="cpGoFaq()"><div class="ic">❓</div><b>'+cpT('t825')+'</b><span>'+cpT('t826')+'</span></div>'+
     '</div>';
 }
+
+/* ═════   CHAT DE SOPORTE — cliente ↔ empleados de HIGIENEX
+   Se guarda en localStorage (mismo origen que higienex_erp.html en
+   GitHub Pages), así que un empleado con el ERP abierto en el mismo
+   navegador ve los mensajes en tiempo real. Además, cada mensaje del
+   cliente dispara un aviso por email (EmailJS) para que también llegue
+   aunque nadie tenga el ERP abierto en ese momento.
+   ═════ */
+var HX_CHAT_KEY = 'hx_support_chat_v1';
+
+/* Traducción en vivo ES↔EN (detección simple por palabras + API pública
+   MyMemory, sin necesidad de clave). Si no hay conexión, se muestra el
+   mensaje original sin más. */
+function hxDetectLang(text){
+  var t=(' '+String(text||'').toLowerCase()+' ');
+  if(/[ñ¿¡áéíóú]/.test(t)) return 'es';
+  var esWords=[' el ',' la ',' los ',' las ',' de ',' que ',' y ',' en ',' un ',' una ',' es ',' por ',' para ',' con ',' no ',' sí ',' gracias ',' hola ',' cuando ',' cuándo ',' donde ',' dónde ',' como ',' cómo ',' pedido ',' factura ',' necesito ',' quiero ',' puedo ',' podría ',' podria ',' buenos días ',' buenas tardes '];
+  var enWords=[' the ',' and ',' is ',' are ',' you ',' have ',' please ',' thanks ',' thank you ',' hello ',' hi ',' when ',' where ',' how ',' order ',' invoice ',' need ',' want ',' could ',' can ',' would ',' good morning ',' regards '];
+  var esScore=0, enScore=0;
+  esWords.forEach(function(w){ if(t.indexOf(w)!==-1) esScore++; });
+  enWords.forEach(function(w){ if(t.indexOf(w)!==-1) enScore++; });
+  return enScore>esScore ? 'en' : 'es';
+}
+function hxTranslateText(text, from, to, cb){
+  if(!text || from===to){ cb(null); return; }
+  var url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(String(text).slice(0,480))+'&langpair='+from+'|'+to;
+  fetch(url).then(function(r){ return r.json(); }).then(function(data){
+    var t = data && data.responseData && data.responseData.translatedText;
+    cb(t && !/MYMEMORY WARNING/i.test(t) ? t : null);
+  }).catch(function(){ cb(null); });
+}
+var HX_TR_PENDING={};
+function cpChatEnsureTranslation(m, from, to){
+  var key=m.id+'|'+to;
+  if(HX_TR_PENDING[key]) return;
+  HX_TR_PENDING[key]=true;
+  hxTranslateText(m.texto, from, to, function(translated){
+    delete HX_TR_PENDING[key];
+    if(!translated) return;
+    var ctx=cpChatGetThread();
+    var msg=ctx.thread.messages.find(function(x){ return x.id===m.id; });
+    if(msg){ msg.tr=msg.tr||{}; msg.tr[to]=translated; cpChatSaveAll(ctx.all); }
+    cpChatRenderMsgs();
+  });
+}
+function cpChatViewerLang(){ return cpLang()==='en' ? 'en' : 'es'; }
+function cpChatLoadAll(){
+  try{ var d=JSON.parse(localStorage.getItem(HX_CHAT_KEY)||'{}'); return d&&typeof d==='object'?d:{}; }catch(e){ return {}; }
+}
+function cpChatSaveAll(data){
+  try{ localStorage.setItem(HX_CHAT_KEY, JSON.stringify(data)); }catch(e){}
+}
+function cpChatGetThread(){
+  var all=cpChatLoadAll();
+  if(!all.threads) all.threads={};
+  var id=CP_DB.cliente.id;
+  if(!all.threads[id]) all.threads[id]={clienteId:id, clienteNom:CP_DB.cliente.nom, messages:[], unreadCliente:0, unreadEmpleado:0, updatedAt:Date.now()};
+  return {all:all, thread:all.threads[id]};
+}
+function cpChatUnreadCount(){ return cpChatGetThread().thread.unreadCliente||0; }
+function cpChatNavBadge(){
+  var n=cpChatUnreadCount();
+  return n>0 ? ' <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#C0392B;margin-left:4px;vertical-align:middle"></span>' : '';
+}
+function cpChatUpdateBadges(){
+  var n=cpChatUnreadCount();
+  var b=document.getElementById('cpChatCardBadge');
+  if(b){ b.style.display=n>0?'inline-flex':'none'; b.textContent=n; }
+}
+function cpOpenChat(){
+  var body=
+    '<div id="cpChatMsgs" style="max-height:360px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px;margin-bottom:14px"></div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<input id="cpChatInput" type="text" placeholder="Escribe tu mensaje…" autocomplete="off" style="flex:1;padding:0.7rem 0.9rem;border:1.5px solid var(--border);border-radius:22px;font:inherit" onkeydown="if(event.key===\'Enter\'){event.preventDefault();cpChatSend();}">'+
+      '<button class="cp-btn" onclick="cpChatSend()" type="button" style="border-radius:22px">Enviar</button>'+
+    '</div>'+
+    '<p style="font-size:11.5px;color:var(--cp-muted);margin-top:10px">Te responderá el equipo de HIGIENEX. Puedes escribir en español o en inglés — se traduce automáticamente. Si en este momento nadie tiene el panel abierto, igualmente recibirán un aviso por email.</p>';
+  cpOpenModal('💬 Chat con HIGIENEX', body, null);
+  cpChatMarkRead();
+  cpChatRenderMsgs();
+  setTimeout(function(){ var i=document.getElementById('cpChatInput'); if(i) i.focus(); }, 60);
+}
+window.cpOpenChat=cpOpenChat;
+function cpChatRenderMsgs(){
+  var box=document.getElementById('cpChatMsgs'); if(!box) return;
+  var msgs=cpChatGetThread().thread.messages;
+  var viewerLang=cpChatViewerLang();
+  box.innerHTML = msgs.length ? msgs.map(function(m){
+    var mine = m.from==='cliente';
+    var lang = m.lang || hxDetectLang(m.texto);
+    var necesitaTrad = lang!==viewerLang;
+    var texto = m.texto, notaTrad='';
+    if(necesitaTrad){
+      if(m.tr && m.tr[viewerLang]){
+        notaTrad='<div style="font-size:10.5px;color:var(--cp-muted);font-style:italic;margin-top:3px">🌐 '+escHtml(texto)+'</div>';
+        texto=m.tr[viewerLang];
+      } else {
+        cpChatEnsureTranslation(m, lang, viewerLang);
+        notaTrad='<div style="font-size:10.5px;color:var(--cp-muted);font-style:italic;margin-top:3px">🌐 Traduciendo…</div>';
+      }
+    }
+    return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:80%">'+
+      '<div style="background:'+(mine?'var(--green-mid)':'#EEF3F8')+';color:'+(mine?'#fff':'var(--charcoal)')+';padding:0.55rem 0.85rem;border-radius:14px;font-size:13px;line-height:1.45;white-space:pre-wrap">'+escHtml(texto)+'</div>'+
+      notaTrad+
+      '<div style="font-size:10px;color:var(--cp-muted);margin-top:3px;text-align:'+(mine?'right':'left')+'">'+(mine?'':escHtml(m.autor||'HIGIENEX')+' · ')+new Date(m.ts).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})+'</div>'+
+    '</div>';
+  }).join('') : '<p style="color:var(--cp-muted);font-size:13px;text-align:center;padding:24px 0">Escribe tu primer mensaje al equipo de HIGIENEX.</p>';
+  box.scrollTop=box.scrollHeight;
+}
+function cpChatMarkRead(){
+  var ctx=cpChatGetThread();
+  ctx.thread.unreadCliente=0;
+  cpChatSaveAll(ctx.all);
+  cpChatUpdateBadges();
+  cpRenderNav();
+}
+function cpChatSend(){
+  var input=document.getElementById('cpChatInput');
+  var texto=(input.value||'').trim();
+  if(!texto) return;
+  var u = CP_CURRENT_USER || CP_DB.cliente;
+  var ctx=cpChatGetThread();
+  ctx.thread.messages.push({id:'m'+Date.now()+Math.random().toString(36).slice(2,7), from:'cliente', autor:u.nom, texto:texto, lang:hxDetectLang(texto), ts:Date.now()});
+  ctx.thread.unreadEmpleado=(ctx.thread.unreadEmpleado||0)+1;
+  ctx.thread.updatedAt=Date.now();
+  ctx.thread.clienteNom=CP_DB.cliente.nom;
+  cpChatSaveAll(ctx.all);
+  input.value='';
+  cpChatRenderMsgs();
+  try{
+    enviarNotificacioEmail({
+      title:'Nuevo mensaje de '+u.nom+' — Chat HIGIENEX',
+      name:u.nom,
+      message:texto,
+      badge:'NUEVO MENSAJE',
+      subtitle:'Un cliente ha escrito en el chat de soporte del portal.',
+      detailLabel:'Mensaje'
+    });
+  }catch(e){}
+}
+window.cpChatSend=cpChatSend;
+window.addEventListener('storage', function(e){
+  if(e.key!==HX_CHAT_KEY) return;
+  cpChatUpdateBadges();
+  try{ cpRenderNav(); }catch(err){}
+  var wrap=document.getElementById('cpModalWrap');
+  if(wrap && wrap.style.display==='flex' && document.getElementById('cpChatMsgs')) cpChatRenderMsgs();
+});
 
 
 var EMAILJS_SERVICE_ID  = 'service_x8etty8';
