@@ -10457,6 +10457,10 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     --amber-bright: #F3C169;
     --cream: #ECE7DA;
     --muted: #7E9BAE;
+    --out-bg: var(--paper);
+    --out-ink: var(--ink);
+    --out-muted: var(--ink-soft);
+    --out-line: var(--paper-line);
     --danger: #E17B62;
     --ok: #8FBF9F;
     --font-display: 'Fraunces', Georgia, serif;
@@ -10663,22 +10667,24 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
   @keyframes spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { button.primary svg.spin { animation: none; } }
 
-  /* --- Output: blueprint panel with corner marks --- */
+  /* --- Output: bright drafting panel with corner marks --- */
   .blueprint {
     position: relative;
-    background: var(--navy-deep);
+    background: var(--out-bg);
     padding: 32px;
     min-height: 440px;
     display: flex;
     flex-direction: column;
     position: sticky;
     top: 24px;
-    background-image: repeating-linear-gradient(0deg, rgba(226,166,59,0.05) 0 1px, transparent 1px 22px),
-      repeating-linear-gradient(90deg, rgba(226,166,59,0.05) 0 1px, transparent 1px 22px);
+    border-radius: 6px;
+    box-shadow: 0 24px 60px rgba(4,12,20,0.35);
+    background-image: repeating-linear-gradient(0deg, var(--out-line) 0 1px, transparent 1px 26px),
+      repeating-linear-gradient(90deg, var(--out-line) 0 1px, transparent 1px 26px);
   }
   @media (max-width: 860px) { .blueprint { position: static; } }
 
-  .corner { position: absolute; width: 22px; height: 22px; border-color: var(--amber); opacity: 0.6; }
+  .corner { position: absolute; width: 22px; height: 22px; border-color: var(--amber-deep); opacity: 0.7; }
   .corner.tl { top: 10px; left: 10px; border-top: 2px solid; border-left: 2px solid; }
   .corner.tr { top: 10px; right: 10px; border-top: 2px solid; border-right: 2px solid; }
   .corner.bl { bottom: 10px; left: 10px; border-bottom: 2px solid; border-left: 2px solid; }
@@ -10689,7 +10695,7 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     margin-bottom: 14px; gap: 12px; flex-wrap: wrap;
   }
   .blueprint-head h2 {
-    font-family: var(--font-display); font-weight: 560; font-size: 20px; margin: 0; color: var(--cream);
+    font-family: var(--font-display); font-weight: 560; font-size: 20px; margin: 0; color: var(--out-ink);
   }
   .bp-actions { display: flex; gap: 8px; }
 
@@ -10700,12 +10706,12 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
   .cat-pill {
     display: inline-flex; align-items: center; gap: 5px;
     font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.03em;
-    color: var(--amber-bright); background: rgba(226,166,59,0.09);
-    border: 1px solid rgba(226,166,59,0.3); border-radius: 20px;
+    color: var(--amber-deep); background: rgba(226,166,59,0.1);
+    border: 1px solid rgba(226,166,59,0.4); border-radius: 20px;
     padding: 4px 11px 4px 9px;
   }
-  .cat-pill .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
-  .cat-pill.ai { color: var(--muted); border-color: rgba(226,166,59,0.18); background: transparent; }
+  .cat-pill .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--amber-deep); flex-shrink: 0; }
+  .cat-pill.ai { color: var(--out-muted); border-color: rgba(126,139,147,0.35); background: transparent; }
 
   @keyframes fadeSlideIn {
     from { opacity: 0; transform: translateY(6px); }
@@ -10716,48 +10722,51 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
 
   button.ghost {
     display: flex; align-items: center; gap: 6px;
-    font-family: var(--font-mono); font-size: 12px; color: var(--amber);
-    background: transparent; border: 1px solid rgba(226,166,59,0.4); border-radius: 4px;
+    font-family: var(--font-mono); font-size: 12px; color: var(--amber-deep);
+    background: rgba(226,166,59,0.06); border: 1px solid rgba(226,166,59,0.45); border-radius: 4px;
     padding: 8px 13px; cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
   }
   button.ghost svg { width: 13px; height: 13px; }
-  button.ghost:hover:not(:disabled) { background: rgba(226,166,59,0.12); border-color: rgba(226,166,59,0.7); }
-  button.ghost:disabled { opacity: 0.35; cursor: default; }
+  button.ghost:hover:not(:disabled) { background: rgba(226,166,59,0.16); border-color: var(--amber-deep); }
+  button.ghost:disabled {
+    opacity: 1; cursor: default;
+    color: var(--ink-soft); background: rgba(255,255,255,0.5); border-color: var(--paper-line);
+  }
 
   #output-rendered, #output-raw {
     flex: 1; width: 100%; min-height: 300px; max-height: 520px; overflow-y: auto;
   }
   #output-rendered {
-    color: var(--cream); font-family: var(--font-body); font-size: 14px; line-height: 1.6;
+    color: var(--out-ink); font-family: var(--font-body); font-size: 14px; line-height: 1.65;
     padding-right: 4px;
   }
   #output-rendered h3 {
-    font-family: var(--font-display); font-weight: 560; font-size: 16.5px;
-    color: var(--amber-bright); margin: 18px 0 8px;
+    font-family: var(--font-display); font-weight: 620; font-size: 17px;
+    color: var(--amber-deep); margin: 20px 0 8px;
   }
   #output-rendered h3:first-child { margin-top: 0; }
   #output-rendered h4 {
     font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
-    color: var(--amber); margin: 14px 0 5px;
+    color: var(--amber-deep); margin: 14px 0 5px;
   }
   #output-rendered p { margin: 0 0 10px; }
   #output-rendered ul, #output-rendered ol { margin: 0 0 10px; padding-left: 22px; }
   #output-rendered ul.nested { margin: 2px 0 2px 2px; padding-left: 18px; }
   #output-rendered li { margin-bottom: 5px; }
-  #output-rendered strong { color: var(--amber-bright); font-weight: 600; }
+  #output-rendered strong { color: var(--amber-deep); font-weight: 700; }
   #output-rendered .tagblock {
-    background: rgba(226,166,59,0.06); border-left: 2px solid var(--amber);
-    border-radius: 0 4px 4px 0; padding: 10px 14px; margin: 2px 0 16px;
+    background: rgba(226,166,59,0.08); border-left: 3px solid var(--amber);
+    border-radius: 0 6px 6px 0; padding: 11px 15px; margin: 4px 0 18px;
   }
   #output-rendered .tagblock-label {
     display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em;
-    text-transform: uppercase; color: var(--amber); margin-bottom: 5px;
+    text-transform: uppercase; color: var(--amber-deep); margin-bottom: 5px;
   }
-  #output-rendered .tagblock p { margin: 0 0 4px; font-style: italic; color: var(--muted); }
+  #output-rendered .tagblock p { margin: 0 0 4px; font-style: italic; color: var(--out-muted); }
   #output-rendered .tagblock p:last-child { margin-bottom: 0; }
   #output-raw {
-    background: transparent; border: none; color: var(--cream);
+    background: transparent; border: none; color: var(--out-ink);
     font-family: var(--font-mono); font-size: 13px; line-height: 1.7;
     resize: vertical; white-space: pre-wrap;
   }
@@ -10770,41 +10779,41 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
   .empty-icon {
     position: relative;
     width: 88px; height: 88px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(226,166,59,0.16), rgba(226,166,59,0.02) 70%);
-    border: 1px dashed rgba(226,166,59,0.4);
+    background: radial-gradient(circle, rgba(226,166,59,0.22), rgba(226,166,59,0.03) 70%);
+    border: 1px dashed rgba(198,135,28,0.5);
     display: flex; align-items: center; justify-content: center;
     animation: breathe 3.6s ease-in-out infinite;
   }
-  .empty-icon svg { width: 38px; height: 38px; color: var(--amber); }
+  .empty-icon svg { width: 38px; height: 38px; color: var(--amber-deep); }
   .empty-icon .pencil {
     position: absolute; bottom: -4px; right: -6px;
     width: 30px; height: 30px; border-radius: 50%;
-    background: var(--navy-deep); border: 1px solid rgba(226,166,59,0.5);
+    background: var(--out-bg); border: 1px solid rgba(198,135,28,0.55);
     display: flex; align-items: center; justify-content: center;
   }
-  .empty-icon .pencil svg { width: 15px; height: 15px; color: var(--amber-bright); }
+  .empty-icon .pencil svg { width: 15px; height: 15px; color: var(--amber-deep); }
   @keyframes breathe {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(226,166,59,0.12); }
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(226,166,59,0.14); }
     50% { transform: scale(1.045); box-shadow: 0 0 0 8px rgba(226,166,59,0); }
   }
   @media (prefers-reduced-motion: reduce) { .empty-icon { animation: none; } }
   .empty-title {
-    font-family: var(--font-display); font-weight: 560; font-size: 18.5px;
-    color: var(--cream); margin: 0;
+    font-family: var(--font-display); font-weight: 600; font-size: 18.5px;
+    color: var(--out-ink); margin: 0;
   }
-  .empty-sub { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin: 0; }
+  .empty-sub { font-size: 13.5px; color: var(--out-muted); line-height: 1.55; margin: 0; }
   .empty-hint {
     display: flex; align-items: center; gap: 6px;
     font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
-    color: var(--muted); margin-top: 2px;
+    color: var(--out-muted); margin-top: 2px;
   }
   .empty-hint svg { width: 13px; height: 13px; }
 
   .status-line {
-    font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+    font-family: var(--font-mono); font-size: 12px; color: var(--out-muted);
     margin-top: 16px; min-height: 16px; display: flex; align-items: center; gap: 6px;
   }
-  .status-line.copied { color: var(--amber); }
+  .status-line.copied { color: var(--amber-deep); font-weight: 600; }
 
   footer { margin-top: 44px; font-size: 12.5px; color: var(--muted); max-width: 640px; }
 </style>
@@ -11067,7 +11076,7 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     lines.push('- Convierte las restricciones en instrucciones explícitas (qué evitar, longitud, qué exigir).');
     lines.push('- Si se dio un ejemplo, inclúyelo como referencia de estilo o formato, dejando claro que es una referencia y no datos a repetir.');
     lines.push('- Si la tarea es compleja, de varios pasos, o implica cálculos o cruces de datos, pide explícitamente que razone paso a paso y que verifique internamente el resultado (por ejemplo, que las cifras cuadren) antes de dar la respuesta final.');
-    lines.push('- Usa un lenguaje directo. Organiza el prompt con títulos, saltos de línea o etiquetas tipo XML para separar contexto, tarea, reglas y formato — que se note que es un prompt cuidado, no una frase suelta.');
+    lines.push('- Usa un lenguaje directo. Organiza el prompt con títulos (usando "## "), saltos de línea o etiquetas tipo XML para separar contexto, tarea, reglas y formato — que se note que es un prompt cuidado, no una frase suelta. Añade un emoji descriptivo al principio de cada título de sección (por ejemplo "## 🔍 Identificación de..." o "## 🧮 Cálculos") para que sea más visual y fácil de escanear de un vistazo, sin pasarte ni meter emojis en el resto del texto.');
     lines.push('- No añadas explicaciones sobre el prompt ni comentarios meta, ni frases como "aquí tienes el prompt". Devuelve ÚNICAMENTE el texto del prompt final, listo para copiar y pegar.');
     const ejemplosRef = findBestExamples(f.tarea + ' ' + f.contexto, 2);
     if (ejemplosRef.length === 1) {
@@ -11260,36 +11269,36 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
 
   function buildFallbackFinanzas(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Identificación de las operaciones');
+    lines.push('## 🔍 Identificación de las operaciones');
     lines.push('- Revisa todos los movimientos disponibles y localiza los que correspondan exactamente a lo que se pide.');
     lines.push('- Ten en cuenta que un mismo comercio, servicio o concepto puede aparecer con distintos nombres o formatos (razón social completa, abreviatura, dominio web, etc.). No incluyas una operación solo porque el texto se parezca: si hay dudas, sepárala en un apartado de "pendiente de revisión".');
     lines.push('');
-    lines.push('## Filtrado por fecha y duplicados');
+    lines.push('## 📅 Filtrado por fecha y duplicados');
     lines.push('- Incluye únicamente las operaciones dentro del periodo indicado, comprobando la fecha de cada movimiento uno a uno.');
     lines.push('- Antes de calcular los totales, revisa si hay operaciones duplicadas (misma fecha, importe, comercio o referencia). No las elimines automáticamente: si hay duda, consérvalas y márcalas como "posible duplicado".');
     lines.push('');
-    lines.push('## Datos a extraer por operación');
+    lines.push('## 🗂️ Datos a extraer por operación');
     lines.push('Para cada operación: fecha, concepto o descripción original, importe, moneda y cualquier referencia disponible. No modifiques los datos originales; si haces alguna conversión, indícalo.');
     lines.push('');
-    lines.push('## Clasificación');
+    lines.push('## 🏷️ Clasificación');
     lines.push('Si la información lo permite, clasifica cada operación por categoría o tipo. Si no hay datos suficientes para saber a qué corresponde, usa "No identificado" en vez de inventar una categoría.');
     lines.push('');
-    lines.push('## Cálculos');
+    lines.push('## 🧮 Cálculos');
     lines.push('Calcula como mínimo: número total de operaciones, importe total, importe medio, operación de mayor importe y de menor importe. Comprueba que la suma de las operaciones individuales coincide con el total antes de presentarlo; si no coincide, revisa antes de responder.');
     lines.push('');
-    lines.push('## Gráfica');
+    lines.push('## 📈 Gráfica');
     lines.push('Si se pide una visualización, especifica qué va en cada eje, una barra o punto por operación (ordenadas cronológicamente) y que los importes sean legibles, con un título descriptivo.');
     lines.push('');
-    lines.push('## Reembolsos o ajustes');
+    lines.push('## 💸 Reembolsos o ajustes');
     lines.push('Si aparecen importes negativos o devoluciones, sepáralos de las compras y calcula por separado: gasto bruto, reembolsos y gasto neto. Si no hay ninguno, indícalo expresamente.');
     lines.push('');
-    lines.push('## Detección de anomalías');
+    lines.push('## ⚠️ Detección de anomalías');
     lines.push('Señala (sin afirmar que son errores) cargos repetidos, importes inusualmente altos, varias operaciones el mismo día o conceptos que podrían pertenecer al mismo servicio. Usa "requiere revisión", nunca acuses de algo sin certeza.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta final');
+    lines.push('## 📋 Estructura de la respuesta final');
     lines.push('1. **Resumen ejecutivo** — total, número de operaciones, media, máxima y mínima.');
     lines.push('2. **Gráfica(s)** — según lo pedido.');
     lines.push('3. **Tabla detallada** — fecha, concepto, categoría, importe y estado (confirmada / posible duplicado / pendiente de revisión / reembolso).');
@@ -11299,29 +11308,29 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     lines.push('7. **Conclusión** — una o dos frases objetivas con el resultado final.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba internamente que: revisaste todas las operaciones del periodo, solo incluiste las que correspondían, no hay duplicados evidentes sin señalar, la suma cuadra con el total, los reembolsos están separados y las fechas van en orden cronológico.');
     return lines.join('\\n');
   }
 
   function buildFallbackCodigo(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Contexto técnico necesario');
+    lines.push('## 💻 Contexto técnico necesario');
     lines.push('- Indica el lenguaje, framework o entorno exacto (y la versión si es relevante), y pega el código o fragmento completo — no solo un resumen de lo que hace.');
     lines.push('- Si hay librerías o dependencias externas en uso, menciónalas.');
     lines.push('');
-    lines.push('## Qué no debe hacer');
+    lines.push('## 🚫 Qué no debe hacer');
     lines.push('- No inventar nombres de funciones, librerías, variables o comportamientos que no estén en el código dado o que no existan realmente.');
     lines.push('- No afirmar que un cambio soluciona el problema si no se puede justificar con el propio código.');
     lines.push('- Si hace falta alguna suposición sobre el entorno o los datos de entrada, indicarla explícitamente antes de la solución.');
     lines.push('');
-    lines.push('## Casos límite a considerar');
+    lines.push('## 🧪 Casos límite a considerar');
     lines.push('- Pide que se tengan en cuenta entradas vacías, valores nulos, tamaños extremos o cualquier caso límite razonable, y que se indique si alguno queda sin cubrir.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. **Planteamiento** — qué se ha entendido del problema, en dos o tres líneas.');
     lines.push('2. **Diagnóstico** — qué está pasando y por qué, si aplica.');
     lines.push('3. **Solución** — código completo, comentado donde no sea obvio.');
@@ -11329,73 +11338,73 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     lines.push('5. **Limitaciones** — qué no queda cubierto o qué habría que probar antes de darlo por bueno.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Revisa que el código sea coherente de principio a fin (nombres, tipos, imports), que no falte manejo de los casos límite mencionados y que la explicación se corresponda exactamente con lo que hace el código.');
     return lines.join('\\n');
   }
 
   function buildFallbackRedaccion(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Tono y voz');
+    lines.push('## 🗣️ Tono y voz');
     lines.push('- Especifica el tono exacto (formal, cercano, técnico...) y para quién es el texto, para que la voz sea consistente de principio a fin.');
     lines.push('');
-    lines.push('## Datos a respetar');
+    lines.push('## 📌 Datos a respetar');
     lines.push('- No inventar datos, citas, cifras o hechos concretos que no se hayan dado. Si falta algún dato para completar el texto, indicarlo en vez de rellenarlo por tu cuenta.');
     lines.push('');
-    lines.push('## Longitud y formato');
+    lines.push('## 📏 Longitud y formato');
     lines.push('- Indica la longitud aproximada esperada y el formato exacto (email, artículo, publicación...), para que no salga ni muy corto ni excesivamente largo.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. **Texto final**, listo para usar, en el formato y tono pedidos.');
     lines.push('2. **Versión alternativa** más breve, si tiene sentido para ese formato.');
     lines.push('3. **Nota breve** (si aplica) — qué datos ayudarían a afinarlo más.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba que el texto cumple el tono y el formato pedidos, que la longitud es la adecuada, y que no contiene datos inventados.');
     return lines.join('\\n');
   }
 
   function buildFallbackGenerico(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Cómo debes trabajar');
+    lines.push('## 🎯 Cómo debes trabajar');
     lines.push(...fallbackReglasBase(f));
     lines.push('- Si encuentras algo ambiguo, dudoso, duplicado o que no puedas confirmar con seguridad, sepáralo en un apartado aparte y explica por qué, en lugar de decidir por tu cuenta o descartarlo en silencio.');
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. **Resumen** — los datos o conclusiones clave, en pocas líneas.');
     lines.push('2. **Detalle** — el desarrollo completo (tabla, lista o texto, según encaje mejor), ordenado de forma lógica.');
     lines.push('3. **Puntos a revisar** — cualquier dato incompleto, ambiguo o dudoso, señalado explícitamente (si no hay ninguno, indícalo).');
     lines.push('4. **Conclusión** — una o dos frases que resuman el resultado de forma objetiva.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba internamente que: has usado toda la información disponible, no hay contradicciones entre el resumen, el detalle y las cifras o conclusiones, cualquier dato incompleto o dudoso está señalado (no inventado), y si hay cálculos, cuadran.');
     return lines.join('\\n');
   }
 
   function buildFallbackRRHH(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Identificación de los registros');
+    lines.push('## 🔍 Identificación de los registros');
     lines.push('- Incluye únicamente los registros dentro del periodo y del grupo de empleados indicado, comprobando fechas y nombres uno a uno.');
     lines.push('');
-    lines.push('## Datos a extraer por registro');
+    lines.push('## 🗂️ Datos a extraer por registro');
     lines.push('- Usa únicamente los datos de personal proporcionados. No inventes nombres, cifras ni fechas.');
     lines.push('- Si falta algún dato para un empleado concreto, indícalo como "no disponible" en vez de suponerlo.');
     lines.push('');
-    lines.push('## Cálculos');
+    lines.push('## 🧮 Cálculos');
     lines.push('- Calcula los totales y medias que correspondan (por persona, por departamento y el total general), y comprueba que la suma de los registros individuales coincide con el total.');
     lines.push('');
-    lines.push('## Confidencialidad');
+    lines.push('## 🔒 Confidencialidad');
     lines.push('- Trata los datos de personal con cuidado: no generalices ni saques conclusiones sobre una persona que no estén respaldadas por los datos dados.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. Resumen ejecutivo con las cifras clave.');
     lines.push('2. Tabla detallada por empleado o departamento, según corresponda.');
     lines.push('3. Casos que llaman la atención, sin sacar conclusiones no respaldadas por los datos.');
@@ -11403,29 +11412,29 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     lines.push('5. Conclusión breve y objetiva.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba que todos los registros del periodo están incluidos, que los totales cuadran con el detalle, y que no has atribuido ningún dato a una persona sin que aparezca explícitamente en la información proporcionada.');
     return lines.join('\\n');
   }
 
   function buildFallbackInventario(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Identificación de productos o registros');
+    lines.push('## 🔍 Identificación de productos o registros');
     lines.push('- No inventes productos, cantidades ni proveedores que no aparezcan en los datos.');
     lines.push('');
-    lines.push('## Criterio de relevancia');
+    lines.push('## ⭐ Criterio de relevancia');
     lines.push('- Ordena los resultados según lo que importe para la tarea (mayor urgencia, mayor valor, mayor desviación) y dilo explícitamente.');
     lines.push('');
-    lines.push('## Datos a extraer');
+    lines.push('## 🗂️ Datos a extraer');
     lines.push('- Usa solo los campos disponibles (stock, proveedor, fechas, cantidades). Si falta un dato, indícalo como "no disponible" en vez de suponerlo.');
     lines.push('');
-    lines.push('## Casos que requieren revisión');
+    lines.push('## 🚩 Casos que requieren revisión');
     lines.push('- Si algo parece un error de registro (cantidades negativas sin explicación, fechas imposibles), señálalo aparte como "requiere revisión" en vez de corregirlo por tu cuenta.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. Resumen ejecutivo con los indicadores clave.');
     lines.push('2. Tabla detallada, ordenada por relevancia.');
     lines.push('3. Casos que requieren atención inmediata, si los hay.');
@@ -11433,154 +11442,154 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     lines.push('5. Conclusión breve y objetiva.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba que has usado todos los registros disponibles, que los totales cuadran con el detalle, y que no has dado por hecho ningún dato que no estuviera explícito en la información proporcionada.');
     return lines.join('\\n');
   }
 
   function buildFallbackAtencionCliente(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Tono y firma');
+    lines.push('## ✍️ Tono y firma');
     lines.push('- Respeta el tono exacto pedido, y no firmes con un nombre de persona concreto: termina con algo genérico como "El equipo de atención al cliente".');
     lines.push('');
-    lines.push('## Datos del caso a usar');
+    lines.push('## 📄 Datos del caso a usar');
     lines.push('- Usa únicamente los datos del cliente o del caso proporcionados (nombre, número de pedido/factura, fechas, importes). No inventes ningún dato adicional.');
     lines.push('');
-    lines.push('## Qué no prometer');
+    lines.push('## 🚫 Qué no prometer');
     lines.push('- No prometas plazos, compensaciones ni condiciones que no se hayan indicado explícitamente.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. Cuerpo del mensaje, listo para copiar y pegar, en el tono pedido.');
     lines.push('2. Una versión alternativa más breve, si aplica.');
     lines.push('3. Una nota aparte con cualquier dato que falte para personalizarlo del todo.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba que el mensaje usa correctamente los datos proporcionados, que el tono es el pedido, que no es más largo de lo necesario y que no contiene ninguna promesa o dato inventado.');
     return lines.join('\\n');
   }
 
   function buildFallbackMarketing(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Marca y tono');
+    lines.push('## 🎨 Marca y tono');
     lines.push('- Usa únicamente la información sobre la marca, el producto o el público objetivo que se haya dado. Si falta algo (tono de marca, fechas clave), indícalo como pendiente antes de proponer el contenido.');
     lines.push('');
-    lines.push('## Datos a respetar');
+    lines.push('## 📌 Datos a respetar');
     lines.push('- No inventes cifras de rendimiento ni afirmaciones sobre el producto. No prometas resultados en los textos.');
     lines.push('');
-    lines.push('## Formato por canal');
+    lines.push('## 📱 Formato por canal');
     lines.push('- Adapta el contenido al canal o formato pedido (post, story, newsletter...), respetando la longitud y el tono propios de cada uno.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. Propuesta completa, organizada de forma clara.');
     lines.push('2. Breve justificación de las decisiones clave (por qué ese enfoque, ese tono).');
     lines.push('3. Qué información adicional ayudaría a afinar más la propuesta.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba que el contenido es coherente con los datos dados, que no hay cifras o afirmaciones inventadas, y que el tono es consistente en todas las piezas.');
     return lines.join('\\n');
   }
 
   function buildFallbackLegal(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Alcance del documento');
+    lines.push('## 📜 Alcance del documento');
     lines.push('- Básate únicamente en el texto del documento proporcionado. No des por hecho cláusulas o condiciones habituales si no aparecen explícitamente.');
     lines.push('');
-    lines.push('## Cláusulas ambiguas');
+    lines.push('## ❓ Cláusulas ambiguas');
     lines.push('- Si una cláusula admite más de una lectura, señálalo y explica las distintas interpretaciones en vez de decidir cuál es la correcta.');
     lines.push('');
-    lines.push('## Límites de la respuesta');
+    lines.push('## ⚖️ Límites de la respuesta');
     lines.push('- Deja claro que esto no sustituye el consejo de un abogado si la decisión es importante, y que no equivale a asesoría legal formal.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. Resumen en lenguaje sencillo de los puntos clave.');
     lines.push('2. Detalle de las cláusulas relevantes, citando qué dice cada una.');
     lines.push('3. Puntos que llaman la atención o que convendría aclarar.');
     lines.push('4. Conclusión objetiva.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba que cada punto del resumen se puede rastrear hasta una parte concreta del documento, y que las cláusulas ambiguas están señaladas como tales.');
     return lines.join('\\n');
   }
 
   function buildFallbackReuniones(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Fuente de la información');
+    lines.push('## 🗒️ Fuente de la información');
     lines.push('- Usa únicamente lo que aparece en las notas o la transcripción proporcionadas. No añadas acuerdos, tareas o responsables que no estén mencionados.');
     lines.push('');
-    lines.push('## Qué señalar como pendiente');
+    lines.push('## ⏳ Qué señalar como pendiente');
     lines.push('- Si algo no queda claro (responsable, fecha límite), indícalo como pendiente de confirmar en vez de suponerlo.');
     lines.push('');
-    lines.push('## Fidelidad al contenido');
+    lines.push('## 🔁 Fidelidad al contenido');
     lines.push('- No cambies el sentido de lo que se dijo, aunque reorganices el orden para que quede más claro.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. Resumen breve del objetivo de la reunión o llamada.');
     lines.push('2. Puntos tratados, organizados por tema.');
     lines.push('3. Acuerdos y tareas, con responsable y plazo cuando conste.');
     lines.push('4. Pendiente de confirmar — lo que no queda claro en las notas originales.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba que cada acuerdo o tarea del resultado se puede encontrar en las notas originales, y que nada se ha atribuido a una persona sin que estuviera claro en ellas.');
     return lines.join('\\n');
   }
 
   function buildFallbackInvestigacion(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Fuentes a usar');
+    lines.push('## 📚 Fuentes a usar');
     lines.push('- Básate únicamente en el material proporcionado (documentos, artículos, enlaces). No añadas datos, cifras o afirmaciones que no aparezcan en él.');
     lines.push('');
-    lines.push('## Contradicciones entre fuentes');
+    lines.push('## 🔀 Contradicciones entre fuentes');
     lines.push('- Si dos fuentes se contradicen, señala la contradicción en vez de quedarte solo con una versión.');
     lines.push('');
-    lines.push('## Profundidad');
+    lines.push('## 🔬 Profundidad');
     lines.push('- Ajusta el nivel de detalle a lo pedido: un resumen rápido no necesita la misma profundidad que un análisis comparativo completo.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. Resumen ejecutivo con las conclusiones principales.');
     lines.push('2. Desarrollo — punto por punto, con referencia a qué fuente respalda cada afirmación.');
     lines.push('3. Discrepancias o puntos poco claros, si los hay.');
     lines.push('4. Conclusión objetiva.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba que cada afirmación se puede rastrear hasta el material original y que las contradicciones entre fuentes están señaladas.');
     return lines.join('\\n');
   }
 
   function buildFallbackAnalisisDatos(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Datos a considerar');
+    lines.push('## 📊 Datos a considerar');
     lines.push('- Usa únicamente los datos proporcionados. No inventes cifras ni conclusiones que no puedas justificar con ellos.');
     lines.push('');
-    lines.push('## Hechos frente a interpretación');
+    lines.push('## 🧩 Hechos frente a interpretación');
     lines.push('- Distingue claramente entre lo que dicen los datos y cualquier interpretación tuya; señala la interpretación como tal.');
     lines.push('');
-    lines.push('## Visualización');
+    lines.push('## 📈 Visualización');
     lines.push('- Si se pide una gráfica o tabla visual, especifica qué va en cada eje o columna y que los valores sean legibles, con un título descriptivo.');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta');
+    lines.push('## 📋 Estructura de la respuesta');
     lines.push('1. Resumen ejecutivo con los indicadores clave.');
     lines.push('2. Tabla o desglose detallado.');
     lines.push('3. Análisis — qué patrones o diferencias destacan, apoyándote solo en los datos dados.');
@@ -11588,60 +11597,60 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     lines.push('5. Conclusión y, si se pide, una recomendación basada estrictamente en lo anterior.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba que cada afirmación se apoya en un dato concreto, que los totales o porcentajes están bien calculados, y que las limitaciones están señaladas con claridad.');
     return lines.join('\\n');
   }
 
   function buildFallbackDisenoWeb(f) {
     const lines = fallbackHeader(f);
-    lines.push('## Estilo y marca');
+    lines.push('## 🎨 Estilo y marca');
     lines.push('- Especifica el color principal y una pequeña paleta de tonos derivados, la tipografía y el estilo visual general (moderno, corporativo, minimalista, deportivo...), para que el resultado no parezca una plantilla genérica.');
     lines.push('- Pide bordes redondeados, sombras suaves, buen espaciado y transiciones/animaciones discretas en botones, tarjetas y elementos interactivos.');
     lines.push('');
-    lines.push('## Estructura de secciones (en este orden)');
+    lines.push('## 🧱 Estructura de secciones (en este orden)');
     lines.push('Define cada sección de arriba a abajo con lo que debe llevar cada una: cabecera/menú (con menú hamburguesa en móvil), portada con llamada a la acción, presentación, servicios o productos con tarjetas, cómo funciona el proceso, planes o precios, testimonios o resultados, preguntas frecuentes desplegables, contacto con formulario, y footer con enlaces y redes sociales. Ajusta esta lista a lo que pida realmente la tarea.');
     lines.push('');
-    lines.push('## Contenido de ejemplo');
+    lines.push('## 📝 Contenido de ejemplo');
     lines.push('- Indica qué textos, cifras o testimonios son de ejemplo/ficticios y que deben quedar identificables como tales, sin presentarlos como datos reales (ni inventar certificaciones o cifras concretas que suenen a reales).');
     lines.push('');
-    lines.push('## Funcionalidad en JavaScript');
+    lines.push('## ⚙️ Funcionalidad en JavaScript');
     lines.push('- Especifica explícitamente qué debe hacerse con JavaScript: menú hamburguesa, desplegables (FAQ), validación de formularios con mensaje de confirmación, scroll suave, animaciones al aparecer elementos, efectos hover. No des por hecho que se incluirá solo lo que no se pida.');
     lines.push('');
-    lines.push('## Responsive');
+    lines.push('## 📱 Responsive');
     lines.push('- Pide expresamente que funcione en escritorio, tablet y móvil, indicando qué debe cambiar en cada tamaño (por ejemplo: el menú se convierte en hamburguesa, las tarjetas pasan a una columna, sin scroll horizontal en ningún caso).');
     lines.push('');
-    lines.push('## Entrega');
+    lines.push('## 📦 Entrega');
     lines.push('- Indica el formato de entrega (por ejemplo, un único archivo HTML autocontenido con el CSS y el JavaScript dentro) y qué tecnologías evitar si aplica (frameworks, librerías externas).');
     lines.push('');
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta final');
+    lines.push('## 📋 Estructura de la respuesta final');
     lines.push('1. **Código completo**, bien estructurado y comentado.');
     lines.push('2. **Resumen breve** de las decisiones de diseño tomadas (paleta, tipografía, estructura).');
     lines.push('3. **Checklist de verificación** — que los botones, el menú, el formulario, el FAQ y los enlaces internos funcionan, y que el diseño es responsive sin errores.');
     lines.push('4. **Limitaciones o siguientes pasos** — por ejemplo, qué contenido de ejemplo habría que sustituir por real.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba que todas las secciones pedidas están presentes y en el orden indicado, que las funcionalidades de JavaScript descritas funcionan de verdad (no solo visualmente), que no hay errores de HTML/CSS/JS, y que el diseño es responsive sin scroll horizontal en ningún tamaño de pantalla.');
     return lines.join('\\n');
   }
 
   function buildFallbackCompuesto(f, catKeys) {
     const lines = fallbackHeader(f);
-    lines.push('## Reglas de precisión (la tarea combina varios aspectos, así que van por partes)');
+    lines.push('## 🎯 Reglas de precisión (la tarea combina varios aspectos, así que van por partes)');
     catKeys.forEach(k => {
       const def = CATEGORY_DEFS[k];
-      lines.push('### Parte ' + def.label);
+      lines.push('### 🧩 Parte ' + def.label);
       def.reglas.forEach(r => lines.push('- ' + r));
       lines.push('');
     });
-    lines.push('## Reglas generales');
+    lines.push('## 📏 Reglas generales');
     lines.push(...fallbackReglasBase(f));
     lines.push('');
-    lines.push('## Estructura de la respuesta final');
+    lines.push('## 📋 Estructura de la respuesta final');
     lines.push('1. **Resumen ejecutivo** — combinando lo más relevante de ' + catKeys.map(k => CATEGORY_DEFS[k].label).join(' y ') + '.');
     let n = 2;
     catKeys.forEach(k => {
@@ -11655,7 +11664,7 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     lines.push(n + '. **Conclusión** — una valoración conjunta y objetiva.');
     lines.push(...fallbackEjemplo(f));
     lines.push('');
-    lines.push('## Antes de dar la respuesta final');
+    lines.push('## ✅ Antes de dar la respuesta final');
     lines.push('Comprueba internamente que:');
     catKeys.forEach(k => lines.push('- En la parte ' + CATEGORY_DEFS[k].label + ': ' + CATEGORY_DEFS[k].verificacion + '.'));
     return lines.join('\\n');
@@ -11703,7 +11712,7 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
       const closeTag = line.match(/^<\\/([a-zA-Z_][a-zA-Z0-9_]*)>\\s*$/);
       if (openTag && !inTag) { closeList(); inTag = openTag[1]; tagBuffer = []; continue; }
       if (closeTag && inTag === closeTag[1]) {
-        html += '<div class="tagblock"><span class="tagblock-label">' + escapeHtml(inTag.replace(/_/g, ' ')) + '</span>' +
+        html += '<div class="tagblock"><span class="tagblock-label">📎 ' + escapeHtml(inTag.replace(/_/g, ' ')) + '</span>' +
           tagBuffer.map(l => '<p>' + inlineMd(l) + '</p>').join('') + '</div>';
         inTag = null;
         continue;
@@ -11729,7 +11738,7 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     }
     closeList();
     if (inTag) {
-      html += '<div class="tagblock"><span class="tagblock-label">' + escapeHtml(inTag.replace(/_/g, ' ')) + '</span>' +
+      html += '<div class="tagblock"><span class="tagblock-label">📎 ' + escapeHtml(inTag.replace(/_/g, ' ')) + '</span>' +
         tagBuffer.map(l => '<p>' + inlineMd(l) + '</p>').join('') + '</div>';
     }
     return html;
