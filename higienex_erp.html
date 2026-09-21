@@ -10911,7 +10911,7 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
 
   function buildMetaPrompt(f) {
     let lines = [];
-    lines.push('Eres un experto en ingeniería de prompts. Tu única tarea es escribir un prompt excelente, en español, listo para copiar y pegar, que una persona usará para pedirle una tarea a Claude (un modelo de lenguaje). No completes la tarea tú mismo: escribe el prompt que se la pediría a otra persona.');
+    lines.push('Eres un experto en ingeniería de prompts. Tu única tarea es escribir un prompt excelente, detallado y profesional, en español, listo para copiar y pegar, que una persona usará para pedirle una tarea a Claude (un modelo de lenguaje). No completes la tarea tú mismo: escribe el prompt que se la pediría a otra persona.');
     lines.push('');
     lines.push('Datos que te da el usuario sobre lo que necesita:');
     lines.push('- Tarea: ' + f.tarea);
@@ -10924,28 +10924,55 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     lines.push('Instrucciones para el prompt que vas a escribir:');
     lines.push('- Si aporta valor, empieza definiendo el rol o la perspectiva que debe adoptar Claude.');
     lines.push('- Da el contexto necesario de forma breve y ordenada.');
-    lines.push('- Especifica la tarea de forma clara, concreta y sin ambigüedad.');
-    lines.push('- Indica el formato de salida exacto que se espera.');
+    lines.push('- Especifica la tarea de forma clara, concreta y sin ambigüedad, desglosándola en los pasos o apartados que haga falta si es una tarea con varias partes (identificación de datos, filtrado, cálculos, clasificación, etc.).');
+    lines.push('- Incluye siempre una instrucción explícita de precisión: que Claude use únicamente la información proporcionada, no invente datos ni conclusiones, y señale como "no disponible" o "requiere revisión" cualquier cosa incompleta, ambigua o dudosa en vez de suponerla.');
+    lines.push('- Indica el formato de salida exacto que se espera, y si la tarea lo pide, propone una estructura de respuesta con secciones (por ejemplo: resumen, detalle, puntos a revisar, conclusión), adaptada a lo que se está pidiendo.');
     lines.push('- Convierte las restricciones en instrucciones explícitas (qué evitar, longitud, qué exigir).');
-    lines.push('- Si se dio un ejemplo, inclúyelo como referencia de estilo o formato.');
-    lines.push('- Si la tarea es compleja o de varios pasos, pide explícitamente que razone paso a paso antes de dar la respuesta final.');
-    lines.push('- Usa un lenguaje directo. Si ayuda a la claridad, organiza el prompt con saltos de línea o con etiquetas tipo XML para separar contexto, tarea y formato.');
+    lines.push('- Si se dio un ejemplo, inclúyelo como referencia de estilo o formato, dejando claro que es una referencia y no datos a repetir.');
+    lines.push('- Si la tarea es compleja, de varios pasos, o implica cálculos o cruces de datos, pide explícitamente que razone paso a paso y que verifique internamente el resultado (por ejemplo, que las cifras cuadren) antes de dar la respuesta final.');
+    lines.push('- Usa un lenguaje directo. Organiza el prompt con títulos, saltos de línea o etiquetas tipo XML para separar contexto, tarea, reglas y formato — que se note que es un prompt cuidado, no una frase suelta.');
     lines.push('- No añadas explicaciones sobre el prompt ni comentarios meta, ni frases como "aquí tienes el prompt". Devuelve ÚNICAMENTE el texto del prompt final, listo para copiar y pegar.');
     return lines.join('\\n');
   }
 
   function buildFallbackPrompt(f) {
-    let out = [];
-    out.push(f.tarea);
-    out.push('');
-    if (f.contexto) { out.push('<contexto>'); out.push(f.contexto); out.push('</contexto>'); out.push(''); }
-    out.push('Formato de la respuesta: ' + f.formato + '.');
-    out.push('Tono: ' + f.tono + '.');
-    if (f.restricciones) out.push('Ten en cuenta: ' + f.restricciones + '.');
-    if (f.ejemplo) { out.push(''); out.push('<ejemplo_de_referencia>'); out.push(f.ejemplo); out.push('</ejemplo_de_referencia>'); }
-    out.push('');
-    out.push('Si la tarea tiene varios pasos o requiere análisis, razona paso a paso antes de dar la respuesta final.');
-    return out.join('\\n');
+    const lines = [];
+    lines.push(f.tarea);
+    lines.push('');
+    if (f.contexto) {
+      lines.push('<contexto>');
+      lines.push(f.contexto);
+      lines.push('</contexto>');
+      lines.push('');
+    }
+    lines.push('## Cómo debes trabajar');
+    lines.push('- Usa únicamente la información que te dé en este mensaje o en los archivos adjuntos. No inventes datos, cifras, fechas, nombres ni conclusiones que no puedas justificar con lo que te doy.');
+    lines.push('- Si falta información para completar alguna parte, dilo explícitamente ("no disponible" / "falta este dato") en vez de suponerla o rellenarla por tu cuenta.');
+    lines.push('- Si encuentras algo ambiguo, dudoso, duplicado o que no puedas confirmar con seguridad, sepáralo en un apartado aparte y explica por qué, en lugar de decidir por tu cuenta o descartarlo en silencio.');
+    if (f.tono && f.tono !== 'el que mejor encaje') lines.push('- Tono: ' + f.tono + '.');
+    lines.push('- Formato de salida: ' + f.formato + '.');
+    if (f.restricciones) lines.push('- Además, ten en cuenta esto: ' + f.restricciones + '.');
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. **Resumen** — los datos o conclusiones clave, en pocas líneas.');
+    lines.push('2. **Detalle** — el desarrollo completo (tabla, lista o texto, según encaje mejor), ordenado de forma lógica.');
+    lines.push('3. **Puntos a revisar** — cualquier dato incompleto, ambiguo o dudoso, señalado explícitamente (si no hay ninguno, indícalo).');
+    lines.push('4. **Conclusión** — una o dos frases que resuman el resultado de forma objetiva.');
+    if (f.ejemplo) {
+      lines.push('');
+      lines.push('<ejemplo_de_referencia>');
+      lines.push('Tómalo como referencia de estilo y formato, no como datos a repetir:');
+      lines.push(f.ejemplo);
+      lines.push('</ejemplo_de_referencia>');
+    }
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba internamente que:');
+    lines.push('- Has usado toda la información disponible y no te has dejado nada relevante fuera.');
+    lines.push('- No hay contradicciones entre el resumen, el detalle y las cifras o conclusiones.');
+    lines.push('- Cualquier dato incompleto o dudoso está señalado, no inventado ni supuesto.');
+    lines.push('- Si la tarea implica cálculos, las cuentas cuadran y las has verificado.');
+    return lines.join('\\n');
   }
 
   function showOutput(text) {
