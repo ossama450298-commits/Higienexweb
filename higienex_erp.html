@@ -10583,6 +10583,10 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
   .paper .hint { font-size: 13px; color: var(--ink-soft); margin: 0 0 26px; }
 
   .field { margin-bottom: 19px; }
+  .field-divider {
+    height: 1px; margin: 4px 0 22px;
+    background: linear-gradient(90deg, var(--paper-line), transparent 85%);
+  }
 
   .field label {
     display: flex; justify-content: space-between; align-items: baseline;
@@ -10682,12 +10686,33 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
 
   .blueprint-head {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 18px; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 14px; gap: 12px; flex-wrap: wrap;
   }
   .blueprint-head h2 {
     font-family: var(--font-display); font-weight: 560; font-size: 20px; margin: 0; color: var(--cream);
   }
   .bp-actions { display: flex; gap: 8px; }
+
+  .cat-pills {
+    display: none; flex-wrap: wrap; gap: 6px; margin: 0 0 16px;
+  }
+  .cat-pills.show { display: flex; }
+  .cat-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.03em;
+    color: var(--amber-bright); background: rgba(226,166,59,0.09);
+    border: 1px solid rgba(226,166,59,0.3); border-radius: 20px;
+    padding: 4px 11px 4px 9px;
+  }
+  .cat-pill .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
+  .cat-pill.ai { color: var(--muted); border-color: rgba(226,166,59,0.18); background: transparent; }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  #output-rendered.animate-in { animation: fadeSlideIn 0.35s ease-out; }
+  @media (prefers-reduced-motion: reduce) { #output-rendered.animate-in { animation: none; } }
 
   button.ghost {
     display: flex; align-items: center; gap: 6px;
@@ -10700,19 +10725,80 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
   button.ghost:hover:not(:disabled) { background: rgba(226,166,59,0.12); border-color: rgba(226,166,59,0.7); }
   button.ghost:disabled { opacity: 0.35; cursor: default; }
 
-  #output {
-    flex: 1; width: 100%; min-height: 300px;
+  #output-rendered, #output-raw {
+    flex: 1; width: 100%; min-height: 300px; max-height: 520px; overflow-y: auto;
+  }
+  #output-rendered {
+    color: var(--cream); font-family: var(--font-body); font-size: 14px; line-height: 1.6;
+    padding-right: 4px;
+  }
+  #output-rendered h3 {
+    font-family: var(--font-display); font-weight: 560; font-size: 16.5px;
+    color: var(--amber-bright); margin: 18px 0 8px;
+  }
+  #output-rendered h3:first-child { margin-top: 0; }
+  #output-rendered h4 {
+    font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--amber); margin: 14px 0 5px;
+  }
+  #output-rendered p { margin: 0 0 10px; }
+  #output-rendered ul, #output-rendered ol { margin: 0 0 10px; padding-left: 22px; }
+  #output-rendered ul.nested { margin: 2px 0 2px 2px; padding-left: 18px; }
+  #output-rendered li { margin-bottom: 5px; }
+  #output-rendered strong { color: var(--amber-bright); font-weight: 600; }
+  #output-rendered .tagblock {
+    background: rgba(226,166,59,0.06); border-left: 2px solid var(--amber);
+    border-radius: 0 4px 4px 0; padding: 10px 14px; margin: 2px 0 16px;
+  }
+  #output-rendered .tagblock-label {
+    display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em;
+    text-transform: uppercase; color: var(--amber); margin-bottom: 5px;
+  }
+  #output-rendered .tagblock p { margin: 0 0 4px; font-style: italic; color: var(--muted); }
+  #output-rendered .tagblock p:last-child { margin-bottom: 0; }
+  #output-raw {
     background: transparent; border: none; color: var(--cream);
-    font-family: var(--font-mono); font-size: 13.5px; line-height: 1.7;
+    font-family: var(--font-mono); font-size: 13px; line-height: 1.7;
     resize: vertical; white-space: pre-wrap;
   }
-  #output:focus { outline: none; }
+  #output-raw:focus { outline: none; }
 
   .empty-state {
-    display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
-    color: var(--muted); font-size: 14px; margin: auto 0; max-width: 32ch;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: 18px; margin: auto; padding: 20px; max-width: 30ch;
   }
-  .empty-state svg { width: 40px; height: 40px; opacity: 0.5; }
+  .empty-icon {
+    position: relative;
+    width: 88px; height: 88px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(226,166,59,0.16), rgba(226,166,59,0.02) 70%);
+    border: 1px dashed rgba(226,166,59,0.4);
+    display: flex; align-items: center; justify-content: center;
+    animation: breathe 3.6s ease-in-out infinite;
+  }
+  .empty-icon svg { width: 38px; height: 38px; color: var(--amber); }
+  .empty-icon .pencil {
+    position: absolute; bottom: -4px; right: -6px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--navy-deep); border: 1px solid rgba(226,166,59,0.5);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .empty-icon .pencil svg { width: 15px; height: 15px; color: var(--amber-bright); }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(226,166,59,0.12); }
+    50% { transform: scale(1.045); box-shadow: 0 0 0 8px rgba(226,166,59,0); }
+  }
+  @media (prefers-reduced-motion: reduce) { .empty-icon { animation: none; } }
+  .empty-title {
+    font-family: var(--font-display); font-weight: 560; font-size: 18.5px;
+    color: var(--cream); margin: 0;
+  }
+  .empty-sub { font-size: 13.5px; color: var(--muted); line-height: 1.55; margin: 0; }
+  .empty-hint {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
+    color: var(--muted); margin-top: 2px;
+  }
+  .empty-hint svg { width: 13px; height: 13px; }
 
   .status-line {
     font-family: var(--font-mono); font-size: 12px; color: var(--muted);
@@ -10770,6 +10856,8 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
           <textarea id="contexto" placeholder="Quién eres, para quién es esto, qué información ya tiene Claude, qué has intentado antes..."></textarea>
         </div>
 
+        <div class="field-divider"></div>
+
         <div class="row2">
           <div class="field">
             <label for="formato">Formato de la respuesta</label>
@@ -10823,6 +10911,10 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
       <div class="blueprint-head">
         <h2>Tu prompt</h2>
         <div class="bp-actions">
+          <button class="ghost" id="edit-btn" disabled>
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 2l3 3-8 8-3.5.5.5-3.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+            Editar
+          </button>
           <button class="ghost" id="regenerate-btn" disabled>
             <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5V6H10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Regenerar
@@ -10834,11 +10926,30 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
         </div>
       </div>
 
+      <div class="cat-pills" id="cat-pills"></div>
+
       <div class="empty-state" id="empty-state">
-        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="4" width="28" height="32" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M12 12h16M12 18h16M12 24h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        Cuando generes el prompt aparecerá aquí, listo para editar y copiar.
+        <div class="empty-icon">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 8h20l10 10v38H18z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M38 8v10h10" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <line x1="24" y1="30" x2="42" y2="30" stroke="currentColor" stroke-width="1.4" stroke-dasharray="1 3.4" stroke-linecap="round"/>
+            <line x1="24" y1="37" x2="42" y2="37" stroke="currentColor" stroke-width="1.4" stroke-dasharray="1 3.4" stroke-linecap="round"/>
+            <line x1="24" y1="44" x2="35" y2="44" stroke="currentColor" stroke-width="1.4" stroke-dasharray="1 3.4" stroke-linecap="round"/>
+          </svg>
+          <span class="pencil">
+            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 2l3 3-8 8-3.5.5.5-3.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          </span>
+        </div>
+        <h3 class="empty-title">Aquí aparecerá tu prompt</h3>
+        <p class="empty-sub">Rellena el formulario y genera — verás el resultado ya redactado, con títulos, listas y todo listo para copiar.</p>
+        <span class="empty-hint">
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          empieza por la izquierda
+        </span>
       </div>
-      <textarea id="output" style="display:none;" readonly></textarea>
+      <div id="output-rendered" class="md" style="display:none;"></div>
+      <textarea id="output-raw" style="display:none;" spellcheck="false"></textarea>
 
       <p class="status-line" id="status-line"></p>
     </section>
@@ -10875,9 +10986,12 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
   const generateBtn = document.getElementById('generate-btn');
   const btnLabel = document.getElementById('btn-label');
   const btnIcon = document.getElementById('btn-icon');
+  const editBtn = document.getElementById('edit-btn');
   const regenerateBtn = document.getElementById('regenerate-btn');
   const copyBtn = document.getElementById('copy-btn');
-  const output = document.getElementById('output');
+  const outputRendered = document.getElementById('output-rendered');
+  const outputRaw = document.getElementById('output-raw');
+  const catPills = document.getElementById('cat-pills');
   const emptyState = document.getElementById('empty-state');
   const statusLine = document.getElementById('status-line');
 
@@ -10909,6 +11023,29 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     };
   }
 
+  /* Librería de ejemplos de referencia (40 prompts modelo en 10 categorías).
+     Se usa para darle a la IA un ejemplo real y afín como referencia de
+     estilo y nivel de detalle al generar el prompt final. */
+  const PROMPT_EXAMPLES = [{"categoria": "finanzas", "keywords": ["gasto", "gastos", "compra", "compras", "factura", "importe", "tarjeta", "banco", "movimientos", "gráfica", "análisis financiero"], "necesidad": "Quiero que analices todos los cargos de Amazon durante octubre y me hagas una gráfica con la evolución del gasto.", "prompt": "Quiero que realices un análisis completo y preciso de todas las compras o cargos relacionados con Amazon durante octubre, usando exclusivamente los movimientos que te voy a pasar.\\n\\n<contexto>\\nes para cuadrar la tarjeta de empresa antes del cierre mensual.\\n</contexto>\\n\\n## Identificación de las operaciones\\n- Revisa todos los movimientos y localiza los que correspondan a Amazon. Ten en cuenta que puede aparecer con distintos formatos: AMAZON, AMAZON.ES, AMZN MKTP, AMAZON PRIME, entre otros.\\n- No incluyas una operación solo porque el concepto se parezca. Si hay dudas, sepárala en un apartado de \\"pendiente de revisión\\" en vez de decidir por tu cuenta.\\n\\n## Filtrado por fecha y duplicados\\n- Incluye únicamente los movimientos dentro de octubre, comprobando la fecha uno a uno.\\n- Antes de sumar el total, revisa si hay operaciones duplicadas (misma fecha, importe y concepto). No las elimines automáticamente: márcalas como \\"posible duplicado\\" si hay duda.\\n\\n## Datos a extraer por operación\\nPara cada movimiento: fecha, concepto original, importe, moneda y cualquier referencia disponible. No modifiques los datos originales.\\n\\n## Clasificación\\nSi la información lo permite, clasifica cada operación en una de estas categorías: Material de oficina, Suscripciones, Compras varias, No identificado. Si no puedes determinarla con seguridad, usa \\"No identificado\\".\\n\\n## Cálculos\\nCalcula: número total de operaciones, importe total, importe medio, operación de mayor importe y de menor importe. Comprueba que la suma de las operaciones individuales coincide con el total antes de presentarlo.\\n\\n## Gráfica\\nUna gráfica de barras con una barra por operación, ordenadas cronológicamente, con el importe en el eje Y y la fecha en el eje X. Añade también una segunda gráfica con la evolución acumulada del gasto a lo largo del periodo.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo (total, nº de operaciones, media, máxima, mínima).\\n2. Gráfica de operaciones individuales.\\n3. Gráfica de evolución acumulada.\\n4. Tabla detallada (fecha, concepto, categoría, importe, estado).\\n5. Análisis breve: si el gasto se concentra en algún momento, si hay operaciones inusuales.\\n6. Operaciones pendientes de revisión, si las hay.\\n7. Conclusión objetiva con el gasto real del periodo.\\n\\n## Antes de dar la respuesta final\\nComprueba que has revisado todos los movimientos del periodo, que la suma cuadra con el total, que los posibles duplicados están señalados y que las fechas están en orden cronológico."}, {"categoria": "finanzas", "keywords": ["gasto", "gastos", "compra", "compras", "factura", "importe", "tarjeta", "banco", "movimientos", "gráfica", "análisis financiero"], "necesidad": "Quiero que analices todos los cargos de un proveedor de suministros de oficina durante el segundo trimestre y me hagas una gráfica con la evolución del gasto.", "prompt": "Quiero que realices un análisis completo y preciso de todas las compras o cargos relacionados con un proveedor de suministros de oficina durante el segundo trimestre, usando exclusivamente los movimientos que te voy a pasar.\\n\\n<contexto>\\nes para revisar si el gasto en material de oficina se ha disparado.\\n</contexto>\\n\\n## Identificación de las operaciones\\n- Revisa todos los movimientos y localiza los que correspondan a un proveedor de suministros de oficina. Ten en cuenta que puede aparecer con distintos formatos: el nombre del proveedor completo, abreviaturas o el número de factura, entre otros.\\n- No incluyas una operación solo porque el concepto se parezca. Si hay dudas, sepárala en un apartado de \\"pendiente de revisión\\" en vez de decidir por tu cuenta.\\n\\n## Filtrado por fecha y duplicados\\n- Incluye únicamente los movimientos dentro de el segundo trimestre, comprobando la fecha uno a uno.\\n- Antes de sumar el total, revisa si hay operaciones duplicadas (misma fecha, importe y concepto). No las elimines automáticamente: márcalas como \\"posible duplicado\\" si hay duda.\\n\\n## Datos a extraer por operación\\nPara cada movimiento: fecha, concepto original, importe, moneda y cualquier referencia disponible. No modifiques los datos originales.\\n\\n## Clasificación\\nSi la información lo permite, clasifica cada operación en una de estas categorías: Papelería, Consumibles de impresora, Mobiliario, No identificado. Si no puedes determinarla con seguridad, usa \\"No identificado\\".\\n\\n## Cálculos\\nCalcula: número total de operaciones, importe total, importe medio, operación de mayor importe y de menor importe. Comprueba que la suma de las operaciones individuales coincide con el total antes de presentarlo.\\n\\n## Gráfica\\nUna gráfica de barras con una barra por operación, ordenadas cronológicamente, con el importe en el eje Y y la fecha en el eje X. Añade también una segunda gráfica con la evolución acumulada del gasto a lo largo del periodo.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo (total, nº de operaciones, media, máxima, mínima).\\n2. Gráfica de operaciones individuales.\\n3. Gráfica de evolución acumulada.\\n4. Tabla detallada (fecha, concepto, categoría, importe, estado).\\n5. Análisis breve: si el gasto se concentra en algún momento, si hay operaciones inusuales.\\n6. Operaciones pendientes de revisión, si las hay.\\n7. Conclusión objetiva con el gasto real del periodo.\\n\\n## Antes de dar la respuesta final\\nComprueba que has revisado todos los movimientos del periodo, que la suma cuadra con el total, que los posibles duplicados están señalados y que las fechas están en orden cronológico."}, {"categoria": "finanzas", "keywords": ["gasto", "gastos", "compra", "compras", "factura", "importe", "tarjeta", "banco", "movimientos", "gráfica", "análisis financiero"], "necesidad": "Quiero que analices todos los cargos de dietas y viajes de los comerciales durante el mes de septiembre y me hagas una gráfica con la evolución del gasto.", "prompt": "Quiero que realices un análisis completo y preciso de todas las compras o cargos relacionados con dietas y viajes de los comerciales durante el mes de septiembre, usando exclusivamente los movimientos que te voy a pasar.\\n\\n<contexto>\\nes para el informe de gastos de viaje que pide dirección.\\n</contexto>\\n\\n## Identificación de las operaciones\\n- Revisa todos los movimientos y localiza los que correspondan a dietas y viajes de los comerciales. Ten en cuenta que puede aparecer con distintos formatos: RENFE, hoteles, restaurantes, peajes, parking, entre otros.\\n- No incluyas una operación solo porque el concepto se parezca. Si hay dudas, sepárala en un apartado de \\"pendiente de revisión\\" en vez de decidir por tu cuenta.\\n\\n## Filtrado por fecha y duplicados\\n- Incluye únicamente los movimientos dentro de el mes de septiembre, comprobando la fecha uno a uno.\\n- Antes de sumar el total, revisa si hay operaciones duplicadas (misma fecha, importe y concepto). No las elimines automáticamente: márcalas como \\"posible duplicado\\" si hay duda.\\n\\n## Datos a extraer por operación\\nPara cada movimiento: fecha, concepto original, importe, moneda y cualquier referencia disponible. No modifiques los datos originales.\\n\\n## Clasificación\\nSi la información lo permite, clasifica cada operación en una de estas categorías: Transporte, Alojamiento, Manutención, Otros. Si no puedes determinarla con seguridad, usa \\"No identificado\\".\\n\\n## Cálculos\\nCalcula: número total de operaciones, importe total, importe medio, operación de mayor importe y de menor importe. Comprueba que la suma de las operaciones individuales coincide con el total antes de presentarlo.\\n\\n## Gráfica\\nUna gráfica de barras con una barra por operación, ordenadas cronológicamente, con el importe en el eje Y y la fecha en el eje X. Añade también una segunda gráfica con la evolución acumulada del gasto a lo largo del periodo.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo (total, nº de operaciones, media, máxima, mínima).\\n2. Gráfica de operaciones individuales.\\n3. Gráfica de evolución acumulada.\\n4. Tabla detallada (fecha, concepto, categoría, importe, estado).\\n5. Análisis breve: si el gasto se concentra en algún momento, si hay operaciones inusuales.\\n6. Operaciones pendientes de revisión, si las hay.\\n7. Conclusión objetiva con el gasto real del periodo.\\n\\n## Antes de dar la respuesta final\\nComprueba que has revisado todos los movimientos del periodo, que la suma cuadra con el total, que los posibles duplicados están señalados y que las fechas están en orden cronológico."}, {"categoria": "finanzas", "keywords": ["gasto", "gastos", "compra", "compras", "factura", "importe", "tarjeta", "banco", "movimientos", "gráfica", "análisis financiero"], "necesidad": "Quiero que analices todos los cargos de las comisiones de una plataforma de venta online durante el último trimestre y me hagas una gráfica con la evolución del gasto.", "prompt": "Quiero que realices un análisis completo y preciso de todas las compras o cargos relacionados con las comisiones de una plataforma de venta online durante el último trimestre, usando exclusivamente los movimientos que te voy a pasar.\\n\\n<contexto>\\nes para saber cuánto nos está costando realmente vender a través de la plataforma.\\n</contexto>\\n\\n## Identificación de las operaciones\\n- Revisa todos los movimientos y localiza los que correspondan a las comisiones de una plataforma de venta online. Ten en cuenta que puede aparecer con distintos formatos: comisión por venta, comisión por envío, cuota de suscripción, entre otros.\\n- No incluyas una operación solo porque el concepto se parezca. Si hay dudas, sepárala en un apartado de \\"pendiente de revisión\\" en vez de decidir por tu cuenta.\\n\\n## Filtrado por fecha y duplicados\\n- Incluye únicamente los movimientos dentro de el último trimestre, comprobando la fecha uno a uno.\\n- Antes de sumar el total, revisa si hay operaciones duplicadas (misma fecha, importe y concepto). No las elimines automáticamente: márcalas como \\"posible duplicado\\" si hay duda.\\n\\n## Datos a extraer por operación\\nPara cada movimiento: fecha, concepto original, importe, moneda y cualquier referencia disponible. No modifiques los datos originales.\\n\\n## Clasificación\\nSi la información lo permite, clasifica cada operación en una de estas categorías: Comisión por venta, Comisión por envío, Cuota fija, No identificado. Si no puedes determinarla con seguridad, usa \\"No identificado\\".\\n\\n## Cálculos\\nCalcula: número total de operaciones, importe total, importe medio, operación de mayor importe y de menor importe. Comprueba que la suma de las operaciones individuales coincide con el total antes de presentarlo.\\n\\n## Gráfica\\nUna gráfica de barras con una barra por operación, ordenadas cronológicamente, con el importe en el eje Y y la fecha en el eje X. Añade también una segunda gráfica con la evolución acumulada del gasto a lo largo del periodo.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo (total, nº de operaciones, media, máxima, mínima).\\n2. Gráfica de operaciones individuales.\\n3. Gráfica de evolución acumulada.\\n4. Tabla detallada (fecha, concepto, categoría, importe, estado).\\n5. Análisis breve: si el gasto se concentra en algún momento, si hay operaciones inusuales.\\n6. Operaciones pendientes de revisión, si las hay.\\n7. Conclusión objetiva con el gasto real del periodo.\\n\\n## Antes de dar la respuesta final\\nComprueba que has revisado todos los movimientos del periodo, que la suma cuadra con el total, que los posibles duplicados están señalados y que las fechas están en orden cronológico."}, {"categoria": "rrhh", "keywords": ["nómina", "nomina", "horas extra", "empleado", "empleados", "baja", "bajas", "vacaciones", "rrhh", "personal", "salario"], "necesidad": "Necesito un análisis de las horas extra realizadas por el equipo de almacén durante el último mes.", "prompt": "Quiero que analices las horas extra realizadas por el equipo de almacén durante el último mes, usando exclusivamente los datos que te voy a proporcionar.\\n\\n<contexto>\\nes para calcular cuánto hay que pagar de más en la nómina.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes nombres, cifras ni fechas. Usa solo lo que aparece en los datos que te doy.\\n- Si falta algún dato para un empleado concreto, indícalo como \\"no disponible\\" en vez de suponerlo.\\n- Si encuentras algo que no cuadra (por ejemplo, fechas solapadas o cifras inconsistentes), señálalo aparte en vez de ignorarlo.\\n\\n## Datos a extraer por registro\\nPara cada registro: empleado, fecha, horas extra, tipo de hora (normal/festivo/nocturna). No modifiques los datos originales.\\n\\n## Cálculos\\nCalcula los totales y medias que correspondan al tema (por ejemplo: total por persona, total por departamento, y el total general). Comprueba que la suma de los registros individuales coincide con el total antes de presentarlo.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo con las cifras clave.\\n2. Tabla detallada por empleado o departamento, según corresponda.\\n3. Casos que llaman la atención (los valores más altos, algo inusual), sin sacar conclusiones que no estén respaldadas por los datos.\\n4. Registros con datos incompletos o dudosos, en un apartado aparte.\\n5. Conclusión breve y objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que todos los registros del periodo están incluidos, que los totales cuadran con el detalle, y que no has atribuido ningún dato a una persona sin que aparezca explícitamente en la información proporcionada."}, {"categoria": "rrhh", "keywords": ["nómina", "nomina", "horas extra", "empleado", "empleados", "baja", "bajas", "vacaciones", "rrhh", "personal", "salario"], "necesidad": "Necesito un análisis de las bajas médicas del personal durante lo que va de año.", "prompt": "Quiero que analices las bajas médicas del personal durante lo que va de año, usando exclusivamente los datos que te voy a proporcionar.\\n\\n<contexto>\\nes para el informe de absentismo que pide RRHH.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes nombres, cifras ni fechas. Usa solo lo que aparece en los datos que te doy.\\n- Si falta algún dato para un empleado concreto, indícalo como \\"no disponible\\" en vez de suponerlo.\\n- Si encuentras algo que no cuadra (por ejemplo, fechas solapadas o cifras inconsistentes), señálalo aparte en vez de ignorarlo.\\n\\n## Datos a extraer por registro\\nPara cada registro: empleado, fecha de inicio, fecha de alta, motivo si está disponible, días de duración. No modifiques los datos originales.\\n\\n## Cálculos\\nCalcula los totales y medias que correspondan al tema (por ejemplo: total por persona, total por departamento, y el total general). Comprueba que la suma de los registros individuales coincide con el total antes de presentarlo.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo con las cifras clave.\\n2. Tabla detallada por empleado o departamento, según corresponda.\\n3. Casos que llaman la atención (los valores más altos, algo inusual), sin sacar conclusiones que no estén respaldadas por los datos.\\n4. Registros con datos incompletos o dudosos, en un apartado aparte.\\n5. Conclusión breve y objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que todos los registros del periodo están incluidos, que los totales cuadran con el detalle, y que no has atribuido ningún dato a una persona sin que aparezca explícitamente en la información proporcionada."}, {"categoria": "rrhh", "keywords": ["nómina", "nomina", "horas extra", "empleado", "empleados", "baja", "bajas", "vacaciones", "rrhh", "personal", "salario"], "necesidad": "Necesito un análisis de el coste salarial por departamento durante el último trimestre.", "prompt": "Quiero que analices el coste salarial por departamento durante el último trimestre, usando exclusivamente los datos que te voy a proporcionar.\\n\\n<contexto>\\nes para la reunión de presupuesto con dirección.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes nombres, cifras ni fechas. Usa solo lo que aparece en los datos que te doy.\\n- Si falta algún dato para un empleado concreto, indícalo como \\"no disponible\\" en vez de suponerlo.\\n- Si encuentras algo que no cuadra (por ejemplo, fechas solapadas o cifras inconsistentes), señálalo aparte en vez de ignorarlo.\\n\\n## Datos a extraer por registro\\nPara cada registro: departamento, número de empleados, coste bruto, coste con seguridad social. No modifiques los datos originales.\\n\\n## Cálculos\\nCalcula los totales y medias que correspondan al tema (por ejemplo: total por persona, total por departamento, y el total general). Comprueba que la suma de los registros individuales coincide con el total antes de presentarlo.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo con las cifras clave.\\n2. Tabla detallada por empleado o departamento, según corresponda.\\n3. Casos que llaman la atención (los valores más altos, algo inusual), sin sacar conclusiones que no estén respaldadas por los datos.\\n4. Registros con datos incompletos o dudosos, en un apartado aparte.\\n5. Conclusión breve y objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que todos los registros del periodo están incluidos, que los totales cuadran con el detalle, y que no has atribuido ningún dato a una persona sin que aparezca explícitamente en la información proporcionada."}, {"categoria": "rrhh", "keywords": ["nómina", "nomina", "horas extra", "empleado", "empleados", "baja", "bajas", "vacaciones", "rrhh", "personal", "salario"], "necesidad": "Necesito un análisis de los días de vacaciones pendientes de cada empleado durante el año en curso.", "prompt": "Quiero que analices los días de vacaciones pendientes de cada empleado durante el año en curso, usando exclusivamente los datos que te voy a proporcionar.\\n\\n<contexto>\\nes para avisar a quien le queden muchos días por disfrutar antes de que termine el año.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes nombres, cifras ni fechas. Usa solo lo que aparece en los datos que te doy.\\n- Si falta algún dato para un empleado concreto, indícalo como \\"no disponible\\" en vez de suponerlo.\\n- Si encuentras algo que no cuadra (por ejemplo, fechas solapadas o cifras inconsistentes), señálalo aparte en vez de ignorarlo.\\n\\n## Datos a extraer por registro\\nPara cada registro: empleado, días asignados, días disfrutados, días pendientes. No modifiques los datos originales.\\n\\n## Cálculos\\nCalcula los totales y medias que correspondan al tema (por ejemplo: total por persona, total por departamento, y el total general). Comprueba que la suma de los registros individuales coincide con el total antes de presentarlo.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo con las cifras clave.\\n2. Tabla detallada por empleado o departamento, según corresponda.\\n3. Casos que llaman la atención (los valores más altos, algo inusual), sin sacar conclusiones que no estén respaldadas por los datos.\\n4. Registros con datos incompletos o dudosos, en un apartado aparte.\\n5. Conclusión breve y objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que todos los registros del periodo están incluidos, que los totales cuadran con el detalle, y que no has atribuido ningún dato a una persona sin que aparezca explícitamente en la información proporcionada."}, {"categoria": "inventario", "keywords": ["stock", "inventario", "almacén", "almacen", "producto", "productos", "mermas", "proveedor", "pedido", "rotación"], "necesidad": "Quiero un análisis de los productos que están por debajo del stock mínimo.", "prompt": "Quiero que analices los productos que están por debajo del stock mínimo, usando exclusivamente los datos de inventario que te voy a proporcionar.\\n\\n<contexto>\\nes para decidir qué pedidos hacer esta semana.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes productos, cantidades ni proveedores que no aparezcan en los datos.\\n- Si un dato falta (por ejemplo, el motivo de una merma), indícalo como \\"no disponible\\" en vez de suponerlo.\\n- Si algo parece un error de registro (cantidades negativas sin explicación, fechas imposibles), señálalo aparte como \\"requiere revisión\\" en vez de corregirlo por tu cuenta.\\n\\n## Datos a extraer por producto/registro\\nproducto, stock actual, stock mínimo, proveedor habitual. No modifiques los datos originales.\\n\\n## Clasificación y cálculos\\nOrdena los resultados de mayor a menor relevancia (por ejemplo, mayor urgencia, mayor valor o mayor desviación, según lo que se esté pidiendo). Calcula los totales que correspondan y comprueba que cuadran con el detalle.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo con los indicadores clave.\\n2. Tabla detallada ordenada por relevancia.\\n3. Casos que requieren atención inmediata, si los hay.\\n4. Registros con datos incompletos, en un apartado aparte.\\n5. Conclusión breve y objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que has usado todos los registros disponibles, que los totales cuadran con el detalle y que no has dado por hecho ningún dato que no estuviera explícito en la información proporcionada."}, {"categoria": "inventario", "keywords": ["stock", "inventario", "almacén", "almacen", "producto", "productos", "mermas", "proveedor", "pedido", "rotación"], "necesidad": "Quiero un análisis de la rotación de los productos del almacén.", "prompt": "Quiero que analices la rotación de los productos del almacén, usando exclusivamente los datos de inventario que te voy a proporcionar.\\n\\n<contexto>\\nes para saber qué productos se mueven poco y ocupan espacio sin necesidad.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes productos, cantidades ni proveedores que no aparezcan en los datos.\\n- Si un dato falta (por ejemplo, el motivo de una merma), indícalo como \\"no disponible\\" en vez de suponerlo.\\n- Si algo parece un error de registro (cantidades negativas sin explicación, fechas imposibles), señálalo aparte como \\"requiere revisión\\" en vez de corregirlo por tu cuenta.\\n\\n## Datos a extraer por producto/registro\\nproducto, unidades vendidas en el periodo, stock medio, ratio de rotación. No modifiques los datos originales.\\n\\n## Clasificación y cálculos\\nOrdena los resultados de mayor a menor relevancia (por ejemplo, mayor urgencia, mayor valor o mayor desviación, según lo que se esté pidiendo). Calcula los totales que correspondan y comprueba que cuadran con el detalle.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo con los indicadores clave.\\n2. Tabla detallada ordenada por relevancia.\\n3. Casos que requieren atención inmediata, si los hay.\\n4. Registros con datos incompletos, en un apartado aparte.\\n5. Conclusión breve y objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que has usado todos los registros disponibles, que los totales cuadran con el detalle y que no has dado por hecho ningún dato que no estuviera explícito en la información proporcionada."}, {"categoria": "inventario", "keywords": ["stock", "inventario", "almacén", "almacen", "producto", "productos", "mermas", "proveedor", "pedido", "rotación"], "necesidad": "Quiero un análisis de las mermas registradas en el almacén.", "prompt": "Quiero que analices las mermas registradas en el almacén, usando exclusivamente los datos de inventario que te voy a proporcionar.\\n\\n<contexto>\\nes para el informe de pérdidas que pide el responsable de logística.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes productos, cantidades ni proveedores que no aparezcan en los datos.\\n- Si un dato falta (por ejemplo, el motivo de una merma), indícalo como \\"no disponible\\" en vez de suponerlo.\\n- Si algo parece un error de registro (cantidades negativas sin explicación, fechas imposibles), señálalo aparte como \\"requiere revisión\\" en vez de corregirlo por tu cuenta.\\n\\n## Datos a extraer por producto/registro\\nproducto, fecha, unidades, motivo si está disponible, valor estimado. No modifiques los datos originales.\\n\\n## Clasificación y cálculos\\nOrdena los resultados de mayor a menor relevancia (por ejemplo, mayor urgencia, mayor valor o mayor desviación, según lo que se esté pidiendo). Calcula los totales que correspondan y comprueba que cuadran con el detalle.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo con los indicadores clave.\\n2. Tabla detallada ordenada por relevancia.\\n3. Casos que requieren atención inmediata, si los hay.\\n4. Registros con datos incompletos, en un apartado aparte.\\n5. Conclusión breve y objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que has usado todos los registros disponibles, que los totales cuadran con el detalle y que no has dado por hecho ningún dato que no estuviera explícito en la información proporcionada."}, {"categoria": "inventario", "keywords": ["stock", "inventario", "almacén", "almacen", "producto", "productos", "mermas", "proveedor", "pedido", "rotación"], "necesidad": "Quiero un análisis de los pedidos pendientes de recibir de los proveedores.", "prompt": "Quiero que analices los pedidos pendientes de recibir de los proveedores, usando exclusivamente los datos de inventario que te voy a proporcionar.\\n\\n<contexto>\\nes para saber qué pedidos llevan retraso.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes productos, cantidades ni proveedores que no aparezcan en los datos.\\n- Si un dato falta (por ejemplo, el motivo de una merma), indícalo como \\"no disponible\\" en vez de suponerlo.\\n- Si algo parece un error de registro (cantidades negativas sin explicación, fechas imposibles), señálalo aparte como \\"requiere revisión\\" en vez de corregirlo por tu cuenta.\\n\\n## Datos a extraer por producto/registro\\nproveedor, número de pedido, fecha esperada, estado, importe. No modifiques los datos originales.\\n\\n## Clasificación y cálculos\\nOrdena los resultados de mayor a menor relevancia (por ejemplo, mayor urgencia, mayor valor o mayor desviación, según lo que se esté pidiendo). Calcula los totales que correspondan y comprueba que cuadran con el detalle.\\n\\n## Estructura de la respuesta final\\n1. Resumen ejecutivo con los indicadores clave.\\n2. Tabla detallada ordenada por relevancia.\\n3. Casos que requieren atención inmediata, si los hay.\\n4. Registros con datos incompletos, en un apartado aparte.\\n5. Conclusión breve y objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que has usado todos los registros disponibles, que los totales cuadran con el detalle y que no has dado por hecho ningún dato que no estuviera explícito en la información proporcionada."}, {"categoria": "atencion_cliente", "keywords": ["email", "correo", "cliente", "reclamación", "reclamacion", "reseña", "resena", "recordatorio de pago", "atención al cliente"], "necesidad": "Necesito responder a una reclamación de un cliente por un pedido que ha llegado incompleto.", "prompt": "Quiero que redactes el texto para responder a una reclamación de un cliente por un pedido que ha llegado incompleto, listo para enviar.\\n\\n<contexto>\\nEl tono debe ser empático pero profesional. No firmes con un nombre de persona concreto: termina con algo genérico como \\"El equipo de atención al cliente\\".\\n</contexto>\\n\\n## Reglas de precisión\\n- Usa únicamente estos datos, no inventes ninguno adicional: nombre del cliente, número de pedido, qué faltaba, fecha de compra.\\n- Si te falta algún dato para completar el mensaje, dilo antes del texto en vez de rellenarlo por tu cuenta.\\n- No prometas nada (plazos, compensaciones, condiciones) que no te haya indicado explícitamente.\\n\\n## Estructura de la respuesta\\n1. Cuerpo del mensaje, listo para copiar y pegar, en el tono indicado.\\n2. Si aplica, una versión alternativa más breve por si se prefiere un mensaje más corto.\\n3. Una nota aparte (fuera del mensaje) con cualquier dato que te falte para personalizarlo del todo.\\n\\n## Antes de dar la respuesta final\\nComprueba que el mensaje usa correctamente los datos proporcionados, que el tono es el pedido, que no es más largo de lo necesario y que no contiene ninguna promesa o dato inventado."}, {"categoria": "atencion_cliente", "keywords": ["email", "correo", "cliente", "reclamación", "reclamacion", "reseña", "resena", "recordatorio de pago", "atención al cliente"], "necesidad": "Necesito escribir un email de bienvenida a un cliente nuevo que acaba de darse de alta.", "prompt": "Quiero que redactes el texto para escribir un email de bienvenida a un cliente nuevo que acaba de darse de alta, listo para enviar.\\n\\n<contexto>\\nEl tono debe ser cercano y claro. No firmes con un nombre de persona concreto: termina con algo genérico como \\"El equipo de atención al cliente\\".\\n</contexto>\\n\\n## Reglas de precisión\\n- Usa únicamente estos datos, no inventes ninguno adicional: nombre del cliente, plan o servicio contratado, próximos pasos.\\n- Si te falta algún dato para completar el mensaje, dilo antes del texto en vez de rellenarlo por tu cuenta.\\n- No prometas nada (plazos, compensaciones, condiciones) que no te haya indicado explícitamente.\\n\\n## Estructura de la respuesta\\n1. Cuerpo del mensaje, listo para copiar y pegar, en el tono indicado.\\n2. Si aplica, una versión alternativa más breve por si se prefiere un mensaje más corto.\\n3. Una nota aparte (fuera del mensaje) con cualquier dato que te falte para personalizarlo del todo.\\n\\n## Antes de dar la respuesta final\\nComprueba que el mensaje usa correctamente los datos proporcionados, que el tono es el pedido, que no es más largo de lo necesario y que no contiene ninguna promesa o dato inventado."}, {"categoria": "atencion_cliente", "keywords": ["email", "correo", "cliente", "reclamación", "reclamacion", "reseña", "resena", "recordatorio de pago", "atención al cliente"], "necesidad": "Necesito redactar un recordatorio de pago para una factura vencida.", "prompt": "Quiero que redactes el texto para redactar un recordatorio de pago para una factura vencida, listo para enviar.\\n\\n<contexto>\\nEl tono debe ser firme pero correcto, sin ser agresivo. No firmes con un nombre de persona concreto: termina con algo genérico como \\"El equipo de atención al cliente\\".\\n</contexto>\\n\\n## Reglas de precisión\\n- Usa únicamente estos datos, no inventes ninguno adicional: nombre del cliente, número de factura, importe, días de retraso.\\n- Si te falta algún dato para completar el mensaje, dilo antes del texto en vez de rellenarlo por tu cuenta.\\n- No prometas nada (plazos, compensaciones, condiciones) que no te haya indicado explícitamente.\\n\\n## Estructura de la respuesta\\n1. Cuerpo del mensaje, listo para copiar y pegar, en el tono indicado.\\n2. Si aplica, una versión alternativa más breve por si se prefiere un mensaje más corto.\\n3. Una nota aparte (fuera del mensaje) con cualquier dato que te falte para personalizarlo del todo.\\n\\n## Antes de dar la respuesta final\\nComprueba que el mensaje usa correctamente los datos proporcionados, que el tono es el pedido, que no es más largo de lo necesario y que no contiene ninguna promesa o dato inventado."}, {"categoria": "atencion_cliente", "keywords": ["email", "correo", "cliente", "reclamación", "reclamacion", "reseña", "resena", "recordatorio de pago", "atención al cliente"], "necesidad": "Necesito responder a una reseña negativa dejada por un cliente en Google.", "prompt": "Quiero que redactes el texto para responder a una reseña negativa dejada por un cliente en Google, listo para enviar.\\n\\n<contexto>\\nEl tono debe ser profesional y conciliador, sin ponerse a la defensiva. No firmes con un nombre de persona concreto: termina con algo genérico como \\"El equipo de atención al cliente\\".\\n</contexto>\\n\\n## Reglas de precisión\\n- Usa únicamente estos datos, no inventes ninguno adicional: qué dice la reseña, si el problema ya se ha resuelto o no.\\n- Si te falta algún dato para completar el mensaje, dilo antes del texto en vez de rellenarlo por tu cuenta.\\n- No prometas nada (plazos, compensaciones, condiciones) que no te haya indicado explícitamente.\\n\\n## Estructura de la respuesta\\n1. Cuerpo del mensaje, listo para copiar y pegar, en el tono indicado.\\n2. Si aplica, una versión alternativa más breve por si se prefiere un mensaje más corto.\\n3. Una nota aparte (fuera del mensaje) con cualquier dato que te falte para personalizarlo del todo.\\n\\n## Antes de dar la respuesta final\\nComprueba que el mensaje usa correctamente los datos proporcionados, que el tono es el pedido, que no es más largo de lo necesario y que no contiene ninguna promesa o dato inventado."}, {"categoria": "marketing", "keywords": ["marketing", "redes sociales", "instagram", "linkedin", "contenido", "campaña", "campana", "newsletter", "copy", "publicación", "publicacion"], "necesidad": "Quiero que me ayudes con un calendario de contenido para redes sociales del próximo mes.", "prompt": "Quiero que prepares un calendario de contenido para redes sociales del próximo mes: publicaciones para Instagram y LinkedIn, 3 veces por semana.\\n\\n<contexto>\\nUsa únicamente la información sobre la marca, el producto o las métricas que te proporcione en este mensaje o en los archivos adjuntos.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes datos de la marca, cifras de rendimiento ni afirmaciones sobre el producto que no te haya dado.\\n- Si necesitas algún dato que no tienes (público objetivo, tono de marca, fechas clave), pregúntalo o indícalo como pendiente antes de proponer el contenido.\\n- No prometas resultados ni uses cifras de rendimiento inventadas en los textos.\\n\\n## Estructura de la respuesta\\n1. Propuesta completa, organizada de forma clara (calendario, copys o análisis, según corresponda).\\n2. Breve justificación de las decisiones clave (por qué ese enfoque, esos días, ese tono).\\n3. Qué información adicional ayudaría a afinar más la propuesta.\\n\\n## Antes de dar la respuesta final\\nComprueba que el contenido es coherente con los datos que te he dado, que no hay cifras o afirmaciones inventadas, y que el tono es consistente en todas las piezas."}, {"categoria": "marketing", "keywords": ["marketing", "redes sociales", "instagram", "linkedin", "contenido", "campaña", "campana", "newsletter", "copy", "publicación", "publicacion"], "necesidad": "Quiero que me ayudes con el copy para el lanzamiento de un nuevo producto.", "prompt": "Quiero que prepares el copy para el lanzamiento de un nuevo producto: un post principal y dos variantes más cortas para stories.\\n\\n<contexto>\\nUsa únicamente la información sobre la marca, el producto o las métricas que te proporcione en este mensaje o en los archivos adjuntos.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes datos de la marca, cifras de rendimiento ni afirmaciones sobre el producto que no te haya dado.\\n- Si necesitas algún dato que no tienes (público objetivo, tono de marca, fechas clave), pregúntalo o indícalo como pendiente antes de proponer el contenido.\\n- No prometas resultados ni uses cifras de rendimiento inventadas en los textos.\\n\\n## Estructura de la respuesta\\n1. Propuesta completa, organizada de forma clara (calendario, copys o análisis, según corresponda).\\n2. Breve justificación de las decisiones clave (por qué ese enfoque, esos días, ese tono).\\n3. Qué información adicional ayudaría a afinar más la propuesta.\\n\\n## Antes de dar la respuesta final\\nComprueba que el contenido es coherente con los datos que te he dado, que no hay cifras o afirmaciones inventadas, y que el tono es consistente en todas las piezas."}, {"categoria": "marketing", "keywords": ["marketing", "redes sociales", "instagram", "linkedin", "contenido", "campaña", "campana", "newsletter", "copy", "publicación", "publicacion"], "necesidad": "Quiero que me ayudes con un análisis del rendimiento de las últimas publicaciones.", "prompt": "Quiero que prepares un análisis del rendimiento de las últimas publicaciones: qué publicaciones han funcionado mejor y por qué, usando solo las métricas que te doy.\\n\\n<contexto>\\nUsa únicamente la información sobre la marca, el producto o las métricas que te proporcione en este mensaje o en los archivos adjuntos.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes datos de la marca, cifras de rendimiento ni afirmaciones sobre el producto que no te haya dado.\\n- Si necesitas algún dato que no tienes (público objetivo, tono de marca, fechas clave), pregúntalo o indícalo como pendiente antes de proponer el contenido.\\n- No prometas resultados ni uses cifras de rendimiento inventadas en los textos.\\n\\n## Estructura de la respuesta\\n1. Propuesta completa, organizada de forma clara (calendario, copys o análisis, según corresponda).\\n2. Breve justificación de las decisiones clave (por qué ese enfoque, esos días, ese tono).\\n3. Qué información adicional ayudaría a afinar más la propuesta.\\n\\n## Antes de dar la respuesta final\\nComprueba que el contenido es coherente con los datos que te he dado, que no hay cifras o afirmaciones inventadas, y que el tono es consistente en todas las piezas."}, {"categoria": "marketing", "keywords": ["marketing", "redes sociales", "instagram", "linkedin", "contenido", "campaña", "campana", "newsletter", "copy", "publicación", "publicacion"], "necesidad": "Quiero que me ayudes con el borrador de la newsletter mensual.", "prompt": "Quiero que prepares el borrador de la newsletter mensual: estructura con novedades, un producto destacado y una llamada a la acción.\\n\\n<contexto>\\nUsa únicamente la información sobre la marca, el producto o las métricas que te proporcione en este mensaje o en los archivos adjuntos.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes datos de la marca, cifras de rendimiento ni afirmaciones sobre el producto que no te haya dado.\\n- Si necesitas algún dato que no tienes (público objetivo, tono de marca, fechas clave), pregúntalo o indícalo como pendiente antes de proponer el contenido.\\n- No prometas resultados ni uses cifras de rendimiento inventadas en los textos.\\n\\n## Estructura de la respuesta\\n1. Propuesta completa, organizada de forma clara (calendario, copys o análisis, según corresponda).\\n2. Breve justificación de las decisiones clave (por qué ese enfoque, esos días, ese tono).\\n3. Qué información adicional ayudaría a afinar más la propuesta.\\n\\n## Antes de dar la respuesta final\\nComprueba que el contenido es coherente con los datos que te he dado, que no hay cifras o afirmaciones inventadas, y que el tono es consistente en todas las piezas."}, {"categoria": "codigo", "keywords": ["función", "function", "script", "código", "codigo", "bug", "error", "sql", "api", "programa", "debug"], "necesidad": "Necesito revisar una función que está dando un resultado incorrecto y encontrar el error.", "prompt": "Quiero que me ayudes a revisar una función que está dando un resultado incorrecto y encontrar el error. Te voy a pasar el código correspondiente en el propio mensaje o en un archivo adjunto.\\n\\n<contexto>\\nexplica la causa del error antes de proponer la corrección.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes nombres de funciones, librerías, parámetros o comportamientos que no estén en el código que te doy.\\n- Si necesitas hacer alguna suposición sobre el entorno, la versión del lenguaje o los datos de entrada, indícala explícitamente antes de la solución.\\n- No afirmes que un cambio soluciona el problema si no puedes justificarlo con el propio código.\\n\\n## Estructura de la respuesta\\n1. Planteamiento — qué has entendido del problema, en dos o tres líneas.\\n2. Diagnóstico o análisis — qué está pasando y por qué, si aplica.\\n3. Solución — código completo, comentado donde no sea obvio.\\n4. Explicación de los cambios clave.\\n5. Limitaciones — qué no queda cubierto o qué habría que probar antes de dar esto por bueno.\\n\\n## Antes de dar la respuesta final\\nRevisa que el código sea coherente de principio a fin (nombres, tipos, imports), que la explicación se corresponda exactamente con lo que hace el código, y que no falte el manejo de algún caso límite evidente."}, {"categoria": "codigo", "keywords": ["función", "function", "script", "código", "codigo", "bug", "error", "sql", "api", "programa", "debug"], "necesidad": "Necesito optimizar una consulta SQL que está tardando demasiado.", "prompt": "Quiero que me ayudes a optimizar una consulta SQL que está tardando demasiado. Te voy a pasar el código correspondiente en el propio mensaje o en un archivo adjunto.\\n\\n<contexto>\\nexplica qué está causando la lentitud antes de proponer la versión optimizada.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes nombres de funciones, librerías, parámetros o comportamientos que no estén en el código que te doy.\\n- Si necesitas hacer alguna suposición sobre el entorno, la versión del lenguaje o los datos de entrada, indícala explícitamente antes de la solución.\\n- No afirmes que un cambio soluciona el problema si no puedes justificarlo con el propio código.\\n\\n## Estructura de la respuesta\\n1. Planteamiento — qué has entendido del problema, en dos o tres líneas.\\n2. Diagnóstico o análisis — qué está pasando y por qué, si aplica.\\n3. Solución — código completo, comentado donde no sea obvio.\\n4. Explicación de los cambios clave.\\n5. Limitaciones — qué no queda cubierto o qué habría que probar antes de dar esto por bueno.\\n\\n## Antes de dar la respuesta final\\nRevisa que el código sea coherente de principio a fin (nombres, tipos, imports), que la explicación se corresponda exactamente con lo que hace el código, y que no falte el manejo de algún caso límite evidente."}, {"categoria": "codigo", "keywords": ["función", "function", "script", "código", "codigo", "bug", "error", "sql", "api", "programa", "debug"], "necesidad": "Necesito documentar los endpoints de una API existente.", "prompt": "Quiero que me ayudes a documentar los endpoints de una API existente. Te voy a pasar el código correspondiente en el propio mensaje o en un archivo adjunto.\\n\\n<contexto>\\ndocumenta solo lo que se pueda deducir del código, sin inventar parámetros o comportamientos.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes nombres de funciones, librerías, parámetros o comportamientos que no estén en el código que te doy.\\n- Si necesitas hacer alguna suposición sobre el entorno, la versión del lenguaje o los datos de entrada, indícala explícitamente antes de la solución.\\n- No afirmes que un cambio soluciona el problema si no puedes justificarlo con el propio código.\\n\\n## Estructura de la respuesta\\n1. Planteamiento — qué has entendido del problema, en dos o tres líneas.\\n2. Diagnóstico o análisis — qué está pasando y por qué, si aplica.\\n3. Solución — código completo, comentado donde no sea obvio.\\n4. Explicación de los cambios clave.\\n5. Limitaciones — qué no queda cubierto o qué habría que probar antes de dar esto por bueno.\\n\\n## Antes de dar la respuesta final\\nRevisa que el código sea coherente de principio a fin (nombres, tipos, imports), que la explicación se corresponda exactamente con lo que hace el código, y que no falte el manejo de algún caso límite evidente."}, {"categoria": "codigo", "keywords": ["función", "function", "script", "código", "codigo", "bug", "error", "sql", "api", "programa", "debug"], "necesidad": "Necesito migrar un script de un lenguaje a otro manteniendo el mismo comportamiento.", "prompt": "Quiero que me ayudes a migrar un script de un lenguaje a otro manteniendo el mismo comportamiento. Te voy a pasar el código correspondiente en el propio mensaje o en un archivo adjunto.\\n\\n<contexto>\\nseñala cualquier parte cuyo comportamiento exacto no puedas garantizar tras la migración.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes nombres de funciones, librerías, parámetros o comportamientos que no estén en el código que te doy.\\n- Si necesitas hacer alguna suposición sobre el entorno, la versión del lenguaje o los datos de entrada, indícala explícitamente antes de la solución.\\n- No afirmes que un cambio soluciona el problema si no puedes justificarlo con el propio código.\\n\\n## Estructura de la respuesta\\n1. Planteamiento — qué has entendido del problema, en dos o tres líneas.\\n2. Diagnóstico o análisis — qué está pasando y por qué, si aplica.\\n3. Solución — código completo, comentado donde no sea obvio.\\n4. Explicación de los cambios clave.\\n5. Limitaciones — qué no queda cubierto o qué habría que probar antes de dar esto por bueno.\\n\\n## Antes de dar la respuesta final\\nRevisa que el código sea coherente de principio a fin (nombres, tipos, imports), que la explicación se corresponda exactamente con lo que hace el código, y que no falte el manejo de algún caso límite evidente."}, {"categoria": "analisis_datos", "keywords": ["encuesta", "test a/b", "tráfico", "trafico", "comparativa", "proveedores", "datos", "análisis", "analisis", "estadística", "estadistica"], "necesidad": "Quiero un análisis de los resultados de una encuesta de satisfacción de clientes.", "prompt": "Quiero que analices los resultados de una encuesta de satisfacción de clientes, usando exclusivamente los datos que te voy a proporcionar.\\n\\n<contexto>\\nEl objetivo es tener una lectura clara y accionable, no solo una descripción de los números.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes datos, cifras ni conclusiones que no puedas justificar con la información proporcionada.\\n- Si falta algún dato relevante para sacar una conclusión sólida, dilo explícitamente en vez de suponerlo.\\n- Distingue claramente entre lo que dicen los datos y cualquier interpretación tuya; señala la interpretación como tal.\\n\\n## Datos a considerar\\nPor cada registro: pregunta, puntuación, comentario si lo hay.\\n\\n## Estructura de la respuesta\\n1. Resumen ejecutivo con los indicadores clave.\\n2. Tabla o desglose detallado.\\n3. Análisis — qué patrones o diferencias destacan, apoyándote solo en los datos dados.\\n4. Limitaciones del análisis — qué no se puede concluir con los datos disponibles.\\n5. Conclusión y, si se pide, una recomendación basada estrictamente en lo anterior.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada afirmación del análisis se apoya en un dato concreto de los proporcionados, que los totales o porcentajes están bien calculados, y que las limitaciones están señaladas con claridad."}, {"categoria": "analisis_datos", "keywords": ["encuesta", "test a/b", "tráfico", "trafico", "comparativa", "proveedores", "datos", "análisis", "analisis", "estadística", "estadistica"], "necesidad": "Quiero un análisis de los resultados de un test A/B entre dos versiones de una página.", "prompt": "Quiero que analices los resultados de un test A/B entre dos versiones de una página, usando exclusivamente los datos que te voy a proporcionar.\\n\\n<contexto>\\nEl objetivo es tener una lectura clara y accionable, no solo una descripción de los números.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes datos, cifras ni conclusiones que no puedas justificar con la información proporcionada.\\n- Si falta algún dato relevante para sacar una conclusión sólida, dilo explícitamente en vez de suponerlo.\\n- Distingue claramente entre lo que dicen los datos y cualquier interpretación tuya; señala la interpretación como tal.\\n\\n## Datos a considerar\\nPor cada registro: versión, visitas, conversiones, tasa de conversión.\\n\\n## Estructura de la respuesta\\n1. Resumen ejecutivo con los indicadores clave.\\n2. Tabla o desglose detallado.\\n3. Análisis — qué patrones o diferencias destacan, apoyándote solo en los datos dados.\\n4. Limitaciones del análisis — qué no se puede concluir con los datos disponibles.\\n5. Conclusión y, si se pide, una recomendación basada estrictamente en lo anterior.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada afirmación del análisis se apoya en un dato concreto de los proporcionados, que los totales o porcentajes están bien calculados, y que las limitaciones están señaladas con claridad."}, {"categoria": "analisis_datos", "keywords": ["encuesta", "test a/b", "tráfico", "trafico", "comparativa", "proveedores", "datos", "análisis", "analisis", "estadística", "estadistica"], "necesidad": "Quiero un análisis de el tráfico web del último mes.", "prompt": "Quiero que analices el tráfico web del último mes, usando exclusivamente los datos que te voy a proporcionar.\\n\\n<contexto>\\nEl objetivo es tener una lectura clara y accionable, no solo una descripción de los números.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes datos, cifras ni conclusiones que no puedas justificar con la información proporcionada.\\n- Si falta algún dato relevante para sacar una conclusión sólida, dilo explícitamente en vez de suponerlo.\\n- Distingue claramente entre lo que dicen los datos y cualquier interpretación tuya; señala la interpretación como tal.\\n\\n## Datos a considerar\\nPor cada registro: fecha, visitas, origen del tráfico, páginas más visitadas.\\n\\n## Estructura de la respuesta\\n1. Resumen ejecutivo con los indicadores clave.\\n2. Tabla o desglose detallado.\\n3. Análisis — qué patrones o diferencias destacan, apoyándote solo en los datos dados.\\n4. Limitaciones del análisis — qué no se puede concluir con los datos disponibles.\\n5. Conclusión y, si se pide, una recomendación basada estrictamente en lo anterior.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada afirmación del análisis se apoya en un dato concreto de los proporcionados, que los totales o porcentajes están bien calculados, y que las limitaciones están señaladas con claridad."}, {"categoria": "analisis_datos", "keywords": ["encuesta", "test a/b", "tráfico", "trafico", "comparativa", "proveedores", "datos", "análisis", "analisis", "estadística", "estadistica"], "necesidad": "Quiero un análisis de una comparativa entre varios proveedores para elegir con cuál trabajar.", "prompt": "Quiero que analices una comparativa entre varios proveedores para elegir con cuál trabajar, usando exclusivamente los datos que te voy a proporcionar.\\n\\n<contexto>\\nEl objetivo es tener una lectura clara y accionable, no solo una descripción de los números.\\n</contexto>\\n\\n## Reglas de precisión\\n- No inventes datos, cifras ni conclusiones que no puedas justificar con la información proporcionada.\\n- Si falta algún dato relevante para sacar una conclusión sólida, dilo explícitamente en vez de suponerlo.\\n- Distingue claramente entre lo que dicen los datos y cualquier interpretación tuya; señala la interpretación como tal.\\n\\n## Datos a considerar\\nPor cada registro: proveedor, precio, plazo de entrega, condiciones.\\n\\n## Estructura de la respuesta\\n1. Resumen ejecutivo con los indicadores clave.\\n2. Tabla o desglose detallado.\\n3. Análisis — qué patrones o diferencias destacan, apoyándote solo en los datos dados.\\n4. Limitaciones del análisis — qué no se puede concluir con los datos disponibles.\\n5. Conclusión y, si se pide, una recomendación basada estrictamente en lo anterior.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada afirmación del análisis se apoya en un dato concreto de los proporcionados, que los totales o porcentajes están bien calculados, y que las limitaciones están señaladas con claridad."}, {"categoria": "legal", "keywords": ["contrato", "cláusula", "clausula", "términos y condiciones", "terminos y condiciones", "presupuesto", "proveedor", "legal"], "necesidad": "Necesito revisar las cláusulas de un contrato de alquiler antes de firmarlo.", "prompt": "Quiero que me ayudes a revisar las cláusulas de un contrato de alquiler antes de firmarlo, centrándote especialmente en condiciones de renovación, penalizaciones y duración.\\n\\n<contexto>\\nNo soy abogado y necesito que el resultado sea fácil de entender, sin dejar de ser riguroso con lo que dice el documento.\\n</contexto>\\n\\n## Reglas de precisión\\n- Básate únicamente en el texto del documento que te proporciono. No des por hecho cláusulas o condiciones habituales si no aparecen explícitamente.\\n- Si una cláusula es ambigua o te parece que podría interpretarse de más de una forma, señálalo y explica ambas lecturas en vez de decidir tú cuál es la correcta.\\n- Deja claro que esto no sustituye el consejo de un abogado si la decisión es importante.\\n\\n## Estructura de la respuesta\\n1. Resumen en lenguaje sencillo de los puntos clave.\\n2. Detalle de las cláusulas relevantes, citando qué dice cada una.\\n3. Puntos que llaman la atención o que convendría aclarar antes de firmar.\\n4. Conclusión objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada punto del resumen se puede rastrear hasta una parte concreta del documento, que no has añadido interpretaciones legales que no estén respaldadas por el texto, y que las cláusulas ambiguas están señaladas como tales."}, {"categoria": "legal", "keywords": ["contrato", "cláusula", "clausula", "términos y condiciones", "terminos y condiciones", "presupuesto", "proveedor", "legal"], "necesidad": "Necesito resumir los términos y condiciones de un servicio que vamos a contratar.", "prompt": "Quiero que me ayudes a resumir los términos y condiciones de un servicio que vamos a contratar, centrándote especialmente en qué obligaciones adquirimos y cómo se puede cancelar.\\n\\n<contexto>\\nNo soy abogado y necesito que el resultado sea fácil de entender, sin dejar de ser riguroso con lo que dice el documento.\\n</contexto>\\n\\n## Reglas de precisión\\n- Básate únicamente en el texto del documento que te proporciono. No des por hecho cláusulas o condiciones habituales si no aparecen explícitamente.\\n- Si una cláusula es ambigua o te parece que podría interpretarse de más de una forma, señálalo y explica ambas lecturas en vez de decidir tú cuál es la correcta.\\n- Deja claro que esto no sustituye el consejo de un abogado si la decisión es importante.\\n\\n## Estructura de la respuesta\\n1. Resumen en lenguaje sencillo de los puntos clave.\\n2. Detalle de las cláusulas relevantes, citando qué dice cada una.\\n3. Puntos que llaman la atención o que convendría aclarar antes de firmar.\\n4. Conclusión objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada punto del resumen se puede rastrear hasta una parte concreta del documento, que no has añadido interpretaciones legales que no estén respaldadas por el texto, y que las cláusulas ambiguas están señaladas como tales."}, {"categoria": "legal", "keywords": ["contrato", "cláusula", "clausula", "términos y condiciones", "terminos y condiciones", "presupuesto", "proveedor", "legal"], "necesidad": "Necesito comparar dos presupuestos de proveedores distintos para el mismo servicio.", "prompt": "Quiero que me ayudes a comparar dos presupuestos de proveedores distintos para el mismo servicio, centrándote especialmente en qué incluye cada uno y qué diferencias hay en las condiciones, no solo en el precio.\\n\\n<contexto>\\nNo soy abogado y necesito que el resultado sea fácil de entender, sin dejar de ser riguroso con lo que dice el documento.\\n</contexto>\\n\\n## Reglas de precisión\\n- Básate únicamente en el texto del documento que te proporciono. No des por hecho cláusulas o condiciones habituales si no aparecen explícitamente.\\n- Si una cláusula es ambigua o te parece que podría interpretarse de más de una forma, señálalo y explica ambas lecturas en vez de decidir tú cuál es la correcta.\\n- Deja claro que esto no sustituye el consejo de un abogado si la decisión es importante.\\n\\n## Estructura de la respuesta\\n1. Resumen en lenguaje sencillo de los puntos clave.\\n2. Detalle de las cláusulas relevantes, citando qué dice cada una.\\n3. Puntos que llaman la atención o que convendría aclarar antes de firmar.\\n4. Conclusión objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada punto del resumen se puede rastrear hasta una parte concreta del documento, que no has añadido interpretaciones legales que no estén respaldadas por el texto, y que las cláusulas ambiguas están señaladas como tales."}, {"categoria": "legal", "keywords": ["contrato", "cláusula", "clausula", "términos y condiciones", "terminos y condiciones", "presupuesto", "proveedor", "legal"], "necesidad": "Necesito hacer un checklist de los puntos que debería tener un contrato con un nuevo proveedor.", "prompt": "Quiero que me ayudes a hacer un checklist de los puntos que debería tener un contrato con un nuevo proveedor, centrándote especialmente en a partir de los contratos anteriores que te voy a pasar como referencia.\\n\\n<contexto>\\nNo soy abogado y necesito que el resultado sea fácil de entender, sin dejar de ser riguroso con lo que dice el documento.\\n</contexto>\\n\\n## Reglas de precisión\\n- Básate únicamente en el texto del documento que te proporciono. No des por hecho cláusulas o condiciones habituales si no aparecen explícitamente.\\n- Si una cláusula es ambigua o te parece que podría interpretarse de más de una forma, señálalo y explica ambas lecturas en vez de decidir tú cuál es la correcta.\\n- Deja claro que esto no sustituye el consejo de un abogado si la decisión es importante.\\n\\n## Estructura de la respuesta\\n1. Resumen en lenguaje sencillo de los puntos clave.\\n2. Detalle de las cláusulas relevantes, citando qué dice cada una.\\n3. Puntos que llaman la atención o que convendría aclarar antes de firmar.\\n4. Conclusión objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada punto del resumen se puede rastrear hasta una parte concreta del documento, que no has añadido interpretaciones legales que no estén respaldadas por el texto, y que las cláusulas ambiguas están señaladas como tales."}, {"categoria": "reuniones", "keywords": ["reunión", "reunion", "acta", "llamada", "notas", "seguimiento", "tareas pendientes", "plan de acción", "plan de accion"], "necesidad": "Quiero que me ayudes a redactar el acta de una reunión a partir de mis notas.", "prompt": "Quiero que redactar el acta de una reunión a partir de mis notas. incluye los acuerdos y quién es responsable de cada tarea.\\n\\n<contexto>\\nTe voy a pasar mis notas tal cual las tomé, puede que estén desordenadas.\\n</contexto>\\n\\n## Reglas de precisión\\n- Usa únicamente lo que aparece en mis notas. No añadas acuerdos, tareas o responsables que no estén mencionados.\\n- Si algo no queda claro en las notas (quién es el responsable, la fecha límite), indícalo como pendiente de confirmar en vez de suponerlo.\\n- No cambies el sentido de lo que se dijo, aunque reorganices el orden para que quede más claro.\\n\\n## Estructura de la respuesta\\n1. Resumen breve del objetivo de la reunión o llamada.\\n2. Puntos tratados, organizados por tema.\\n3. Acuerdos y tareas, con responsable y plazo cuando conste.\\n4. Pendiente de confirmar — lo que no queda claro en las notas originales.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada acuerdo o tarea que aparece en el resultado se puede encontrar en las notas originales, y que nada se ha atribuido a una persona sin que estuviera claro en las notas."}, {"categoria": "reuniones", "keywords": ["reunión", "reunion", "acta", "llamada", "notas", "seguimiento", "tareas pendientes", "plan de acción", "plan de accion"], "necesidad": "Quiero que me ayudes a resumir una llamada con un cliente a partir de mis notas.", "prompt": "Quiero que resumir una llamada con un cliente a partir de mis notas. separa claramente lo que el cliente pidió de lo que nosotros nos comprometimos a hacer.\\n\\n<contexto>\\nTe voy a pasar mis notas tal cual las tomé, puede que estén desordenadas.\\n</contexto>\\n\\n## Reglas de precisión\\n- Usa únicamente lo que aparece en mis notas. No añadas acuerdos, tareas o responsables que no estén mencionados.\\n- Si algo no queda claro en las notas (quién es el responsable, la fecha límite), indícalo como pendiente de confirmar en vez de suponerlo.\\n- No cambies el sentido de lo que se dijo, aunque reorganices el orden para que quede más claro.\\n\\n## Estructura de la respuesta\\n1. Resumen breve del objetivo de la reunión o llamada.\\n2. Puntos tratados, organizados por tema.\\n3. Acuerdos y tareas, con responsable y plazo cuando conste.\\n4. Pendiente de confirmar — lo que no queda claro en las notas originales.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada acuerdo o tarea que aparece en el resultado se puede encontrar en las notas originales, y que nada se ha atribuido a una persona sin que estuviera claro en las notas."}, {"categoria": "reuniones", "keywords": ["reunión", "reunion", "acta", "llamada", "notas", "seguimiento", "tareas pendientes", "plan de acción", "plan de accion"], "necesidad": "Quiero que me ayudes a convertir las notas de una reunión en un plan de acción con tareas y plazos.", "prompt": "Quiero que convertir las notas de una reunión en un plan de acción con tareas y plazos. si una tarea no tiene responsable o plazo claro en mis notas, indícalo en vez de asignarlo tú.\\n\\n<contexto>\\nTe voy a pasar mis notas tal cual las tomé, puede que estén desordenadas.\\n</contexto>\\n\\n## Reglas de precisión\\n- Usa únicamente lo que aparece en mis notas. No añadas acuerdos, tareas o responsables que no estén mencionados.\\n- Si algo no queda claro en las notas (quién es el responsable, la fecha límite), indícalo como pendiente de confirmar en vez de suponerlo.\\n- No cambies el sentido de lo que se dijo, aunque reorganices el orden para que quede más claro.\\n\\n## Estructura de la respuesta\\n1. Resumen breve del objetivo de la reunión o llamada.\\n2. Puntos tratados, organizados por tema.\\n3. Acuerdos y tareas, con responsable y plazo cuando conste.\\n4. Pendiente de confirmar — lo que no queda claro en las notas originales.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada acuerdo o tarea que aparece en el resultado se puede encontrar en las notas originales, y que nada se ha atribuido a una persona sin que estuviera claro en las notas."}, {"categoria": "reuniones", "keywords": ["reunión", "reunion", "acta", "llamada", "notas", "seguimiento", "tareas pendientes", "plan de acción", "plan de accion"], "necesidad": "Quiero que me ayudes a hacer un seguimiento de las tareas pendientes de reuniones anteriores.", "prompt": "Quiero que hacer un seguimiento de las tareas pendientes de reuniones anteriores. a partir de la lista de actas que te voy a pasar.\\n\\n<contexto>\\nTe voy a pasar mis notas tal cual las tomé, puede que estén desordenadas.\\n</contexto>\\n\\n## Reglas de precisión\\n- Usa únicamente lo que aparece en mis notas. No añadas acuerdos, tareas o responsables que no estén mencionados.\\n- Si algo no queda claro en las notas (quién es el responsable, la fecha límite), indícalo como pendiente de confirmar en vez de suponerlo.\\n- No cambies el sentido de lo que se dijo, aunque reorganices el orden para que quede más claro.\\n\\n## Estructura de la respuesta\\n1. Resumen breve del objetivo de la reunión o llamada.\\n2. Puntos tratados, organizados por tema.\\n3. Acuerdos y tareas, con responsable y plazo cuando conste.\\n4. Pendiente de confirmar — lo que no queda claro en las notas originales.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada acuerdo o tarea que aparece en el resultado se puede encontrar en las notas originales, y que nada se ha atribuido a una persona sin que estuviera claro en las notas."}, {"categoria": "investigacion", "keywords": ["resumen", "resumir", "informe", "investigación", "investigacion", "comparar herramientas", "artículos", "articulos", "mercado"], "necesidad": "Necesito que me ayudes a resumir un informe largo en los puntos clave.", "prompt": "Quiero que resumir un informe largo en los puntos clave. que se pueda leer en menos de dos minutos sin perder lo importante.\\n\\n<contexto>\\nTe voy a pasar el material original (documento, artículos o descripción de las herramientas) en este mensaje o en archivos adjuntos.\\n</contexto>\\n\\n## Reglas de precisión\\n- Básate únicamente en el material que te proporciono. No añadas datos, cifras o afirmaciones que no aparezcan en él.\\n- Si dos fuentes se contradicen, señala la contradicción en vez de quedarte solo con una versión.\\n- Si te falta información para completar algún punto, indícalo como \\"no disponible\\" en vez de rellenarlo por tu cuenta.\\n\\n## Estructura de la respuesta\\n1. Resumen ejecutivo con las conclusiones principales.\\n2. Desarrollo — punto por punto, con referencia a qué fuente o parte del documento respalda cada afirmación.\\n3. Discrepancias o puntos poco claros, si los hay.\\n4. Conclusión objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada afirmación del resumen se puede rastrear hasta el material original, que las contradicciones entre fuentes están señaladas, y que no se ha simplificado nada de forma que cambie el sentido original."}, {"categoria": "investigacion", "keywords": ["resumen", "resumir", "informe", "investigación", "investigacion", "comparar herramientas", "artículos", "articulos", "mercado"], "necesidad": "Necesito que me ayudes a comparar varias herramientas para elegir cuál nos conviene más.", "prompt": "Quiero que comparar varias herramientas para elegir cuál nos conviene más. centrándote en las funciones que realmente necesitamos, no en todas las que tenga cada herramienta.\\n\\n<contexto>\\nTe voy a pasar el material original (documento, artículos o descripción de las herramientas) en este mensaje o en archivos adjuntos.\\n</contexto>\\n\\n## Reglas de precisión\\n- Básate únicamente en el material que te proporciono. No añadas datos, cifras o afirmaciones que no aparezcan en él.\\n- Si dos fuentes se contradicen, señala la contradicción en vez de quedarte solo con una versión.\\n- Si te falta información para completar algún punto, indícalo como \\"no disponible\\" en vez de rellenarlo por tu cuenta.\\n\\n## Estructura de la respuesta\\n1. Resumen ejecutivo con las conclusiones principales.\\n2. Desarrollo — punto por punto, con referencia a qué fuente o parte del documento respalda cada afirmación.\\n3. Discrepancias o puntos poco claros, si los hay.\\n4. Conclusión objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada afirmación del resumen se puede rastrear hasta el material original, que las contradicciones entre fuentes están señaladas, y que no se ha simplificado nada de forma que cambie el sentido original."}, {"categoria": "investigacion", "keywords": ["resumen", "resumir", "informe", "investigación", "investigacion", "comparar herramientas", "artículos", "articulos", "mercado"], "necesidad": "Necesito que me ayudes a hacer una investigación de mercado sobre un sector concreto.", "prompt": "Quiero que hacer una investigación de mercado sobre un sector concreto. usando solo las fuentes o datos que te proporcione.\\n\\n<contexto>\\nTe voy a pasar el material original (documento, artículos o descripción de las herramientas) en este mensaje o en archivos adjuntos.\\n</contexto>\\n\\n## Reglas de precisión\\n- Básate únicamente en el material que te proporciono. No añadas datos, cifras o afirmaciones que no aparezcan en él.\\n- Si dos fuentes se contradicen, señala la contradicción en vez de quedarte solo con una versión.\\n- Si te falta información para completar algún punto, indícalo como \\"no disponible\\" en vez de rellenarlo por tu cuenta.\\n\\n## Estructura de la respuesta\\n1. Resumen ejecutivo con las conclusiones principales.\\n2. Desarrollo — punto por punto, con referencia a qué fuente o parte del documento respalda cada afirmación.\\n3. Discrepancias o puntos poco claros, si los hay.\\n4. Conclusión objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada afirmación del resumen se puede rastrear hasta el material original, que las contradicciones entre fuentes están señaladas, y que no se ha simplificado nada de forma que cambie el sentido original."}, {"categoria": "investigacion", "keywords": ["resumen", "resumir", "informe", "investigación", "investigacion", "comparar herramientas", "artículos", "articulos", "mercado"], "necesidad": "Necesito que me ayudes a resumir varios artículos sobre el mismo tema y señalar en qué coinciden y en qué no.", "prompt": "Quiero que resumir varios artículos sobre el mismo tema y señalar en qué coinciden y en qué no. sin mezclar las opiniones de cada fuente como si fueran una sola.\\n\\n<contexto>\\nTe voy a pasar el material original (documento, artículos o descripción de las herramientas) en este mensaje o en archivos adjuntos.\\n</contexto>\\n\\n## Reglas de precisión\\n- Básate únicamente en el material que te proporciono. No añadas datos, cifras o afirmaciones que no aparezcan en él.\\n- Si dos fuentes se contradicen, señala la contradicción en vez de quedarte solo con una versión.\\n- Si te falta información para completar algún punto, indícalo como \\"no disponible\\" en vez de rellenarlo por tu cuenta.\\n\\n## Estructura de la respuesta\\n1. Resumen ejecutivo con las conclusiones principales.\\n2. Desarrollo — punto por punto, con referencia a qué fuente o parte del documento respalda cada afirmación.\\n3. Discrepancias o puntos poco claros, si los hay.\\n4. Conclusión objetiva.\\n\\n## Antes de dar la respuesta final\\nComprueba que cada afirmación del resumen se puede rastrear hasta el material original, que las contradicciones entre fuentes están señaladas, y que no se ha simplificado nada de forma que cambie el sentido original."}, {"categoria": "diseno_web", "keywords": ["página web", "pagina web", "sitio web", "landing page", "landing", "web para", "diseño web", "diseno web", "html css javascript", "web responsive", "página de aterrizaje"], "necesidad": "Quiero una página web completa para un entrenador personal (FIT & GO), en HTML, CSS y JavaScript en un único archivo.", "prompt": "Crea una página web completa para un entrenador personal, usando únicamente HTML, CSS y JavaScript, todo integrado en un único archivo HTML que se pueda abrir directamente en el navegador (sin frameworks como React, Vue o Angular).\\n\\n<contexto>\\nEl negocio se llama \\"FIT & GO\\". El objetivo es una web deportivo, moderno y motivador, pensada para conseguir nuevos clientes y transmitir confianza y profesionalidad. Todo el contenido (textos, cifras, testimonios) es de ejemplo/ficticio y se podrá sustituir después — indícalo así en vez de presentarlo como real.\\n</contexto>\\n\\n## Estilo y marca\\n- Color principal: verde, con varias tonalidades para dar profundidad y jerarquía visual, combinado con blancos y grises neutros.\\n- Tipografía y estilo consistentes en toda la página: bordes redondeados, sombras suaves, tarjetas y botones cuidados. Que no parezca una plantilla genérica.\\n- Bastante espacio en blanco, jerarquía visual clara, transiciones y animaciones discretas al pasar el ratón por botones, tarjetas y elementos interactivos.\\n\\n## Estructura de secciones (en este orden)\\n1. Cabecera fija/sticky con logo, menú de navegación y un botón destacado (\\"Empieza ahora\\"); en móvil, menú hamburguesa funcional.\\n2. Portada (hero) con título principal impactante, texto breve, dos botones de llamada a la acción y una imagen o fondo visual relacionado con el sector.\\n3. Sección \\"Sobre nosotros/mí\\" con presentación y 3 datos destacados de ejemplo (años de experiencia, clientes atendidos, etc., marcados como genéricos).\\n4. Sección de servicios: tarjetas para cada uno de estos servicios: Entrenamiento personalizado, Pérdida de grasa, Ganancia muscular, Entrenamiento funcional, Entrenamiento online — cada una con icono, título, descripción y botón \\"Más información\\".\\n5. Sección \\"¿Cómo funciona?\\" en 3-4 pasos numerados, visual y fácil de seguir.\\n6. Sección de planes/precios con tarjetas para: START, PRO, PREMIUM (precios de ejemplo, marcados como orientativos), destacando visualmente la opción intermedia sin resultar agresivo, con botón de contratación en cada una.\\n7. Sección de testimonios o resultados con 3 testimonios ficticios claramente marcados como ejemplos, y alguna estadística visual de ejemplo.\\n8. Sección de llamada a la acción a ancho completo, con una frase motivadora y un botón.\\n9. Preguntas frecuentes (FAQ) desplegables mediante JavaScript, con animación suave al abrir/cerrar.\\n10. Sección de contacto con formulario (campos relevantes al sector) con validación básica en JavaScript y mensaje de confirmación visual al enviar (no hace falta que envíe un email real), más los datos de contacto y redes sociales al lado.\\n11. Footer oscuro con logo, descripción breve, enlaces rápidos, contacto, redes sociales, copyright y enlaces ficticios a política de privacidad, aviso legal y cookies.\\n\\n## Funcionalidad en JavaScript\\nIncluye: menú hamburguesa en móvil, FAQ desplegable, scroll suave entre secciones, animaciones al aparecer los elementos durante el scroll, validación del formulario de contacto, mensaje de confirmación al enviarlo, y efectos hover en botones y tarjetas.\\n\\n## Responsive\\nDebe funcionar correctamente en escritorio, tablet y móvil: en móvil el menú se convierte en hamburguesa, las tarjetas pasan a una sola columna, los textos y botones se adaptan, el formulario ocupa casi todo el ancho, y no debe aparecer scroll horizontal en ningún tamaño.\\n\\n## Reglas generales\\n- No inventes certificaciones, cifras o datos reales concretos: todo el contenido de ejemplo debe quedar identificable como tal.\\n- El código debe estar bien estructurado y comentado, fácil de modificar después.\\n- Entrega un único archivo HTML con el CSS dentro de \`<style>\` y el JavaScript dentro de \`<script>\`.\\n\\n## Estructura de la respuesta final\\n1. El código completo del archivo HTML.\\n2. Un resumen breve de las decisiones de diseño tomadas (paleta, tipografía, estructura).\\n3. Una checklist de lo verificado antes de entregarlo: que todos los botones funcionen, el menú funcione, el formulario valide correctamente, el FAQ sea interactivo, los enlaces internos funcionen y la web sea responsive sin errores.\\n4. Cualquier limitación o siguiente paso recomendado (por ejemplo, sustituir imágenes de ejemplo por reales).\\n\\n## Antes de dar la respuesta final\\nComprueba que todas las secciones pedidas están presentes y en el orden indicado, que las funcionalidades JavaScript descritas funcionan de verdad (no solo visualmente), que no hay errores de HTML/CSS/JS, y que el diseño es responsive sin scroll horizontal en ningún tamaño de pantalla."}, {"categoria": "diseno_web", "keywords": ["página web", "pagina web", "sitio web", "landing page", "landing", "web para", "diseño web", "diseno web", "html css javascript", "web responsive", "página de aterrizaje"], "necesidad": "Quiero una página web completa para un restaurante de cocina mediterránea (OLIVA), en HTML, CSS y JavaScript en un único archivo.", "prompt": "Crea una página web completa para un restaurante de cocina mediterránea, usando únicamente HTML, CSS y JavaScript, todo integrado en un único archivo HTML que se pueda abrir directamente en el navegador (sin frameworks como React, Vue o Angular).\\n\\n<contexto>\\nEl negocio se llama \\"OLIVA\\". El objetivo es una web cálido, elegante y apetecible, pensada para conseguir nuevos clientes y transmitir confianza y profesionalidad. Todo el contenido (textos, cifras, testimonios) es de ejemplo/ficticio y se podrá sustituir después — indícalo así en vez de presentarlo como real.\\n</contexto>\\n\\n## Estilo y marca\\n- Color principal: terracota y verde oliva, con varias tonalidades para dar profundidad y jerarquía visual, combinado con blancos y grises neutros.\\n- Tipografía y estilo consistentes en toda la página: bordes redondeados, sombras suaves, tarjetas y botones cuidados. Que no parezca una plantilla genérica.\\n- Bastante espacio en blanco, jerarquía visual clara, transiciones y animaciones discretas al pasar el ratón por botones, tarjetas y elementos interactivos.\\n\\n## Estructura de secciones (en este orden)\\n1. Cabecera fija/sticky con logo, menú de navegación y un botón destacado (\\"Reserva tu mesa\\"); en móvil, menú hamburguesa funcional.\\n2. Portada (hero) con título principal impactante, texto breve, dos botones de llamada a la acción y una imagen o fondo visual relacionado con el sector.\\n3. Sección \\"Sobre nosotros/mí\\" con presentación y 3 datos destacados de ejemplo (años de experiencia, clientes atendidos, etc., marcados como genéricos).\\n4. Sección de servicios: tarjetas para cada uno de estos servicios: Menú del día, Carta, Eventos privados, Catering, Reservas online — cada una con icono, título, descripción y botón \\"Más información\\".\\n5. Sección \\"¿Cómo funciona?\\" en 3-4 pasos numerados, visual y fácil de seguir.\\n6. Sección de planes/precios con tarjetas para: MENÚ DEGUSTACIÓN, MENÚ EJECUTIVO, CARTA COMPLETA (precios de ejemplo, marcados como orientativos), destacando visualmente la opción intermedia sin resultar agresivo, con botón de contratación en cada una.\\n7. Sección de testimonios o resultados con 3 testimonios ficticios claramente marcados como ejemplos, y alguna estadística visual de ejemplo.\\n8. Sección de llamada a la acción a ancho completo, con una frase motivadora y un botón.\\n9. Preguntas frecuentes (FAQ) desplegables mediante JavaScript, con animación suave al abrir/cerrar.\\n10. Sección de contacto con formulario (campos relevantes al sector) con validación básica en JavaScript y mensaje de confirmación visual al enviar (no hace falta que envíe un email real), más los datos de contacto y redes sociales al lado.\\n11. Footer oscuro con logo, descripción breve, enlaces rápidos, contacto, redes sociales, copyright y enlaces ficticios a política de privacidad, aviso legal y cookies.\\n\\n## Funcionalidad en JavaScript\\nIncluye: menú hamburguesa en móvil, FAQ desplegable, scroll suave entre secciones, animaciones al aparecer los elementos durante el scroll, validación del formulario de contacto, mensaje de confirmación al enviarlo, y efectos hover en botones y tarjetas.\\n\\n## Responsive\\nDebe funcionar correctamente en escritorio, tablet y móvil: en móvil el menú se convierte en hamburguesa, las tarjetas pasan a una sola columna, los textos y botones se adaptan, el formulario ocupa casi todo el ancho, y no debe aparecer scroll horizontal en ningún tamaño.\\n\\n## Reglas generales\\n- No inventes certificaciones, cifras o datos reales concretos: todo el contenido de ejemplo debe quedar identificable como tal.\\n- El código debe estar bien estructurado y comentado, fácil de modificar después.\\n- Entrega un único archivo HTML con el CSS dentro de \`<style>\` y el JavaScript dentro de \`<script>\`.\\n\\n## Estructura de la respuesta final\\n1. El código completo del archivo HTML.\\n2. Un resumen breve de las decisiones de diseño tomadas (paleta, tipografía, estructura).\\n3. Una checklist de lo verificado antes de entregarlo: que todos los botones funcionen, el menú funcione, el formulario valide correctamente, el FAQ sea interactivo, los enlaces internos funcionen y la web sea responsive sin errores.\\n4. Cualquier limitación o siguiente paso recomendado (por ejemplo, sustituir imágenes de ejemplo por reales).\\n\\n## Antes de dar la respuesta final\\nComprueba que todas las secciones pedidas están presentes y en el orden indicado, que las funcionalidades JavaScript descritas funcionan de verdad (no solo visualmente), que no hay errores de HTML/CSS/JS, y que el diseño es responsive sin scroll horizontal en ningún tamaño de pantalla."}, {"categoria": "diseno_web", "keywords": ["página web", "pagina web", "sitio web", "landing page", "landing", "web para", "diseño web", "diseno web", "html css javascript", "web responsive", "página de aterrizaje"], "necesidad": "Quiero una página web completa para una clínica dental (SONRISA CLARA), en HTML, CSS y JavaScript en un único archivo.", "prompt": "Crea una página web completa para una clínica dental, usando únicamente HTML, CSS y JavaScript, todo integrado en un único archivo HTML que se pueda abrir directamente en el navegador (sin frameworks como React, Vue o Angular).\\n\\n<contexto>\\nEl negocio se llama \\"SONRISA CLARA\\". El objetivo es una web cercano, profesional y tranquilizador, pensada para conseguir nuevos clientes y transmitir confianza y profesionalidad. Todo el contenido (textos, cifras, testimonios) es de ejemplo/ficticio y se podrá sustituir después — indícalo así en vez de presentarlo como real.\\n</contexto>\\n\\n## Estilo y marca\\n- Color principal: azul y blanco, con varias tonalidades para dar profundidad y jerarquía visual, combinado con blancos y grises neutros.\\n- Tipografía y estilo consistentes en toda la página: bordes redondeados, sombras suaves, tarjetas y botones cuidados. Que no parezca una plantilla genérica.\\n- Bastante espacio en blanco, jerarquía visual clara, transiciones y animaciones discretas al pasar el ratón por botones, tarjetas y elementos interactivos.\\n\\n## Estructura de secciones (en este orden)\\n1. Cabecera fija/sticky con logo, menú de navegación y un botón destacado (\\"Pide tu cita\\"); en móvil, menú hamburguesa funcional.\\n2. Portada (hero) con título principal impactante, texto breve, dos botones de llamada a la acción y una imagen o fondo visual relacionado con el sector.\\n3. Sección \\"Sobre nosotros/mí\\" con presentación y 3 datos destacados de ejemplo (años de experiencia, clientes atendidos, etc., marcados como genéricos).\\n4. Sección de servicios: tarjetas para cada uno de estos servicios: Revisión general, Ortodoncia, Estética dental, Implantes, Odontopediatría — cada una con icono, título, descripción y botón \\"Más información\\".\\n5. Sección \\"¿Cómo funciona?\\" en 3-4 pasos numerados, visual y fácil de seguir.\\n6. Sección de planes/precios con tarjetas para: BÁSICO, FAMILIAR, PREMIUM (precios de ejemplo, marcados como orientativos), destacando visualmente la opción intermedia sin resultar agresivo, con botón de contratación en cada una.\\n7. Sección de testimonios o resultados con 3 testimonios ficticios claramente marcados como ejemplos, y alguna estadística visual de ejemplo.\\n8. Sección de llamada a la acción a ancho completo, con una frase motivadora y un botón.\\n9. Preguntas frecuentes (FAQ) desplegables mediante JavaScript, con animación suave al abrir/cerrar.\\n10. Sección de contacto con formulario (campos relevantes al sector) con validación básica en JavaScript y mensaje de confirmación visual al enviar (no hace falta que envíe un email real), más los datos de contacto y redes sociales al lado.\\n11. Footer oscuro con logo, descripción breve, enlaces rápidos, contacto, redes sociales, copyright y enlaces ficticios a política de privacidad, aviso legal y cookies.\\n\\n## Funcionalidad en JavaScript\\nIncluye: menú hamburguesa en móvil, FAQ desplegable, scroll suave entre secciones, animaciones al aparecer los elementos durante el scroll, validación del formulario de contacto, mensaje de confirmación al enviarlo, y efectos hover en botones y tarjetas.\\n\\n## Responsive\\nDebe funcionar correctamente en escritorio, tablet y móvil: en móvil el menú se convierte en hamburguesa, las tarjetas pasan a una sola columna, los textos y botones se adaptan, el formulario ocupa casi todo el ancho, y no debe aparecer scroll horizontal en ningún tamaño.\\n\\n## Reglas generales\\n- No inventes certificaciones, cifras o datos reales concretos: todo el contenido de ejemplo debe quedar identificable como tal.\\n- El código debe estar bien estructurado y comentado, fácil de modificar después.\\n- Entrega un único archivo HTML con el CSS dentro de \`<style>\` y el JavaScript dentro de \`<script>\`.\\n\\n## Estructura de la respuesta final\\n1. El código completo del archivo HTML.\\n2. Un resumen breve de las decisiones de diseño tomadas (paleta, tipografía, estructura).\\n3. Una checklist de lo verificado antes de entregarlo: que todos los botones funcionen, el menú funcione, el formulario valide correctamente, el FAQ sea interactivo, los enlaces internos funcionen y la web sea responsive sin errores.\\n4. Cualquier limitación o siguiente paso recomendado (por ejemplo, sustituir imágenes de ejemplo por reales).\\n\\n## Antes de dar la respuesta final\\nComprueba que todas las secciones pedidas están presentes y en el orden indicado, que las funcionalidades JavaScript descritas funcionan de verdad (no solo visualmente), que no hay errores de HTML/CSS/JS, y que el diseño es responsive sin scroll horizontal en ningún tamaño de pantalla."}, {"categoria": "diseno_web", "keywords": ["página web", "pagina web", "sitio web", "landing page", "landing", "web para", "diseño web", "diseno web", "html css javascript", "web responsive", "página de aterrizaje"], "necesidad": "Quiero una página web completa para un despacho de abogados (LEGALIS), en HTML, CSS y JavaScript en un único archivo.", "prompt": "Crea una página web completa para un despacho de abogados, usando únicamente HTML, CSS y JavaScript, todo integrado en un único archivo HTML que se pueda abrir directamente en el navegador (sin frameworks como React, Vue o Angular).\\n\\n<contexto>\\nEl negocio se llama \\"LEGALIS\\". El objetivo es una web serio, profesional y de confianza, pensada para conseguir nuevos clientes y transmitir confianza y profesionalidad. Todo el contenido (textos, cifras, testimonios) es de ejemplo/ficticio y se podrá sustituir después — indícalo así en vez de presentarlo como real.\\n</contexto>\\n\\n## Estilo y marca\\n- Color principal: azul marino y dorado, con varias tonalidades para dar profundidad y jerarquía visual, combinado con blancos y grises neutros.\\n- Tipografía y estilo consistentes en toda la página: bordes redondeados, sombras suaves, tarjetas y botones cuidados. Que no parezca una plantilla genérica.\\n- Bastante espacio en blanco, jerarquía visual clara, transiciones y animaciones discretas al pasar el ratón por botones, tarjetas y elementos interactivos.\\n\\n## Estructura de secciones (en este orden)\\n1. Cabecera fija/sticky con logo, menú de navegación y un botón destacado (\\"Solicita tu consulta\\"); en móvil, menú hamburguesa funcional.\\n2. Portada (hero) con título principal impactante, texto breve, dos botones de llamada a la acción y una imagen o fondo visual relacionado con el sector.\\n3. Sección \\"Sobre nosotros/mí\\" con presentación y 3 datos destacados de ejemplo (años de experiencia, clientes atendidos, etc., marcados como genéricos).\\n4. Sección de servicios: tarjetas para cada uno de estos servicios: Derecho laboral, Derecho mercantil, Derecho de familia, Asesoría fiscal, Consultoría legal — cada una con icono, título, descripción y botón \\"Más información\\".\\n5. Sección \\"¿Cómo funciona?\\" en 3-4 pasos numerados, visual y fácil de seguir.\\n6. Sección de planes/precios con tarjetas para: CONSULTA PUNTUAL, ASESORÍA MENSUAL, ASESORÍA INTEGRAL (precios de ejemplo, marcados como orientativos), destacando visualmente la opción intermedia sin resultar agresivo, con botón de contratación en cada una.\\n7. Sección de testimonios o resultados con 3 testimonios ficticios claramente marcados como ejemplos, y alguna estadística visual de ejemplo.\\n8. Sección de llamada a la acción a ancho completo, con una frase motivadora y un botón.\\n9. Preguntas frecuentes (FAQ) desplegables mediante JavaScript, con animación suave al abrir/cerrar.\\n10. Sección de contacto con formulario (campos relevantes al sector) con validación básica en JavaScript y mensaje de confirmación visual al enviar (no hace falta que envíe un email real), más los datos de contacto y redes sociales al lado.\\n11. Footer oscuro con logo, descripción breve, enlaces rápidos, contacto, redes sociales, copyright y enlaces ficticios a política de privacidad, aviso legal y cookies.\\n\\n## Funcionalidad en JavaScript\\nIncluye: menú hamburguesa en móvil, FAQ desplegable, scroll suave entre secciones, animaciones al aparecer los elementos durante el scroll, validación del formulario de contacto, mensaje de confirmación al enviarlo, y efectos hover en botones y tarjetas.\\n\\n## Responsive\\nDebe funcionar correctamente en escritorio, tablet y móvil: en móvil el menú se convierte en hamburguesa, las tarjetas pasan a una sola columna, los textos y botones se adaptan, el formulario ocupa casi todo el ancho, y no debe aparecer scroll horizontal en ningún tamaño.\\n\\n## Reglas generales\\n- No inventes certificaciones, cifras o datos reales concretos: todo el contenido de ejemplo debe quedar identificable como tal.\\n- El código debe estar bien estructurado y comentado, fácil de modificar después.\\n- Entrega un único archivo HTML con el CSS dentro de \`<style>\` y el JavaScript dentro de \`<script>\`.\\n\\n## Estructura de la respuesta final\\n1. El código completo del archivo HTML.\\n2. Un resumen breve de las decisiones de diseño tomadas (paleta, tipografía, estructura).\\n3. Una checklist de lo verificado antes de entregarlo: que todos los botones funcionen, el menú funcione, el formulario valide correctamente, el FAQ sea interactivo, los enlaces internos funcionen y la web sea responsive sin errores.\\n4. Cualquier limitación o siguiente paso recomendado (por ejemplo, sustituir imágenes de ejemplo por reales).\\n\\n## Antes de dar la respuesta final\\nComprueba que todas las secciones pedidas están presentes y en el orden indicado, que las funcionalidades JavaScript descritas funcionan de verdad (no solo visualmente), que no hay errores de HTML/CSS/JS, y que el diseño es responsive sin scroll horizontal en ningún tamaño de pantalla."}];
+;
+  function findBestExamples(taskText, n) {
+    const t = (' ' + (taskText || '').toLowerCase() + ' ');
+    const scored = PROMPT_EXAMPLES.map(ex => {
+      let score = 0;
+      ex.keywords.forEach(kw => { if (t.includes(kw.toLowerCase())) score++; });
+      return { ex, score };
+    }).filter(s => s.score > 0).sort((a, b) => b.score - a.score);
+    const seenCats = new Set();
+    const result = [];
+    for (const s of scored) {
+      if (seenCats.has(s.ex.categoria)) continue;
+      seenCats.add(s.ex.categoria);
+      result.push(s.ex);
+      if (result.length >= n) break;
+    }
+    return result;
+  }
+
   function buildMetaPrompt(f) {
     let lines = [];
     lines.push('Eres un experto en ingeniería de prompts. Tu única tarea es escribir un prompt excelente, detallado y profesional, en español, listo para copiar y pegar, que una persona usará para pedirle una tarea a Claude (un modelo de lenguaje). No completes la tarea tú mismo: escribe el prompt que se la pediría a otra persona.');
@@ -10932,54 +11069,698 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     lines.push('- Si la tarea es compleja, de varios pasos, o implica cálculos o cruces de datos, pide explícitamente que razone paso a paso y que verifique internamente el resultado (por ejemplo, que las cifras cuadren) antes de dar la respuesta final.');
     lines.push('- Usa un lenguaje directo. Organiza el prompt con títulos, saltos de línea o etiquetas tipo XML para separar contexto, tarea, reglas y formato — que se note que es un prompt cuidado, no una frase suelta.');
     lines.push('- No añadas explicaciones sobre el prompt ni comentarios meta, ni frases como "aquí tienes el prompt". Devuelve ÚNICAMENTE el texto del prompt final, listo para copiar y pegar.');
+    const ejemplosRef = findBestExamples(f.tarea + ' ' + f.contexto, 2);
+    if (ejemplosRef.length === 1) {
+      lines.push('');
+      lines.push('Aquí tienes un prompt real, bien escrito, para una tarea del mismo tipo. Úsalo como referencia de nivel de detalle y de estructura (reglas de precisión, criterios específicos del tema, estructura de la respuesta, verificación final) — no lo copies literalmente, adáptalo a los datos reales que te ha dado el usuario arriba:');
+      lines.push('<ejemplo_de_referencia_interno>');
+      lines.push(ejemplosRef[0].prompt);
+      lines.push('</ejemplo_de_referencia_interno>');
+    } else if (ejemplosRef.length > 1) {
+      lines.push('');
+      lines.push('La tarea del usuario parece combinar varios aspectos (' + ejemplosRef.map(e => e.categoria).join(' + ') + '). Aquí tienes prompts reales bien escritos para cada aspecto por separado, como referencia de nivel de detalle y estructura — no los copies literalmente, combínalos y adáptalos a los datos reales que te ha dado el usuario arriba, en un único prompt final coherente:');
+      ejemplosRef.forEach((ex, i) => {
+        lines.push('<ejemplo_de_referencia_interno_' + (i + 1) + '>');
+        lines.push(ex.prompt);
+        lines.push('</ejemplo_de_referencia_interno_' + (i + 1) + '>');
+      });
+    }
     return lines.join('\\n');
   }
 
-  function buildFallbackPrompt(f) {
-    const lines = [];
-    lines.push(f.tarea);
-    lines.push('');
-    if (f.contexto) {
-      lines.push('<contexto>');
-      lines.push(f.contexto);
-      lines.push('</contexto>');
-      lines.push('');
+  const CATEGORY_DEFS = {
+    finanzas: {
+      label: 'financiera / de gastos',
+      keywords: ['gasto','gastos','gast','compra','compras','compr','factura','facturas','factur','importe','ingreso','ingresos','ingres','finanza','banco','tarjeta','transacc','movimiento','movimientos','pago','pagos','pagad','cobro','cobros','cobrad',' iva ','contab'],
+      reglas: [
+        'Revisa todos los movimientos disponibles y localiza los que correspondan exactamente a lo que se pide.',
+        'Ten en cuenta que un mismo comercio, servicio o concepto puede aparecer con distintos nombres o formatos (razón social completa, abreviatura, dominio web, etc.). No incluyas una operación solo porque el texto se parezca: si hay dudas, sepárala en un apartado de "pendiente de revisión".',
+        'Incluye únicamente las operaciones dentro del periodo indicado, comprobando la fecha de cada movimiento uno a uno.',
+        'Antes de calcular los totales, revisa si hay operaciones duplicadas (misma fecha, importe, comercio o referencia). No las elimines automáticamente: márcalas como "posible duplicado" si hay duda.',
+        'Para cada operación extrae fecha, concepto original, importe, moneda y referencia disponible, sin modificar los datos originales.',
+        'Si la información lo permite, clasifica cada operación por categoría; si no hay datos suficientes, usa "No identificado".',
+        'Calcula como mínimo el total, el número de operaciones, la media, la máxima y la mínima, y comprueba que la suma cuadra con el total.',
+        'Si aparecen importes negativos o devoluciones, sepáralos de las compras y calcula el gasto bruto, los reembolsos y el gasto neto por separado.'
+      ],
+      estructuraMedia: ['Gráfica(s) si se piden, con eje, orden cronológico y título descriptivo.', 'Tabla detallada: fecha, concepto, categoría, importe y estado.', 'Reembolsos o ajustes, si los hay, separados del resto.', 'Operaciones pendientes de revisión, si las hay.'],
+      verificacion: 'revisaste todas las operaciones del periodo, la suma cuadra con el total, los duplicados y reembolsos están señalados o separados, y las fechas van en orden cronológico'
+    },
+    codigo: {
+      label: 'de código',
+      keywords: ['función','function','script','código','codigo','bug','error de','programa','python','javascript',' api ','endpoint','base de datos',' sql ','repositorio','clase '],
+      reglas: [
+        'No inventes nombres de funciones, librerías, variables o comportamientos que no te hayan dado o que no existan realmente.',
+        'Si necesitas hacer alguna suposición sobre el entorno, la versión o los datos de entrada, indícala explícitamente antes del código.'
+      ],
+      estructuraMedia: ['Código completo, comentado donde no sea obvio, listo para usar.', 'Explicación de las decisiones clave.', 'Limitaciones o pendientes de la solución.'],
+      verificacion: 'el código es coherente de principio a fin (nombres, tipos, imports) y la explicación se corresponde exactamente con lo que hace'
+    },
+    redaccion: {
+      label: 'de redacción',
+      keywords: ['redacta','redactar','escribe un','escribe una','artículo','articulo','carta','correo','email','publicación','publicacion','guion','guión','post ','copy ','reclamación','reclamacion','reseña','resena'],
+      reglas: ['No inventes datos, citas, cifras o hechos concretos que no te hayan dado. Si necesitas algún dato para completar el texto y no lo tienes, indícalo en vez de rellenarlo.'],
+      estructuraMedia: ['Texto final, listo para usar, en el formato y tono pedidos.', 'Nota breve, si aplica, con qué datos ayudarían a afinarlo más.'],
+      verificacion: 'el texto cumple el tono y el formato pedidos y no contiene datos inventados'
+    },
+    rrhh: {
+      label: 'de RRHH / personal',
+      keywords: ['nómina','nomina','horas extra','empleado','empleados','baja médica','bajas','vacaciones','rrhh','salario','absentismo'],
+      reglas: [
+        'Usa únicamente los datos de personal proporcionados. No inventes nombres, cifras ni fechas.',
+        'Si falta algún dato para un empleado concreto, indícalo como "no disponible" en vez de suponerlo.',
+        'Si encuentras algo que no cuadra (fechas solapadas, cifras inconsistentes), señálalo aparte en vez de ignorarlo.',
+        'Calcula los totales y medias que correspondan (por persona, por departamento y el total general), y comprueba que la suma de los registros individuales coincide con el total.'
+      ],
+      estructuraMedia: ['Tabla detallada por empleado o departamento.', 'Casos que llaman la atención, sin sacar conclusiones no respaldadas por los datos.', 'Registros con datos incompletos o dudosos, aparte.'],
+      verificacion: 'los totales cuadran con el detalle y no se ha atribuido ningún dato a una persona sin que apareciera explícitamente en la información'
+    },
+    inventario: {
+      label: 'de inventario / stock',
+      keywords: ['stock','inventario','almacén','almacen','mermas','rotación','rotacion de productos'],
+      reglas: [
+        'No inventes productos, cantidades ni proveedores que no aparezcan en los datos.',
+        'Si falta un dato (por ejemplo, el motivo de una merma), indícalo como "no disponible" en vez de suponerlo.',
+        'Si algo parece un error de registro, señálalo aparte como "requiere revisión" en vez de corregirlo por tu cuenta.'
+      ],
+      estructuraMedia: ['Tabla detallada, ordenada por relevancia (mayor urgencia, valor o desviación).', 'Casos que requieren atención inmediata, si los hay.', 'Registros con datos incompletos, aparte.'],
+      verificacion: 'los totales cuadran con el detalle y no se ha dado por hecho ningún dato que no estuviera explícito'
+    },
+    atencion_cliente: {
+      label: 'de atención al cliente',
+      keywords: ['email','correo','cliente','reclamación','reclamacion','reseña','resena','recordatorio de pago','atención al cliente'],
+      reglas: [
+        'Usa únicamente los datos del cliente o del caso proporcionados. No inventes ningún dato adicional.',
+        'No prometas nada (plazos, compensaciones, condiciones) que no se haya indicado explícitamente.',
+        'No firmes con un nombre de persona concreto: termina con algo genérico como "El equipo de atención al cliente".'
+      ],
+      estructuraMedia: ['Cuerpo del mensaje, listo para copiar y pegar.', 'Una versión alternativa más breve, si aplica.'],
+      verificacion: 'el mensaje usa correctamente los datos proporcionados y no contiene ninguna promesa o dato inventado'
+    },
+    marketing: {
+      label: 'de marketing / contenido',
+      keywords: ['marketing','redes sociales','instagram','linkedin','campaña','campana','newsletter','calendario de contenido'],
+      reglas: [
+        'No inventes datos de la marca, cifras de rendimiento ni afirmaciones sobre el producto que no te hayan dado.',
+        'Si falta algún dato (público objetivo, tono de marca, fechas clave), indícalo como pendiente antes de proponer el contenido.',
+        'No prometas resultados ni uses cifras de rendimiento inventadas en los textos.'
+      ],
+      estructuraMedia: ['Propuesta organizada de forma clara.', 'Breve justificación de las decisiones clave.'],
+      verificacion: 'el contenido es coherente con los datos dados y no hay cifras o afirmaciones inventadas'
+    },
+    legal: {
+      label: 'legal / contractual',
+      keywords: ['contrato','cláusula','clausula','términos y condiciones','terminos y condiciones','checklist legal'],
+      reglas: [
+        'Básate únicamente en el texto del documento proporcionado. No des por hecho cláusulas o condiciones habituales si no aparecen explícitamente.',
+        'Si una cláusula es ambigua, señálalo y explica las distintas lecturas posibles en vez de decidir cuál es la correcta.',
+        'Deja claro que esto no sustituye el consejo de un abogado si la decisión es importante.'
+      ],
+      estructuraMedia: ['Detalle de las cláusulas relevantes, citando qué dice cada una.', 'Puntos que llaman la atención o convendría aclarar.'],
+      verificacion: 'cada punto se puede rastrear hasta una parte concreta del documento y las cláusulas ambiguas están señaladas'
+    },
+    reuniones: {
+      label: 'de reuniones / seguimiento',
+      keywords: ['reunión','reunion','acta','llamada con el cliente','seguimiento de tareas','plan de acción','plan de accion'],
+      reglas: [
+        'Usa únicamente lo que aparece en las notas proporcionadas. No añadas acuerdos, tareas o responsables que no estén mencionados.',
+        'Si algo no queda claro (responsable, fecha límite), indícalo como pendiente de confirmar en vez de suponerlo.',
+        'No cambies el sentido de lo que se dijo, aunque reorganices el orden.'
+      ],
+      estructuraMedia: ['Puntos tratados, organizados por tema.', 'Acuerdos y tareas, con responsable y plazo cuando conste.', 'Pendiente de confirmar — lo que no quede claro en las notas.'],
+      verificacion: 'cada acuerdo o tarea se puede encontrar en las notas originales y nada se ha atribuido sin que estuviera claro en ellas'
+    },
+    investigacion: {
+      label: 'de investigación / resumen',
+      keywords: ['resumen de','resumir','informe largo','investigación de mercado','investigacion de mercado','comparar herramientas','artículos','articulos científicos'],
+      reglas: [
+        'Básate únicamente en el material proporcionado. No añadas datos, cifras o afirmaciones que no aparezcan en él.',
+        'Si dos fuentes se contradicen, señala la contradicción en vez de quedarte solo con una versión.',
+        'Si falta información para completar algún punto, indícalo como "no disponible" en vez de rellenarlo por tu cuenta.'
+      ],
+      estructuraMedia: ['Desarrollo punto por punto, con referencia a qué fuente respalda cada afirmación.', 'Discrepancias o puntos poco claros, si los hay.'],
+      verificacion: 'cada afirmación se puede rastrear hasta el material original y las contradicciones entre fuentes están señaladas'
+    },
+    analisis_datos: {
+      label: 'de análisis de datos',
+      keywords: ['encuesta','test a/b','tráfico web','trafico web','comparativa de proveedores','gráfica','grafica','gráfico','grafico','estadística','estadistica','analiza los datos'],
+      reglas: [
+        'No inventes datos, cifras ni conclusiones que no puedas justificar con la información proporcionada.',
+        'Si falta algún dato relevante para una conclusión sólida, dilo explícitamente en vez de suponerlo.',
+        'Distingue claramente entre lo que dicen los datos y cualquier interpretación tuya; señala la interpretación como tal.'
+      ],
+      estructuraMedia: ['Tabla o desglose detallado.', 'Análisis de qué patrones o diferencias destacan, apoyándote solo en los datos.', 'Limitaciones del análisis — qué no se puede concluir.'],
+      verificacion: 'cada afirmación se apoya en un dato concreto, los totales o porcentajes están bien calculados, y las limitaciones están señaladas con claridad'
+    },
+    diseno_web: {
+      label: 'de diseño web',
+      keywords: ['página web','pagina web','sitio web','landing page','landing','web para','diseño web','diseno web','html css javascript','web responsive','página de aterrizaje','pagina de aterrizaje'],
+      reglas: [
+        'Especifica la paleta de colores (color principal y tonalidades derivadas), la tipografía y el estilo visual general (moderno, corporativo, minimalista...), para que no parezca una plantilla genérica.',
+        'Define cada sección de la página de arriba a abajo, en orden, con lo que debe llevar cada una (títulos, textos, botones, imágenes) y qué debe transmitir.',
+        'Dile qué contenido es de ejemplo o ficticio (textos, cifras, testimonios) y que debe quedar identificable como tal, sin presentarlo como datos reales.',
+        'Especifica explícitamente qué debe hacerse con JavaScript (menú, validaciones, desplegables, animaciones) en vez de dar por hecho que se incluirá solo.',
+        'Pide expresamente que el resultado sea responsive (escritorio, tablet, móvil) y qué debe cambiar en cada tamaño.',
+        'Indica el formato de entrega (por ejemplo, un único archivo HTML autocontenido) y qué tecnologías evitar si aplica (frameworks, librerías externas).'
+      ],
+      estructuraMedia: ['Estructura sección por sección, en el orden pedido, con lo que lleva cada una.', 'Funcionalidades de JavaScript necesarias, explicadas una por una.', 'Checklist de que el resultado es responsive y no tiene errores.'],
+      verificacion: 'todas las secciones pedidas están presentes y en el orden indicado, las funcionalidades de JavaScript descritas funcionan de verdad (no solo visualmente), y el resultado es responsive sin errores'
     }
-    lines.push('## Cómo debes trabajar');
+  };
+  const CATEGORY_PRIORITY = ['finanzas','rrhh','inventario','atencion_cliente','marketing','legal','reuniones','investigacion','codigo','diseno_web','analisis_datos','redaccion'];
+
+  function detectTaskTypes(text) {
+    const t = (' ' + (text || '').toLowerCase() + ' ');
+    const scores = {};
+    CATEGORY_PRIORITY.forEach(cat => {
+      let score = 0;
+      CATEGORY_DEFS[cat].keywords.forEach(w => { if (t.includes(w)) score++; });
+      if (score > 0) scores[cat] = score;
+    });
+    return Object.keys(scores).sort((a, b) => scores[b] - scores[a] || CATEGORY_PRIORITY.indexOf(a) - CATEGORY_PRIORITY.indexOf(b));
+  }
+
+  function fallbackHeader(f) {
+    const lines = [f.tarea, ''];
+    if (f.contexto) { lines.push('<contexto>', f.contexto, '</contexto>', ''); }
+    return lines;
+  }
+  function fallbackReglasBase(f) {
+    const lines = [];
     lines.push('- Usa únicamente la información que te dé en este mensaje o en los archivos adjuntos. No inventes datos, cifras, fechas, nombres ni conclusiones que no puedas justificar con lo que te doy.');
     lines.push('- Si falta información para completar alguna parte, dilo explícitamente ("no disponible" / "falta este dato") en vez de suponerla o rellenarla por tu cuenta.');
-    lines.push('- Si encuentras algo ambiguo, dudoso, duplicado o que no puedas confirmar con seguridad, sepáralo en un apartado aparte y explica por qué, en lugar de decidir por tu cuenta o descartarlo en silencio.');
     if (f.tono && f.tono !== 'el que mejor encaje') lines.push('- Tono: ' + f.tono + '.');
     lines.push('- Formato de salida: ' + f.formato + '.');
     if (f.restricciones) lines.push('- Además, ten en cuenta esto: ' + f.restricciones + '.');
+    return lines;
+  }
+  function fallbackEjemplo(f) {
+    if (!f.ejemplo) return [];
+    return ['', '<ejemplo_de_referencia>', 'Tómalo como referencia de estilo y formato, no como datos a repetir:', f.ejemplo, '</ejemplo_de_referencia>'];
+  }
+
+  function buildFallbackFinanzas(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Identificación de las operaciones');
+    lines.push('- Revisa todos los movimientos disponibles y localiza los que correspondan exactamente a lo que se pide.');
+    lines.push('- Ten en cuenta que un mismo comercio, servicio o concepto puede aparecer con distintos nombres o formatos (razón social completa, abreviatura, dominio web, etc.). No incluyas una operación solo porque el texto se parezca: si hay dudas, sepárala en un apartado de "pendiente de revisión".');
+    lines.push('');
+    lines.push('## Filtrado por fecha y duplicados');
+    lines.push('- Incluye únicamente las operaciones dentro del periodo indicado, comprobando la fecha de cada movimiento uno a uno.');
+    lines.push('- Antes de calcular los totales, revisa si hay operaciones duplicadas (misma fecha, importe, comercio o referencia). No las elimines automáticamente: si hay duda, consérvalas y márcalas como "posible duplicado".');
+    lines.push('');
+    lines.push('## Datos a extraer por operación');
+    lines.push('Para cada operación: fecha, concepto o descripción original, importe, moneda y cualquier referencia disponible. No modifiques los datos originales; si haces alguna conversión, indícalo.');
+    lines.push('');
+    lines.push('## Clasificación');
+    lines.push('Si la información lo permite, clasifica cada operación por categoría o tipo. Si no hay datos suficientes para saber a qué corresponde, usa "No identificado" en vez de inventar una categoría.');
+    lines.push('');
+    lines.push('## Cálculos');
+    lines.push('Calcula como mínimo: número total de operaciones, importe total, importe medio, operación de mayor importe y de menor importe. Comprueba que la suma de las operaciones individuales coincide con el total antes de presentarlo; si no coincide, revisa antes de responder.');
+    lines.push('');
+    lines.push('## Gráfica');
+    lines.push('Si se pide una visualización, especifica qué va en cada eje, una barra o punto por operación (ordenadas cronológicamente) y que los importes sean legibles, con un título descriptivo.');
+    lines.push('');
+    lines.push('## Reembolsos o ajustes');
+    lines.push('Si aparecen importes negativos o devoluciones, sepáralos de las compras y calcula por separado: gasto bruto, reembolsos y gasto neto. Si no hay ninguno, indícalo expresamente.');
+    lines.push('');
+    lines.push('## Detección de anomalías');
+    lines.push('Señala (sin afirmar que son errores) cargos repetidos, importes inusualmente altos, varias operaciones el mismo día o conceptos que podrían pertenecer al mismo servicio. Usa "requiere revisión", nunca acuses de algo sin certeza.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta final');
+    lines.push('1. **Resumen ejecutivo** — total, número de operaciones, media, máxima y mínima.');
+    lines.push('2. **Gráfica(s)** — según lo pedido.');
+    lines.push('3. **Tabla detallada** — fecha, concepto, categoría, importe y estado (confirmada / posible duplicado / pendiente de revisión / reembolso).');
+    lines.push('4. **Análisis** — cómo se distribuye el gasto, concentraciones, operaciones destacadas.');
+    lines.push('5. **Reembolsos o ajustes** — si los hay, separados del resto.');
+    lines.push('6. **Operaciones pendientes de revisión** — lo que no se pueda confirmar con seguridad.');
+    lines.push('7. **Conclusión** — una o dos frases objetivas con el resultado final.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba internamente que: revisaste todas las operaciones del periodo, solo incluiste las que correspondían, no hay duplicados evidentes sin señalar, la suma cuadra con el total, los reembolsos están separados y las fechas van en orden cronológico.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackCodigo(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Contexto técnico necesario');
+    lines.push('- Indica el lenguaje, framework o entorno exacto (y la versión si es relevante), y pega el código o fragmento completo — no solo un resumen de lo que hace.');
+    lines.push('- Si hay librerías o dependencias externas en uso, menciónalas.');
+    lines.push('');
+    lines.push('## Qué no debe hacer');
+    lines.push('- No inventar nombres de funciones, librerías, variables o comportamientos que no estén en el código dado o que no existan realmente.');
+    lines.push('- No afirmar que un cambio soluciona el problema si no se puede justificar con el propio código.');
+    lines.push('- Si hace falta alguna suposición sobre el entorno o los datos de entrada, indicarla explícitamente antes de la solución.');
+    lines.push('');
+    lines.push('## Casos límite a considerar');
+    lines.push('- Pide que se tengan en cuenta entradas vacías, valores nulos, tamaños extremos o cualquier caso límite razonable, y que se indique si alguno queda sin cubrir.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. **Planteamiento** — qué se ha entendido del problema, en dos o tres líneas.');
+    lines.push('2. **Diagnóstico** — qué está pasando y por qué, si aplica.');
+    lines.push('3. **Solución** — código completo, comentado donde no sea obvio.');
+    lines.push('4. **Explicación** de las decisiones clave.');
+    lines.push('5. **Limitaciones** — qué no queda cubierto o qué habría que probar antes de darlo por bueno.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Revisa que el código sea coherente de principio a fin (nombres, tipos, imports), que no falte manejo de los casos límite mencionados y que la explicación se corresponda exactamente con lo que hace el código.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackRedaccion(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Tono y voz');
+    lines.push('- Especifica el tono exacto (formal, cercano, técnico...) y para quién es el texto, para que la voz sea consistente de principio a fin.');
+    lines.push('');
+    lines.push('## Datos a respetar');
+    lines.push('- No inventar datos, citas, cifras o hechos concretos que no se hayan dado. Si falta algún dato para completar el texto, indicarlo en vez de rellenarlo por tu cuenta.');
+    lines.push('');
+    lines.push('## Longitud y formato');
+    lines.push('- Indica la longitud aproximada esperada y el formato exacto (email, artículo, publicación...), para que no salga ni muy corto ni excesivamente largo.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. **Texto final**, listo para usar, en el formato y tono pedidos.');
+    lines.push('2. **Versión alternativa** más breve, si tiene sentido para ese formato.');
+    lines.push('3. **Nota breve** (si aplica) — qué datos ayudarían a afinarlo más.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba que el texto cumple el tono y el formato pedidos, que la longitud es la adecuada, y que no contiene datos inventados.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackGenerico(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Cómo debes trabajar');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('- Si encuentras algo ambiguo, dudoso, duplicado o que no puedas confirmar con seguridad, sepáralo en un apartado aparte y explica por qué, en lugar de decidir por tu cuenta o descartarlo en silencio.');
     lines.push('');
     lines.push('## Estructura de la respuesta');
     lines.push('1. **Resumen** — los datos o conclusiones clave, en pocas líneas.');
     lines.push('2. **Detalle** — el desarrollo completo (tabla, lista o texto, según encaje mejor), ordenado de forma lógica.');
     lines.push('3. **Puntos a revisar** — cualquier dato incompleto, ambiguo o dudoso, señalado explícitamente (si no hay ninguno, indícalo).');
     lines.push('4. **Conclusión** — una o dos frases que resuman el resultado de forma objetiva.');
-    if (f.ejemplo) {
-      lines.push('');
-      lines.push('<ejemplo_de_referencia>');
-      lines.push('Tómalo como referencia de estilo y formato, no como datos a repetir:');
-      lines.push(f.ejemplo);
-      lines.push('</ejemplo_de_referencia>');
-    }
+    lines.push(...fallbackEjemplo(f));
     lines.push('');
     lines.push('## Antes de dar la respuesta final');
-    lines.push('Comprueba internamente que:');
-    lines.push('- Has usado toda la información disponible y no te has dejado nada relevante fuera.');
-    lines.push('- No hay contradicciones entre el resumen, el detalle y las cifras o conclusiones.');
-    lines.push('- Cualquier dato incompleto o dudoso está señalado, no inventado ni supuesto.');
-    lines.push('- Si la tarea implica cálculos, las cuentas cuadran y las has verificado.');
+    lines.push('Comprueba internamente que: has usado toda la información disponible, no hay contradicciones entre el resumen, el detalle y las cifras o conclusiones, cualquier dato incompleto o dudoso está señalado (no inventado), y si hay cálculos, cuadran.');
     return lines.join('\\n');
   }
 
+  function buildFallbackRRHH(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Identificación de los registros');
+    lines.push('- Incluye únicamente los registros dentro del periodo y del grupo de empleados indicado, comprobando fechas y nombres uno a uno.');
+    lines.push('');
+    lines.push('## Datos a extraer por registro');
+    lines.push('- Usa únicamente los datos de personal proporcionados. No inventes nombres, cifras ni fechas.');
+    lines.push('- Si falta algún dato para un empleado concreto, indícalo como "no disponible" en vez de suponerlo.');
+    lines.push('');
+    lines.push('## Cálculos');
+    lines.push('- Calcula los totales y medias que correspondan (por persona, por departamento y el total general), y comprueba que la suma de los registros individuales coincide con el total.');
+    lines.push('');
+    lines.push('## Confidencialidad');
+    lines.push('- Trata los datos de personal con cuidado: no generalices ni saques conclusiones sobre una persona que no estén respaldadas por los datos dados.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. Resumen ejecutivo con las cifras clave.');
+    lines.push('2. Tabla detallada por empleado o departamento, según corresponda.');
+    lines.push('3. Casos que llaman la atención, sin sacar conclusiones no respaldadas por los datos.');
+    lines.push('4. Registros con datos incompletos o dudosos, en un apartado aparte.');
+    lines.push('5. Conclusión breve y objetiva.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba que todos los registros del periodo están incluidos, que los totales cuadran con el detalle, y que no has atribuido ningún dato a una persona sin que aparezca explícitamente en la información proporcionada.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackInventario(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Identificación de productos o registros');
+    lines.push('- No inventes productos, cantidades ni proveedores que no aparezcan en los datos.');
+    lines.push('');
+    lines.push('## Criterio de relevancia');
+    lines.push('- Ordena los resultados según lo que importe para la tarea (mayor urgencia, mayor valor, mayor desviación) y dilo explícitamente.');
+    lines.push('');
+    lines.push('## Datos a extraer');
+    lines.push('- Usa solo los campos disponibles (stock, proveedor, fechas, cantidades). Si falta un dato, indícalo como "no disponible" en vez de suponerlo.');
+    lines.push('');
+    lines.push('## Casos que requieren revisión');
+    lines.push('- Si algo parece un error de registro (cantidades negativas sin explicación, fechas imposibles), señálalo aparte como "requiere revisión" en vez de corregirlo por tu cuenta.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. Resumen ejecutivo con los indicadores clave.');
+    lines.push('2. Tabla detallada, ordenada por relevancia.');
+    lines.push('3. Casos que requieren atención inmediata, si los hay.');
+    lines.push('4. Registros con datos incompletos, en un apartado aparte.');
+    lines.push('5. Conclusión breve y objetiva.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba que has usado todos los registros disponibles, que los totales cuadran con el detalle, y que no has dado por hecho ningún dato que no estuviera explícito en la información proporcionada.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackAtencionCliente(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Tono y firma');
+    lines.push('- Respeta el tono exacto pedido, y no firmes con un nombre de persona concreto: termina con algo genérico como "El equipo de atención al cliente".');
+    lines.push('');
+    lines.push('## Datos del caso a usar');
+    lines.push('- Usa únicamente los datos del cliente o del caso proporcionados (nombre, número de pedido/factura, fechas, importes). No inventes ningún dato adicional.');
+    lines.push('');
+    lines.push('## Qué no prometer');
+    lines.push('- No prometas plazos, compensaciones ni condiciones que no se hayan indicado explícitamente.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. Cuerpo del mensaje, listo para copiar y pegar, en el tono pedido.');
+    lines.push('2. Una versión alternativa más breve, si aplica.');
+    lines.push('3. Una nota aparte con cualquier dato que falte para personalizarlo del todo.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba que el mensaje usa correctamente los datos proporcionados, que el tono es el pedido, que no es más largo de lo necesario y que no contiene ninguna promesa o dato inventado.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackMarketing(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Marca y tono');
+    lines.push('- Usa únicamente la información sobre la marca, el producto o el público objetivo que se haya dado. Si falta algo (tono de marca, fechas clave), indícalo como pendiente antes de proponer el contenido.');
+    lines.push('');
+    lines.push('## Datos a respetar');
+    lines.push('- No inventes cifras de rendimiento ni afirmaciones sobre el producto. No prometas resultados en los textos.');
+    lines.push('');
+    lines.push('## Formato por canal');
+    lines.push('- Adapta el contenido al canal o formato pedido (post, story, newsletter...), respetando la longitud y el tono propios de cada uno.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. Propuesta completa, organizada de forma clara.');
+    lines.push('2. Breve justificación de las decisiones clave (por qué ese enfoque, ese tono).');
+    lines.push('3. Qué información adicional ayudaría a afinar más la propuesta.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba que el contenido es coherente con los datos dados, que no hay cifras o afirmaciones inventadas, y que el tono es consistente en todas las piezas.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackLegal(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Alcance del documento');
+    lines.push('- Básate únicamente en el texto del documento proporcionado. No des por hecho cláusulas o condiciones habituales si no aparecen explícitamente.');
+    lines.push('');
+    lines.push('## Cláusulas ambiguas');
+    lines.push('- Si una cláusula admite más de una lectura, señálalo y explica las distintas interpretaciones en vez de decidir cuál es la correcta.');
+    lines.push('');
+    lines.push('## Límites de la respuesta');
+    lines.push('- Deja claro que esto no sustituye el consejo de un abogado si la decisión es importante, y que no equivale a asesoría legal formal.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. Resumen en lenguaje sencillo de los puntos clave.');
+    lines.push('2. Detalle de las cláusulas relevantes, citando qué dice cada una.');
+    lines.push('3. Puntos que llaman la atención o que convendría aclarar.');
+    lines.push('4. Conclusión objetiva.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba que cada punto del resumen se puede rastrear hasta una parte concreta del documento, y que las cláusulas ambiguas están señaladas como tales.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackReuniones(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Fuente de la información');
+    lines.push('- Usa únicamente lo que aparece en las notas o la transcripción proporcionadas. No añadas acuerdos, tareas o responsables que no estén mencionados.');
+    lines.push('');
+    lines.push('## Qué señalar como pendiente');
+    lines.push('- Si algo no queda claro (responsable, fecha límite), indícalo como pendiente de confirmar en vez de suponerlo.');
+    lines.push('');
+    lines.push('## Fidelidad al contenido');
+    lines.push('- No cambies el sentido de lo que se dijo, aunque reorganices el orden para que quede más claro.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. Resumen breve del objetivo de la reunión o llamada.');
+    lines.push('2. Puntos tratados, organizados por tema.');
+    lines.push('3. Acuerdos y tareas, con responsable y plazo cuando conste.');
+    lines.push('4. Pendiente de confirmar — lo que no queda claro en las notas originales.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba que cada acuerdo o tarea del resultado se puede encontrar en las notas originales, y que nada se ha atribuido a una persona sin que estuviera claro en ellas.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackInvestigacion(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Fuentes a usar');
+    lines.push('- Básate únicamente en el material proporcionado (documentos, artículos, enlaces). No añadas datos, cifras o afirmaciones que no aparezcan en él.');
+    lines.push('');
+    lines.push('## Contradicciones entre fuentes');
+    lines.push('- Si dos fuentes se contradicen, señala la contradicción en vez de quedarte solo con una versión.');
+    lines.push('');
+    lines.push('## Profundidad');
+    lines.push('- Ajusta el nivel de detalle a lo pedido: un resumen rápido no necesita la misma profundidad que un análisis comparativo completo.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. Resumen ejecutivo con las conclusiones principales.');
+    lines.push('2. Desarrollo — punto por punto, con referencia a qué fuente respalda cada afirmación.');
+    lines.push('3. Discrepancias o puntos poco claros, si los hay.');
+    lines.push('4. Conclusión objetiva.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba que cada afirmación se puede rastrear hasta el material original y que las contradicciones entre fuentes están señaladas.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackAnalisisDatos(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Datos a considerar');
+    lines.push('- Usa únicamente los datos proporcionados. No inventes cifras ni conclusiones que no puedas justificar con ellos.');
+    lines.push('');
+    lines.push('## Hechos frente a interpretación');
+    lines.push('- Distingue claramente entre lo que dicen los datos y cualquier interpretación tuya; señala la interpretación como tal.');
+    lines.push('');
+    lines.push('## Visualización');
+    lines.push('- Si se pide una gráfica o tabla visual, especifica qué va en cada eje o columna y que los valores sean legibles, con un título descriptivo.');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta');
+    lines.push('1. Resumen ejecutivo con los indicadores clave.');
+    lines.push('2. Tabla o desglose detallado.');
+    lines.push('3. Análisis — qué patrones o diferencias destacan, apoyándote solo en los datos dados.');
+    lines.push('4. Limitaciones del análisis — qué no se puede concluir con los datos disponibles.');
+    lines.push('5. Conclusión y, si se pide, una recomendación basada estrictamente en lo anterior.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba que cada afirmación se apoya en un dato concreto, que los totales o porcentajes están bien calculados, y que las limitaciones están señaladas con claridad.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackDisenoWeb(f) {
+    const lines = fallbackHeader(f);
+    lines.push('## Estilo y marca');
+    lines.push('- Especifica el color principal y una pequeña paleta de tonos derivados, la tipografía y el estilo visual general (moderno, corporativo, minimalista, deportivo...), para que el resultado no parezca una plantilla genérica.');
+    lines.push('- Pide bordes redondeados, sombras suaves, buen espaciado y transiciones/animaciones discretas en botones, tarjetas y elementos interactivos.');
+    lines.push('');
+    lines.push('## Estructura de secciones (en este orden)');
+    lines.push('Define cada sección de arriba a abajo con lo que debe llevar cada una: cabecera/menú (con menú hamburguesa en móvil), portada con llamada a la acción, presentación, servicios o productos con tarjetas, cómo funciona el proceso, planes o precios, testimonios o resultados, preguntas frecuentes desplegables, contacto con formulario, y footer con enlaces y redes sociales. Ajusta esta lista a lo que pida realmente la tarea.');
+    lines.push('');
+    lines.push('## Contenido de ejemplo');
+    lines.push('- Indica qué textos, cifras o testimonios son de ejemplo/ficticios y que deben quedar identificables como tales, sin presentarlos como datos reales (ni inventar certificaciones o cifras concretas que suenen a reales).');
+    lines.push('');
+    lines.push('## Funcionalidad en JavaScript');
+    lines.push('- Especifica explícitamente qué debe hacerse con JavaScript: menú hamburguesa, desplegables (FAQ), validación de formularios con mensaje de confirmación, scroll suave, animaciones al aparecer elementos, efectos hover. No des por hecho que se incluirá solo lo que no se pida.');
+    lines.push('');
+    lines.push('## Responsive');
+    lines.push('- Pide expresamente que funcione en escritorio, tablet y móvil, indicando qué debe cambiar en cada tamaño (por ejemplo: el menú se convierte en hamburguesa, las tarjetas pasan a una columna, sin scroll horizontal en ningún caso).');
+    lines.push('');
+    lines.push('## Entrega');
+    lines.push('- Indica el formato de entrega (por ejemplo, un único archivo HTML autocontenido con el CSS y el JavaScript dentro) y qué tecnologías evitar si aplica (frameworks, librerías externas).');
+    lines.push('');
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta final');
+    lines.push('1. **Código completo**, bien estructurado y comentado.');
+    lines.push('2. **Resumen breve** de las decisiones de diseño tomadas (paleta, tipografía, estructura).');
+    lines.push('3. **Checklist de verificación** — que los botones, el menú, el formulario, el FAQ y los enlaces internos funcionan, y que el diseño es responsive sin errores.');
+    lines.push('4. **Limitaciones o siguientes pasos** — por ejemplo, qué contenido de ejemplo habría que sustituir por real.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba que todas las secciones pedidas están presentes y en el orden indicado, que las funcionalidades de JavaScript descritas funcionan de verdad (no solo visualmente), que no hay errores de HTML/CSS/JS, y que el diseño es responsive sin scroll horizontal en ningún tamaño de pantalla.');
+    return lines.join('\\n');
+  }
+
+  function buildFallbackCompuesto(f, catKeys) {
+    const lines = fallbackHeader(f);
+    lines.push('## Reglas de precisión (la tarea combina varios aspectos, así que van por partes)');
+    catKeys.forEach(k => {
+      const def = CATEGORY_DEFS[k];
+      lines.push('### Parte ' + def.label);
+      def.reglas.forEach(r => lines.push('- ' + r));
+      lines.push('');
+    });
+    lines.push('## Reglas generales');
+    lines.push(...fallbackReglasBase(f));
+    lines.push('');
+    lines.push('## Estructura de la respuesta final');
+    lines.push('1. **Resumen ejecutivo** — combinando lo más relevante de ' + catKeys.map(k => CATEGORY_DEFS[k].label).join(' y ') + '.');
+    let n = 2;
+    catKeys.forEach(k => {
+      const def = CATEGORY_DEFS[k];
+      lines.push(n + '. **Detalle — ' + def.label + '**:');
+      def.estructuraMedia.forEach(item => lines.push('   - ' + item));
+      n++;
+    });
+    lines.push(n + '. **Puntos a revisar** — cualquier dato incompleto, ambiguo o dudoso de cualquiera de las dos partes.');
+    n++;
+    lines.push(n + '. **Conclusión** — una valoración conjunta y objetiva.');
+    lines.push(...fallbackEjemplo(f));
+    lines.push('');
+    lines.push('## Antes de dar la respuesta final');
+    lines.push('Comprueba internamente que:');
+    catKeys.forEach(k => lines.push('- En la parte ' + CATEGORY_DEFS[k].label + ': ' + CATEGORY_DEFS[k].verificacion + '.'));
+    return lines.join('\\n');
+  }
+
+  function buildFallbackPrompt(f) {
+    const cats = detectTaskTypes(f.tarea + ' ' + (f.contexto || ''));
+    if (cats.length >= 2) return buildFallbackCompuesto(f, cats.slice(0, 2));
+    const tipo = cats[0] || 'generico';
+    if (tipo === 'finanzas') return buildFallbackFinanzas(f);
+    if (tipo === 'codigo') return buildFallbackCodigo(f);
+    if (tipo === 'redaccion') return buildFallbackRedaccion(f);
+    if (tipo === 'rrhh') return buildFallbackRRHH(f);
+    if (tipo === 'inventario') return buildFallbackInventario(f);
+    if (tipo === 'atencion_cliente') return buildFallbackAtencionCliente(f);
+    if (tipo === 'marketing') return buildFallbackMarketing(f);
+    if (tipo === 'legal') return buildFallbackLegal(f);
+    if (tipo === 'reuniones') return buildFallbackReuniones(f);
+    if (tipo === 'investigacion') return buildFallbackInvestigacion(f);
+    if (tipo === 'analisis_datos') return buildFallbackAnalisisDatos(f);
+    if (tipo === 'diseno_web') return buildFallbackDisenoWeb(f);
+    return buildFallbackGenerico(f);
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function inlineMd(s) {
+    return escapeHtml(s).replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');
+  }
+  function renderPromptHtml(raw) {
+    const lines = String(raw || '').split('\\n');
+    let html = '';
+    let mode = null;
+    let inTag = null;
+    let tagBuffer = [];
+    function closeList() {
+      if (mode === 'ul') html += '</ul>';
+      if (mode === 'ol') html += '</ol>';
+      mode = null;
+    }
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const openTag = line.match(/^<([a-zA-Z_][a-zA-Z0-9_]*)>\\s*$/);
+      const closeTag = line.match(/^<\\/([a-zA-Z_][a-zA-Z0-9_]*)>\\s*$/);
+      if (openTag && !inTag) { closeList(); inTag = openTag[1]; tagBuffer = []; continue; }
+      if (closeTag && inTag === closeTag[1]) {
+        html += '<div class="tagblock"><span class="tagblock-label">' + escapeHtml(inTag.replace(/_/g, ' ')) + '</span>' +
+          tagBuffer.map(l => '<p>' + inlineMd(l) + '</p>').join('') + '</div>';
+        inTag = null;
+        continue;
+      }
+      if (inTag) { if (line.trim() !== '') tagBuffer.push(line); continue; }
+      if (line.trim() === '') { closeList(); continue; }
+      let m;
+      if ((m = line.match(/^## (.+)/))) { closeList(); html += '<h3>' + inlineMd(m[1]) + '</h3>'; continue; }
+      if ((m = line.match(/^### (.+)/))) { closeList(); html += '<h4>' + inlineMd(m[1]) + '</h4>'; continue; }
+      if ((m = line.match(/^\\s{2,}[-*]\\s(.+)/))) { html += '<ul class="nested"><li>' + inlineMd(m[1]) + '</li></ul>'; continue; }
+      if ((m = line.match(/^\\d+\\.\\s(.+)/))) {
+        if (mode !== 'ol') { closeList(); html += '<ol>'; mode = 'ol'; }
+        html += '<li>' + inlineMd(m[1]) + '</li>';
+        continue;
+      }
+      if ((m = line.match(/^[-*]\\s(.+)/))) {
+        if (mode !== 'ul') { closeList(); html += '<ul>'; mode = 'ul'; }
+        html += '<li>' + inlineMd(m[1]) + '</li>';
+        continue;
+      }
+      closeList();
+      html += '<p>' + inlineMd(line) + '</p>';
+    }
+    closeList();
+    if (inTag) {
+      html += '<div class="tagblock"><span class="tagblock-label">' + escapeHtml(inTag.replace(/_/g, ' ')) + '</span>' +
+        tagBuffer.map(l => '<p>' + inlineMd(l) + '</p>').join('') + '</div>';
+    }
+    return html;
+  }
+
+  let isEditing = false;
   function showOutput(text) {
     emptyState.style.display = 'none';
-    output.style.display = 'block';
-    output.value = text;
-    output.removeAttribute('readonly');
+    outputRaw.value = text;
+    isEditing = false;
+    outputRendered.innerHTML = renderPromptHtml(text);
+    outputRendered.style.display = 'block';
+    outputRendered.classList.remove('animate-in');
+    void outputRendered.offsetWidth;
+    outputRendered.classList.add('animate-in');
+    outputRaw.style.display = 'none';
+    editBtn.innerHTML = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 2l3 3-8 8-3.5.5.5-3.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Editar';
+  }
+
+  function wordCount(text) {
+    const t = String(text || '').trim();
+    return t ? t.split(/\\s+/).length : 0;
+  }
+  function renderCatPills(cats, viaAI) {
+    let html = (cats || []).map(c => {
+      const label = (CATEGORY_DEFS[c] && CATEGORY_DEFS[c].label) || c;
+      return '<span class="cat-pill"><span class="dot"></span>' + escapeHtml(label) + '</span>';
+    }).join('');
+    if (viaAI) html += '<span class="cat-pill ai">✨ redactado con IA</span>';
+    catPills.innerHTML = html;
+    catPills.classList.toggle('show', !!html);
   }
 
   function setStatus(text, copied) {
@@ -10992,8 +11773,10 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     btnLabel.textContent = busy ? 'Redactando…' : 'Generar el prompt';
     btnIcon.innerHTML = busy ? spinnerSVG : plusSVG;
     btnIcon.classList.toggle('spin', busy);
-    regenerateBtn.disabled = busy || !output.value;
-    copyBtn.disabled = busy || !output.value;
+    const hasText = !!outputRaw.value;
+    editBtn.disabled = busy || !hasText;
+    regenerateBtn.disabled = busy || !hasText;
+    copyBtn.disabled = busy || !hasText;
   }
 
   let sampleCapability = null;
@@ -11018,14 +11801,19 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
     setBusy(true);
     setStatus('Redactando tu prompt…');
     showOutput('');
+    catPills.classList.remove('show');
+    catPills.innerHTML = '';
+
+    const cats = detectTaskTypes(f.tarea + ' ' + (f.contexto || ''));
 
     const sample = await getSample();
 
     if (!sample) {
       const text = buildFallbackPrompt(f);
       showOutput(text);
+      renderCatPills(cats, false);
       setBusy(false);
-      setStatus('Prompt generado.');
+      setStatus('Prompt generado · ' + wordCount(text) + ' palabras.');
       return;
     }
 
@@ -11036,12 +11824,16 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
         cache: false,
         onText: ({ text }) => { showOutput(text); }
       });
-      showOutput((result && result.text) ? result.text.trim() : buildFallbackPrompt(f));
+      const finalText = (result && result.text) ? result.text.trim() : buildFallbackPrompt(f);
+      showOutput(finalText);
+      renderCatPills(cats, true);
       setBusy(false);
-      setStatus('Prompt generado.');
+      setStatus('Prompt generado · ' + wordCount(finalText) + ' palabras.');
     } catch (err) {
       const partial = err && err.text ? err.text : '';
-      showOutput(partial || buildFallbackPrompt(f));
+      const finalText = partial || buildFallbackPrompt(f);
+      showOutput(finalText);
+      renderCatPills(cats, !!partial);
       setBusy(false);
       setStatus(partial ? 'Se cortó la generación — puedes editarlo o regenerar.' : 'No se pudo conectar. Aquí tienes una versión creada con reglas.');
     }
@@ -11050,14 +11842,33 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
   form.addEventListener('submit', (e) => { e.preventDefault(); generate(); });
   regenerateBtn.addEventListener('click', generate);
 
+  editBtn.addEventListener('click', () => {
+    isEditing = !isEditing;
+    if (isEditing) {
+      outputRendered.style.display = 'none';
+      outputRaw.style.display = 'block';
+      outputRaw.removeAttribute('readonly');
+      outputRaw.focus();
+      editBtn.innerHTML = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 8s2.5-4.5 6-4.5S14 8 14 8s-2.5 4.5-6 4.5S2 8 2 8z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.6" stroke="currentColor" stroke-width="1.3"/></svg>Vista previa';
+    } else {
+      outputRendered.innerHTML = renderPromptHtml(outputRaw.value);
+      outputRendered.style.display = 'block';
+      outputRaw.style.display = 'none';
+      editBtn.innerHTML = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 2l3 3-8 8-3.5.5.5-3.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Editar';
+    }
+  });
+
   copyBtn.addEventListener('click', async () => {
     try {
-      await navigator.clipboard.writeText(output.value);
+      await navigator.clipboard.writeText(outputRaw.value);
       setStatus('Copiado al portapapeles.', true);
     } catch (e) {
-      output.removeAttribute('readonly');
-      output.focus();
-      output.select();
+      isEditing = true;
+      outputRendered.style.display = 'none';
+      outputRaw.style.display = 'block';
+      outputRaw.removeAttribute('readonly');
+      outputRaw.focus();
+      outputRaw.select();
       setStatus('Selecciona y copia con Ctrl/Cmd+C.', false);
     }
   });
