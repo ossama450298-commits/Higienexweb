@@ -4768,17 +4768,21 @@ function hxTranslateText(text, from, to, cb){
   const url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(String(text).slice(0,480))+'&langpair='+from+'|'+to;
   fetch(url).then(r=>r.json()).then(data=>{
     const t = data && data.responseData && data.responseData.translatedText;
-    cb(t && !/MYMEMORY WARNING/i.test(t) ? t : null);
-  }).catch(()=>cb(null));
+    if(!t || /MYMEMORY WARNING/i.test(t)){ console.warn('Traducción HIGIENEX: respuesta inesperada de MyMemory', data); cb(null); return; }
+    cb(t);
+  }).catch(err=>{ console.warn('Traducción HIGIENEX: no se pudo contactar con el servicio de traducción (revisa la consola/red)', err); cb(null); });
 }
 const HX_TR_PENDING={};
+const HX_TR_FAILED={};
 function hxChatEnsureTranslation(m, from, to){
   const key=m.id+'|'+to;
   if(HX_TR_PENDING[key]) return;
   HX_TR_PENDING[key]=true;
+  delete HX_TR_FAILED[key];
   hxTranslateText(m.texto, from, to, function(translated){
     delete HX_TR_PENDING[key];
-    if(!translated || !HX_CHAT_CTX) return;
+    if(!translated){ HX_TR_FAILED[key]=true; if(HX_CHAT_CTX) hxChatRenderMsgs(); return; }
+    if(!HX_CHAT_CTX) return;
     const all=hxChatLoadAll();
     const t=(all.threads||{})[HX_CHAT_CTX];
     const msg=t?(t.messages||[]).find(x=>x.id===m.id):null;
@@ -4856,9 +4860,12 @@ function hxChatRenderMsgs(){
     const necesitaTrad = lang!==viewerLang;
     let texto=m.texto, notaTrad='';
     if(necesitaTrad){
+      const trKey=m.id+'|'+viewerLang;
       if(m.tr && m.tr[viewerLang]){
         notaTrad='<div style="font-size:10.5px;color:var(--ink-2);font-style:italic;margin-top:3px">🌐 '+esc(texto)+'</div>';
         texto=m.tr[viewerLang];
+      } else if(HX_TR_FAILED[trKey]){
+        notaTrad='<div style="font-size:10.5px;color:var(--ink-2);font-style:italic;margin-top:3px">🌐 No se pudo traducir ahora mismo · <a href="#" onclick="hxChatRetryTranslation(\''+m.id+'\',\''+viewerLang+'\');return false;" style="color:var(--amber)">reintentar</a></div>';
       } else {
         hxChatEnsureTranslation(m, lang, viewerLang);
         notaTrad='<div style="font-size:10.5px;color:var(--ink-2);font-style:italic;margin-top:3px">🌐 Traduciendo…</div>';
@@ -4889,6 +4896,14 @@ function hxChatResponder(){
   toast('Respuesta enviada.');
 }
 window.hxChatResponder=hxChatResponder;
+function hxChatRetryTranslation(msgId, to){
+  const all=hxChatLoadAll();
+  const t=(all.threads||{})[HX_CHAT_CTX];
+  const msg=t?(t.messages||[]).find(x=>x.id===msgId):null;
+  if(!msg) return;
+  hxChatEnsureTranslation(msg, msg.lang||hxDetectLang(msg.texto), to);
+}
+window.hxChatRetryTranslation=hxChatRetryTranslation;
 window.addEventListener('storage', function(e){
   if(e.key!==HX_CHAT_KEY) return;
   try{ buildNav(); }catch(err){}

@@ -6135,17 +6135,20 @@ function hxTranslateText(text, from, to, cb){
   var url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(String(text).slice(0,480))+'&langpair='+from+'|'+to;
   fetch(url).then(function(r){ return r.json(); }).then(function(data){
     var t = data && data.responseData && data.responseData.translatedText;
-    cb(t && !/MYMEMORY WARNING/i.test(t) ? t : null);
-  }).catch(function(){ cb(null); });
+    if(!t || /MYMEMORY WARNING/i.test(t)){ console.warn('Traducción HIGIENEX: respuesta inesperada de MyMemory', data); cb(null); return; }
+    cb(t);
+  }).catch(function(err){ console.warn('Traducción HIGIENEX: no se pudo contactar con el servicio de traducción (revisa la consola/red)', err); cb(null); });
 }
 var HX_TR_PENDING={};
+var HX_TR_FAILED={};
 function cpChatEnsureTranslation(m, from, to){
   var key=m.id+'|'+to;
   if(HX_TR_PENDING[key]) return;
   HX_TR_PENDING[key]=true;
+  delete HX_TR_FAILED[key];
   hxTranslateText(m.texto, from, to, function(translated){
     delete HX_TR_PENDING[key];
-    if(!translated) return;
+    if(!translated){ HX_TR_FAILED[key]=true; cpChatRenderMsgs(); return; }
     var ctx=cpChatGetThread();
     var msg=ctx.thread.messages.find(function(x){ return x.id===m.id; });
     if(msg){ msg.tr=msg.tr||{}; msg.tr[to]=translated; cpChatSaveAll(ctx.all); }
@@ -6153,6 +6156,13 @@ function cpChatEnsureTranslation(m, from, to){
   });
 }
 function cpChatViewerLang(){ return cpLang()==='en' ? 'en' : 'es'; }
+function cpChatRetryTranslation(msgId, to){
+  var ctx=cpChatGetThread();
+  var msg=ctx.thread.messages.find(function(x){ return x.id===msgId; });
+  if(!msg) return;
+  cpChatEnsureTranslation(msg, msg.lang||hxDetectLang(msg.texto), to);
+}
+window.cpChatRetryTranslation=cpChatRetryTranslation;
 function cpChatLoadAll(){
   try{ var d=JSON.parse(localStorage.getItem(HX_CHAT_KEY)||'{}'); return d&&typeof d==='object'?d:{}; }catch(e){ return {}; }
 }
@@ -6200,9 +6210,12 @@ function cpChatRenderMsgs(){
     var necesitaTrad = lang!==viewerLang;
     var texto = m.texto, notaTrad='';
     if(necesitaTrad){
+      var trKey=m.id+'|'+viewerLang;
       if(m.tr && m.tr[viewerLang]){
         notaTrad='<div style="font-size:10.5px;color:var(--cp-muted);font-style:italic;margin-top:3px">🌐 '+escHtml(texto)+'</div>';
         texto=m.tr[viewerLang];
+      } else if(HX_TR_FAILED[trKey]){
+        notaTrad='<div style="font-size:10.5px;color:var(--cp-muted);font-style:italic;margin-top:3px">🌐 No se pudo traducir ahora mismo · <a href="#" onclick="cpChatRetryTranslation(\''+m.id+'\',\''+viewerLang+'\');return false;" style="color:var(--green-mid)">reintentar</a></div>';
       } else {
         cpChatEnsureTranslation(m, lang, viewerLang);
         notaTrad='<div style="font-size:10.5px;color:var(--cp-muted);font-style:italic;margin-top:3px">🌐 Traduciendo…</div>';
