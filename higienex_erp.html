@@ -3074,7 +3074,7 @@ const NAV=[
  {g:'Personas',items:[['fichajes','Control de fichajes','all']]},
  {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh'],['candidaturas','Candidaturas','rrhh'],['gastos','Gastos y dietas','rrhh'],['objetivos','Objetivos comerciales','rrhh'],['calendariolab','Calendario laboral','rrhh']]},
  {g:'Sistema',items:[['automat','Automatizaciones','admin'],['auditoria','Registro de auditoría','admin']]},
- {g:'Dirección',items:[['sistema','Administración del sistema','super'],['analitica','Analítica web','super']]}
+ {g:'Dirección',items:[['sistema','Administración del sistema','super'],['analitica','Analítica web','super'],['promptlab','Generador de prompts','promptlab']]}
 ];
 const NAV_ICONS={
   panel:'📊', clientes:'👥', pipeline:'🎯', actividad:'📈',
@@ -3087,12 +3087,13 @@ const NAV_ICONS={
   materias:'🧪', formulas:'⚗️', produccion:'🏭', lotes:'📦', calidad:'✅',
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
   automat:'⚡', auditoria:'🛡️',
-  sistema:'⚙️',
+  sistema:'⚙️', promptlab:'📐',
   kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊', calendario:'📅', candidaturas:'📋', mantenimiento:'🔧', gastos:'🧾', objetivos:'🎯', calendariolab:'🗓️'
 };
 function can(area){
   if(!ME) return false;
   if(area==='super') return ME.perms==='all';
+  if(area==='promptlab') return ME.alias==='oussama'||ME.alias==='edu';
   return true; // pàgina de prova: tots els rols veuen totes les altres seccions
 }
 const isAdmin = () => !!ME && ME.perms==='all';
@@ -9957,6 +9958,195 @@ function toggleHxChat(force){
   }
 }
 window.toggleHxChat = toggleHxChat;
+
+/* =========================================================
+   GENERADOR DE PROMPTS — solo Oussama y Edu
+   ========================================================= */
+function vPromptLab(){
+  let h=head('Generador de prompts','Describe lo que necesitas y se redacta la instrucción exacta para pedírselo a Claude.');
+  h+='<div class="grid g2">';
+
+  h+='<div class="card"><div class="cardbody">'+
+    '<h3 style="margin-top:0">Lo que necesitas</h3>'+
+    '<p style="font-size:12.5px;color:var(--ink-2);margin-top:-8px">Cuantos más detalles des, mejor sale el prompt. Solo el primer campo es obligatorio.</p>'+
+    '<div class="field" style="margin-bottom:14px"><label class="flabel" for="pl_tarea">Qué quieres que haga Claude</label>'+
+      '<textarea id="pl_tarea" rows="3" placeholder="Ej: redactar un correo a un proveedor pidiendo el certificado de retenciones del segundo trimestre"></textarea>'+
+      '<p id="pl_tarea_err" style="display:none;color:var(--red);font-size:12px;font-weight:600;margin-top:4px">Cuéntame al menos qué tarea quieres pedir.</p>'+
+    '</div>'+
+    '<div class="field" style="margin-bottom:14px"><label class="flabel" for="pl_contexto">Contexto útil <span style="font-weight:400;font-style:italic">(opcional)</span></label>'+
+      '<textarea id="pl_contexto" rows="2" placeholder="Quién eres, para quién es esto, qué ya intentaste..."></textarea></div>'+
+    '<div class="frow">'+
+      fSelect('Formato de la respuesta','pl_formato',[
+        ['el que mejor encaje','El que mejor encaje'],['texto libre en párrafos','Texto libre'],
+        ['lista con viñetas','Lista con viñetas'],['tabla','Tabla'],
+        ['correo electrónico listo para enviar','Email'],['código','Código'],
+        ['documento con secciones y títulos','Documento con secciones'],['__custom','Otro…']
+      ],'el que mejor encaje',' onchange="hxPlToggleCustom(this,\'pl_formato_custom\')"')+
+      fSelect('Tono','pl_tono',[
+        ['neutro','Neutro'],['formal','Formal'],['cercano y directo','Cercano'],
+        ['técnico y preciso','Técnico'],['persuasivo','Persuasivo'],['__custom','Otro…']
+      ],'neutro',' onchange="hxPlToggleCustom(this,\'pl_tono_custom\')"')+
+    '</div>'+
+    '<input id="pl_formato_custom" placeholder="Describe el formato" style="display:none;margin:8px 0">'+
+    '<input id="pl_tono_custom" placeholder="Describe el tono" style="display:none;margin:8px 0">'+
+    '<div class="field" style="margin:14px 0"><label class="flabel" for="pl_restricciones">Qué quieres evitar o exigir <span style="font-weight:400;font-style:italic">(opcional)</span></label>'+
+      '<textarea id="pl_restricciones" rows="2" placeholder="Ej: sin tecnicismos, máximo 150 palabras, no inventar cifras, citar las fuentes..."></textarea></div>'+
+    '<div class="field" style="margin-bottom:16px"><label class="flabel" for="pl_ejemplo">Un ejemplo del resultado que buscas <span style="font-weight:400;font-style:italic">(opcional)</span></label>'+
+      '<textarea id="pl_ejemplo" rows="2" placeholder="Pega un fragmento parecido a lo que te gustaría recibir"></textarea></div>'+
+    '<button class="btn" id="pl_gen_btn" onclick="hxPlGenerate()" type="button" style="width:100%">✨ Generar el prompt</button>'+
+  '</div></div>';
+
+  h+='<div class="card"><div class="cardbody">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+      '<h3 style="margin:0">Tu prompt</h3>'+
+      '<div style="display:flex;gap:8px">'+
+        '<button class="btn ghost sm" id="pl_regen_btn" onclick="hxPlGenerate()" type="button" disabled>Regenerar</button>'+
+        '<button class="btn ghost sm" id="pl_copy_btn" onclick="hxPlCopy()" type="button" disabled>Copiar</button>'+
+      '</div>'+
+    '</div>'+
+    '<textarea id="pl_output" class="mono" readonly rows="17" style="font-size:12.5px;line-height:1.65" placeholder="Cuando generes el prompt aparecerá aquí, listo para editar y copiar."></textarea>'+
+    '<p id="pl_status" style="margin-top:10px;font-size:12px;color:var(--ink-2)"></p>'+
+  '</div></div>';
+
+  h+='</div>';
+  h+='<p style="margin-top:16px;font-size:12.5px;color:var(--ink-2)">Pega el prompt generado directamente en una conversación con Claude. Puedes editarlo antes de copiarlo — el cuadro es un campo de texto normal.</p>';
+  return h;
+}
+ROUTES.promptlab = vPromptLab;
+
+function hxPlToggleCustom(sel,inputId){
+  const inp=document.getElementById(inputId);
+  if(!inp) return;
+  const show=sel.value==='__custom';
+  inp.style.display=show?'block':'none';
+  if(show) inp.focus();
+}
+function hxPlResolved(selId,inputId,fallback){
+  const sel=document.getElementById(selId);
+  if(!sel) return fallback;
+  if(sel.value==='__custom'){
+    const inp=document.getElementById(inputId);
+    const v=inp?inp.value.trim():'';
+    return v||fallback;
+  }
+  return sel.value;
+}
+function hxPlCollect(){
+  return {
+    tarea:val('pl_tarea').trim(),
+    contexto:val('pl_contexto').trim(),
+    formato:hxPlResolved('pl_formato','pl_formato_custom','el que mejor encaje'),
+    tono:hxPlResolved('pl_tono','pl_tono_custom','neutro'),
+    restricciones:val('pl_restricciones').trim(),
+    ejemplo:val('pl_ejemplo').trim()
+  };
+}
+function hxPlBuildMeta(f){
+  const L=[];
+  L.push('Eres un experto en ingeniería de prompts. Tu única tarea es escribir un prompt excelente, en español, listo para copiar y pegar, que una persona usará para pedirle una tarea a Claude. No completes la tarea tú mismo: escribe el prompt que se la pediría a otra persona.');
+  L.push('');
+  L.push('Datos que te da el usuario sobre lo que necesita:');
+  L.push('- Tarea: '+f.tarea);
+  if(f.contexto) L.push('- Contexto: '+f.contexto);
+  L.push('- Formato de salida deseado: '+f.formato);
+  L.push('- Tono: '+f.tono);
+  if(f.restricciones) L.push('- Restricciones o exigencias: '+f.restricciones);
+  if(f.ejemplo) L.push('- Ejemplo de resultado deseado: '+f.ejemplo);
+  L.push('');
+  L.push('Instrucciones para el prompt que vas a escribir:');
+  L.push('- Si aporta valor, empieza definiendo el rol o la perspectiva que debe adoptar Claude.');
+  L.push('- Da el contexto necesario de forma breve y ordenada.');
+  L.push('- Especifica la tarea de forma clara, concreta y sin ambigüedad.');
+  L.push('- Indica el formato de salida exacto que se espera.');
+  L.push('- Convierte las restricciones en instrucciones explícitas.');
+  L.push('- Si se dio un ejemplo, inclúyelo como referencia de estilo o formato.');
+  L.push('- Si la tarea es compleja o de varios pasos, pide explícitamente que razone paso a paso antes de dar la respuesta final.');
+  L.push('- Usa un lenguaje directo. Si ayuda a la claridad, organiza el prompt con etiquetas tipo XML para separar contexto, tarea y formato.');
+  L.push('- No añadas explicaciones sobre el prompt ni comentarios meta. Devuelve ÚNICAMENTE el texto del prompt final.');
+  return L.join('\n');
+}
+function hxPlBuildFallback(f){
+  const L=[];
+  L.push(f.tarea);
+  L.push('');
+  if(f.contexto){ L.push('<contexto>'); L.push(f.contexto); L.push('</contexto>'); L.push(''); }
+  L.push('Formato de la respuesta: '+f.formato+'.');
+  L.push('Tono: '+f.tono+'.');
+  if(f.restricciones) L.push('Ten en cuenta: '+f.restricciones+'.');
+  if(f.ejemplo){ L.push(''); L.push('<ejemplo_de_referencia>'); L.push(f.ejemplo); L.push('</ejemplo_de_referencia>'); }
+  L.push('');
+  L.push('Si la tarea tiene varios pasos o requiere análisis, razona paso a paso antes de dar la respuesta final.');
+  return L.join('\n');
+}
+let HX_PL_SAMPLE=null, HX_PL_CHECKED=false;
+async function hxPlGetSample(){
+  if(HX_PL_CHECKED) return HX_PL_SAMPLE;
+  HX_PL_CHECKED=true;
+  try{
+    if(window.claude && typeof window.claude.use==='function'){
+      HX_PL_SAMPLE=await window.claude.use('sample');
+    }
+  }catch(e){ HX_PL_SAMPLE=null; }
+  return HX_PL_SAMPLE;
+}
+function hxPlSetBusy(busy){
+  const gen=document.getElementById('pl_gen_btn'), regen=document.getElementById('pl_regen_btn'), cp=document.getElementById('pl_copy_btn');
+  if(gen){ gen.disabled=busy; gen.textContent=busy?'Redactando…':'✨ Generar el prompt'; }
+  const out=document.getElementById('pl_output');
+  if(regen) regen.disabled=busy||!(out&&out.value);
+  if(cp) cp.disabled=busy||!(out&&out.value);
+}
+async function hxPlGenerate(){
+  const f=hxPlCollect();
+  const err=document.getElementById('pl_tarea_err');
+  if(!f.tarea){ if(err) err.style.display='block'; const t=document.getElementById('pl_tarea'); if(t) t.focus(); return; }
+  if(err) err.style.display='none';
+
+  const out=document.getElementById('pl_output'), status=document.getElementById('pl_status');
+  hxPlSetBusy(true);
+  if(status) status.textContent='Redactando tu prompt…';
+  if(out) out.value='';
+
+  const sample=await hxPlGetSample();
+
+  if(!sample){
+    if(out) out.value=hxPlBuildFallback(f);
+    hxPlSetBusy(false);
+    if(status) status.textContent='Prompt generado.';
+    return;
+  }
+  try{
+    const meta=hxPlBuildMeta(f);
+    const result=await sample(meta,{
+      modelTier:'default', cache:false,
+      onText:function(o){ if(out) out.value=o.text; }
+    });
+    if(out) out.value=(result&&result.text)?result.text.trim():hxPlBuildFallback(f);
+    hxPlSetBusy(false);
+    if(status) status.textContent='Prompt generado.';
+  }catch(e){
+    const partial=e&&e.text?e.text:'';
+    if(out) out.value=partial||hxPlBuildFallback(f);
+    hxPlSetBusy(false);
+    if(status) status.textContent=partial?'Se cortó la generación — puedes editarlo o regenerar.':'No se pudo conectar. Aquí tienes una versión creada con reglas.';
+  }
+}
+async function hxPlCopy(){
+  const out=document.getElementById('pl_output'), status=document.getElementById('pl_status');
+  if(!out) return;
+  try{
+    await navigator.clipboard.writeText(out.value);
+    if(status) status.textContent='Copiado al portapapeles.';
+    toast('📋 Prompt copiado.');
+  }catch(e){
+    out.removeAttribute('readonly');
+    out.focus(); out.select();
+    if(status) status.textContent='Selecciona y copia con Ctrl/Cmd+C.';
+  }
+}
+window.hxPlToggleCustom=hxPlToggleCustom;
+window.hxPlGenerate=hxPlGenerate;
+window.hxPlCopy=hxPlCopy;
 </script>
 </body>
 </html>
