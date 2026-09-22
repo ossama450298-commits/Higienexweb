@@ -4797,6 +4797,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 
 <a href="https://wa.me/34631706398?text=Hola%20HIGIENEX" id="whatsappBtn" target="_blank" rel="noopener" aria-label="Contactar per WhatsApp"><svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><circle cx="24" cy="24" r="24" fill="#25D366"/><path d="M34.5 13.5C32.1 11.1 28.9 9.75 25.5 9.75C18.45 9.75 12.75 15.45 12.75 22.5C12.75 24.75 13.35 26.85 14.4 28.65L12.75 34.5L18.75 32.85C20.55 33.75 22.5 34.35 24.6 34.35H24.75C31.8 34.35 37.35 28.65 37.35 21.6C37.35 18.15 35.85 15.15 34.5 13.5Z" fill="white"/><path d="M25.5 32.25H25.35C23.55 32.25 21.75 31.65 20.25 30.75L19.95 30.6L16.05 31.65L17.1 27.9L16.8 27.6C15.75 26.1 15.15 24.15 15.15 22.2C15.15 16.5 19.65 12 25.35 12C28.2 12 30.75 13.05 32.7 15C34.65 16.95 35.85 19.5 35.7 22.35C35.85 28.2 31.2 32.25 25.5 32.25Z" fill="#25D366"/></svg></a>
 
+<script src="chat-dictionary.js"></script>
 <script>
 // ═══════════════════════════════════════════════
 // HIGIENEX — Script principal (sense IIFE)
@@ -6122,9 +6123,10 @@ var HX_CHAT_KEY = 'hx_support_chat_v1';
    mensaje original sin más. */
 function hxDetectLang(text){
   var t=(' '+String(text||'').toLowerCase()+' ');
-  if(/[ñ¿¡áéíóú]/.test(t)) return 'es';
-  var esWords=[' el ',' la ',' los ',' las ',' de ',' que ',' y ',' en ',' un ',' una ',' es ',' por ',' para ',' con ',' no ',' sí ',' gracias ',' hola ',' cuando ',' cuándo ',' donde ',' dónde ',' como ',' cómo ',' pedido ',' factura ',' necesito ',' quiero ',' puedo ',' podría ',' podria ',' buenos días ',' buenas tardes '];
-  var enWords=[' the ',' and ',' is ',' are ',' you ',' have ',' please ',' thanks ',' thank you ',' hello ',' hi ',' when ',' where ',' how ',' order ',' invoice ',' need ',' want ',' could ',' can ',' would ',' good morning ',' regards '];
+  if(/[ñ¿¡áéíóúü]/.test(t)) return 'es';
+  if(/\w+(n't|'re|'ve|'ll|'m |'s )/.test(t)) return 'en';
+  var esWords=[' el ',' la ',' los ',' las ',' de ',' del ',' que ',' y ',' en ',' un ',' una ',' es ',' son ',' está ',' esta ',' están ',' estan ',' por ',' para ',' con ',' sin ',' no ',' sí ',' si ',' mi ',' tu ',' su ',' nuestro ',' nuestra ',' este ',' esta ',' estos ',' estas ',' ese ',' esa ',' muy ',' más ',' mas ',' también ',' tambien ',' pero ',' porque ',' entonces ',' ahora ',' hoy ',' mañana ',' manana ',' ayer ',' todavía ',' todavia ',' gracias ',' hola ',' buenas ',' cuando ',' cuándo ',' donde ',' dónde ',' como ',' cómo ',' qué ',' que ',' quién ',' quien ',' cuánto ',' cuanto ',' pedido ',' factura ',' envío ',' envio ',' precio ',' coste ',' costo ',' producto ',' servicio ',' cuenta ',' correo ',' teléfono ',' telefono ',' dirección ',' direccion ',' pregunta ',' problema ',' roto ',' rota ',' llegó ',' llego ',' necesito ',' quiero ',' puedo ',' podría ',' podria ',' gustaría ',' gustaria ',' buenos días ',' buenas tardes ',' buenas noches '];
+  var enWords=[' the ',' and ',' is ',' are ',' was ',' were ',' you ',' your ',' our ',' this ',' that ',' these ',' those ',' have ',' has ',' had ',' please ',' thanks ',' thank you ',' hello ',' hi ',' hey ',' when ',' where ',' how ',' what ',' who ',' why ',' order ',' invoice ',' shipping ',' delivery ',' price ',' cost ',' product ',' service ',' account ',' email ',' phone ',' address ',' question ',' problem ',' issue ',' broken ',' damaged ',' wrong ',' refund ',' return ',' payment ',' pay ',' paid ',' still ',' arrived ',' received ',' item ',' need ',' want ',' could ',' can ',' would ',' should ',' will ',' not working ',' good morning ',' good afternoon ',' regards ',' best regards ',' very ',' also ',' but ',' because ',' now ',' today ',' tomorrow ',' yesterday ',' help ',' check ',' confirm ',' update ',' status ',' my ',' i ',' im ',' its '];
   var esScore=0, enScore=0;
   esWords.forEach(function(w){ if(t.indexOf(w)!==-1) esScore++; });
   enWords.forEach(function(w){ if(t.indexOf(w)!==-1) enScore++; });
@@ -6133,22 +6135,44 @@ function hxDetectLang(text){
 function hxTranslateText(text, from, to, cb){
   if(!text || from===to){ cb(null); return; }
   var url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(String(text).slice(0,480))+'&langpair='+from+'|'+to;
-  fetch(url).then(function(r){ return r.json(); }).then(function(data){
+  fetch(url).then(function(r){
+    if(!r.ok){ throw new Error('HTTP '+r.status); }
+    return r.json();
+  }).then(function(data){
     var t = data && data.responseData && data.responseData.translatedText;
-    if(!t || /MYMEMORY WARNING/i.test(t)){ console.warn('Traducción HIGIENEX: respuesta inesperada de MyMemory', data); cb(null); return; }
-    cb(t);
-  }).catch(function(err){ console.warn('Traducción HIGIENEX: no se pudo contactar con el servicio de traducción (revisa la consola/red)', err); cb(null); });
+    var status = data && data.responseStatus;
+    if(!t || /MYMEMORY WARNING/i.test(t) || (status && status!==200)){
+      console.warn('Traducción HIGIENEX: respuesta inesperada de MyMemory', data);
+      cb(null, 'respuesta inesperada del servicio (status '+status+')');
+      return;
+    }
+    cb(t, null);
+  }).catch(function(err){
+    console.warn('Traducción HIGIENEX: no se pudo contactar con el servicio de traducción', err);
+    cb(null, (err && err.message) ? err.message : 'sin conexión con el servicio');
+  });
 }
 var HX_TR_PENDING={};
 var HX_TR_FAILED={};
+var HX_TR_REASON={};
+function hxTranslateWithFallbacks(text, from, to, cb){
+  var exact = (typeof hxDictLookupPhrase==='function') ? hxDictLookupPhrase(text, from, to) : null;
+  if(exact){ cb(exact, null); return; }
+  hxTranslateText(text, from, to, function(translated, reason){
+    if(translated){ cb(translated, null); return; }
+    var approx = (typeof hxDictWordFallback==='function') ? hxDictWordFallback(text, from, to) : null;
+    if(approx){ cb(approx, null); return; }
+    cb(null, reason);
+  });
+}
 function cpChatEnsureTranslation(m, from, to){
   var key=m.id+'|'+to;
   if(HX_TR_PENDING[key]) return;
   HX_TR_PENDING[key]=true;
   delete HX_TR_FAILED[key];
-  hxTranslateText(m.texto, from, to, function(translated){
+  hxTranslateWithFallbacks(m.texto, from, to, function(translated, reason){
     delete HX_TR_PENDING[key];
-    if(!translated){ HX_TR_FAILED[key]=true; cpChatRenderMsgs(); return; }
+    if(!translated){ HX_TR_FAILED[key]=true; HX_TR_REASON[key]=reason||'motivo desconocido'; cpChatRenderMsgs(); return; }
     var ctx=cpChatGetThread();
     var msg=ctx.thread.messages.find(function(x){ return x.id===m.id; });
     if(msg){ msg.tr=msg.tr||{}; msg.tr[to]=translated; cpChatSaveAll(ctx.all); }
@@ -6215,7 +6239,7 @@ function cpChatRenderMsgs(){
         notaTrad='<div style="font-size:10.5px;color:var(--cp-muted);font-style:italic;margin-top:3px">🌐 '+escHtml(texto)+'</div>';
         texto=m.tr[viewerLang];
       } else if(HX_TR_FAILED[trKey]){
-        notaTrad='<div style="font-size:10.5px;color:var(--cp-muted);font-style:italic;margin-top:3px">🌐 No se pudo traducir ahora mismo · <a href="#" onclick="cpChatRetryTranslation(\''+m.id+'\',\''+viewerLang+'\');return false;" style="color:var(--green-mid)">reintentar</a></div>';
+        notaTrad='<div style="font-size:10.5px;color:var(--cp-muted);font-style:italic;margin-top:3px">🌐 No se pudo traducir ('+escHtml(HX_TR_REASON[trKey]||'motivo desconocido')+') · <a href="#" onclick="cpChatRetryTranslation(\''+m.id+'\',\''+viewerLang+'\');return false;" style="color:var(--green-mid)">reintentar</a></div>';
       } else {
         cpChatEnsureTranslation(m, lang, viewerLang);
         notaTrad='<div style="font-size:10.5px;color:var(--cp-muted);font-style:italic;margin-top:3px">🌐 Traduciendo…</div>';
