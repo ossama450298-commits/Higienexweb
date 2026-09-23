@@ -10824,7 +10824,7 @@ const CATEGORY_DEFS = {
       reglas: [
         'Usa únicamente los datos del cliente o del caso proporcionados. No inventes ningún dato adicional.',
         'No prometas nada (plazos, compensaciones, condiciones) que no se haya indicado explícitamente.',
-        'No firmes con un nombre de persona concreto: termina con algo genérico como "El equipo de atención al cliente".'
+        'No firmes con un nombre de persona concreto: termina con una firma genérica del departamento que corresponda (por ejemplo, "Atención al cliente" o "Departamento de administración").'
       ],
       estructuraMedia: ['Cuerpo del mensaje, listo para copiar y pegar.', 'Una versión alternativa más breve, si aplica.'],
       verificacion: 'el mensaje usa correctamente los datos proporcionados y no contiene ninguna promesa o dato inventado'
@@ -10933,11 +10933,11 @@ const TASKS={
   expand:['Describe los estilos como tokens reutilizables (colores, tipografías, espaciados, radios).','Justifica brevemente las decisiones de diseño principales.'],
   format:'La propuesta de diseño con los tokens de estilo definidos y, si es posible, un prototipo en HTML/CSS listo para visualizar.'},
  content:{name:'Contenido',role:'redactor/a y editor/a profesional con dominio del español',
-  reqs:['Adapta el tono y el vocabulario al público destinatario.','Estructura el texto con títulos y párrafos breves fáciles de escanear.','Usa frases claras en voz activa, sin relleno ni clichés.','Revisa ortografía, gramática y coherencia antes de entregar.'],
+  reqs:['Adapta el tono y el vocabulario al público destinatario.','Usa la estructura propia del formato: párrafos breves en emails y mensajes; títulos solo en documentos largos.','Usa frases claras en voz activa, sin relleno ni clichés.','Revisa ortografía, gramática y coherencia antes de entregar.'],
   quality:['El mensaje principal se entiende en la primera lectura.','La extensión se ajusta a lo pedido.','Ejemplos y datos concretos en lugar de afirmaciones genéricas.'],
   expand:['Propón un titular y la estructura del texto antes de redactar.','Si procede, ofrece también una versión más breve.'],
-  format:'El texto final listo para copiar y usar, con títulos y formato aplicados.'},
- analysis:{name:'Análisis',role:'analista financiero/a y de datos senior, riguroso con las cifras y claro al comunicar conclusiones',
+  format:'El texto final, listo para copiar y usar.'},
+ analysis:{name:'Análisis',role:'analista senior, riguroso/a con los datos y claro/a al comunicar conclusiones',
   reqs:['Explica la metodología antes de dar conclusiones.','Separa claramente datos, cálculos e interpretaciones.','Muestra los cálculos clave para que se puedan verificar.','Señala limitaciones, datos que faltan o posibles sesgos.'],
   quality:['Cada conclusión está respaldada por los datos.','Las cifras están revisadas y cuadran.','Hay un resumen ejecutivo al principio.'],
   expand:['Empieza con un resumen de 3 a 5 conclusiones clave.','Propón tablas o gráficos cuando ayuden a entender los datos.'],
@@ -10952,20 +10952,10 @@ const TASKS={
 /* Qué tipo de trabajo corresponde a cada categoría detectada */
 const CAT_NAMES={finanzas:'finanzas y control de gastos',codigo:'programación',redaccion:'redacción',rrhh:'recursos humanos',inventario:'inventario y stock',atencion_cliente:'atención al cliente',marketing:'marketing y contenidos',legal:'revisión legal y contractual',reuniones:'actas y seguimiento de reuniones',investigacion:'investigación y resúmenes',analisis_datos:'análisis de datos',diseno_web:'diseño web'};
 const REPORT_CATS=['finanzas','rrhh','inventario','analisis_datos','investigacion','legal','reuniones'];
+const INTENT_LABEL={image:'imagen',fix:'corregir un error',translate:'traducir',automation:'automatizar',presentation:'presentación',review:'revisar o resumir',legal_draft:'texto legal',spreadsheet:'hoja de cálculo',build:'crear una herramienta',design:'diseñar',reconcile:'conciliar',calc:'calcular',minutes:'acta',study:'estudiar o aprender',academic:'trabajo académico',compare:'comparar y decidir',plan:'plan o estrategia',procedure:'procedimiento',analyze:'analizar',write:'redactar',advise:'consejo o pregunta'};
 const CAT_TO_TASK={finanzas:'analysis',rrhh:'analysis',inventario:'analysis',analisis_datos:'analysis',investigacion:'analysis',codigo:'dev',diseno_web:'dev',redaccion:'content',atencion_cliente:'content',marketing:'content',legal:'content',reuniones:'content'};
 
 /* Detalles técnicos que se añaden según palabras clave */
-const RULES=[
- {re:/\\b(web|pagina|landing|sitio)\\b/,tag:'Web',reqs:['Diseño responsive para móvil, tablet y escritorio, sin scroll horizontal.','HTML semántico y accesible (etiquetas correctas, textos alternativos, navegación con teclado).']},
- {re:/formulario|contacto|reserva|registro/,tag:'Formulario',reqs:['Validación de cada campo con mensajes de error claros junto al campo.','Confirmación visible al enviar; sin envío a servicios reales salvo que se indique.']},
- {re:/corporativ|\\bmarca\\b|branding|logo/,tag:'Identidad de marca',reqs:['Aplica la identidad de marca de forma coherente y define los colores como variables reutilizables. Si no se indican, propón una paleta fácil de cambiar.']},
- {re:/excel|hoja de calculo|spreadsheet|\\bcsv\\b/,tag:'Hoja de cálculo',reqs:['Usa fórmulas en lugar de valores escritos a mano para que todo se recalcule.','Separa datos de entrada, cálculos y resultados.']},
- {re:/factura|\\biva\\b|irpf|contab|asiento|balance|nomina|impuesto|modelo \\d{3}|hacienda|amortiz|retencion/,tag:'Normativa España',reqs:['Aplica la normativa española vigente (PGC, IVA, IRPF) e indica los tipos y porcentajes usados.','Redondea importes a 2 decimales y comprueba que bases, cuotas y totales cuadran.']},
- {re:/\\b(pdf|informe|reporte|memoria|dossier)\\b/,tag:'Documento',reqs:['Estructura de documento clara: título, secciones numeradas y conclusiones, lista para imprimir.']},
- {re:/\\bapi\\b|login|contrasena|password|token/,tag:'Seguridad',reqs:['Nunca uses credenciales reales: usa variables de entorno o marcadores.','Valida y sanea toda entrada del usuario.']},
- {re:/\\b(app|aplicacion|dashboard|panel|herramienta)\\b/,tag:'Aplicación',reqs:['Define los estados vacío, cargando y error de cada vista.']},
- {re:/escuela|clase|examen|ciclo|alumn|proyecto final|trabajo de/,tag:'Académico',reqs:['Ajusta el nivel y el vocabulario a un contexto formativo y explica los conceptos clave.']}
-];
 
 const AIS={
  'Claude':{style:'xml',tip:'Secciones con etiquetas XML, el formato que mejor sigue Claude'},
@@ -10979,7 +10969,7 @@ const EMOJI={rol:'🎭',contexto:'🧭',objetivo:'🎯',especificacion:'🧩',re
 
 /* ===== Utilidades ===== */
 const $=id=>document.getElementById(id);
-const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'');
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/(\\w)-(me|te|nos|vos|lo|la|ho|li)\\b/g,'$1$2');
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 const splitList=s=>s.split(/\\n|;/).map(x=>x.trim().replace(/^[-•*]\\s*/,'')).filter(Boolean);
 const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
@@ -10987,15 +10977,199 @@ let task='dev', manualTask=false, lastPrompt='', editing=false, busy=false, last
 
 function pick(sel,custom){return $(sel).value==='__custom'?$(custom).value.trim():$(sel).value}
 function state(){return{request:$('request').value.trim(),context:$('context').value.trim(),task,ai:$('ai').value,detail:$('detail').value,format:pick('format','formatCustom'),tone:pick('tone','toneCustom'),constraints:$('constraints').value.trim(),audience:$('audience').value.trim(),example:$('example').value.trim(),ask:$('ask').checked}}
-function detectRules(text){const t=norm(text);return RULES.filter(r=>r.re.test(t))}
-function detectCats(s){return detectTaskTypes(s.request+' '+s.context).slice(0,2)}
 
-/* ===== Motor de reglas ===== */
+/* ===== 1. INTENCIÓN: qué quiere conseguir el usuario (se evalúa en orden) ===== */
+const IMPORT_RE=/(importa|importador|importar|leer|lee|cargar|carga|subir|sube|coge|coger|cojer|coja|abrir)[^.]{0,50}(excel|xlsx|xls|csv|hoja)|(excel|xlsx|csv)[^.]{0,50}(importa|importador|leer|cargar|subir)|a partir de (un|una|el|mi|los) (excel|csv|xlsx|hoja)/;
+const BUILD_VERB='\\\\b(fes|fer|fesme|vull|necessito|crea|crear|creame|haz|hazme|hacer|programa|programar|desarrolla|desarrollar|monta|montar|construye|construir|necesito|quiero|prepara|preparame|genera)\\\\b';
+const BUILD_NOUN='\\\\b(importador|exportador|herramienta|app|aplicacion|programa|script|conversor|generador|web|pagina web|landing|formulario|macro|dashboard|panel|calculadora|sistema|software|extension|bot|chatbot|plugin|api|erp|crm|tpv|intranet)\\\\b';
+const BUILD_RE=new RegExp(BUILD_VERB+'[^.]{0,60}'+BUILD_NOUN);
+const CONVERT_RE=/(pasar|pasa|convertir|convierte|extraer|extrae|volcar|vuelca|transformar)[^.]{0,40}\\b(pdf|excel|csv|xml|word|json)\\b[^.]{0,30}\\b(a|en) (un |una )?(excel|csv|pdf|xml|word|json|hoja)/;
+const SQL_RE=/(consulta|query|sentencia|select)[^.]{0,30}\\bsql\\b|\\bsql\\b[^.]{0,40}(consulta|query|que saque|que devuelva)/;
+const GASTOS_RE=/cargo|gasto|compra|movimiento|tarjeta|ticket|suscripcion/;
+
+const INTENTS=[
+ {id:'image',task:'image',re:/\\b(genera|generame|crea|creame|haz|hazme|dibuja|quiero|necesito)\\b[^.]{0,30}\\b(imagen|imagenes|foto|fotografia|ilustracion|dibujo|banner|poster|cartel)\\b/},
+ {id:'fix',task:'dev',re:/\\b(arregla|arreglar|corrige|corregir|soluciona|solucionar|depura|debug|no funciona|no va|falla|me da error|da error|error|bug|no lee|lee mal|no me sale|salen|sale mal|problema con)\\b/,and:/javascript|\\bjs\\b|python|\\bsql\\b|codigo|script|funcion|consola|typeerror|referenceerror|syntaxerror|undefined|html|css|php|formula|macro|vba|excepcion|traceback/,
+  role:'desarrollador/a senior especializado/a en encontrar y corregir errores',
+  reqs:['Explica primero la causa raíz del error en 2-3 líneas, antes de dar la solución.','Si te falta el código relevante, el mensaje de error completo o los pasos para reproducirlo, pídelos en lugar de adivinar.','Propón la corrección mínima necesaria, sin reescribir partes que ya funcionan.','Indica cómo comprobar que el error ha desaparecido y cómo evitar que vuelva a pasar.'],
+  est:['Causa del error, en pocas líneas.','Código corregido: solo lo que cambia indicando dónde va, o el archivo completo si es corto.','Cómo comprobar que ya funciona.'],
+  verif:'la corrección resuelve la causa del error y no solo el síntoma, y que no rompe nada que ya funcionaba',cats:['codigo']},
+ {id:'translate',task:'content',re:/\\b(traduce|traducir|traduceme|traduccion|tradueix)\\b|\\b(al|en) (ingles|catalan|frances|aleman|italiano|arabe|portugues|chino)\\b/,
+  role:'traductor/a profesional, nativo/a del idioma de destino, con experiencia en textos comerciales',
+  reqs:['Traduce el sentido, no palabra por palabra: el texto debe sonar natural para un nativo.','Mantén el tono, el formato y la longitud aproximada del original.','Conserva tal cual nombres propios, marcas, precios y cifras.','Si hay expresiones sin equivalente directo, explica la opción elegida en una nota aparte.'],
+  est:['Texto traducido, listo para usar.','Notas de traducción, solo si hay términos dudosos.'],
+  verif:'no falta ninguna frase del original y que precios, nombres y cifras son idénticos',cats:[]},
+ {id:'presentation',task:'content',re:/presentacion|diapositivas|slides|powerpoint|\\bppt\\b|defensa del|exposicion oral/,
+  role:'experto/a en presentaciones y comunicación oral',
+  reqs:['Propón una estructura de diapositivas con un único mensaje principal por diapositiva.','Pocas palabras por diapositiva: titulares que se entiendan solos; los detalles, en las notas del orador.','Sugiere qué visual, gráfico o captura conviene en cada diapositiva.','Ajusta la extensión al tiempo disponible; si no lo indico, supón 10-15 minutos y dilo.'],
+  est:['Guion de diapositivas: número, título, contenido breve y visual sugerido.','Notas del orador de cada diapositiva.','Preguntas probables del público o del tribunal, con cómo responderlas.'],
+  verif:'cada diapositiva transmite un único mensaje y que el conjunto cabe en el tiempo disponible',cats:[]},
+ {id:'review',task:'content',re:/\\b(revisa|revises|revisar|revisame|resume|resumen|resumir|resumeme|resum|resumeix|mejora(me)? (mi|el|este|esta)|corrige (mi|este|esta)|clausulas|feedback)\\b|\\b(mi|el|este) (cv|curriculum)\\b/,
+  role:'revisor/a experto/a, crítico/a y constructivo/a',
+  reqs:['Revisa todo lo que te paso antes de opinar.','Señala primero los problemas o puntos más importantes, ordenados por gravedad.','Indica a qué parte exacta se refiere cada comentario.','Propón una alternativa concreta para cada problema, no solo la crítica.'],
+  est:['Resumen o veredicto en pocas líneas.','Puntos importantes o de riesgo, ordenados por gravedad, indicando a qué parte se refieren.','Propuesta de mejora o versión corregida.','Dudas que conviene aclarar.'],
+  verif:'cada comentario se puede rastrear hasta una parte concreta de lo revisado',cats:['legal','investigacion'],report:true},
+ {id:'legal_draft',task:'content',re:/politica de (privacidad|cookies)|aviso legal|terminos y condiciones|condiciones (generales|de uso|de alquiler|de venta)|clausula (de|rgpd)|contrato de [a-z]+ (para|entre)|redacta (un|el) contrato/,
+  role:'jurista especializado/a en derecho mercantil y digital español',
+  reqs:['Ajusta el texto a la normativa española y europea aplicable (por ejemplo RGPD, LOPDGDD, LSSI-CE, Código Civil o de Comercio) y cítala.','Deja entre corchetes los datos que debe rellenar la empresa: [RAZÓN SOCIAL], [NIF], [DOMICILIO], [EMAIL DE CONTACTO].','Redacta en lenguaje claro, con apartados numerados.','Avisa de que es un modelo orientativo que conviene que revise un profesional.'],
+  est:['Texto completo, con apartados numerados.','Lista de datos que hay que rellenar.','Otras piezas legales que suelen hacer falta junto a este documento.'],
+  verif:'no hay ningún dato inventado presentado como real y todos los huecos están marcados entre corchetes',cats:['legal'],skipEst:['legal']},
+ {id:'spreadsheet',task:'analysis',re:/(plantilla|hoja|cuadro|tabla|libro|modelo)[^.]{0,40}(excel|hoja de calculo|google sheets)|excel[^.]{0,30}(plantilla|con calculo|con formulas|que calcule)|cuadro de (amortizacion|mando)|(hazme|crea|haz|prepara|preparame|quiero|necesito|fes|fesme|vull|necessito) (un|una) (excel|hoja de calculo|full de calcul|cuadro|tabla)\\b/,not:/\\bmacro|\\bvba\\b/,
+  role:'experto/a en Excel y modelos financieros',
+  reqs:['Diseña la hoja con zonas separadas: datos de entrada (celdas a rellenar, destacadas), cálculos y resultados.','Usa fórmulas en todas las celdas calculadas, nunca valores escritos a mano, e indica la fórmula exacta de cada columna clave.','Escribe las fórmulas para Excel en español (SUMA, SI, BUSCARV… con ";" como separador).','Aplica formato de moneda, fecha y porcentaje, y validación de datos en las celdas de entrada.'],
+  est:['Estructura: columnas, filas y qué va en cada celda clave.','Fórmulas de cada columna calculada, listas para copiar.','Ejemplo rellenado con datos ficticios para comprobar los resultados.','Cómo usarla paso a paso.'],
+  verif:'las fórmulas funcionan en Excel en español y el ejemplo da los resultados esperados',format:'Las instrucciones y fórmulas en texto; si puedes generar archivos, entrega también el .xlsx.',cats:[]},
+ {id:'automation',task:'automation',re:/automatiza|automatizar|automatices|automaticamente|cada vez que|cuando (llegue|entre|reciba)|power automate|zapier|make\\.com|apps script/,
+  role:'especialista en automatización de procesos (Power Automate, Zapier, Make, Google Apps Script)',
+  reqs:['Recomienda la herramienta más sencilla para este caso y una alternativa, indicando si son gratuitas o de pago.','Describe el flujo completo: disparador, acciones y resultado.','Prevé duplicados, errores y datos incompletos, y qué pasa si un paso falla.','Indica qué cuentas o permisos hacen falta.'],
+  est:['Herramienta recomendada y por qué.','Flujo paso a paso: disparador → acciones → resultado.','Configuración o código necesario.','Cómo probarlo con datos ficticios antes de activarlo.'],
+  verif:'el flujo cubre duplicados, errores y archivos o datos incompletos',cats:[]},
+ {id:'build',task:'dev',test:t=>BUILD_RE.test(t)||SQL_RE.test(t)||CONVERT_RE.test(t),useTask:true,cats:['codigo','diseno_web']},
+ {id:'design',task:'design',re:/\\b(disena|disenar|disename|mockup|maqueta|wireframe|interfaz|prototipo|logotipo|logo)\\b|pantalla de/,useTask:true,cats:['diseno_web']},
+ {id:'reconcile',task:'analysis',re:/concilia|conciliar|conciliacion|puntear|punteo|cuadrar|no cuadra|descuadre/,
+  role:'técnico/a contable experto/a en conciliaciones y cuadres (banco, caja, clientes y proveedores)',
+  reqs:['Identifica las dos fuentes que hay que cruzar y el campo común (importe, fecha, número de factura, referencia).','Empareja primero por importe y referencia exactos, después por importe con fechas cercanas (±5 días), y marca cada emparejamiento con su nivel de confianza.','Ten en cuenta pagos agrupados (una transferencia que liquida varias facturas), pagos parciales, comisiones bancarias y abonos.','No des por conciliado nada dudoso: sepáralo en "pendiente de revisión" con el motivo.'],
+  est:['Resumen: saldo de cada fuente, diferencia total y número de partidas conciliadas y pendientes.','Tabla de partidas conciliadas.','Partidas que solo aparecen en una de las fuentes (por ejemplo, banco o caja frente a contabilidad).','Diferencias explicadas (comisiones, redondeos, pagos agrupados).','Asientos o ajustes propuestos para cuadrar.'],
+  verif:'saldo contable ± partidas pendientes = saldo bancario, y que ninguna partida está emparejada dos veces',cats:[],report:true},
+ {id:'calc',task:'analysis',re:/\\b(calcula|calcular|calculame|calculo|cuanto (hay que|tengo que|le toca|sale|cuesta|me queda|cobra|paga)|liquidacion|liquidar|modelo \\d{3}|nomina|finiquito|intereses|cuota de|tae)\\b/,not:/expli[cq]|que (tengo que|debo|hay que) (tener en cuenta|saber|revisar)|que debo saber|que es (el|la|un|una)/,
+  role:'asesor/a contable, fiscal y laboral en España',
+  reqs:['Indica la normativa, los tipos y los porcentajes aplicados, y el año al que corresponden.','Muestra el cálculo paso a paso, con cada fórmula y cifra intermedia, para que se pueda verificar.','Separa los datos que te doy de los que supones; si falta un dato que cambia el resultado (convenio, situación personal, tipo de IVA…), pregúntalo o calcula cada caso.','Redondea a 2 decimales y comprueba que los totales cuadran.'],
+  est:['Resultado final, destacado al principio.','Datos de partida y supuestos.','Cálculo paso a paso.','Normativa y tipos aplicados.','Qué comprobar antes de usar la cifra.'],
+  verif:'cada cifra del resultado sale de los pasos mostrados y que los tipos aplicados son los vigentes',cats:[],report:true},
+ {id:'minutes',task:'content',re:/\\bacta\\b|actas|notas de la reunion|de la reunion|minuta/,
+  role:'secretario/a de actas con experiencia en empresa',
+  reqs:['Redacta en tercera persona y en tono formal, listo para enviar a los asistentes.'],
+  est:['Encabezado: fecha, asistentes y orden del día, según conste en las notas.'],cats:['reuniones'],report:true},
+ {id:'study',task:'content',re:/tipo test|preguntas (de|para|sobre) (estudiar|repasar|el examen|el tema)|cuestionario (de|para) (estudiar|repasar|examen)|examen|estudiar|repasar|flashcards|explicame|expliques|explicar|explica'm|explica(me)? (que|como|la|el|los|las|por que|en que)|diferencia entre|que es (un|una|el|la)|ensename|no entiendo|apuntes/,
+  role:'profesor/a experto/a en la materia, claro/a y didáctico/a',
+  reqs:['Ajusta el nivel al del estudiante; si no lo indico, supón que parte de un nivel básico.','Explica con ejemplos prácticos de empresa, con datos ficticios pero verosímiles.','Al final, resume los conceptos clave para repasar.'],
+  est:['Explicación o preguntas, según lo pedido.','Ejemplos o casos prácticos resueltos.','Resumen de conceptos clave.','Soluciones explicadas, si hay ejercicios o preguntas.'],
+  verif:'las respuestas marcadas como correctas lo son de verdad y que los ejemplos numéricos cuadran',cats:[]},
+ {id:'academic',task:'content',re:/trabajo (para|de|sobre) (el ciclo|clase|la asignatura|el modulo|el instituto)|trabajo sobre|proyecto final|memoria del proyecto|\\btfg\\b|\\btfc\\b|\\btfm\\b/,
+  role:'profesor/a y tutor/a de trabajos académicos',
+  reqs:['Estructura el trabajo como documento académico: portada, índice, introducción, desarrollo, conclusiones y bibliografía.','Explica los conceptos con rigor y apóyalos en fuentes oficiales (BOE, AEAT, PGC…), citándolas.','Incluye al menos un caso práctico resuelto con datos ficticios.','Redacta con palabras propias, sin copiar literalmente de las fuentes.'],
+  est:['Índice propuesto.','Desarrollo completo de cada apartado.','Caso práctico resuelto.','Conclusiones y bibliografía.'],
+  verif:'el trabajo cubre todos los apartados, cita fuentes reales y el caso práctico cuadra',cats:[]},
+ {id:'compare',task:'analysis',re:/\\b(compara|comparar|comparame|comparativa|decidir|elegir|cual (contratar|elegir|me conviene|es mejor)|mejor opcion|pros y contras|ventajas y desventajas|me conviene|compensa|(sale|es) mas (a cuenta|rentable|barato|caro)|(que|cual) es mejor)\\b|\\bo (hacer |coger |contratar )?(un )?(renting|leasing|alquilar|comprar)\\b/,
+  role:'consultor/a que ayuda a tomar decisiones con criterios objetivos',
+  reqs:['Define primero los criterios de comparación y su peso según lo que me importa (precio, condiciones, coberturas, servicio…); si no los conoces, propónlos.','Compara todas las opciones con los mismos criterios, en una tabla.','Usa solo los datos que te dé de cada opción; lo que falte, márcalo como "no disponible" en lugar de suponerlo.','Termina con una recomendación clara y justificada, e indica en qué caso elegirías otra opción.'],
+  est:['Tabla comparativa por criterio.','Puntuación ponderada, si hay criterios con peso.','Pros y contras de cada opción.','Recomendación y cuándo cambiaría.'],
+  verif:'la recomendación se sigue de la tabla y no se apoya en datos inventados',cats:[],report:true},
+ {id:'procedure',task:'content',re:/procedimiento|paso a paso|checklist|protocolo|como se hace|guia (para|de)|instrucciones para|que tengo que hacer para|pasos para|como (doy|dar|hago|hacer) (de )?(alta|baja)|tramite|tramitar/,
+  role:'profesional senior del área, acostumbrado/a a documentar procedimientos claros',
+  reqs:['Ordena los pasos en secuencia y numéralos, indicando quién lo hace, cuándo y con qué documento o herramienta.','Para cada paso, indica cómo comprobar que está bien hecho antes de pasar al siguiente.','Señala los errores más habituales y cómo evitarlos.'],
+  est:['Pasos numerados, con responsable, momento y comprobación.','Errores habituales y cómo evitarlos.','Checklist final lista para imprimir.'],
+  verif:'los pasos están en el orden correcto y ninguno depende de uno posterior',cats:[]},
+ {id:'plan',task:'content',re:/\\bplan (de|para)\\b|estrategia|hoja de ruta|calendario (de|para)|como (organizo|organizar|planifico)/,
+  role:'consultor/a con experiencia en planificar e implantar mejoras en pymes',
+  reqs:['Empieza por el objetivo y cómo se medirá, con indicadores concretos.','Divide el plan en fases o pasos ordenados, cada uno con responsable, plazo y recursos.','Adapta las acciones al tamaño y presupuesto de la empresa; si no los conoces, supón una pyme y dilo.','Incluye los riesgos principales y cómo reducirlos.'],
+  est:['Objetivo e indicadores.','Fases o pasos: acción, responsable y plazo.','Recursos o presupuesto orientativo.','Riesgos y plan B.','Checklist final para seguir el plan.'],
+  verif:'cada acción tiene responsable y plazo, y que el plan cubre el objetivo',cats:['marketing']},
+ {id:'analyze',task:'analysis',re:/\\b(analiza|analizar|analisis|analizame|estudia|evalua|informe|reporte|kpi|tendencia|que quejas|patrones)\\b/,useTask:true,cats:['finanzas','rrhh','inventario','analisis_datos','investigacion','marketing'],report:true},
+ {id:'write',task:'content',re:/\\b(escribe|escribeme|escriu|redacta|redactame|redactar|email|correo|correu|mail|carta|mensaje|missatge|whatsapp|post|publicacion|anuncio|descripcion|texto|text|newsletter|respuesta|responder|respondre|contestar|comunicado|felicitacion|copy|guion|video|reel|tiktok|encuesta|enquesta)\\b/,useTask:true,cats:['redaccion','atencion_cliente','marketing'],skipEst:['marketing']},
+ {id:'advise',task:'content',re:/\\b(como puedo|como hago|como organizo|que tengo que|que debo|dime|ayudame|consejo|consejos|recomiendame|recomendacion|quiero saber|que me recomiendas|es obligatorio|puedo|com puc|que he de)\\b/,
+  role:'asesor/a experto/a en gestión administrativa de pymes en España',
+  reqs:['Responde primero de forma directa a la pregunta, en 2-3 líneas.','Después, desarrolla los pasos o el razonamiento con ejemplos aplicados a mi caso.','Si la respuesta depende de datos que no tengo, di de cuáles y cómo cambia la respuesta.'],
+  est:['Respuesta directa.','Pasos o explicación detallada.','Ejemplo aplicado a mi caso.','Precauciones o errores habituales.'],
+  verif:'la respuesta contesta exactamente a lo que pregunto',cats:[]}
+];
+function isCatalan(s){const m=norm(s.request).match(/\\b(vull|fes|fesme|fer|per|amb|dels|les|els|correu|pressupost|treballadors|nomes|aixo|que em|puc|necessito|aquest|aquesta|dilluns|dimarts|resum|reunio|daquest|feina)\\b/g);return !!m&&new Set(m).size>=3}
+function detectIntent(s){
+ const t=norm(s.request+' '+s.context);
+ for(const it of INTENTS){
+  const ok=it.test?it.test(t):it.re.test(t)&&(!it.and||it.and.test(t))&&!(it.not&&it.not.test(t));
+  if(ok) return it;
+ }
+ return null;
+}
+/* Si el usuario elige a mano otro tipo de trabajo, manda su elección */
+function activeIntent(s){const it=detectIntent(s);if(!it)return null;if(manualTask&&it.task!==s.task)return null;return it}
+function isBuild(s){const it=detectIntent(s);return !!it&&it.id==='build'}
+
+/* ===== 2. CONOCIMIENTO DEL TEMA: se añade según palabras clave ===== */
+const TOOLS=['build','design','fix'];
+const RULES=[
+ {re:/\\b(web|pagina web|landing|sitio)\\b/,tag:'Web',in:TOOLS,reqs:['Diseño responsive para móvil, tablet y escritorio, sin scroll horizontal.','HTML semántico y accesible (etiquetas correctas, textos alternativos, navegación con teclado).']},
+ {re:/formulario|contacto|registro/,tag:'Formulario',in:['build','design'],reqs:['Validación de cada campo con mensajes de error claros junto al campo.','Confirmación visible al enviar; sin envío a servicios reales salvo que se indique.']},
+ {re:/reserva|cita previa|citas|agenda/,tag:'Reservas',in:['build','design'],reqs:['Muestra solo los huecos disponibles, impide reservas duplicadas en la misma franja y confirma la reserva al cliente de forma visible.']},
+ {re:/corporativ|\\bmarca\\b|branding/,tag:'Identidad de marca',in:['build','design','image'],reqs:['Aplica la identidad de marca de forma coherente y define los colores como variables reutilizables. Si no se indican, propón una paleta fácil de cambiar.']},
+ {re:IMPORT_RE,tag:'Importar Excel',in:['build','design','automation'],reqs:['Lee archivos .xlsx, .xls y .csv directamente en el navegador (por ejemplo con SheetJS), sin subirlos a ningún servidor.','Detecta las columnas necesarias por su nombre, admitiendo variantes (p. ej. "Beneficiario" / "Proveedor" / "Nombre"; "IBAN" / "Cuenta"; "Importe" / "Total"; "Concepto" / "Factura"), y permite corregir el mapeo a mano si no las encuentra.','Muestra una vista previa de las filas importadas con los errores señalados antes de generar nada.','Ignora filas vacías y filas de totales; no modifiques nunca el archivo original.'],verif:'funciona con las columnas en distinto orden y con nombres alternativos',est:['Qué columnas debe tener el archivo y un ejemplo de su estructura con datos ficticios.']},
+ {re:/(lee|leer|extrae|extraer|saque|sacar|procesa|procesar|lea|pasar|pasa|convertir|volcar|renombr)[^.]{0,50}\\bpdf|\\bpdf[^.]{0,40}(extraer|leer|sacar)/,tag:'Leer PDF',in:TOOLS.concat(['automation']),reqs:['Extrae el texto del PDF (por ejemplo con pdfplumber en Python o pdf.js en el navegador) y avisa de que los PDF escaneados necesitan OCR.','Como cada proveedor usa un formato distinto, localiza los campos por patrones (NIF, "Base imponible", "Total", fechas) y marca como "revisar" lo que no encuentre con seguridad.']},
+ {re:/\\bsepa\\b|remesa|transferencias?\\b|pain\\.?00|norma 34|(fichero|archivo) (del |para el )?banco/,tag:'Remesa SEPA',in:TOOLS.concat(['automation']),role:'ficheros bancarios SEPA (ISO 20022)',reqs:['Para pagos, genera un XML SEPA de transferencias en formato pain.001.001.03 (ISO 20022), el más aceptado por los bancos españoles, y deja la versión configurable por si el banco pide otra.','Permite configurar los datos del ordenante: nombre, IBAN de cargo, BIC (opcional) y fecha de ejecución.','Valida cada IBAN con el algoritmo módulo 97; las filas con IBAN incorrecto se señalan y no entran en el fichero.','Importes mayores que 0, con punto decimal y 2 decimales; NbOfTxs y CtrlSum deben coincidir exactamente con las transferencias incluidas.','Genera MsgId y EndToEndId únicos, limita el concepto a 140 caracteres y sustituye los caracteres no admitidos por SEPA (tildes, ñ, símbolos) sin cambiar el sentido.','Antes de descargar, muestra un resumen: número de transferencias, importe total y filas descartadas con su motivo.'],verif:'el XML es válido según el esquema pain.001.001.03 y que NbOfTxs y CtrlSum cuadran con las transferencias incluidas',est:['Resumen de validación que ve el usuario antes de descargar el XML.','Cómo subir el fichero al banco y qué comprobar en la banca online antes de firmar la remesa.']},
+ {re:/(remesa|\\bsepa\\b).{0,80}(cobr|recibo|domicili|adeudo)|(cobr|recibo|domicili|adeudo).{0,80}(remesa|\\bsepa\\b)/,tag:'Adeudos SEPA',reqs:['Para cobros domiciliados (recibos) usa pain.008.001.02 e incluye la referencia del mandato, su fecha de firma y el identificador de acreedor.']},
+ {re:/(saque|sacar|exporte|exportar|genere|guarde|vuelque|pase|pasar|meta)[^.]{0,30}\\b(en|a) (un |una )?(excel|xlsx|csv|hoja)/,tag:'Exportar a Excel',in:TOOLS.concat(['automation']),reqs:['Exporta el resultado a .xlsx con una fila por registro, encabezados claros, formato de fecha y de moneda, y una columna "Revisar" para lo que no se haya podido leer con seguridad.']},
+ {re:/dashboard|grafic|cuadro de mando|kpi|estadisticas/,tag:'Gráficos',in:['build','design','spreadsheet'],reqs:['Usa una librería de gráficos ligera (por ejemplo Chart.js), con filtros por periodo y por categoría, y los totales clave (KPI) visibles arriba.']},
+ {re:/(nos debe|me debe|deben|impagad|vencid|moros|reclamar (el |un )?pago|recordatorio de pago|cobrar (una|las|la) factura)/,tag:'Reclamación de deuda',in:['write'],reqs:['Incluye el detalle de cada factura pendiente (número, fecha, importe) y el total adeudado; si no te los doy, deja [huecos] en lugar de inventarlos.','Propón una fecha límite concreta y los medios de pago, e indica el siguiente paso si no se paga, sin amenazas desproporcionadas.']},
+ {re:/(plantilla|modelo|formato) de factura|facturas? (en|con) excel|hacer (las )?facturas|emitir facturas|generador de facturas|facturacion/,tag:'Requisitos de factura',in:['spreadsheet','build','design'],reqs:['Incluye los datos obligatorios de una factura en España (RD 1619/2012): número y serie correlativos, fecha, datos y NIF de emisor y cliente, descripción, base imponible, tipo y cuota de IVA, y total.','Si hay retención de IRPF, réstala del total (base + IVA − IRPF) y muestra el porcentaje aplicado.']},
+ {re:/competencia|scraping|precios de otras/,tag:'Datos de terceros',in:['build'],reqs:['Si hay que obtener datos de webs de terceros, respeta sus condiciones de uso y su robots.txt; como alternativa, permite introducir o importar los datos a mano.']},
+ {re:/avise|aviso|avisos|recordatorio|caduc|vencimiento|vencimientos|alerta|itv/,tag:'Avisos y vencimientos',in:['build','automation','spreadsheet'],reqs:['Calcula los días que faltan para cada vencimiento, ordénalos por urgencia y márcalos por colores (vencido, menos de 30 días, menos de 60 días).','Indica cómo llega el aviso (al abrir la herramienta, notificación o email) y qué hace falta para cada opción.']},
+ {re:/renting|leasing|prestamo|financiar|financiacion/,tag:'Financiación',in:['compare','calc','spreadsheet','advise'],reqs:['Compara el coste total de cada opción en el mismo horizonte temporal (entrada, cuotas, valor residual, seguros, mantenimiento) y calcula el punto de equilibrio.','Ten en cuenta la fiscalidad: deducibilidad de cuotas e IVA, y amortización si se compra.']},
+ {re:/rentab|margen|beneficio/,tag:'Rentabilidad',in:['analyze','compare','spreadsheet','calc'],reqs:['Mide la rentabilidad con el margen (ingresos menos costes directos), no solo con las ventas; si faltan los costes, indícalo.']},
+ {re:/asiento|libro diario|debe y haber|\\b[1-7]\\d{2} a [1-7]\\d{2}\\b|cuenta \\d{3}/,tag:'Asientos contables',role:'contabilidad según el PGC',reqs:['Comprueba el asiento con el PGC: cuentas correctas, que el debe coincida con el haber y que la base y el IVA vayan separados (472 / 477) cuando la factura lleva IVA.','Da el asiento correcto en formato tabla (cuenta, nombre, debe, haber) y explica el error si lo hay.']},
+ {re:/numeros raros|fecha.{0,40}(excel|numero)|\\b4[0-9]{4}\\b/,tag:'Fechas de Excel',in:['fix','build'],reqs:['Ten en cuenta que Excel guarda las fechas como número de serie (días desde el 30/12/1899): conviértelas explícitamente al leerlas.']},
+ {re:/vacaciones|vacances/,tag:'Vacaciones',reqs:['Aplica el mínimo legal de 30 días naturales al año (art. 38 del Estatuto de los Trabajadores), salvo que el convenio mejore, y calcula la parte proporcional según la fecha de alta o baja.']},
+ {re:/finiquito/,tag:'Finiquito',reqs:['Incluye el salario de los días trabajados del mes, la parte proporcional de pagas extra y las vacaciones no disfrutadas; en baja voluntaria no hay indemnización, y comprueba si se cumplió el preaviso del convenio.']},
+ {re:/modelo 347/,tag:'Modelo 347',reqs:['Incluye solo clientes y proveedores con operaciones que superen 3.005,06 € anuales (IVA incluido), desglosadas por trimestre, y excluye las operaciones ya declaradas en otros modelos (por ejemplo, con retención del 190 o intracomunitarias del 349).']},
+ {re:/fichaje|fichar|registro (de )?jornada|control horario/,tag:'Registro de jornada',reqs:['Cumple el registro diario de jornada (art. 34.9 del Estatuto de los Trabajadores): hora de entrada y salida de cada empleado, conservado 4 años y consultable por el trabajador y la Inspección.','Ninguna corrección de un fichaje se hace sin dejar rastro: queda registrado quién, cuándo y por qué.']},
+ {re:/dar de alta|dar de baja|alta en la seguridad social|tramite|sistema red|import@ss|importass/,tag:'Trámites',in:['procedure','advise'],reqs:['Indica los plazos legales, el canal (por ejemplo Sistema RED o Import@ss) y la documentación necesaria en cada paso.']},
+ {re:/datos (ficticios|de prueba|falsos|inventados)/,tag:'Datos de prueba',reqs:['Genera datos realistas pero claramente ficticios (nombres, NIF con formato válido pero inventado, direcciones de España, emails @example.com) en CSV o JSON listo para importar.']},
+ {re:/video|reel|tiktok|youtube|guion/,tag:'Vídeo',in:['write','plan'],reqs:['Entrega un guion por escenas con la duración de cada una, texto en pantalla, voz en off y planos sugeridos; los 3 primeros segundos deben enganchar.']},
+ {re:/encuesta|enquesta|satisfaccion/,tag:'Encuesta',in:['write','plan','build'],reqs:['Máximo 8-10 preguntas cortas y neutras (sin inducir la respuesta): escalas de 1 a 5, una pregunta NPS de 0 a 10 y 1-2 preguntas abiertas.','Indica cuándo y por qué canal enviarla y cómo analizar después las respuestas.']},
+ {re:/\\bcaja\\b|arqueo/,tag:'Arqueo de caja',in:['reconcile','procedure','spreadsheet'],reqs:['Haz el arqueo: saldo inicial + cobros en efectivo − pagos en efectivo − retiradas = saldo teórico, y compáralo con el efectivo contado.','Revisa las causas típicas de descuadre: cambio mal dado, cobros con tarjeta anotados como efectivo, tickets anulados o devoluciones sin registrar.']},
+ {re:/autonomo|sociedad limitada|\\bsl\\b|forma juridica/,tag:'Forma jurídica',reqs:['Compara fiscalidad (IRPF progresivo frente al Impuesto sobre Sociedades), cuota de autónomos, responsabilidad sobre las deudas, costes de constitución y de gestión, y a partir de qué beneficio suele compensar cada opción.']},
+ {re:/entrevista/,tag:'Entrevista de trabajo',role:'selección de personal',reqs:['Prepara las preguntas más probables para el puesto (técnicas y de comportamiento) con respuestas modelo según el método STAR, y preguntas para hacer al entrevistador.']},
+ {re:/modelo 111/,tag:'Modelo 111',reqs:['Explica quién lo presenta, qué retenciones incluye (trabajadores, profesionales y otras), los plazos (trimestral: del 1 al 20 de abril, julio y octubre, y del 1 al 30 de enero; mensual para grandes empresas) y su relación con el resumen anual del modelo 190.']},
+ {re:/renombr|mover (los )?archivos|organizar (los )?archivos|carpeta/,tag:'Archivos',in:['build','automation'],reqs:['Antes de renombrar o mover archivos, muestra una simulación con los cambios propuestos y pide confirmación; nunca sobrescribas un archivo existente.']},
+ {re:/\\bmacro|\\bvba\\b/,tag:'Macro VBA',reqs:['Escribe la macro en VBA, comentada, e indica cómo pegarla en el editor (Alt + F11), cómo ejecutarla y que el archivo debe guardarse como .xlsm.','Localiza las columnas por su encabezado, no por posiciones fijas, para que no se rompa si cambia el orden.','Recomienda probarla primero en una copia del archivo.'],est:['Cómo instalarla y ejecutarla paso a paso.']},
+ {re:/\\bsql\\b/,tag:'SQL',reqs:['Pregunta o indica qué motor de base de datos se usa (MySQL, PostgreSQL, SQL Server…), porque la sintaxis de fechas cambia.','Explica la consulta por partes y sugiere los índices que la harían más rápida si la tabla es grande.'],est:['Un ejemplo del resultado esperado con datos ficticios.']},
+ {re:/whatsapp/,tag:'WhatsApp',in:TOOLS.concat(['automation']),reqs:['Usa la API oficial de WhatsApp Business (Cloud API) o una plataforma autorizada, y explica sus requisitos (número verificado, plantillas aprobadas) y costes.','Incluye un mensaje para pasar con una persona cuando el bot no sepa responder.']},
+ {re:/\\bapi\\b|login|contrasena|password|token/,tag:'Seguridad',in:TOOLS,reqs:['Nunca uses credenciales reales: usa variables de entorno o marcadores.','Valida y sanea toda entrada del usuario; las contraseñas se guardan cifradas (hash), nunca en texto plano.']},
+ {re:/\\b(app|aplicacion|dashboard|panel|herramienta|erp|crm)\\b/,tag:'Aplicación',in:['build','design'],reqs:['Define los estados vacío, cargando y error de cada vista.']},
+ {re:/\\b(stock|inventario|flota|almacen)\\b/,tag:'Inventario',in:['build','design'],reqs:['Define el modelo de datos antes de programar: artículo o vehículo, ubicación o sede, estado (disponible, reservado, en taller…) e historial de movimientos.','Usa datos ficticios pero realistas para las pruebas.']},
+ {re:/\\b(crm|base de datos|pedidos)\\b/,tag:'Gestión de datos',in:['build'],reqs:['Define primero el modelo de datos (entidades, campos y relaciones).']},
+ {re:/modelo 303|liquidacion (del |de )?iva|iva (del|de) (trimestre|tercer|segundo|primer|cuarto)/,tag:'IVA · modelo 303',reqs:['Separa el IVA repercutido (facturas emitidas) del IVA soportado deducible (facturas recibidas), por tipo: 21 %, 10 % y 4 %.','Marca aparte el IVA no deducible y las operaciones especiales (intracomunitarias, inversión del sujeto pasivo, exentas).','Indica en qué casilla del modelo 303 va cada importe y el resultado: a ingresar, a compensar o a devolver.']},
+ {re:/nomina|salario|sueldo|finiquito|seguridad social|cotizac|irpf del trabajador|brutos/,tag:'Nómina',role:'nóminas y Seguridad Social',reqs:['Separa devengos, bases de cotización (contingencias comunes y profesionales), cotizaciones del trabajador y retención de IRPF.','Indica el año de las bases y tipos de cotización usados; si no sé el convenio, la categoría o las pagas extra (prorrateadas o no), pregúntalo o indica que el resultado es orientativo.']},
+ {re:/horas extra/,tag:'Horas extra',reqs:['Aplica el Estatuto de los Trabajadores (art. 35): máximo 80 horas extra al año y retribución no inferior a la hora ordinaria, salvo que el convenio diga otra cosa o se compensen con descanso.','Indica el precio de la hora extra usado y de dónde sale; si depende del convenio o del recargo de sábados y festivos, pregúntalo.']},
+ {re:/amortiz/,tag:'Amortización',reqs:['Usa las tablas de coeficientes de amortización del Impuesto sobre Sociedades (art. 12 de la Ley 27/2014) e indica el coeficiente máximo y el periodo máximo del elemento.','Indica el método (lineal, salvo que diga otro), el valor residual si lo hay y las cuentas del PGC (681 y 281).','Si el alta no es el 1 de enero, prorratea el primer año.']},
+ {re:/impuesto (de|sobre) sociedades/,tag:'Impuesto sobre Sociedades',reqs:['Básate en la Ley 27/2014 del Impuesto sobre Sociedades y explica el paso del resultado contable a la base imponible (diferencias permanentes y temporarias).']},
+ {re:/cierre (contable|del ejercicio|de ejercicio|de fin de ano|de ano|anual)|regularizacion/,tag:'Cierre contable',role:'contabilidad y cierre del ejercicio (PGC)',reqs:['Sigue el orden habitual: revisión de saldos y conciliaciones, periodificaciones, amortizaciones, deterioros y provisiones, variación de existencias, liquidación del IVA, Impuesto sobre Sociedades, regularización (cuenta 129) y asiento de cierre.','Para cada paso, indica el asiento tipo con sus cuentas del PGC.']},
+ {re:/existencias|inventario permanente|pmp|fifo/,tag:'Existencias',in:['study','academic','calc','spreadsheet'],reqs:['Trabaja con las cuentas del PGC (grupo 3 y 610/611/612) y los métodos de valoración admitidos (PMP y FIFO).']},
+ {re:/factura|\\biva\\b|irpf|contab|asiento|balance|impuesto|hacienda|retencion|pgc/,tag:'Normativa España',in:['calc','spreadsheet','academic','plan','procedure','study'],reqs:['Aplica la normativa española vigente (PGC, IVA, IRPF) e indica los tipos y porcentajes usados.']},
+ {re:/tipo test|preguntas|cuestionario|examen/,tag:'Preguntas test',in:['study'],reqs:['Preguntas con 4 opciones y una sola correcta, con distractores creíbles (errores típicos de alumnos), y la explicación de la respuesta al final.','Mezcla preguntas teóricas y prácticas con números, de dificultad creciente.']},
+ {re:/\\bcv\\b|curriculum/,tag:'Currículum',role:'selección de personal',reqs:['Adapta el CV al puesto: destaca la experiencia y los logros relacionados, con verbos de acción y cifras cuando las haya.','Máximo 1-2 páginas, estructura clara y las palabras clave del puesto que filtran los programas de selección (ATS).','No inventes experiencia, títulos ni datos; si falta algo útil, pregúntalo.']},
+ {re:/resena|opiniones|valoraciones/,tag:'Reseñas',in:['analyze','review'],reqs:['Agrupa los comentarios por tema y cuenta cuántas veces aparece cada uno.','Cita 1-2 ejemplos literales cortos por tema.','Distingue las quejas puntuales de los problemas recurrentes y propone una acción para los 3 principales.']},
+ {re:/linkedin|instagram|tiktok|facebook|redes sociales/,tag:'Redes sociales',in:['write','plan','analyze'],reqs:['Adapta el texto a la red: longitud, tono, saltos de línea, emojis moderados y 3-5 hashtags relevantes.','Empieza con una primera línea que enganche y termina con una llamada a la acción clara.']},
+ {re:/turist|extranjer|visitantes/,tag:'Turismo',in:['plan','write','analyze'],reqs:['Ten en cuenta que el público puede no hablar español: propón acciones y textos en varios idiomas.']},
+ {re:/\\b(informe|reporte|memoria|dossier)\\b/,tag:'Documento',in:['analyze','plan','academic','write'],reqs:['Estructura de documento clara: título, secciones numeradas y conclusiones, lista para imprimir.']},
+ {re:/escuela|clase|examen|ciclo|alumn|proyecto final|tribunal|instituto|asignatura/,tag:'Académico',reqs:['Ajusta el nivel y el vocabulario a un contexto formativo y explica los conceptos clave.']}
+];
+function estKey(x){
+ const words=norm(x).replace(/[^a-z0-9 ]/g,' ').split(/\\s+/).filter(w=>w&&!['el','la','los','las','un','una'].includes(w));
+ let w=words[0]||'';if(w==='cuerpo')w='texto';
+ return ['tabla','resumen','conclusion','codigo','texto','checklist'].includes(w)?w:words.join(' ');
+}
+function detectRules(text,intentId){
+ const t=norm(text);
+ return RULES.filter(r=>r.re.test(t)&&!(r.not&&r.not.test(t))&&(!r.in||!intentId||r.in.includes(intentId)));
+}
+function detectCats(s,it){
+ it=it===undefined?activeIntent(s):it;
+ const t=norm(s.request+' '+s.context);
+ let c=detectTaskTypes(s.request+' '+s.context);
+ if(it) c=c.filter(x=>(it.cats||[]).includes(x));
+ c=c.filter(x=>x!=='finanzas'||GASTOS_RE.test(t));
+ c=c.filter(x=>x!=='atencion_cliente'||/client|reclamac|queja|resena|usuario/.test(t));
+ return c.slice(0,2);
+}
+
+/* ===== 3. CONSTRUCCIÓN DEL PROMPT ===== */
 function buildSections(s,mode){
- const T=TASKS[s.task], ai=AIS[s.ai], lvl=s.detail, found=detectRules(s.request+' '+s.context), cats=detectCats(s);
+ const it=activeIntent(s), T=TASKS[s.task], ai=AIS[s.ai], lvl=s.detail;
+ const found=detectRules(s.request+' '+s.context,it?it.id:null), cats=detectCats(s,it);
+ const spec=it&&!it.useTask?it:null;
  const sec=[];
- const roleExtra=cats.length?' Tienes experiencia específica en '+cats.map(c=>CAT_NAMES[c]).join(' y en ')+'.':'';
- sec.push({k:'rol',t:'Rol',b:'Actúa como '+T.role+'.'+roleExtra});
+ const roleBits=[...cats.map(c=>CAT_NAMES[c]),...found.filter(r=>r.role).map(r=>r.role)];
+ sec.push({k:'rol',t:'Rol',b:'Actúa como '+(spec?spec.role:T.role)+'.'+(roleBits.length?' Tienes experiencia específica en '+[...new Set(roleBits)].join(' y en ')+'.':'')});
 
  const ctx=['Esta es la tarea, contada con mis palabras:','','> '+s.request];
  if(s.context) ctx.push('','Contexto: '+s.context);
@@ -11003,18 +11177,24 @@ function buildSections(s,mode){
  if(s.tone) ctx.push('Tono deseado: '+s.tone+'.');
  sec.push({k:'contexto',t:'Contexto',b:ctx.join('\\n')});
 
- sec.push({k:'objetivo',t:'Objetivo',b:'Entrega el resultado final completo y listo para usar, no una explicación de cómo hacerlo. Céntrate en lo que pido: no añadas funcionalidades ni contenido que no aporten.'});
+ sec.push({k:'objetivo',t:'Objetivo',b:'Entrega el resultado final completo y listo para usar, no una explicación de cómo hacerlo. Céntrate en lo que pido: no añadas contenido que no aporte.'});
 
  if(mode==='improve'){
-  sec.push({k:'especificacion',t:'Paso previo: especificación',b:['Antes de ejecutar, convierte mi petición en una especificación breve con:','- Objetivo y público.','- Elementos imprescindibles (funciones, secciones, datos o contenidos).','- Lo que queda fuera del alcance.','- Criterios para dar el trabajo por terminado.',...T.expand.map(x=>'- '+x),'Concreta lo implícito sin cambiar la finalidad. Después, ejecuta esa especificación.'].join('\\n')});
+  sec.push({k:'especificacion',t:'Paso previo: especificación',b:['Antes de ejecutar, convierte mi petición en una especificación breve con:','- Objetivo y público.','- Elementos imprescindibles (funciones, secciones, datos o contenidos).','- Lo que queda fuera del alcance.','- Criterios para dar el trabajo por terminado.',...(spec?[]:T.expand.map(x=>'- '+x)),'Concreta lo implícito sin cambiar la finalidad. Después, ejecuta esa especificación.'].join('\\n')});
  }
 
- const base=lvl==='practica'?T.reqs.slice(0,3):T.reqs;
+ let base=spec?spec.reqs:T.reqs;
+ if(it&&it.id==='build'&&!/python|php|java\\b|node|c#|\\bsql\\b|vba|macro|react|django|laravel|android|ios/.test(norm(s.request+' '+s.context))&&!s.format)
+  base=base.concat(['Si es una herramienta para usar en el navegador, entrégala en un único archivo HTML que funcione sin instalar nada.']);
+ if(lvl==='practica') base=base.slice(0,3);
+ if(/explica|explicame|entender/.test(norm(s.request))&&spec&&!['study','academic'].includes(spec.id)) base=base.concat(['Explica primero el concepto con un ejemplo sencillo antes de pasar al resultado.']);
  const extra=[...new Set(found.flatMap(r=>r.reqs))];
  sec.push({k:'requisitos',t:'Requisitos',b:[...base,...extra].map(x=>'- '+x).join('\\n')});
 
  cats.forEach(c=>{
-  const d=CATEGORY_DEFS[c], rules=lvl==='practica'?d.reglas.slice(0,3):d.reglas;
+  const d=CATEGORY_DEFS[c];let rules=d.reglas.filter(r=>!/^(no inventes|usa unicamente|basate unicamente)/.test(norm(r)));
+  if(lvl==='practica') rules=rules.slice(0,3);
+  if(!rules.length) return;
   sec.push({k:'reglas_'+c,t:'Reglas específicas: '+CAT_NAMES[c],b:rules.map(x=>'- '+x).join('\\n'),emoji:'📏'});
  });
 
@@ -11026,18 +11206,21 @@ function buildSections(s,mode){
 
  if(s.example) sec.push({k:'ejemplo_de_referencia',t:'Ejemplo de referencia',b:'Tómalo como referencia de estilo y formato, no como datos a repetir:\\n'+s.example});
 
+ /* Estructura de la respuesta */
+ const report=(it&&it.report)||cats.some(c=>REPORT_CATS.includes(c));
  const est=[];
- if(cats.length){
-  const report=cats.some(c=>REPORT_CATS.includes(c));
-  est.push(report?'Resumen ejecutivo con las cifras o conclusiones clave en pocas líneas.':'El resultado completo, listo para usar.');
-  const firstWords=new Set();
-  cats.forEach(c=>CATEGORY_DEFS[c].estructuraMedia.forEach(x=>{const w=norm(x.split(/\\s+/)[0]);if(firstWords.has(w))return;firstWords.add(w);est.push(x)}));
-  est.push('Puntos a revisar: datos incompletos, dudosos o supuestos (si no hay, indícalo).');
-  if(report) est.push('Conclusión breve y objetiva.');
- }
- const fmt=s.format?'Formato: '+s.format+'.':(cats.length?'':T.format);
- let estB=(fmt?fmt+'\\n':'')+[...new Set(est)].map((x,i)=>(i+1)+'. '+x).join('\\n');
- sec.push({k:'estructura_respuesta',t:'Estructura de la respuesta',b:(estB.trim()+'\\nResponde en español.').trim()});
+ const seen=new Set();const add=x=>{const k=estKey(x);if(seen.has(k))return;seen.add(k);est.push(x)};
+ if(spec&&spec.est){spec.est.forEach(add)}
+ else if(cats.length){add(report?'Resumen ejecutivo con las cifras o conclusiones clave en pocas líneas.':(s.format?'El resultado completo, listo para usar.':T.format))}
+ cats.filter(c=>!(it&&it.skipEst||[]).includes(c)).forEach(c=>CATEGORY_DEFS[c].estructuraMedia.forEach(add));
+ const rEst=[...new Set(found.flatMap(r=>r.est||[]))];
+ if(rEst.length&&!est.length) add(s.format?'El resultado completo, listo para usar.':(spec&&spec.format)||T.format);
+ rEst.forEach(add);
+ if(!est.length&&report) add(s.format?'El resultado completo, listo para usar.':T.format);
+ if(report){add('Puntos a revisar: datos incompletos, dudosos o supuestos (si no hay, indícalo).');if(!spec||!spec.est)add('Conclusión breve y objetiva.')}
+ const defFmt=(spec&&spec.format)||(!est.length?T.format:'');
+ const fmt=s.format?'Formato: '+s.format+'.':(spec&&spec.format?spec.format:defFmt);
+ sec.push({k:'estructura_respuesta',t:'Estructura de la respuesta',b:((fmt?fmt+'\\n':'')+(est.length?est.map((x,i)=>(i+1)+'. '+x).join('\\n')+'\\n':'')+(it&&it.id==='translate'?'El texto traducido, en el idioma de destino; las notas, en español.':isCatalan(s)?'Responde en catalán.':'Responde en español.')).trim()});
 
  if(ai.agent){
   sec.push({k:'reglas_agente',t:'Reglas para trabajar en el proyecto',b:['- Explora primero los archivos relevantes y entiende la estructura existente.','- Respeta el estilo, las convenciones y las librerías que ya usa el proyecto.','- Haz cambios mínimos y localizados; no modifiques archivos que no tengan relación con la tarea.','- Si existen tests o linters, ejecútalos y corrige lo que falle.','- Al terminar, resume qué archivos has cambiado y por qué.'].join('\\n')});
@@ -11045,19 +11228,20 @@ function buildSections(s,mode){
 
  sec.push({k:'informacion_incompleta',t:'Si falta información',b:s.ask?'Si falta información crítica, hazme como máximo 3 preguntas concretas antes de empezar y espera mi respuesta. Para detalles menores, decide tú.':'Si falta algún dato no crítico, toma una decisión razonable, continúa y enumera tus suposiciones al final en un apartado "Suposiciones".'});
 
- const verif=cats.map(c=>CATEGORY_DEFS[c].verificacion);
- const heavy=cats.some(c=>['finanzas','rrhh','inventario','analisis_datos'].includes(c));
+ const verif=[...(spec&&spec.verif?[spec.verif]:[]),...cats.map(c=>CATEGORY_DEFS[c].verificacion),...found.filter(r=>r.verif).map(r=>r.verif)];
+ const heavy=(it&&['calc','reconcile','spreadsheet','analyze'].includes(it.id))||cats.some(c=>['finanzas','rrhh','inventario','analisis_datos'].includes(c));
+ const quality=spec?[]:T.quality;
  if(lvl==='experta'){
   sec.push({k:'proceso',t:'Proceso de trabajo',b:['1. Analiza la petición e identifica ambigüedades y riesgos.','2. Escribe un plan breve (máximo 6 puntos) antes de ejecutar.','3. Ejecuta el plan completo'+(heavy?', razonando paso a paso en los cálculos.':'.'),'4. Revisa el resultado con la lista de verificación y corrige lo que falle antes de entregarlo.'].join('\\n')});
-  const items=[...T.quality,...verif.map(v=>'Comprueba que '+v+'.'),'Se cumplen todos los requisitos y restricciones.','No hay contenido de relleno ni partes incompletas.'];
+  const items=[...quality,...verif.map(v=>'Comprueba que '+v+'.'),'Se cumplen todos los requisitos y restricciones.','No hay contenido de relleno ni partes incompletas.'];
   sec.push({k:'verificacion',t:'Lista de verificación final',b:items.map(x=>'- [ ] '+x).join('\\n')});
  }else{
-  const lines=lvl==='profesional'?T.quality.map(x=>'- '+x):[];
+  const lines=lvl==='profesional'?quality.map(x=>'- '+x):[];
   if(heavy) lines.push('- Razona paso a paso en los cálculos y verifica que las cifras cuadran.');
   lines.push(verif.length?'- Antes de responder, comprueba que '+verif.join('; y que ')+'.':'- Antes de entregar, revisa que se cumplen todos los requisitos.');
   sec.push({k:'calidad',t:'Antes de dar la respuesta final',b:lines.join('\\n')});
  }
- return {sec,cats,found};
+ return {sec,cats,found,intent:it};
 }
 
 function buildImage(s,mode){
@@ -11193,8 +11377,9 @@ function currentText(){return editing?$('editor').value:lastPrompt}
 /* ===== Calidad de la petición ===== */
 function updateMeter(){
  const s=state(), words=s.request.split(/\\s+/).filter(Boolean).length;
- const found=detectRules(s.request+' '+s.context), cats=detectCats(s), hints=[];
- if(!manualTask&&cats.length&&!isImage(s)) selectTask(CAT_TO_TASK[cats[0]]||task,false);
+ const ai0=activeIntent(s), found=detectRules(s.request+' '+s.context,ai0?ai0.id:null), cats=detectCats(s), hints=[];
+ const intent=detectIntent(s);
+ if(!manualTask){if(intent)selectTask(intent.task);else if(cats.length)selectTask(CAT_TO_TASK[cats[0]]);else if(words)selectTask('content')}
  if(!words){$('meterBar').style.width='0';$('meterScore').textContent='—';$('chips').innerHTML='';$('hints').innerHTML='<li>Empieza describiendo qué quieres conseguir.</li>';return}
  let score=words<6?8:words<15?20:words<35?32:40;
  if(words<15) hints.push('Describe un poco más: qué es, para quién y para qué sirve.');
@@ -11207,7 +11392,7 @@ function updateMeter(){
  score=Math.min(100,score);
  const bar=$('meterBar');bar.style.width=score+'%';bar.style.background=score<45?'var(--warn)':score<75?'var(--accent)':'var(--teal)';
  $('meterScore').textContent=score<45?'Mejorable':score<75?'Bien':'Muy completa';
- $('chips').innerHTML=[...cats.map(c=>CAT_NAMES[c]),...found.map(r=>r.tag)].map(t=>'<span class="chip">'+esc(t)+'</span>').join('');
+ $('chips').innerHTML=[...(intent?['Objetivo: '+INTENT_LABEL[intent.id]]:[]),...cats.map(c=>CAT_NAMES[c]),...found.map(r=>r.tag)].map(t=>'<span class="chip">'+esc(t)+'</span>').join('');
  $('hints').innerHTML=hints.slice(0,2).map(h=>'<li>'+esc(h)+'</li>').join('');
 }
 
@@ -11251,7 +11436,7 @@ $('regenBtn').onclick=()=>generate(lastMode);
 $('editBtn').onclick=()=>toggleEdit();
 $('clrBtn').onclick=()=>{['request','context','constraints','audience','example','formatCustom','toneCustom'].forEach(id=>$(id).value='');
  $('format').value='';$('tone').value='';$('formatCustom').classList.remove('show');$('toneCustom').classList.remove('show');$('ask').checked=false;
- manualTask=false;$('typeHint').textContent='se elige solo mientras escribes';if(editing)toggleEdit(false);emptyState();updateMeter();setStatus('Formulario limpio',true)};
+ manualTask=false;selectTask('dev');$('typeHint').textContent='se elige solo mientras escribes';if(editing)toggleEdit(false);emptyState();updateMeter();setStatus('Formulario limpio',true)};
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'&&document.activeElement!==$('editor')){e.preventDefault();generate()}});
 $('copyBtn').onclick=async()=>{const t=currentText();if(!t)return;try{await navigator.clipboard.writeText(t);setStatus('Copiado al portapapeles',true)}catch(e){toggleEdit(true);$('editor').select();setStatus('Selecciona y copia con Ctrl/Cmd + C',false)}};
 $('dlBtn').onclick=()=>{const t=currentText();if(!t)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain;charset=utf-8'}));a.download='prompt-'+new Date().toISOString().slice(0,10)+'.txt';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),800);setStatus('Descargado',true)};
