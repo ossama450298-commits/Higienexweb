@@ -7408,11 +7408,11 @@ function hxDetectLang(text){
   if (!text) return cpLang();
   if (/[\u0600-\u06FF]/.test(text)) return 'ar';
   var markers = {
-    ca: ['què','vosaltres','aquest','aquesta','sóc','és','però','també','quins','quina','teniu','envieu','amb','molt','fer-me','voleu','aquí','ràpid'],
-    es: ['qué','ustedes','vosotros','este','esta','soy','también','pero','cuáles','cuál','tienen','envían','con','muy','háganme','aquí','rápido','dónde'],
-    en: ['what','you','this','that','am','also','but','which','how','do','have','ship','please','thanks','the','where'],
-    fr: ['quoi','vous','ce','cette','suis','aussi','mais','quels','quelle','avez','livrez','avec','très','ici','où','comment'],
-    de: ['was','sie','dieser','diese','bin','auch','aber','welche','haben','versenden','mit','sehr','hier','wo','wie'],
+    ca: ['hola','bon dia','bona tarda','adéu','adeu','gràcies','si us plau','què','com','quan','on','quant','quants','quina','quins','aquest','aquesta','vosaltres','teniu','voleu','envieu','és','però','també','amb','molt','ràpid','aquí','producte','productes','preu','preus','comanda','comandes','contacte','horari','sóc','necessito','vull','puc','català','vostre','vostra'],
+    es: ['hola','buenos días','buenas tardes','adiós','gracias','por favor','qué','cómo','cuándo','dónde','cuánto','cuántos','cuál','cuáles','este','esta','ustedes','vosotros','tienen','quieren','envían','es','son','están','pero','también','con','muy','rápido','aquí','producto','productos','precio','precios','pedido','pedidos','contacto','horario','soy','necesito','quiero','puedo','castellano','español','su','sus','vuestro','vuestra'],
+    en: ['hello','hi','hey','good morning','good afternoon','thanks','thank you','please','what','how','when','where','which','this','that','you','do','have','is','are','but','also','with','very','fast','here','product','products','price','prices','order','orders','contact','hours','bye','goodbye','am','need','want','can','the','your','our'],
+    fr: ['bonjour','salut','bonsoir','au revoir','merci',"s'il vous plaît",'quoi','comment','quand','où','combien','quel','quelle','quels','quelles','ce','cette','vous','vos','avez','voulez','livrez','est','sont','êtes','mais','aussi','avec','très','rapide','ici','produit','produits','prix','commande','commandes','contact','horaire','horaires','suis','besoin','veux','peux','français','notre','nos','votre'],
+    de: ['hallo','guten tag','guten morgen','tschüss','danke','bitte','was','wie','wann','wo','wieviel','welche','welcher','dieser','diese','sie','ihre','ihr','haben','sind','wollen','versenden','ist','aber','auch','mit','sehr','schnell','hier','produkt','produkte','preis','bestellung','bestellungen','kontakt','öffnungszeiten','bin','brauche','möchte','kann','deutsch','unser','unsere'],
   };
   var norm = ' ' + text.toLowerCase().replace(/[¿¡?!.,;:]/g,' ').replace(/\s+/g,' ') + ' ';
   var scores = {ca:0, es:0, en:0, fr:0, de:0};
@@ -7466,7 +7466,7 @@ var HX_SHORT_ONLY_TOPICS = {hola:true, gracies:true};
 function hxFindTopic(userText){
   var norm = hxNormalize(userText);
   var words = norm.split(/\s+/).filter(Boolean);
-  if (HX_SHORT_ONLY_TOPICS && words.length <= 5) {
+  if (HX_SHORT_ONLY_TOPICS && words.length <= 3) {
     for (var sid in HX_SHORT_ONLY_TOPICS) {
       if (hxTopicKeyMatch(sid, norm, words)) return sid;
     }
@@ -7680,6 +7680,11 @@ function hxPrepareFaqData(){
 }
 function hxFindFaqMatch(userText, lang){
   if (typeof HX_FAQ_DATA === 'undefined') return null;
+  // El corpus ampliat només està en català. Per a qualsevol altre idioma
+  // (castellà inclòs) no val la pena arriscar-se a barrejar idiomes dins
+  // la mateixa resposta: millor passar directament a la IA (nivell 3),
+  // que sí que respon sempre en l'idioma detectat.
+  if (lang !== 'ca') return null;
   hxPrepareFaqData();
   var norm = hxNormalize(userText);
   var userWords = norm.split(/\s+/).filter(function(w){ return w.length > 1; });
