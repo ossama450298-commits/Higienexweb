@@ -2342,7 +2342,7 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
         <button class="btn ghost sm hx-admin-tool" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ <span class="lbl">Instal·lar</span></button>
         <span class="exercise hx-admin-tool">Ejercicio 2026</span>
         <button class="btn ghost sm" id="hxCalTopBtn" onclick="go('calendariolab')" title="Calendari laboral" type="button">🗓️ <span class="lbl">Calendario</span></button>
-        <button class="btn ghost sm" id="hxPromptLabBtn" onclick="hxOpenPromptLab()" title="Generador de prompts (pestaña nueva)" aria-label="Generador de prompts" type="button" style="display:none">📐 GP</button>
+        <button class="btn ghost sm" id="hxPromptLabBtn" onclick="hxOpenPromptLab()" title="HIGIENEX Prompt (pestaña nueva)" aria-label="HIGIENEX Prompt" type="button" style="display:none">📐 GP</button>
         <div style="position:relative">
           <button class="btn ghost sm" id="hxNotifBell" onclick="hxToggleNotifPanel()" title="Notificacions" aria-label="Notificacions" type="button" style="position:relative">
             🔔<span id="hxNotifBadge" role="status" aria-live="polite" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:20px;min-width:16px;height:16px;align-items:center;justify-content:center;padding:0 3px">0</span>
@@ -10463,7 +10463,7 @@ const HX_PROMPTLAB_HTML = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Prompt Studio — Generador de prompts</title>
+<title>HIGIENEX Prompt — Generador de prompts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -10630,7 +10630,7 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:26px}
 <body>
 <div class="app">
 <header>
- <div class="brand"><div class="logo">✦</div><div><strong>Prompt Studio</strong><small>Generador de prompts · HIGIENEX</small></div></div>
+ <div class="brand"><div class="logo">✦</div><div><strong>HIGIENEX Prompt</strong><small>Generador de prompts</small></div></div>
  <div class="head-right">
   <div class="privacy" id="privacy"><i></i>Funciona en local, sin enviar datos</div>
   <button class="theme-btn" id="themeBtn" type="button">Modo oscuro</button>
@@ -10752,7 +10752,7 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:26px}
  </div>
 </section>
 </main>
-<footer>Prompt Studio guarda el historial solo en este navegador. Puedes editar el prompt antes de copiarlo.</footer>
+<footer>HIGIENEX Prompt guarda el historial solo en este navegador. Puedes editar el prompt antes de copiarlo.</footer>
 </div>
 
 <script>
@@ -11103,7 +11103,7 @@ const RULES=[
  {re:/(plantilla|modelo|formato) de factura|facturas? (en|con) excel|hacer (las )?facturas|emitir facturas|generador de facturas|facturacion/,tag:'Requisitos de factura',in:['spreadsheet','build','design'],reqs:['Incluye los datos obligatorios de una factura en España (RD 1619/2012): número y serie correlativos, fecha, datos y NIF de emisor y cliente, descripción, base imponible, tipo y cuota de IVA, y total.','Si hay retención de IRPF, réstala del total (base + IVA − IRPF) y muestra el porcentaje aplicado.']},
  {re:/competencia|scraping|precios de otras/,tag:'Datos de terceros',in:['build'],reqs:['Si hay que obtener datos de webs de terceros, respeta sus condiciones de uso y su robots.txt; como alternativa, permite introducir o importar los datos a mano.']},
  {re:/avise|aviso|avisos|recordatorio|caduc|vencimiento|vencimientos|alerta|itv/,tag:'Avisos y vencimientos',in:['build','automation','spreadsheet'],reqs:['Calcula los días que faltan para cada vencimiento, ordénalos por urgencia y márcalos por colores (vencido, menos de 30 días, menos de 60 días).','Indica cómo llega el aviso (al abrir la herramienta, notificación o email) y qué hace falta para cada opción.']},
- {re:/renting|leasing|prestamo|financiar|financiacion/,tag:'Financiación',in:['compare','calc','spreadsheet','advise'],reqs:['Compara el coste total de cada opción en el mismo horizonte temporal (entrada, cuotas, valor residual, seguros, mantenimiento) y calcula el punto de equilibrio.','Ten en cuenta la fiscalidad: deducibilidad de cuotas e IVA, y amortización si se compra.']},
+ {re:/renting|leasing|prestamo|financiar|financiacion/,tag:'Financiación',role:'análisis financiero de inversiones, renting y leasing',in:['compare','calc','spreadsheet','advise'],reqs:['Compara el coste total de cada opción en el mismo horizonte temporal (entrada, cuotas, valor residual, seguros, mantenimiento) y calcula el punto de equilibrio.','Ten en cuenta la fiscalidad: deducibilidad de cuotas e IVA, y amortización si se compra.','Si no te doy precios u ofertas concretas, dime exactamente qué datos necesitas pedir a cada proveedor y haz el cálculo con cifras de ejemplo claramente marcadas como ficticias.']},
  {re:/rentab|margen|beneficio/,tag:'Rentabilidad',in:['analyze','compare','spreadsheet','calc'],reqs:['Mide la rentabilidad con el margen (ingresos menos costes directos), no solo con las ventas; si faltan los costes, indícalo.']},
  {re:/asiento|libro diario|debe y haber|\\b[1-7]\\d{2} a [1-7]\\d{2}\\b|cuenta \\d{3}/,tag:'Asientos contables',role:'contabilidad según el PGC',reqs:['Comprueba el asiento con el PGC: cuentas correctas, que el debe coincida con el haber y que la base y el IVA vayan separados (472 / 477) cuando la factura lleva IVA.','Da el asiento correcto en formato tabla (cuenta, nombre, debe, haber) y explica el error si lo hay.']},
  {re:/numeros raros|fecha.{0,40}(excel|numero)|\\b4[0-9]{4}\\b/,tag:'Fechas de Excel',in:['fix','build'],reqs:['Ten en cuenta que Excel guarda las fechas como número de serie (días desde el 30/12/1899): conviértelas explícitamente al leerlas.']},
