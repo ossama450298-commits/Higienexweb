@@ -1979,6 +1979,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <script src="jspdf.umd.min.js" defer></script>
+<script src="jspdf.plugin.autotable.min.js" defer></script>
 <script src="html2canvas.min.js" defer></script>
 <script type="application/ld+json">
 {
@@ -5671,42 +5672,85 @@ function cpDescarregarExtracte(){
   var totalPagat = fac.filter(function(f){ return cpEstatFactura(f)==='pagada'; }).reduce(function(s,f){ return s+f.total; }, 0);
   var totalPendent = totalFacturat - totalPagat;
   var primera = fac[0].fecha, ultima = fac[fac.length-1].fecha;
-  var htmlLang = cpLang();
-  var files = fac.map(function(f, idx){
+  if (typeof window.jspdf === 'undefined') { showToast('No se ha podido cargar el generador de PDF.', '⚠️'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt', format:'a4'});
+  var M=42, W=595.28;
+  var y=46;
+  doc.setFont('times','bold'); doc.setFontSize(20);
+  doc.setTextColor(11,61,107);
+  doc.text('HIGIENE', M, y);
+  var w1=doc.getTextWidth('HIGIENE');
+  doc.setTextColor(242,169,0);
+  doc.text('X', M+w1, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(122,135,148);
+  doc.text('HIGIENEX S.L. \u00b7 CIF B12345678', M, y+14);
+  doc.text('Carrer de la Ind\u00fastria, 25 \u00b7 46010 Val\u00e8ncia', M, y+24);
+  doc.setFont('times','bold'); doc.setFontSize(15);
+  doc.setTextColor(22,35,46);
+  doc.text(cpT('t828'), W-M, y-4, {align:'right'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(122,135,148);
+  doc.text(String(c.nom)+' \u00b7 NIF '+(c.nif||'\u2014'), W-M, y+11, {align:'right'});
+  doc.text(cpT('t837')+' '+CP_FD(primera)+' \u2013 '+CP_FD(ultima), W-M, y+23, {align:'right'});
+  y += 40;
+  doc.setDrawColor(11,61,107); doc.setLineWidth(2.2);
+  doc.line(M, y, W-M, y);
+  y += 24;
+  var cards = [
+    [CP_EUR(totalFacturat), cpT('t829'), [11,61,107]],
+    [CP_EUR(totalPagat), cpT('t830'), [11,114,86]],
+    [CP_EUR(totalPendent), cpT('t831'), totalPendent>0?[138,89,0]:[11,114,86]],
+    [String(fac.length), cpT('t832'), [22,35,46]]
+  ];
+  var gap=12, cardW=(W-2*M-gap*3)/4;
+  cards.forEach(function(card, i){
+    var x = M+i*(cardW+gap);
+    doc.setDrawColor(227,232,237); doc.setLineWidth(0.75);
+    doc.roundedRect(x, y, cardW, 54, 7, 7);
+    doc.setFont('helvetica','bold'); doc.setFontSize(13.5);
+    doc.setTextColor(card[2][0],card[2][1],card[2][2]);
+    doc.text(card[0], x+cardW/2, y+24, {align:'center'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(6.8);
+    doc.setTextColor(122,135,148);
+    doc.text(String(card[1]).toUpperCase(), x+cardW/2, y+40, {align:'center', maxWidth:cardW-10});
+  });
+  y += 54+24;
+  var body = fac.map(function(f){
     var e = cpEstatFactura(f);
-    var color = e==='pagada'?'#0B7256':e==='vencida'?'#8C281E':'#8A5900';
     var label = cpEstatLabel(e);
-    return '<tr style="background:'+(idx%2?'#F7F9FB':'#fff')+'"><td>'+escHtml(f.num)+'</td><td>'+CP_FD(f.fecha)+'</td><td>'+CP_FD(f.venc)+'</td>'+
-      '<td class="num strong">'+CP_EUR(f.total)+'</td><td><span style="color:'+color+';font-weight:700;font-size:11px">'+label+'</span></td></tr>';
-  }).join('');
-  var html = '<!DOCTYPE html><html lang="'+htmlLang+'"><head><meta charset="UTF-8"><title>'+cpT('t828')+' · HIGIENEX S.L.</title>'+
-    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;padding:40px 46px;font-size:13px}'+
-    '.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0B3D6B;padding-bottom:18px;margin-bottom:22px}'+
-    '.brand{font-family:Georgia,\'Times New Roman\',serif;font-size:24px;font-weight:700;color:#0B3D6B}.brand span{color:#F2A900}'+
-    '.brand-sub{font-size:10px;color:#7A8794;margin-top:6px;line-height:1.6}'+
-    '.doc h1{font-family:Georgia,serif;font-size:19px;color:#16232E;text-align:right}'+
-    '.doc p{text-align:right;font-size:11px;color:#7A8794;margin-top:4px}'+
-    '.summary{display:flex;gap:14px;margin-bottom:24px}'+
-    '.summary div{flex:1;border:1px solid #E3E8ED;border-radius:10px;padding:14px 16px;text-align:center}'+
-    '.summary .v{font-family:ui-monospace,Consolas,monospace;font-size:18px;font-weight:800}'+
-    '.summary .l{font-size:9.5px;letter-spacing:.06em;color:#7A8794;font-weight:700;margin-top:4px}'+
-    'table{width:100%;border-collapse:collapse;font-size:12px}'+
-    'thead th{background:#0B3D6B;color:#fff;padding:8px 10px;text-align:left;font-size:10.5px}'+
-    'tbody td{padding:8px 10px}.num,td.num{text-align:right}'+
-    '.foot{margin-top:24px;font-size:9.5px;color:#94A3B0;text-align:center;border-top:1px solid #E3E8ED;padding-top:12px}'+
-    '@media print{@page{margin:14mm}}</style></head><body>'+
-    '<div class="top"><div><div class="brand">HIGIENE<span>X</span></div><div class="brand-sub">HIGIENEX S.L. · CIF B12345678<br>Carrer de la Indústria, 25 · 46010 València</div></div>'+
-    '<div class="doc"><h1>'+cpT('t828')+'</h1><p>'+escHtml(c.nom)+' · NIF '+escHtml(c.nif||'—')+'<br>'+cpT('t837')+' '+CP_FD(primera)+' – '+CP_FD(ultima)+'</p></div></div>'+
-    '<div class="summary">'+
-      '<div><div class="v" style="color:#0B3D6B">'+CP_EUR(totalFacturat)+'</div><div class="l">'+cpT('t829')+'</div></div>'+
-      '<div><div class="v" style="color:#0B7256">'+CP_EUR(totalPagat)+'</div><div class="l">'+cpT('t830')+'</div></div>'+
-      '<div><div class="v" style="color:'+(totalPendent>0?'#8A5900':'#0B7256')+'">'+CP_EUR(totalPendent)+'</div><div class="l">'+cpT('t831')+'</div></div>'+
-      '<div><div class="v">'+fac.length+'</div><div class="l">'+cpT('t832')+'</div></div>'+
-    '</div>'+
-    '<table><thead><tr><th>'+cpT('t833')+'</th><th>'+cpT('t834')+'</th><th>'+cpT('t835')+'</th><th class="num">'+cpT('t791')+'</th><th>'+cpT('t836')+'</th></tr></thead><tbody>'+files+'</tbody></table>'+
-    '<div class="foot">HIGIENEX S.L. · '+cpT('t838')+' · '+new Date().toLocaleString(htmlLang)+'</div>'+
-    '</body></html>';
-  cpOpenOrDownloadHtml(html, 'extracte-de-compte.html');
+    return [f.num, CP_FD(f.fecha), CP_FD(f.venc), CP_EUR(f.total), label];
+  });
+  var colores = fac.map(function(f){
+    var e=cpEstatFactura(f);
+    return e==='pagada'?[11,114,86]:e==='vencida'?[140,40,30]:[138,89,0];
+  });
+  doc.autoTable({
+    startY:y,
+    head:[[cpT('t833'), cpT('t834'), cpT('t835'), cpT('t791'), cpT('t836')]],
+    body: body,
+    theme:'plain',
+    margin:{left:M, right:M, bottom:34},
+    styles:{font:'helvetica', fontSize:8.5, textColor:[22,35,46], lineColor:[237,241,244], lineWidth:0.4, cellPadding:{top:6,bottom:6,left:8,right:8}},
+    headStyles:{fillColor:[11,61,107], textColor:255, fontStyle:'bold', fontSize:8, halign:'left'},
+    alternateRowStyles:{fillColor:[247,249,251]},
+    columnStyles:{0:{cellWidth:'auto'},1:{cellWidth:66},2:{cellWidth:66},3:{cellWidth:70,halign:'right',fontStyle:'bold'},4:{cellWidth:70}},
+    didParseCell: function(data){
+      if (data.section==='body' && data.column.index===4){
+        var col = colores[data.row.index];
+        if (col){ data.cell.styles.textColor = col; data.cell.styles.fontStyle='bold'; }
+      }
+    }
+  });
+  var total = doc.internal.getNumberOfPages();
+  for (var i=1;i<=total;i++){
+    doc.setPage(i);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    doc.setTextColor(148,163,176);
+    doc.text('HIGIENEX S.L. \u00b7 '+cpT('t838')+' \u00b7 '+new Date().toLocaleString(cpLang()), W/2, 820, {align:'center'});
+  }
+  doc.save('extracte-de-compte.pdf');
 }
 window.cpDescarregarExtracte = cpDescarregarExtracte;
 
@@ -5715,83 +5759,129 @@ function cpDescarregarFactura(num){
   var f=CP_DB.facturas.find(function(x){return x.num===num;}); if(!f) return;
   var c=CP_DB.cliente;
   var e=cpEstatFactura(f);
-  var estatColor = e==='pagada'?'#0B7256':e==='vencida'?'#8C281E':'#8A5900';
-  var estatBg = e==='pagada'?'#E5F3EE':e==='vencida'?'#F7E6E4':'#F7F0E0';
+  var estatColor = e==='pagada'?[11,114,86]:e==='vencida'?[140,40,30]:[140,89,0];
+  var estatBg = e==='pagada'?[229,243,238]:e==='vencida'?[247,230,228]:[247,240,224];
   var estatLabel = cpEstatLabel(e).toUpperCase();
-  var filas=(f.lineas||[]).map(function(l, idx){
+  if (typeof window.jspdf === 'undefined') { showToast('No se ha podido cargar el generador de PDF.', '⚠️'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt', format:'a4'});
+  var M=42, W=595.28, H=841.89;
+  doc.setFillColor(11,61,107); doc.rect(0,0,6,H,'F');
+  var y=46;
+  doc.setFont('times','bold'); doc.setFontSize(21);
+  doc.setTextColor(11,61,107);
+  doc.text('HIGIENE', M, y);
+  var w1=doc.getTextWidth('HIGIENE');
+  doc.setTextColor(242,169,0);
+  doc.text('X', M+w1, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(122,135,148);
+  doc.text('HIGIENEX S.L. \u00b7 CIF B12345678', M, y+14);
+  doc.text('Carrer de la Ind\u00fastria, 25 \u00b7 46010 Val\u00e8ncia', M, y+24);
+  doc.text('contacto@higienexvalencia.es \u00b7 963 123 456', M, y+34);
+  doc.setFont('times','bold'); doc.setFontSize(16);
+  doc.setTextColor(22,35,46);
+  doc.text(cpT('t795'), W-M, y-4, {align:'right'});
+  doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
+  doc.setTextColor(11,61,107);
+  doc.text(num, W-M, y+10, {align:'right'});
+  doc.setFont('helvetica','bold'); doc.setFontSize(8);
+  var pillW=doc.getTextWidth(estatLabel)+16;
+  doc.setFillColor(estatBg[0],estatBg[1],estatBg[2]);
+  doc.roundedRect(W-M-pillW, y+16, pillW, 15, 7.5,7.5,'F');
+  doc.setTextColor(estatColor[0],estatColor[1],estatColor[2]);
+  doc.text(estatLabel, W-M-pillW/2, y+26, {align:'center'});
+  y += 48;
+  doc.setDrawColor(22,35,46); doc.setLineWidth(2);
+  doc.line(M, y, W-M, y);
+  y += 22;
+  var colW=(W-2*M)/3;
+  function metaItem(label, value, x){
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+    doc.setTextColor(122,135,148);
+    doc.text(String(label).toUpperCase(), x, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    doc.setTextColor(22,35,46);
+    doc.text(String(value), x, y+13);
+  }
+  metaItem(cpT('t799'), CP_FD(f.fecha), M);
+  metaItem(cpT('t800'), CP_FD(f.venc), M+colW);
+  metaItem(cpT('t801'), cpT('t802'), M+colW*2);
+  y += 34;
+  var boxW=(W-2*M-18)/2, boxH=80;
+  function infoBox(x, titulo, lineas){
+    doc.setDrawColor(227,232,237); doc.setLineWidth(0.75);
+    doc.roundedRect(x, y, boxW, boxH, 6, 6);
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+    doc.setTextColor(184,134,11);
+    doc.text(String(titulo).toUpperCase(), x+14, y+16);
+    var ty=y+31;
+    lineas.forEach(function(l, i){
+      doc.setFont('helvetica', i===0?'bold':'normal');
+      doc.setFontSize(i===0?10.5:9);
+      if (i===0) doc.setTextColor(22,35,46); else doc.setTextColor(51,66,79);
+      doc.text(String(l||'\u2014'), x+14, ty);
+      ty += i===0?15:12;
+    });
+  }
+  infoBox(M, cpT('t786'), [c.nom, 'NIF: '+(c.nif||'\u2014'), c.dir||'\u2014', c.pob||'\u2014', (c.mail||'')+' \u00b7 '+(c.tel||'')]);
+  infoBox(M+boxW+18, cpT('t787'), ['HIGIENEX S.L.','CIF: B12345678','Carrer de la Ind\u00fastria, 25','46010 Val\u00e8ncia (Val\u00e8ncia)','contacto@higienexvalencia.es']);
+  y += boxH + 20;
+  var body=(f.lineas||[]).map(function(l){
     var p=CP_DB.productos[l.art];
-    var nomProd = l.nom || (p?p.nom:l.art);
-    return '<tr style="background:'+(idx%2?'#F7F9FB':'#fff')+'"><td>'+escHtml(nomProd)+'</td><td class="num">'+CP_NUM(l.cant)+'</td><td class="num">'+CP_EUR(l.precio)+'</td><td class="num strong">'+CP_EUR(l.cant*l.precio)+'</td></tr>';
-  }).join('');
-  var htmlLang = cpLang();
-  var html='<!DOCTYPE html><html lang="'+htmlLang+'"><head><meta charset="UTF-8"><title>'+cpT('t795')+' '+num+' · HIGIENEX S.L.</title>'+
-    '<style>'+
-    '*{box-sizing:border-box;margin:0;padding:0}'+
-    'html{background:#EDEAE2}'+
-    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#fff;font-size:13px;line-height:1.5}'+
-    '.spine{position:fixed;top:0;left:0;bottom:0;width:9px;background:linear-gradient(180deg,#0B3D6B 0%,#0B3D6B 75%,#F2A900 100%)}'+
-    '.sheet{max-width:740px;margin:0 auto;padding:44px 46px 40px 54px}'+
-    '.top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}'+
-    '.brand{font-family:Georgia,\'Times New Roman\',serif;font-size:25px;font-weight:700;color:#0B3D6B}.brand span{color:#F2A900}'+
-    '.brand-sub{font-size:10px;color:#7A8794;margin-top:6px;line-height:1.7}'+
-    '.doc{text-align:right}'+
-    '.doc h1{font-family:Georgia,\'Times New Roman\',serif;font-size:19px;color:#16232E;margin-bottom:5px}'+
-    '.doc .num{font-family:ui-monospace,Consolas,monospace;font-weight:700;font-size:13px;color:#0B3D6B}'+
-    '.pill{display:inline-block;margin-top:8px;font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:4px 12px;border-radius:20px;background:'+estatBg+';color:'+estatColor+'}'+
-    '.divider{height:2px;background:#16232E;margin-bottom:24px}'+
-    '.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:26px}'+
-    '.info-box{border:1px solid #E3E8ED;border-radius:10px;padding:14px 16px}'+
-    '.info-box h3{font-size:9.5px;letter-spacing:.1em;color:#B8860B;font-weight:700;margin-bottom:8px}'+
-    '.info-box p{font-size:12.5px;color:#33424F;line-height:1.75}'+
-    '.info-box p b{display:block;color:#16232E;font-size:13.5px;margin-bottom:2px}'+
-    '.meta-row{display:flex;gap:28px;margin-bottom:24px;font-size:12.5px}'+
-    '.meta-row div b{display:block;font-size:9.5px;letter-spacing:.08em;color:#7A8794;font-weight:700;margin-bottom:3px}'+
-    'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:22px}'+
-    'thead th{background:#0B3D6B;color:#fff;padding:9px 10px;text-align:left;font-size:10.5px;letter-spacing:.04em}'+
-    'tbody td{padding:10px}'+
-    'td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}'+
-    'td.strong{font-weight:700;color:#0B3D6B}'+
-    '.totwrap{display:flex;justify-content:flex-end;margin-bottom:26px}'+
-    '.totbox{width:280px;border:1px solid #E3E8ED;border-radius:10px;overflow:hidden}'+
-    '.totbox .l{display:flex;justify-content:space-between;padding:9px 16px;font-size:12.5px;color:#4A5A6A;border-bottom:1px solid #EDF1F4}'+
-    '.totbox .tot{display:flex;justify-content:space-between;padding:13px 16px;background:#0B3D6B}'+
-    '.totbox .tot span:first-child{color:#BFD4E8;font-size:11px;font-weight:700;letter-spacing:.06em}'+
-    '.totbox .tot span:last-child{color:#fff;font-size:18px;font-weight:700;font-family:Georgia,serif}'+
-    '.pay-info{background:#F7F9FB;border-radius:10px;padding:14px 18px;margin-bottom:22px;font-size:11.5px;color:#4A5A6A}'+
-    '.pay-info b{color:#16232E}'+
-    '.foot{padding-top:14px;border-top:1px solid #E3E8ED;font-size:9.5px;color:#94A3B0;text-align:center}'+
-    '@media print{ .spine{position:absolute} @page{margin:14mm 14mm 14mm 18mm} }'+
-    '</style></head><body>'+
-    '<div class="spine"></div>'+
-    '<div class="sheet">'+
-      '<div class="top">'+
-        '<div><div class="brand">HIGIENE<span>X</span></div>'+
-        '<div class="brand-sub">HIGIENEX S.L. · CIF B12345678<br>Carrer de la Indústria, 25 · 46010 València<br>contacto@higienexvalencia.es · 963 123 456</div></div>'+
-        '<div class="doc"><h1>'+cpT('t795')+'</h1><div class="num">'+escHtml(num)+'</div><div class="pill">'+estatLabel+'</div></div>'+
-      '</div>'+
-      '<div class="divider"></div>'+
-      '<div class="meta-row">'+
-        '<div><b>'+cpT('t799')+'</b>'+CP_FD(f.fecha)+'</div>'+
-        '<div><b>'+cpT('t800')+'</b>'+CP_FD(f.venc)+'</div>'+
-        '<div><b>'+cpT('t801')+'</b>'+cpT('t802')+'</div>'+
-      '</div>'+
-      '<div class="info-grid">'+
-        '<div class="info-box"><h3>'+cpT('t786')+'</h3><p><b>'+escHtml(c.nom)+'</b>NIF: '+escHtml(c.nif||'—')+'<br>'+escHtml(c.dir||'—')+'<br>'+escHtml(c.pob||'—')+'<br>'+escHtml(c.mail||'')+' · '+escHtml(c.tel||'')+'</p></div>'+
-        '<div class="info-box"><h3>'+cpT('t787')+'</h3><p><b>HIGIENEX S.L.</b>CIF: B12345678<br>Carrer de la Indústria, 25<br>46010 València (València)<br>contacto@higienexvalencia.es · 963 123 456</p></div>'+
-      '</div>'+
-      '<table><thead><tr><th>'+cpT('t788')+'</th><th class="num">'+cpT('t789')+'</th><th class="num">'+cpT('t790')+'</th><th class="num">'+cpT('t791')+'</th></tr></thead><tbody>'+filas+'</tbody></table>'+
-      '<div class="totwrap"><div class="totbox">'+
-        '<div class="l"><span>'+cpT('t792')+'</span><span>'+CP_EUR(f.base)+'</span></div>'+
-        '<div class="l"><span>'+cpT('t793')+'</span><span>'+CP_EUR(f.cuota)+'</span></div>'+
-        '<div class="tot"><span>'+cpT('t794').toUpperCase()+'</span><span>'+CP_EUR(f.total)+'</span></div>'+
-      '</div></div>'+
-      '<div class="pay-info"><b>'+cpT('t803')+'</b> ES21 2100 4455 6612 3456 7890 (CaixaBank) — '+cpT('t804')+'</div>'+
-      '<div class="foot">HIGIENEX S.L. · '+cpT('t805')+' · '+new Date().toLocaleString(htmlLang)+'</div>'+
-    '</div>'+
-    '</body></html>';
-  cpOpenOrDownloadHtml(html, 'factura-'+num+'.html');
+    var nomProd=l.nom || (p?p.nom:l.art);
+    return [nomProd, CP_NUM(l.cant), CP_EUR(l.precio), CP_EUR(l.cant*l.precio)];
+  });
+  doc.autoTable({
+    startY:y,
+    head:[[cpT('t788'), cpT('t789'), cpT('t790'), cpT('t791')]],
+    body: body,
+    theme:'plain',
+    margin:{left:M, right:M},
+    styles:{font:'helvetica', fontSize:9, textColor:[22,35,46], lineColor:[237,241,244], lineWidth:0.4, cellPadding:{top:6,bottom:6,left:8,right:8}},
+    headStyles:{fillColor:[11,61,107], textColor:255, fontStyle:'bold', fontSize:8, halign:'left'},
+    alternateRowStyles:{fillColor:[247,249,251]},
+    columnStyles:{0:{cellWidth:'auto'},1:{cellWidth:56,halign:'right'},2:{cellWidth:68,halign:'right'},3:{cellWidth:78,halign:'right',fontStyle:'bold',textColor:[11,61,107]}}
+  });
+  y = doc.lastAutoTable.finalY + 20;
+  if (y > H - 170) { doc.addPage(); y = 46; }
+  var totW=220, totX=W-M-totW;
+  doc.setDrawColor(227,232,237); doc.setLineWidth(0.75);
+  doc.roundedRect(totX, y, totW, 76, 8, 8);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+  doc.setTextColor(74,90,106);
+  doc.text(cpT('t792'), totX+14, y+18);
+  doc.text(CP_EUR(f.base), totX+totW-14, y+18, {align:'right'});
+  doc.text(cpT('t793'), totX+14, y+34);
+  doc.text(CP_EUR(f.cuota), totX+totW-14, y+34, {align:'right'});
+  doc.setFillColor(11,61,107);
+  doc.rect(totX, y+44, totW, 32, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.setTextColor(191,212,232);
+  doc.text(String(cpT('t794')).toUpperCase(), totX+14, y+64);
+  doc.setFont('times','bold'); doc.setFontSize(15);
+  doc.setTextColor(255,255,255);
+  doc.text(CP_EUR(f.total), totX+totW-14, y+64, {align:'right'});
+  y += 76 + 20;
+  var payTxt = cpT('t803')+' ES21 2100 4455 6612 3456 7890 (CaixaBank) \u2014 '+cpT('t804');
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  var payLines = doc.splitTextToSize(payTxt, W-2*M-28);
+  var payH = payLines.length*11+16;
+  doc.setFillColor(247,249,251);
+  doc.roundedRect(M, y, W-2*M, payH, 6, 6, 'F');
+  doc.setTextColor(22,35,46);
+  doc.text(payLines, M+14, y+16);
+  y += payH + 16;
+  doc.setDrawColor(227,232,237); doc.setLineWidth(0.5);
+  doc.line(M, y, W-M, y);
+  y += 12;
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+  doc.setTextColor(148,163,176);
+  doc.text('HIGIENEX S.L. \u00b7 '+cpT('t805')+' \u00b7 '+new Date().toLocaleString(cpLang()), W/2, y, {align:'center'});
+  doc.save('factura-'+num+'.pdf');
 }
 window.cpDescarregarFactura=cpDescarregarFactura;
+
 
 function cpFidelitzacioHTML(){
   var fac=CP_DB.facturas;
@@ -5964,41 +6054,68 @@ function cpDescarregarCertificatImpacte(){
   var d = hxCalcularImpacteCliente();
   var c = CP_DB.cliente;
   var data = new Date().toLocaleDateString('ca-ES', {year:'numeric', month:'long', day:'numeric'});
-  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Certificat d\'impacte ambiental · HIGIENEX</title>'+
-    '<style>'+
-    '*{box-sizing:border-box;margin:0;padding:0}'+
-    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#EDEAE2;padding:40px 20px}'+
-    '.sheet{max-width:680px;margin:0 auto;background:#fff;border-radius:18px;padding:50px 46px;border-top:8px solid #2E7D32;box-shadow:0 20px 60px rgba(0,0,0,0.12);}'+
-    '.brand{font-family:Georgia,serif;font-size:26px;font-weight:700;color:#0B3D6B;text-align:center;}'+
-    '.brand span{color:#F2A900;}'+
-    '.eyebrow{text-align:center;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#2E7D32;font-weight:700;margin-top:18px;}'+
-    'h1{text-align:center;font-family:Georgia,serif;font-size:24px;color:#16232E;margin-top:8px;}'+
-    '.for{text-align:center;font-size:15px;color:#555;margin-top:6px;}'+
-    '.stats{display:flex;justify-content:center;gap:28px;margin:36px 0;flex-wrap:wrap;}'+
-    '.stat{text-align:center;}'+
-    '.stat b{display:block;font-size:30px;color:#2E7D32;font-family:Georgia,serif;}'+
-    '.stat span{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.05em;}'+
-    '.note{font-size:12px;color:#999;text-align:center;margin-top:30px;line-height:1.6;}'+
-    '.foot{margin-top:40px;padding-top:20px;border-top:1px solid #eee;text-align:center;font-size:11px;color:#aaa;}'+
-    '@media print{body{background:#fff;padding:0} .sheet{box-shadow:none;border-radius:0}}'+
-    '</style></head><body>'+
-    '<div class="sheet">'+
-      '<div class="brand">HIGIENE<span>X</span></div>'+
-      '<div class="eyebrow">Certificat d\'impacte ambiental</div>'+
-      '<h1>Gràcies per triar HIGIENEX ECO</h1>'+
-      '<p class="for">Emès per a <strong>'+escHtml(c.nom)+'</strong> · '+data+'</p>'+
-      '<div class="stats">'+
-        '<div class="stat"><b>'+d.envasosEvitats.toLocaleString('ca-ES')+'</b><span>Envasos evitats</span></div>'+
-        '<div class="stat"><b>'+d.kgPlasticEvitat.toLocaleString('ca-ES',{maximumFractionDigits:1})+' kg</b><span>Plàstic evitat</span></div>'+
-        '<div class="stat"><b>'+d.kgCo2Evitat.toLocaleString('ca-ES',{maximumFractionDigits:1})+' kg</b><span>CO₂ evitat (est.)</span></div>'+
-      '</div>'+
-      '<p class="note">Càlcul basat en l\'historial real de comandes de productes concentrats HIGIENEX enfront de l\'equivalent en producte ja diluït. Xifres orientatives amb finalitat informativa i de comunicació de sostenibilitat.</p>'+
-      '<div class="foot">HIGIENEX S.L. · Carrer de la Indústria, 25 · 46010 València · higienexvalencia.es</div>'+
-    '</div>'+
-    '</body></html>';
-  cpOpenOrDownloadHtml(html, 'certificat-impacte-higienex.html');
+  if (typeof window.jspdf === 'undefined') { showToast('No se ha podido cargar el generador de PDF.', '⚠️'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt', format:'a4'});
+  var W=595.28, H=841.89, cx=W/2;
+  doc.setFillColor(237,234,226); doc.rect(0,0,W,H,'F');
+  var sheetX=58, sheetY=64, sheetW=W-116, sheetH=470;
+  doc.setFillColor(255,255,255);
+  doc.roundedRect(sheetX, sheetY, sheetW, sheetH, 14, 14, 'F');
+  doc.setFillColor(46,125,50);
+  doc.rect(sheetX, sheetY, sheetW, 6, 'F');
+  var y = sheetY+58;
+  doc.setFont('times','bold'); doc.setFontSize(22);
+  doc.setTextColor(11,61,107);
+  var wH=doc.getTextWidth('HIGIENE');
+  doc.text('HIGIENE', cx-wH/2, y);
+  doc.setTextColor(242,169,0);
+  doc.text('X', cx-wH/2+wH, y);
+  y += 26;
+  doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
+  doc.setTextColor(46,125,50);
+  doc.text('CERTIFICAT D\'IMPACTE AMBIENTAL', cx, y, {align:'center', charSpace:0.6});
+  y += 22;
+  doc.setFont('times','bold'); doc.setFontSize(19);
+  doc.setTextColor(22,35,46);
+  doc.text('Gr\u00e0cies per triar HIGIENEX ECO', cx, y, {align:'center'});
+  y += 20;
+  doc.setFont('helvetica','normal'); doc.setFontSize(11);
+  doc.setTextColor(85,85,85);
+  doc.text('Em\u00e8s per a '+c.nom+' \u00b7 '+data, cx, y, {align:'center'});
+  y += 44;
+  var stats = [
+    [d.envasosEvitats.toLocaleString('ca-ES'), 'ENVASOS EVITATS'],
+    [d.kgPlasticEvitat.toLocaleString('ca-ES',{maximumFractionDigits:1})+' kg', 'PL\u00c0STIC EVITAT'],
+    [d.kgCo2Evitat.toLocaleString('ca-ES',{maximumFractionDigits:1})+' kg', 'CO2 EVITAT (EST.)']
+  ];
+  var statW=140;
+  var startX = cx - (statW*3)/2;
+  stats.forEach(function(s, i){
+    var sx = startX + i*statW + statW/2;
+    doc.setFont('times','bold'); doc.setFontSize(27);
+    doc.setTextColor(46,125,50);
+    doc.text(s[0], sx, y, {align:'center'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(8);
+    doc.setTextColor(136,136,136);
+    doc.text(s[1], sx, y+18, {align:'center'});
+  });
+  y += 56;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(153,153,153);
+  var noteLines = doc.splitTextToSize('C\u00e0lcul basat en l\'historial real de comandes de productes concentrats HIGIENEX enfront de l\'equivalent en producte ja dilu\u00eft. Xifres orientatives amb finalitat informativa i de comunicaci\u00f3 de sostenibilitat.', sheetW-100);
+  doc.text(noteLines, cx, y, {align:'center'});
+  y += noteLines.length*12 + 26;
+  doc.setDrawColor(238,238,238); doc.setLineWidth(0.75);
+  doc.line(sheetX+40, y, sheetX+sheetW-40, y);
+  y += 18;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.setTextColor(170,170,170);
+  doc.text('HIGIENEX S.L. \u00b7 Carrer de la Ind\u00fastria, 25 \u00b7 46010 Val\u00e8ncia \u00b7 higienexvalencia.es', cx, y, {align:'center'});
+  doc.save('certificat-impacte-higienex.pdf');
 }
 window.cpDescarregarCertificatImpacte = cpDescarregarCertificatImpacte;
+
 
 // ── Programa de referits entre empreses ──
 function hxCodiReferit() {

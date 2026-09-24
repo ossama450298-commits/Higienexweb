@@ -10138,7 +10138,7 @@ function renderDiarioOficial(doc, y, asientosSrc){
     head:[['N\u00ba','Fecha','Cuenta','Denominaci\u00f3n','Debe','Haber']],
     body: body,
     foot:[['','','','TOTAL LIBRO DIARIO ('+asientos.length+' asientos)',NUM(td),NUM(th)]],
-    columnStyles:{0:{cellWidth:20,halign:'center'},1:{cellWidth:48},2:{cellWidth:42},3:{cellWidth:'auto'},4:{cellWidth:58,halign:'right'},5:{cellWidth:58,halign:'right'}}
+    columnStyles:{0:{cellWidth:20,halign:'center'},1:{cellWidth:62},2:{cellWidth:38},3:{cellWidth:'auto'},4:{cellWidth:56,halign:'right'},5:{cellWidth:56,halign:'right'}}
   }));
 }
 function renderMayorOficial(doc, y, asientosSrc, saldosSrc){
@@ -10164,7 +10164,7 @@ function renderMayorOficial(doc, y, asientosSrc, saldosSrc){
       startY:y,
       head:[['Fecha','Concepto','Debe','Haber','Saldo']],
       body: rows,
-      columnStyles:{0:{cellWidth:56},1:{cellWidth:'auto'},2:{cellWidth:62,halign:'right'},3:{cellWidth:62,halign:'right'},4:{cellWidth:62,halign:'right'}}
+      columnStyles:{0:{cellWidth:62},1:{cellWidth:'auto'},2:{cellWidth:58,halign:'right'},3:{cellWidth:58,halign:'right'},4:{cellWidth:60,halign:'right'}}
     }));
     y = doc.lastAutoTable.finalY + 14;
   });
