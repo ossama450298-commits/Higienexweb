@@ -22,6 +22,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
+<script src="jspdf.umd.min.js" defer></script>
+<script src="html2canvas.min.js" defer></script>
 <style>
 /* ==========================================================================
    HIGIENEX — Sistema de diseño 2026
@@ -5112,12 +5114,62 @@ function verFacturaE(num){
 }
 
 /* ---------- Documento imprimible / descargable de la factura ---------- */
-function abrirImprimible(titulo, html){
+function descargarPDFDirecto(filename, htmlDoc, opts){
+  opts = opts || {};
+  if (typeof window.jspdf === 'undefined' || typeof window.html2canvas === 'undefined') {
+    abrirImprimibleFallback(filename.replace(/\.pdf$/i, ''), htmlDoc);
+    return;
+  }
+  var iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;left:-99999px;top:0;width:900px;height:1200px;border:0;opacity:0;';
+  document.body.appendChild(iframe);
+  iframe.onload = function(){
+    setTimeout(function(){
+      try{
+        var doc0 = iframe.contentDocument;
+        var body = doc0.body;
+        var alturaReal = Math.max(body.scrollHeight, doc0.documentElement.scrollHeight);
+        iframe.style.height = alturaReal + 'px';
+        var jsPDF = window.jspdf.jsPDF;
+        var pdf = new jsPDF({unit:'pt', format:'a4'});
+        pdf.html(body, {
+          callback: function(pdf){
+            if (opts.piePagina) {
+              var total = pdf.internal.getNumberOfPages();
+              for (var i=1; i<=total; i++){
+                pdf.setPage(i);
+                pdf.setFontSize(7.5);
+                pdf.setTextColor(154,166,177);
+                pdf.text(opts.piePagina + ' · Página ' + i + ' de ' + total, 297.64, 828, {align:'center'});
+              }
+            }
+            pdf.save(filename);
+            document.body.removeChild(iframe);
+          },
+          x:0, y:0,
+          width:595.28,
+          windowWidth:900,
+          autoPaging:'text',
+          html2canvas:{scale:595.28/900, useCORS:true, backgroundColor:'#ffffff', windowWidth:900, height:alturaReal, windowHeight:alturaReal}
+        });
+      }catch(e){
+        console.warn('No se ha podido generar el PDF directo, usando alternativa:', e);
+        document.body.removeChild(iframe);
+        abrirImprimibleFallback(filename.replace(/\.pdf$/i, ''), htmlDoc);
+      }
+    }, 60);
+  };
+  iframe.srcdoc = htmlDoc;
+}
+function abrirImprimibleFallback(titulo, html){
   const w = window.open('', '_blank');
-  if(!w){ toast('El navegador ha bloqueado la ventana emergente. Permite las ventanas emergentes para descargar la factura.'); return; }
+  if(!w){ toast('El navegador ha bloqueado la ventana emergente. Permite las ventanas emergentes para descargar el documento.'); return; }
   w.document.open(); w.document.write(html); w.document.close();
   w.focus();
   setTimeout(()=>{ try{ w.print(); }catch(e){} }, 350);
+}
+function abrirImprimible(titulo, html){
+  descargarPDFDirecto(titulo.replace(/\s+/g,'_')+'.pdf', html, {piePagina:'HIGIENEX S.L. · '+titulo});
 }
 function htmlFacturaE(num){
   const f=DB.facturasE.find(x=>x.num===num), c=cli(f.cli);
@@ -9923,8 +9975,6 @@ function abrirDocumentoOficial(titulo, cuerpo, opts){
   opts = opts || {};
   const ejercicio = opts.ejercicio || EJERCICIO;
   const cerrado = !!opts.cerrado;
-  const w = window.open('', '_blank');
-  if(!w){ toast('El navegador ha bloqueado la ventana. Permite las ventanas emergentes para descargar el PDF.'); return; }
   const ahora = new Date();
   const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+esc(titulo)+' · HIGIENEX S.L.</title>'+
     '<style>'+
@@ -9966,7 +10016,7 @@ function abrirDocumentoOficial(titulo, cuerpo, opts){
     '.seal{position:absolute;bottom:10mm;right:14mm;font-family:Georgia,serif;font-size:10px;color:#0B3D6B;font-weight:700;text-align:right}'+
     '.seal small{display:block;font-family:-apple-system,Arial,sans-serif;font-weight:400;color:#94A3B0;font-size:8.5px;margin-top:2px}'+
     'tr{page-break-inside:avoid}.rec{page-break-inside:avoid}'+
-    '@page{margin:16mm 14mm 20mm;@bottom-center{content:"HIGIENEX S.L. · '+esc(titulo).replace(/"/g,'\\"')+' · Página " counter(page) " de " counter(pages);font-size:8.5px;color:#9AA6B1;font-family:Arial,sans-serif;}}'+
+    '@page{margin:16mm 14mm 20mm}'+
     '@media print{ html,body{background:#fff} .sheet{padding:0} .watermark{font-size:340px} }'+
     '</style></head><body>'+
     '<div class="sheet">' +
@@ -9985,9 +10035,7 @@ function abrirDocumentoOficial(titulo, cuerpo, opts){
     '<div class="footlegal">HIGIENEX S.L. — Documento generado por el sistema de gestión interna. La responsabilidad sobre la exactitud de los datos contables corresponde al órgano de administración de la sociedad (art. 253 LSC).</div>'+
     '</div>'+
     '</body></html>';
-  w.document.open(); w.document.write(html); w.document.close();
-  w.focus();
-  setTimeout(()=>{ try{ w.print(); }catch(e){} }, 350);
+  descargarPDFDirecto(titulo.replace(/\s+/g,'_')+'.pdf', html, {piePagina:'HIGIENEX S.L. · '+titulo});
 }
 function abrirPDFOficial(titulo, cuerpo){ abrirDocumentoOficial(titulo, cuerpo, {ejercicio:EJERCICIO, cerrado:false}); }
 

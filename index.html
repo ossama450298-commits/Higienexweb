@@ -1978,6 +1978,8 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-web.png">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+<script src="jspdf.umd.min.js" defer></script>
+<script src="html2canvas.min.js" defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -5658,24 +5660,7 @@ function cpCloseModal(){ var wrap=document.getElementById('cpModalWrap'); if(wra
 window.cpCloseModal=cpCloseModal;
 
 function cpOpenOrDownloadHtml(html, filename){
-  var w = window.open('', '_blank');
-  if (w) {
-    w.document.open(); w.document.write(html); w.document.close(); w.focus();
-    setTimeout(function(){ try{ w.print(); }catch(e){} }, 350);
-    return;
-  }
-  // Finestra bloquejada (típic a Safari/iOS): descarreguem l'arxiu directament.
-  try {
-    var blob = new Blob([html], {type: 'text/html'});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
-    showToast('Descarregat. Obre l\'arxiu per veure\'l o imprimir-lo.', '⬇️');
-  } catch(e) {
-    alert(cpT('t806'));
-  }
+  descargarPDFDirecto(filename.replace(/\.html?$/i, '') + '.pdf', html);
 }
 
 function cpDescarregarExtracte(){
@@ -8810,12 +8795,60 @@ function renderCart() {
 // finestra nova amb l'HTML de la comanda i es llança el diàleg
 // d'impressió del navegador — triant "Desar com a PDF" el client obté
 // el PDF descarregat, sense dependre de cap llibreria externa.
-function abrirImprimibleComanda(titol, html) {
+function descargarPDFDirecto(filename, htmlDoc, onDone) {
+  if (typeof window.jspdf === 'undefined' || typeof window.html2canvas === 'undefined') {
+    // Les llibreries encara no han carregat (o han fallat): usem el mètode
+    // d'impressió del navegador com a alternativa fiable.
+    abrirImprimibleFallback(filename.replace(/\.pdf$/i, ''), htmlDoc);
+    if (onDone) onDone();
+    return;
+  }
+  var iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;left:-99999px;top:0;width:900px;height:1200px;border:0;opacity:0;';
+  document.body.appendChild(iframe);
+  iframe.onload = function () {
+    setTimeout(function () {
+      try {
+        var doc0 = iframe.contentDocument;
+        var body = doc0.body;
+        var alturaReal = Math.max(body.scrollHeight, doc0.documentElement.scrollHeight);
+        iframe.style.height = alturaReal + 'px';
+        var jsPDF = window.jspdf.jsPDF;
+        var doc = new jsPDF({ unit: 'pt', format: 'a4' });
+        doc.html(body, {
+          callback: function (doc) {
+            doc.save(filename);
+            document.body.removeChild(iframe);
+            if (onDone) onDone();
+          },
+          x: 0, y: 0,
+          width: 595.28,
+          windowWidth: 900,
+          autoPaging: 'text',
+          html2canvas: { scale: 595.28 / 900, useCORS: true, backgroundColor: '#ffffff', windowWidth: 900, height: alturaReal, windowHeight: alturaReal }
+        });
+      } catch (e) {
+        console.warn('No s\'ha pogut generar el PDF directe, usant alternativa:', e);
+        document.body.removeChild(iframe);
+        abrirImprimibleFallback(filename.replace(/\.pdf$/i, ''), htmlDoc);
+        if (onDone) onDone();
+      }
+    }, 60);
+  };
+  iframe.srcdoc = htmlDoc;
+}
+window.descargarPDFDirecto = descargarPDFDirecto;
+
+function abrirImprimibleFallback(titol, html) {
   var w = window.open('', '_blank');
-  if (!w) { alert('El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per descarregar la comanda.'); return; }
+  if (!w) { alert('El navegador ha bloquejat la finestra emergent. Permet les finestres emergents per descarregar el document.'); return; }
   w.document.open(); w.document.write(html); w.document.close();
   w.focus();
   setTimeout(function(){ try { w.print(); } catch(e){} }, 350);
+}
+
+function abrirImprimibleComanda(titol, html) {
+  descargarPDFDirecto(titol.replace(/\s+/g, '_') + '.pdf', html);
 }
 
 function htmlComanda(inv, items, clientInfo) {
