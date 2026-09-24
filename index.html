@@ -1961,6 +1961,10 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 .hx-u59 { width:100%;padding:0.7rem;border:1.5px solid #E0E0E0;border-radius:10px;font-size:0.88rem;font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial,sans-serif;box-sizing:border-box; }
 .hx-u60 { font-size:0.75rem;color:#888; }
 .hx-u61 { background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65; }
+@media (max-width:880px){
+  #pressupostGrid{grid-template-columns:1fr !important;}
+  #pressupostGrid > div:last-child{position:static !important;}
+}
 </style>
 
 
@@ -3090,6 +3094,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
       <a class="dditem" onclick="navTo('safestock')"><span>🧪</span> <span data-i18n-key="t1021">HIGIENEX SafeStock</span></a>
       <a class="dditem" onclick="navTo('compromis')"><span data-i18n-key="t179">♻️ Compromís i Mercat</span></a>
       <a class="dditem hx-premium-dditem" onclick="navTo('premium')"><svg class="hx-premium-badge" viewBox="0 0 40 40" aria-hidden="true"><use href="#hxPremiumBadge"></use></svg><span data-i18n-key="t941">HIGIENEX Premium</span></a>
+      <a class="dditem" onclick="navTo('pressupost')"><span>📋 Fes un Pressupost</span></a>
       <a class="dditem" onclick="navTo('newsletter')"><span data-i18n-key="t180">📰 Newsletter</span></a>
       <a class="dditem" onclick="navTo('contacte')"><span data-i18n-key="t181">📞 Ajuda i Contacte</span></a>
       <a class="dditem" id="navClientDditem" onclick="cpNavAction();return false;"><span id="navClientDditemLabel">👤 Àrea de Clients</span></a>
@@ -4441,6 +4446,43 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 </section>
 
 <!-- ═══════════════════════════════════════
+     PRESSUPOSTADOR INTERACTIU
+     ═══════════════════════════════════════ -->
+<section id="pressupost" style="background:linear-gradient(180deg,#fff 0%,var(--warm-white) 100%);">
+  <div class="container">
+    <span class="section-tag">📋 Eina interactiva</span>
+    <h2>Genera el teu pressupost a l'instant</h2>
+    <p class="section-sub">Tria els productes i les quantitats que necessites. El pressupost es calcula en temps real, amb els descomptes per volum i l'IVA ja aplicats, llest per descarregar en PDF o rebre per email.</p>
+
+    <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:2rem;margin-top:2.2rem;align-items:flex-start;" id="pressupostGrid">
+      <div style="background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;">
+        <div id="pressupostLines"></div>
+      </div>
+
+      <div style="position:sticky;top:96px;background:var(--green-deep);border-radius:18px;box-shadow:var(--shadow-lg);padding:1.8rem;color:#fff;">
+        <div style="font-family:Georgia,'Times New Roman',serif;font-size:1.15rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">📋 Resum del pressupost</div>
+        <div id="pressupostResum" style="font-size:0.92rem;"></div>
+
+        <div style="margin-top:1.4rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,0.18);">
+          <label style="display:block;font-size:0.74rem;letter-spacing:0.05em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:0.3rem;">Empresa</label>
+          <input id="presEmpresa" type="text" placeholder="Nom de la teva empresa" style="width:100%;padding:0.6rem 0.7rem;border-radius:9px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);color:#fff;font-size:0.88rem;margin-bottom:0.7rem;">
+          <label style="display:block;font-size:0.74rem;letter-spacing:0.05em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:0.3rem;">CIF/NIF</label>
+          <input id="presCif" type="text" placeholder="B12345678" style="width:100%;padding:0.6rem 0.7rem;border-radius:9px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);color:#fff;font-size:0.88rem;margin-bottom:0.7rem;">
+          <label style="display:block;font-size:0.74rem;letter-spacing:0.05em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:0.3rem;">Persona de contacte</label>
+          <input id="presContacte" type="text" placeholder="Nom i cognoms" style="width:100%;padding:0.6rem 0.7rem;border-radius:9px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);color:#fff;font-size:0.88rem;margin-bottom:0.7rem;">
+          <label style="display:block;font-size:0.74rem;letter-spacing:0.05em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:0.3rem;">Email</label>
+          <input id="presEmail" type="email" placeholder="tu@empresa.com" style="width:100%;padding:0.6rem 0.7rem;border-radius:9px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.08);color:#fff;font-size:0.88rem;">
+        </div>
+
+        <button type="button" onclick="descarregarPressupostPDF()" style="width:100%;margin-top:1.3rem;padding:0.8rem;border:none;border-radius:11px;background:var(--accent);color:var(--charcoal);font-weight:700;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;">📄 Descarregar pressupost (PDF)</button>
+        <button type="button" onclick="enviarPressupostEmail()" id="presEnviarBtn" style="width:100%;margin-top:0.6rem;padding:0.75rem;border:1.5px solid rgba(255,255,255,0.3);border-radius:11px;background:transparent;color:#fff;font-weight:700;font-size:0.88rem;cursor:pointer;">✉️ Enviar-me'l per email</button>
+        <p style="font-size:0.7rem;color:rgba(255,255,255,0.5);margin-top:0.9rem;text-align:center;">Pressupost sense compromís, vàlid durant 30 dies.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════
      SOL·LICITUD D'AUDITORIA D'HIGIENE GRATUÏTA
      ═══════════════════════════════════════ -->
 <section id="auditoria" style="background:var(--warm-white);">
@@ -4741,6 +4783,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
       <li><a href="#" onclick="navTo('fidelitzacio');return false;">Programa de Fidelització</a></li>
       <li><a href="#" onclick="navTo('safestock');return false;" data-i18n-key="t1021">HIGIENEX SafeStock</a></li>
       <li><a href="#" onclick="navTo('garanties');return false;">Garanties i Devolucions</a></li>
+      <li><a href="#" onclick="navTo('pressupost');return false;">📋 Fes un Pressupost</a></li>
     </ul></div>
     <div><h4 data-i18n-key="t163">Contacte</h4><ul>
       <li data-i18n-key="t328">📍 Carrer de la Indústria, 25<br><span style="padding-left:1.3rem;font-size:0.78rem;" data-i18n-key="t572">46010 València</span></li>
@@ -6322,7 +6365,7 @@ function navTo(id) {
     productes:'productes', rd:'productes', innovacio:'productes', digitalitzacio:'productes', futur:'productes',
     processos:'operacions', logistica:'operacions', internacionalitzacio:'operacions',
     sostenibilitat:'compromis', rsc:'compromis', clients:'compromis', marqueting:'compromis', competencia:'compromis', blog:'compromis',
-    faq:'contacte', contacte:'contacte', fidelitzacio:'contacte', premium:'contacte', garanties:'contacte'
+    faq:'contacte', contacte:'contacte', fidelitzacio:'contacte', premium:'contacte', garanties:'contacte', pressupost:'contacte', auditoria:'contacte'
   };
   var g = GROUP_OF[id];
   if (g) {
@@ -8476,6 +8519,243 @@ function addToCart(name, price, btn) {
 window.addToCart = addToCart;
 var TRANSPORT = 5.00;
 var IVA_PCT  = 0.21;
+
+// ── PRESSUPOSTADOR INTERACTIU ──────────────────────────────
+var PRESSUPOST_QTY = {};
+
+function pressupostChangeQty(name, delta) {
+  var current = PRESSUPOST_QTY[name] || 0;
+  var next = Math.max(0, current + delta);
+  PRESSUPOST_QTY[name] = next;
+  renderPressupost();
+}
+window.pressupostChangeQty = pressupostChangeQty;
+
+function pressupostSetQty(name, input) {
+  var v = parseInt(input.value, 10);
+  if (isNaN(v) || v < 0) v = 0;
+  PRESSUPOST_QTY[name] = v;
+  renderPressupost();
+}
+window.pressupostSetQty = pressupostSetQty;
+
+function pressupostItems() {
+  if (typeof PRODUCTS === 'undefined') return [];
+  return PRODUCTS.filter(function(p){ return (PRESSUPOST_QTY[p.name] || 0) > 0; }).map(function(p){
+    var qty = PRESSUPOST_QTY[p.name];
+    var rate = volumeDiscountRate(qty);
+    var rawTotal = p.price * qty;
+    var total = rawTotal * (1 - rate);
+    return { name: p.name, unit: p.unit, qty: qty, price: p.price, discountRate: rate, rawTotal: rawTotal, total: total };
+  });
+}
+
+function renderPressupostLines() {
+  var box = document.getElementById('pressupostLines');
+  if (!box || typeof PRODUCTS === 'undefined') return;
+  box.innerHTML = PRODUCTS.map(function(p, idx) {
+    var qty = PRESSUPOST_QTY[p.name] || 0;
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.1rem 1.4rem;' + (idx > 0 ? 'border-top:1px solid var(--border);' : '') + '">' +
+      '<div style="min-width:0;"><div style="font-weight:700;color:var(--green-deep);font-size:0.95rem;">' + escHtml(p.name) + '</div>' +
+      '<div style="font-size:0.8rem;color:#7A8B9C;margin-top:0.15rem;">' + p.price.toFixed(2).replace('.', ',') + ' € / ' + escHtml(p.unit) + '</div></div>' +
+      '<div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">' +
+      '<button type="button" onclick="pressupostChangeQty(\'' + escHtml(p.name).replace(/'/g, "\\'") + '\',-1)" aria-label="Disminuir" style="width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:#fff;color:var(--green-deep);font-weight:700;cursor:pointer;">−</button>' +
+      '<input type="number" min="0" step="1" value="' + qty + '" oninput="pressupostSetQty(\'' + escHtml(p.name).replace(/'/g, "\\'") + '\',this)" style="width:46px;text-align:center;border:1.5px solid var(--border);border-radius:8px;padding:0.35rem 0.2rem;font-weight:700;color:var(--green-deep);">' +
+      '<button type="button" onclick="pressupostChangeQty(\'' + escHtml(p.name).replace(/'/g, "\\'") + '\',1)" aria-label="Augmentar" style="width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:#fff;color:var(--green-deep);font-weight:700;cursor:pointer;">+</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+function renderPressupostResum() {
+  var box = document.getElementById('pressupostResum');
+  if (!box) return;
+  var items = pressupostItems();
+  if (!items.length) {
+    box.innerHTML = '<p style="color:rgba(255,255,255,0.65);font-size:0.85rem;">Encara no has afegit cap producte. Tria quantitats a l\'esquerra per veure el càlcul.</p>';
+    return;
+  }
+  var subtotal = items.reduce(function(s, i){ return s + i.total; }, 0);
+  var totalDescompte = items.reduce(function(s, i){ return s + (i.rawTotal - i.total); }, 0);
+  var base = subtotal + TRANSPORT;
+  var iva = base * IVA_PCT;
+  var total = base + iva;
+  var linesHTML = items.map(function(i) {
+    return '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;font-size:0.85rem;color:rgba(255,255,255,0.85);">' +
+      '<span>' + i.qty + ' × ' + escHtml(i.name) + '</span><span>' + i.total.toFixed(2) + ' €</span></div>';
+  }).join('');
+  box.innerHTML = linesHTML +
+    '<div style="margin-top:0.6rem;padding-top:0.6rem;border-top:1px dashed rgba(255,255,255,0.25);">' +
+    '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:rgba(255,255,255,0.75);"><span>Subtotal</span><span>' + subtotal.toFixed(2) + ' €</span></div>' +
+    (totalDescompte > 0 ? '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:var(--accent);"><span>Descompte per volum</span><span>-' + totalDescompte.toFixed(2) + ' €</span></div>' : '') +
+    '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:rgba(255,255,255,0.75);"><span>Transport</span><span>' + TRANSPORT.toFixed(2) + ' €</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:rgba(255,255,255,0.75);"><span>IVA (' + Math.round(IVA_PCT*100) + '%)</span><span>' + iva.toFixed(2) + ' €</span></div>' +
+    '</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.7rem;padding:0.8rem 1rem;background:rgba(255,255,255,0.12);border-radius:10px;">' +
+    '<span style="font-size:0.78rem;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;">Total</span>' +
+    '<span style="font-size:1.3rem;font-weight:700;font-family:Georgia,serif;">' + total.toFixed(2) + ' €</span></div>';
+}
+
+function renderPressupost() {
+  renderPressupostLines();
+  renderPressupostResum();
+}
+
+function pressupostInvoiceNum() {
+  var any = new Date().getFullYear();
+  var rand = Math.floor(1000 + Math.random() * 9000);
+  return 'PRE-' + any + '-' + rand;
+}
+
+function htmlPressupost(clientInfo, items) {
+  var subtotal = items.reduce(function(s, i){ return s + i.total; }, 0);
+  var totalDescompte = items.reduce(function(s, i){ return s + (i.rawTotal - i.total); }, 0);
+  var base = subtotal + TRANSPORT;
+  var iva = base * IVA_PCT;
+  var total = base + iva;
+  var num = pressupostInvoiceNum();
+  var ara = new Date();
+  var validesa = new Date(ara.getTime() + 30*24*60*60*1000);
+  var hiHaDescomptes = items.some(function(it){ return it.discountRate > 0; });
+  var filesHTML = items.map(function(it, idx){
+    var descompteCell = hiHaDescomptes
+      ? (it.discountRate > 0 ? '<td class="num"><span class="pill">-' + Math.round(it.discountRate*100) + '%</span></td>' : '<td class="num muted">—</td>')
+      : '';
+    return '<tr class="' + (idx % 2 ? 'alt' : '') + '"><td class="pname">' + escHtml(it.name) + '</td><td class="num">' + it.qty + '</td><td class="num muted">' +
+      it.price.toFixed(2) + ' €</td>' + descompteCell + '<td class="num strong">' + it.total.toFixed(2) + ' €</td></tr>';
+  }).join('');
+  return '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Pressupost ' + escHtml(num) + ' · HIGIENEX S.L.</title>' +
+    '<style>' +
+    '*{box-sizing:border-box;margin:0;padding:0}' +
+    'html{background:#EDEAE2}' +
+    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#FBFAF7;font-size:13px;line-height:1.5;position:relative}' +
+    '.sheet{max-width:760px;margin:0 auto;padding:46px 50px 38px;position:relative;overflow:hidden}' +
+    '.watermark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Georgia,\'Times New Roman\',serif;font-size:520px;font-weight:700;color:#0B3D6B;opacity:0.028;line-height:1;pointer-events:none;z-index:0;user-select:none}' +
+    '.sheet > *:not(.watermark){position:relative;z-index:1}' +
+    '.top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;margin-bottom:6px}' +
+    '.brand{font-size:27px;font-weight:700;color:#0B3D6B;font-family:Georgia,\'Times New Roman\',serif;letter-spacing:.01em}.brand span{color:#F2A900}' +
+    '.brand-sub{font-size:10.5px;color:#64748B;margin-top:7px;line-height:1.65}' +
+    '.doc{text-align:right}' +
+    '.doc .kicker{font-size:10px;letter-spacing:.12em;color:#B8860B;font-weight:700;margin-bottom:3px}' +
+    '.doc h1{font-size:21px;font-weight:700;margin:0 0 6px 0;color:#16232E;font-family:Georgia,\'Times New Roman\',serif}' +
+    '.doc .num{font-size:14px;font-weight:700;font-family:ui-monospace,Consolas,monospace;color:#0B3D6B;background:#EAF1F8;padding:3px 10px;border-radius:20px;display:inline-block}' +
+    '.rule{height:1px;background:linear-gradient(90deg,#0B3D6B 0%,#0B3D6B 60%,#F2A900 100%);margin-bottom:26px}' +
+    '.stamp{margin:12px 0 0 auto;width:86px;height:86px;border:2px solid #B8860B;border-radius:50%;display:flex;align-items:center;justify-content:center;text-align:center;transform:rotate(-10deg)}' +
+    '.stamp .st{font-size:8px;font-weight:800;letter-spacing:.05em;color:#B8860B;line-height:1.3;font-family:Georgia,serif}' +
+    '.meta{display:flex;gap:0;margin-bottom:28px;border:1px solid #E3E8ED;border-radius:10px;overflow:hidden}' +
+    '.box{flex:1;padding:14px 18px;background:#fff}' +
+    '.box + .box{border-left:1px solid #E3E8ED}' +
+    '.box h3{font-size:9.5px;letter-spacing:.1em;color:#B8860B;font-weight:700;margin:0 0 7px 0}' +
+    '.box p{margin:0;line-height:1.65;color:#33424F}' +
+    '.box p strong{color:#16232E}' +
+    'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:22px}' +
+    'thead th{border-bottom:2px solid #16232E;padding:9px 4px;text-align:left;font-size:10px;letter-spacing:.07em;color:#16232E;font-weight:700}' +
+    'tbody td{padding:11px 4px;border-bottom:1px solid #EDF1F4;vertical-align:middle}' +
+    'tbody tr.alt td{background:#FAFBFC}' +
+    'td.pname{font-weight:600;color:#16232E}' +
+    'td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}' +
+    'td.muted{color:#8A9BAC}td.strong{font-weight:700;color:#0B3D6B}' +
+    '.pill{background:#FFF6E0;color:#B8860B;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}' +
+    '.totwrap{display:flex;justify-content:flex-end}' +
+    '.totbox{width:290px}' +
+    '.totbox .l{display:flex;justify-content:space-between;padding:6px 0;font-size:12.5px;color:#4A5A6A}' +
+    '.totbox .l.discount{color:#B8860B;font-weight:600}' +
+    '.totbox .tot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding:14px 16px;background:#0B3D6B;border-radius:10px}' +
+    '.totbox .tot span:first-child{color:#BFD4E8;font-size:11px;letter-spacing:.08em;font-weight:700}' +
+    '.totbox .tot span:last-child{color:#fff;font-size:20px;font-weight:700;font-family:Georgia,serif}' +
+    '.foot{margin-top:34px;padding-top:16px;border-top:1px solid #E3E8ED;display:flex;justify-content:space-between;align-items:flex-end;gap:20px}' +
+    '.foot p{font-size:9.5px;color:#94A3B0;line-height:1.6;max-width:440px}' +
+    '.foot .seal{font-family:Georgia,serif;font-size:11px;color:#0B3D6B;font-weight:700;text-align:right;white-space:nowrap}' +
+    '.foot .seal small{display:block;font-family:-apple-system,Arial,sans-serif;font-weight:400;color:#94A3B0;font-size:9px;letter-spacing:.04em;margin-top:2px}' +
+    'thead{display:table-header-group}tr{page-break-inside:avoid}.box{page-break-inside:avoid}.totwrap{page-break-inside:avoid}.foot{page-break-inside:avoid}' +
+    '@media print{ html,body{background:#fff;font-size:12px} .sheet{padding:6px 2px} .watermark{font-size:440px} .top{padding-bottom:14px} .meta{margin-bottom:18px} table{margin-bottom:14px} tbody td{padding:7px 4px} .box{padding:10px 14px} .rule{margin-bottom:16px} .foot{margin-top:20px;padding-top:10px} @page{margin:12mm} }' +
+    '</style></head><body>' +
+    '<div class="sheet">' +
+    '<div class="watermark">X</div>' +
+    '<div class="top">' +
+      '<div><div class="brand">HIGIENE<span>X</span></div>' +
+      '<div class="brand-sub">HIGIENEX S.L. · CIF B12345678<br>Carrer de la Indústria, 25, 46010 València<br>contacto@higienexvalencia.es · 963 123 456</div></div>' +
+      '<div class="doc"><div class="kicker">PRESSUPOST SENSE COMPROMÍS</div><h1>Pressupost</h1><div class="num">' + escHtml(num) + '</div><div class="stamp"><div class="st">VÀLID FINS<br>' + validesa.toLocaleDateString('ca-ES') + '</div></div></div>' +
+    '</div>' +
+    '<div class="rule"></div>' +
+    '<div class="meta">' +
+      '<div class="box"><h3>CLIENT</h3><p><strong>' + escHtml(clientInfo.empresa || 'Client') + '</strong>' +
+        (clientInfo.cif ? ('<br>CIF/NIF: ' + escHtml(clientInfo.cif)) : '') +
+        (clientInfo.contacte ? ('<br>' + escHtml(clientInfo.contacte)) : '') +
+        (clientInfo.email ? ('<br>' + escHtml(clientInfo.email)) : '') + '</p></div>' +
+      '<div class="box"><h3>DETALLS</h3><p>Data d\'emissió: <strong>' + ara.toLocaleDateString('ca-ES') + '</strong><br>Vàlid durant: <strong>30 dies</strong></p></div>' +
+    '</div>' +
+    '<table><thead><tr><th>PRODUCTE</th><th class="num">UDS.</th><th class="num">PREU/UT.</th>' + (hiHaDescomptes ? '<th class="num">DESCOMPTE</th>' : '') + '<th class="num">IMPORT</th></tr></thead><tbody>' + filesHTML + '</tbody></table>' +
+    '<div class="totwrap"><div class="totbox">' +
+    '<div class="l"><span>Subtotal productes</span><span>' + subtotal.toFixed(2) + ' €</span></div>' +
+    (totalDescompte > 0 ? ('<div class="l discount"><span>Descomptes per volum</span><span>-' + totalDescompte.toFixed(2) + ' €</span></div>') : '') +
+    '<div class="l"><span>Transport</span><span>' + TRANSPORT.toFixed(2) + ' €</span></div>' +
+    '<div class="l"><span>IVA (' + Math.round(IVA_PCT*100) + '%)</span><span>' + iva.toFixed(2) + ' €</span></div>' +
+    '<div class="tot"><span>TOTAL</span><span>' + total.toFixed(2) + ' €</span></div>' +
+    '</div></div>' +
+    '<div class="foot">' +
+      '<p>Aquest pressupost no és una factura ni una comanda en ferm. Preus vàlids durant 30 dies des de la data d\'emissió, IVA inclòs. Per confirmar la comanda, contacta amb el nostre equip comercial indicant el número de pressupost.</p>' +
+      '<div class="seal">HIGIENE<span style="color:#F2A900">X</span><small>' + ara.toLocaleString('ca-ES') + '</small></div>' +
+    '</div>' +
+    '</div></body></html>';
+}
+
+function pressupostClientInfo() {
+  return {
+    empresa: (document.getElementById('presEmpresa') || {}).value || '',
+    cif: (document.getElementById('presCif') || {}).value || '',
+    contacte: (document.getElementById('presContacte') || {}).value || '',
+    email: (document.getElementById('presEmail') || {}).value || ''
+  };
+}
+
+function descarregarPressupostPDF() {
+  var items = pressupostItems();
+  if (!items.length) { showToast('Afegeix almenys un producte per generar el pressupost.', '⚠️'); return; }
+  var html = htmlPressupost(pressupostClientInfo(), items);
+  abrirImprimibleComanda('Pressupost', html);
+}
+window.descarregarPressupostPDF = descarregarPressupostPDF;
+
+function enviarPressupostEmail() {
+  if (typeof emailjs === 'undefined') {
+    showToast('El servei d\'email no està disponible ara mateix. Descarrega el PDF i envia\'l manualment.', '⚠️');
+    return;
+  }
+  var items = pressupostItems();
+  if (!items.length) { showToast('Afegeix almenys un producte per generar el pressupost.', '⚠️'); return; }
+  var info = pressupostClientInfo();
+  if (!info.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email)) {
+    showToast('Introdueix un email vàlid per rebre el pressupost.', '⚠️');
+    return;
+  }
+  var btn = document.getElementById('presEnviarBtn');
+  var subtotal = items.reduce(function(s, i){ return s + i.total; }, 0);
+  var iva = (subtotal + TRANSPORT) * IVA_PCT;
+  var total = subtotal + TRANSPORT + iva;
+  var resumText = items.map(function(i){ return i.qty + ' × ' + i.name + ' — ' + i.total.toFixed(2) + ' €'; }).join('\n');
+  var params = {
+    to_email: info.email,
+    empresa: info.empresa || '—',
+    contacte: info.contacte || '—',
+    resum: resumText,
+    total: total.toFixed(2) + ' €',
+    invoice_num: pressupostInvoiceNum()
+  };
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviant...'; }
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params).then(function(){
+    showToast('Pressupost enviat a ' + info.email + ' ✅', '✅');
+    if (btn) { btn.disabled = false; btn.textContent = "✉️ Enviar-me'l per email"; }
+  }).catch(function(err){
+    console.warn('Error enviant pressupost per email:', err);
+    showToast('No s\'ha pogut enviar l\'email. Prova de descarregar el PDF.', '⚠️');
+    if (btn) { btn.disabled = false; btn.textContent = "✉️ Enviar-me'l per email"; }
+  });
+}
+window.enviarPressupostEmail = enviarPressupostEmail;
+
+document.addEventListener('DOMContentLoaded', function(){
+  if (document.getElementById('pressupostLines')) renderPressupost();
+});
 
 function updateCartBadge() {
   var badge = document.getElementById('cartBadge');
