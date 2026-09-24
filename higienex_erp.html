@@ -23,6 +23,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
 <script src="jspdf.umd.min.js" defer></script>
+<script src="jspdf.plugin.autotable.min.js" defer></script>
 <script src="html2canvas.min.js" defer></script>
 <style>
 /* ==========================================================================
@@ -9971,115 +9972,93 @@ ROUTES.ejercicio2025 = function(){
    telemáticamente; este documento reproduce fielmente el
    contenido y formato exigido para dicho depósito.
    ========================================================= */
-function abrirDocumentoOficial(titulo, cuerpo, opts){
-  opts = opts || {};
+/* =========================================================
+   LIBROS OFICIALES DEL EJERCICIO EN CURSO
+   Estructura y nomenclatura conforme al Código de Comercio
+   (art. 25-33) y al Plan General de Contabilidad (RD 1514/2007).
+   Generación 100% nativa con jsPDF + autoTable: texto vectorial
+   real (sin html2canvas), sin riesgo de corromper cifras ni de
+   partir palabras entre páginas. Cada tabla gestiona sus propios
+   saltos de página y repite la cabecera automáticamente.
+   ========================================================= */
+const PDF_NAVY=[11,61,107], PDF_GOLD=[242,169,0], PDF_INK=[22,35,46], PDF_MUTED=[138,155,172],
+  PDF_BORDER=[227,232,237], PDF_LIGHTBG=[244,247,250], PDF_GREEN_BG=[230,244,234], PDF_GREEN_TXT=[46,125,50],
+  PDF_RED_BG=[253,234,234], PDF_RED_TXT=[163,54,54], PDF_TOTBG=[234,241,248];
+const PDF_M=40, PDF_W=595.28, PDF_H=841.89;
+
+function pdfLetterhead(doc, titulo, opts){
+  opts = opts||{};
   const ejercicio = opts.ejercicio || EJERCICIO;
   const cerrado = !!opts.cerrado;
-  const ahora = new Date();
-  const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+esc(titulo)+' · HIGIENEX S.L.</title>'+
-    '<style>'+
-    '*{box-sizing:border-box;margin:0;padding:0}'+
-    'html{background:#EDEAE2}'+
-    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#FBFAF7;font-size:11.5px;line-height:1.5;position:relative}'+
-    '.sheet{max-width:900px;margin:0 auto;padding:14mm 14mm 10mm;position:relative;overflow:hidden}'+
-    '.watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:Georgia,\'Times New Roman\',serif;font-size:420px;font-weight:700;color:#0B3D6B;opacity:0.025;line-height:1;pointer-events:none;z-index:0;user-select:none}'+
-    '.sheet > *:not(.watermark){position:relative;z-index:1}'+
-    '.top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;margin-bottom:4px}'+
-    '.brand{font-size:24px;font-weight:700;color:#0B3D6B;font-family:Georgia,\'Times New Roman\',serif;letter-spacing:.01em}.brand span{color:#F2A900}'+
-    '.brand-sub{font-size:9.5px;color:#64748B;margin-top:6px;line-height:1.6}'+
-    '.doc{text-align:right}'+
-    '.doc .kicker{font-size:9px;letter-spacing:.12em;color:#B8860B;font-weight:700;margin-bottom:2px}'+
-    '.doc h1{font-size:18px;font-weight:700;margin:0 0 5px 0;color:#16232E;font-family:Georgia,\'Times New Roman\',serif}'+
-    '.doc .num{font-size:11px;color:#5A6B7A;margin-bottom:6px}'+
-    '.status{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:700;letter-spacing:.05em;padding:4px 11px;border-radius:20px}'+
-    '.status.closed{background:#FDEAEA;color:#A33636}'+
-    '.status.open{background:#E6F4EA;color:#2E7D32}'+
-    '.rule{height:1px;background:linear-gradient(90deg,#0B3D6B 0%,#0B3D6B 60%,#F2A900 100%);margin-bottom:16px}'+
-    '.legalbox{font-size:9.5px;color:#556;border-left:3px solid #F2A900;background:#F7FAFC;padding:9px 12px;border-radius:0 6px 6px 0;margin:0 0 18px}'+
-    'table{width:100%;border-collapse:collapse;font-size:10.5px;margin-bottom:16px}'+
-    'thead{display:table-header-group}'+
-    'th,td{border-bottom:1px solid #EDF1F4;padding:6px 8px;text-align:left}'+
-    'th{background:#0B3D6B;color:#fff;font-weight:700;font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;border-bottom:none}'+
-    'th:first-child{border-top-left-radius:6px}th:last-child{border-top-right-radius:6px}'+
-    'tbody tr:nth-child(even){background:#FAFBFC}'+
-    'td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}'+
-    'tr.total td{font-weight:700;border-top:2px solid #0B3D6B;background:#EAF1F8;color:#0B3D6B}'+
-    'h2{font-size:12.5px;margin:20px 0 7px 0;color:#0B3D6B;font-family:Georgia,\'Times New Roman\',serif;font-weight:700;page-break-after:avoid;border-bottom:1.5px solid #E3E8ED;padding-bottom:4px}'+
-    '.masa{font-size:12px;font-weight:700;margin:18px 0 7px;color:#0B3D6B;border-bottom:1.5px solid #0B3D6B;padding-bottom:4px;font-family:Georgia,serif}'+
-    '.rec{background:#fff;border:1px solid #E3E8ED;border-radius:10px;padding:4px 16px;margin-bottom:14px}'+
-    '.rec .l{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EEF2F5;font-size:11px}'+
-    '.rec .tot{display:flex;justify-content:space-between;font-weight:700;border-top:2px solid #0B3D6B;border-bottom:none;margin-top:5px;padding:9px 0;color:#0B3D6B}'+
-    '.acctbox{border:1px solid #E3E8ED;border-radius:10px;margin-bottom:14px;overflow:hidden;page-break-inside:avoid}'+
-    '.acctbox h2{margin:0;padding:8px 12px;background:#F4F7FA;border-bottom:1.5px solid #E3E8ED;font-size:11.5px}'+
-    '.acctbox table{margin-bottom:0}'+
-    '.footlegal{margin-top:22px;font-size:9px;color:#8A9BAC;border-top:1px solid #E3E8ED;padding-top:9px;line-height:1.6}'+
-    '.seal{position:absolute;bottom:10mm;right:14mm;font-family:Georgia,serif;font-size:10px;color:#0B3D6B;font-weight:700;text-align:right}'+
-    '.seal small{display:block;font-family:-apple-system,Arial,sans-serif;font-weight:400;color:#94A3B0;font-size:8.5px;margin-top:2px}'+
-    'tr{page-break-inside:avoid}.rec{page-break-inside:avoid}'+
-    '@page{margin:16mm 14mm 20mm}'+
-    '@media print{ html,body{background:#fff} .sheet{padding:0} .watermark{font-size:340px} }'+
-    '</style></head><body>'+
-    '<div class="sheet">' +
-    '<div class="watermark">X</div>'+
-    '<div class="top">'+
-      '<div><div class="brand">HIGIENE<span>X</span></div>'+
-      '<div class="brand-sub">HIGIENEX S.L. · CIF B12345678<br>Carrer de la Indústria, 25, 46010 València<br>contacto@higienexvalencia.es · 963 123 456</div></div>'+
-      '<div class="doc"><div class="kicker">DOCUMENTO CONTABLE OFICIAL</div><h1>'+esc(titulo)+'</h1>'+
-      '<div class="num">Ejercicio '+esc(ejercicio)+' · Generado el '+ahora.toLocaleString('es-ES')+'</div>'+
-      '<span class="status '+(cerrado?'closed':'open')+'">'+(cerrado?'🔒 EJERCICIO CERRADO':'● EJERCICIO EN CURSO')+'</span>'+
-      '</div>'+
-    '</div>'+
-    '<div class="rule"></div>'+
-    '<div class="legalbox">Documento elaborado conforme al Código de Comercio (arts. 25 a 33) y al Plan General de Contabilidad aprobado por Real Decreto 1514/2007, de 16 de noviembre (BOE núm. 278, de 20 de noviembre de 2007), y sus adaptaciones posteriores. '+(cerrado?'Ejercicio cerrado y archivado; documento de consulta histórica, sin valor de legalización pendiente.':'Para su legalización ante el Registro Mercantil debe presentarse telemáticamente junto con el resto de libros del ejercicio, dentro de los cuatro meses siguientes al cierre.')+'</div>'+
-    cuerpo+
-    '<div class="footlegal">HIGIENEX S.L. — Documento generado por el sistema de gestión interna. La responsabilidad sobre la exactitud de los datos contables corresponde al órgano de administración de la sociedad (art. 253 LSC).</div>'+
-    '</div>'+
-    '</body></html>';
-  descargarPDFDirecto(titulo.replace(/\s+/g,'_')+'.pdf', html, {piePagina:'HIGIENEX S.L. · '+titulo});
+  let y = 42;
+  doc.setFont('times','bold'); doc.setFontSize(20);
+  doc.setTextColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]);
+  doc.text('HIGIENE', PDF_M, y);
+  const wH = doc.getTextWidth('HIGIENE');
+  doc.setTextColor(PDF_GOLD[0],PDF_GOLD[1],PDF_GOLD[2]);
+  doc.text('X', PDF_M+wH, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(PDF_MUTED[0],PDF_MUTED[1],PDF_MUTED[2]);
+  doc.text('HIGIENEX S.L. · CIF B12345678', PDF_M, y+14);
+  doc.text('Carrer de la Indústria, 25, 46010 València', PDF_M, y+24);
+  doc.text('contacto@higienexvalencia.es · 963 123 456', PDF_M, y+34);
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+  doc.setTextColor(184,134,11);
+  doc.text('DOCUMENTO CONTABLE OFICIAL', PDF_W-PDF_M, y-6, {align:'right'});
+  doc.setFont('times','bold'); doc.setFontSize(15);
+  doc.setTextColor(PDF_INK[0],PDF_INK[1],PDF_INK[2]);
+  doc.text(titulo, PDF_W-PDF_M, y+10, {align:'right'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(90,107,122);
+  doc.text('Ejercicio '+ejercicio+' · Generado el '+new Date().toLocaleString('es-ES'), PDF_W-PDF_M, y+22, {align:'right'});
+  const badgeTxt = cerrado ? 'EJERCICIO CERRADO' : 'EJERCICIO EN CURSO';
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+  const bw = doc.getTextWidth(badgeTxt)+18;
+  const bx = PDF_W-PDF_M-bw, by=y+29;
+  const bg = cerrado?PDF_RED_BG:PDF_GREEN_BG, tc = cerrado?PDF_RED_TXT:PDF_GREEN_TXT;
+  doc.setFillColor(bg[0],bg[1],bg[2]);
+  doc.roundedRect(bx, by, bw, 15, 7.5, 7.5, 'F');
+  doc.setTextColor(tc[0],tc[1],tc[2]);
+  doc.text(badgeTxt, bx+bw/2, by+10.2, {align:'center'});
+  y += 52;
+  doc.setDrawColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]); doc.setLineWidth(1.2);
+  doc.line(PDF_M, y, PDF_W-PDF_M, y);
+  y += 16;
+  const legalText = 'Documento elaborado conforme al C\u00f3digo de Comercio (arts. 25 a 33) y al Plan General de Contabilidad aprobado por Real Decreto 1514/2007, de 16 de noviembre (BOE n\u00fam. 278, de 20 de noviembre de 2007), y sus adaptaciones posteriores. ' + (cerrado ? 'Ejercicio cerrado y archivado; documento de consulta hist\u00f3rica, sin valor de legalizaci\u00f3n pendiente.' : 'Para su legalizaci\u00f3n ante el Registro Mercantil debe presentarse telem\u00e1ticamente junto con el resto de libros del ejercicio, dentro de los cuatro meses siguientes al cierre.');
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.8);
+  const legalLines = doc.splitTextToSize(legalText, PDF_W-2*PDF_M-18);
+  const legalH = legalLines.length*10 + 14;
+  doc.setFillColor(PDF_LIGHTBG[0],PDF_LIGHTBG[1],PDF_LIGHTBG[2]);
+  doc.rect(PDF_M, y, PDF_W-2*PDF_M, legalH, 'F');
+  doc.setDrawColor(PDF_GOLD[0],PDF_GOLD[1],PDF_GOLD[2]); doc.setLineWidth(2.5);
+  doc.line(PDF_M+1, y, PDF_M+1, y+legalH);
+  doc.setTextColor(85,102,119);
+  doc.text(legalLines, PDF_M+13, y+12);
+  y += legalH + 16;
+  return y;
 }
-function abrirPDFOficial(titulo, cuerpo){ abrirDocumentoOficial(titulo, cuerpo, {ejercicio:EJERCICIO, cerrado:false}); }
-
-function pdfBodyDiarioOficial(){
-  const asientos = DB.asientos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)||a.n-b.n);
-  let rows='', td=0, th=0;
-  asientos.forEach(a=>{
-    a.apuntes.forEach((p,i)=>{
-      td+=(p.d||0); th+=(p.h||0);
-      rows += '<tr><td>'+(i===0?a.n:'')+'</td><td>'+(i===0?FD(a.fecha):'')+'</td><td>'+p.cta+'</td><td>'+esc(nomCta(p.cta))+(i===0?' — '+esc(a.concepto):'')+'</td><td class="num">'+(p.d?NUM(p.d):'')+'</td><td class="num">'+(p.h?NUM(p.h):'')+'</td></tr>';
-    });
-  });
-  rows += '<tr class="total"><td colspan="4">TOTAL LIBRO DIARIO ('+asientos.length+' asientos)</td><td class="num">'+NUM(td)+'</td><td class="num">'+NUM(th)+'</td></tr>';
-  return '<table><thead><tr><th>Nº</th><th>Fecha</th><th>Cuenta</th><th>Denominación</th><th class="num">Debe</th><th class="num">Haber</th></tr></thead><tbody>'+rows+'</tbody></table>';
+function pdfFooterPages(doc, titulo){
+  const total = doc.internal.getNumberOfPages();
+  for(let i=1;i<=total;i++){
+    doc.setPage(i);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    doc.setTextColor(PDF_MUTED[0],PDF_MUTED[1],PDF_MUTED[2]);
+    doc.text('HIGIENEX S.L. \u00b7 '+titulo+' \u00b7 P\u00e1gina '+i+' de '+total, PDF_W/2, PDF_H-16, {align:'center'});
+  }
 }
-function pdfBodyMayorOficial(){
-  const cuentas = Object.keys(saldosCuentas()).sort();
-  let out='';
-  cuentas.forEach(c=>{
-    let saldo=0, rows='';
-    DB.asientos.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(a=>{
-      a.apuntes.forEach(p=>{
-        if(p.cta===c){
-          saldo += (p.d-p.h);
-          rows += '<tr><td>'+FD(a.fecha)+'</td><td>'+esc(a.concepto)+'</td><td class="num">'+(p.d?NUM(p.d):'')+'</td><td class="num">'+(p.h?NUM(p.h):'')+'</td><td class="num">'+NUM(saldo)+'</td></tr>';
-        }
-      });
-    });
-    if (!rows) return;
-    out += '<div class="acctbox"><h2>'+c+' · '+esc(nomCta(c))+'</h2><table><thead><tr><th>Fecha</th><th>Concepto</th><th class="num">Debe</th><th class="num">Haber</th><th class="num">Saldo</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
-  });
-  return out;
+function pdfTablaEstilo(extra){
+  return Object.assign({
+    theme:'plain',
+    margin:{left:PDF_M, right:PDF_M, bottom:34},
+    styles:{font:'helvetica', fontSize:8, textColor:PDF_INK, lineColor:PDF_BORDER, lineWidth:0.4, cellPadding:{top:4.5,bottom:4.5,left:6,right:6}, valign:'middle'},
+    headStyles:{fillColor:PDF_NAVY, textColor:255, fontStyle:'bold', fontSize:7.8, halign:'left'},
+    alternateRowStyles:{fillColor:[250,251,252]},
+    footStyles:{fillColor:PDF_TOTBG, textColor:PDF_NAVY, fontStyle:'bold', fontSize:8, lineWidth:{top:1.2}, lineColor:PDF_NAVY}
+  }, extra||{});
 }
-function pdfBodySumasOficial(){
-  const s = saldosCuentas(FECHA_CORTE);
-  const ks = Object.keys(s).sort();
-  let rows=''; const T={d:0,h:0,sd:0,sh:0};
-  ks.forEach(k=>{
-    const d=s[k].d, hh=s[k].h, sd=Math.max(0,d-hh), sh=Math.max(0,hh-d);
-    T.d+=d; T.h+=hh; T.sd+=sd; T.sh+=sh;
-    rows += '<tr><td>'+k+'</td><td>'+esc(nomCta(k))+'</td><td class="num">'+NUM(d)+'</td><td class="num">'+NUM(hh)+'</td><td class="num">'+(sd?NUM(sd):'')+'</td><td class="num">'+(sh?NUM(sh):'')+'</td></tr>';
-  });
-  rows += '<tr class="total"><td colspan="2">TOTALES</td><td class="num">'+NUM(T.d)+'</td><td class="num">'+NUM(T.h)+'</td><td class="num">'+NUM(T.sd)+'</td><td class="num">'+NUM(T.sh)+'</td></tr>';
-  return '<table><thead><tr><th>Cuenta</th><th>Denominación</th><th class="num">Suma Debe</th><th class="num">Suma Haber</th><th class="num">Saldo Deudor</th><th class="num">Saldo Acreedor</th></tr></thead><tbody>'+rows+'</tbody></table>';
+function pdfEspacioDisponible(doc, y, minimo){
+  if (y > PDF_H - 34 - minimo) { doc.addPage(); return 40; }
+  return y;
 }
 function balanceAgrupadoOficial(){
   const s = saldosCuentas(FECHA_CORTE);
@@ -10088,20 +10067,16 @@ function balanceAgrupadoOficial(){
   const grupos = {ANC:[], AC:[], PN:[], PNC:[], PC:[]};
   cuentasConSaldo.forEach(c=>{
     const m = masaPatrimonial(c);
-    if (!m) return; // cuentas de gasto/ingreso: no van en el balance
+    if (!m) return;
     const t = tipoCta(c);
     const esContraActivo = CTAS_AMORTIZ_ACUM.includes(c.slice(0,3));
-    // Las cuentas de activo (y sus contra-cuentas, que restan) muestran su saldo natural (deudor +).
-    // Las de pasivo/PN muestran el signo invertido (su saldo natural es acreedor).
     const importe = (t==='activo' || esContraActivo) ? saldo(c) : -saldo(c);
     if (Math.abs(importe) > 0.005) grupos[m].push([c, importe]);
   });
-  const resultado = (function(){
-    const porTipo = t => Object.keys(s).filter(c=>tipoCta(c)===t);
-    const ingresos = porTipo('ingreso').reduce((a,c)=>a-saldo(c),0);
-    const gastos   = porTipo('gasto').reduce((a,c)=>a+saldo(c),0);
-    return ingresos - gastos;
-  })();
+  const porTipo = t => Object.keys(s).filter(c=>tipoCta(c)===t);
+  const ingresos = porTipo('ingreso').map(c=>[c,-saldo(c)]).filter(x=>Math.abs(x[1])>0.005);
+  const gastos   = porTipo('gasto'  ).map(c=>[c, saldo(c)]).filter(x=>Math.abs(x[1])>0.005);
+  const resultado = ingresos.reduce((a,x)=>a+x[1],0) - gastos.reduce((a,x)=>a+x[1],0);
   const totales = {};
   Object.keys(grupos).forEach(k=>{ totales[k] = grupos[k].reduce((a,x)=>a+x[1],0); });
   totales.PN += resultado;
@@ -10109,79 +10084,134 @@ function balanceAgrupadoOficial(){
   const totalPasivoNeto = totales.PN + totales.PNC + totales.PC;
   return {grupos, totales, resultado, totalActivo, totalPasivoNeto};
 }
-function pdfBodyBalanceOficial(){
-  const {grupos, totales, resultado, totalActivo, totalPasivoNeto} = balanceAgrupadoOficial();
-  const lineas = arr => arr.length
-    ? arr.sort((a,b)=>a[0].localeCompare(b[0])).map(x=>'<div class="l"><span>'+x[0]+' '+esc(nomCta(x[0]))+'</span><span>'+EUR(x[1])+'</span></div>').join('')
-    : '<div class="l"><span>Sin saldo</span><span>0,00 €</span></div>';
-  let h = '<div class="masa">BALANCE — ACTIVO</div><div class="rec">';
-  h += '<h2>'+MASA_LABEL.ANC+'</h2>'+lineas(grupos.ANC)+'<div class="l tot"><span>Total activo no corriente</span><span>'+EUR(totales.ANC)+'</span></div>';
-  h += '<h2>'+MASA_LABEL.AC+'</h2>'+lineas(grupos.AC)+'<div class="l tot"><span>Total activo corriente</span><span>'+EUR(totales.AC)+'</span></div>';
-  h += '<div class="l tot" style="font-size:13px;border-top:2.5px double #0F1D2B"><span>TOTAL ACTIVO (A + B)</span><span>'+EUR(totalActivo)+'</span></div></div>';
-  h += '<div class="masa">BALANCE — PATRIMONIO NETO Y PASIVO</div><div class="rec">';
-  h += '<h2>'+MASA_LABEL.PN+'</h2>'+lineas(grupos.PN)+'<div class="l"><span>Resultado del ejercicio</span><span>'+EUR(resultado)+'</span></div>'+
-       '<div class="l tot"><span>Total patrimonio neto</span><span>'+EUR(totales.PN)+'</span></div>';
-  h += '<h2>'+MASA_LABEL.PNC+'</h2>'+lineas(grupos.PNC)+'<div class="l tot"><span>Total pasivo no corriente</span><span>'+EUR(totales.PNC)+'</span></div>';
-  h += '<h2>'+MASA_LABEL.PC+'</h2>'+lineas(grupos.PC)+'<div class="l tot"><span>Total pasivo corriente</span><span>'+EUR(totales.PC)+'</span></div>';
-  h += '<div class="l tot" style="font-size:13px;border-top:2.5px double #0F1D2B"><span>TOTAL PATRIMONIO NETO Y PASIVO (A + B + C)</span><span>'+EUR(totalPasivoNeto)+'</span></div></div>';
-  const cuadra = Math.abs(totalActivo-totalPasivoNeto)<0.01;
-  h += '<p style="margin-top:14px;font-size:11px">'+(cuadra
-    ? '<strong>Balance cuadrado:</strong> el total del activo coincide con el total del patrimonio neto y pasivo.'
-    : '<strong>Descuadre de '+EUR(totalActivo-totalPasivoNeto)+':</strong> revisa los asientos antes de presentar este balance.')+'</p>';
-  return h;
+function pdfSeccionRegistro(doc, y, titulo, filas){
+  y = pdfEspacioDisponible(doc, y, 60);
+  doc.setFont('times','bold'); doc.setFontSize(11.5);
+  doc.setTextColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]);
+  doc.text(titulo, PDF_M, y);
+  doc.setDrawColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]); doc.setLineWidth(1);
+  doc.line(PDF_M, y+4, PDF_W-PDF_M, y+4);
+  y += 18;
+  const body = filas.map(f=>[f.label, f.valor]);
+  doc.autoTable(pdfTablaEstilo({
+    startY:y,
+    body: body,
+    showHead:false,
+    columnStyles:{0:{cellWidth:PDF_W-2*PDF_M-140},1:{cellWidth:140, halign:'right'}},
+    didParseCell: function(data){
+      const f = filas[data.row.index];
+      if (!f) return;
+      if (f.tipo==='tot' || f.tipo==='totfinal'){
+        data.cell.styles.fontStyle='bold';
+        data.cell.styles.textColor=PDF_NAVY;
+        data.cell.styles.lineWidth = f.tipo==='totfinal' ? {top:1.4} : {top:0.8};
+        data.cell.styles.lineColor = PDF_NAVY;
+      }
+    }
+  }));
+  return doc.lastAutoTable.finalY + 16;
 }
-function exportarDiarioOficialPDF(){ abrirPDFOficial('Libro Diario', pdfBodyDiarioOficial()); }
-function exportarMayorOficialPDF(){ abrirPDFOficial('Libro Mayor', pdfBodyMayorOficial()); }
-function exportarSumasOficialPDF(){ abrirPDFOficial('Balance de Comprobación (Sumas y Saldos)', pdfBodySumasOficial()); }
-function exportarBalanceOficialPDF(){ abrirPDFOficial('Balance de Situación Abreviado', pdfBodyBalanceOficial()); }
-
-function abrirPDF2025(titulo, cuerpo){ abrirDocumentoOficial(titulo, cuerpo, {ejercicio:'2025', cerrado:true}); }
-
-function pdfBodyDiario2025(){
-  let rows=''; let td=0, th=0;
-  DB.asientos2025.forEach(a=>{
+function generarPDFContable(titulo, renderFn, opts){
+  if (typeof window.jspdf === 'undefined'){ toast('No se ha podido cargar el generador de PDF.'); return; }
+  const jsPDF = window.jspdf.jsPDF;
+  const doc = new jsPDF({unit:'pt', format:'a4'});
+  const y0 = pdfLetterhead(doc, titulo, opts);
+  renderFn(doc, y0);
+  const y1 = pdfEspacioDisponible(doc, (doc.lastAutoTable? doc.lastAutoTable.finalY+16 : y0), 30);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+  doc.setTextColor(PDF_MUTED[0],PDF_MUTED[1],PDF_MUTED[2]);
+  doc.text('HIGIENEX S.L. \u2014 Documento generado por el sistema de gesti\u00f3n interna. La responsabilidad sobre la exactitud de los datos contables corresponde al \u00f3rgano de administraci\u00f3n de la sociedad (art. 253 LSC).', PDF_M, y1, {maxWidth:PDF_W-2*PDF_M});
+  pdfFooterPages(doc, titulo);
+  doc.save(titulo.replace(/\s+/g,'_')+'.pdf');
+}
+function renderDiarioOficial(doc, y, asientosSrc){
+  const asientos = asientosSrc.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)||a.n-b.n);
+  const body=[]; let td=0, th=0;
+  asientos.forEach(a=>{
     a.apuntes.forEach((p,i)=>{
       td+=(p.d||0); th+=(p.h||0);
-      rows += '<tr><td>'+(i===0?a.n:'')+'</td><td>'+(i===0?FD(a.fecha):'')+'</td><td>'+p.cta+'</td><td>'+esc(nomCta(p.cta))+(i===0?' — '+esc(a.concepto):'')+'</td><td class="num">'+(p.d?NUM(p.d):'')+'</td><td class="num">'+(p.h?NUM(p.h):'')+'</td></tr>';
+      body.push([i===0?String(a.n):'', i===0?FD(a.fecha):'', p.cta, nomCta(p.cta)+(i===0?' \u2014 '+a.concepto:''), p.d?NUM(p.d):'', p.h?NUM(p.h):'']);
     });
   });
-  rows += '<tr class="total"><td colspan="4">TOTAL DIARIO ('+DB.asientos2025.length+' asientos)</td><td class="num">'+NUM(td)+'</td><td class="num">'+NUM(th)+'</td></tr>';
-  return '<table><thead><tr><th>Nº</th><th>Fecha</th><th>Cuenta</th><th>Denominación</th><th class="num">Debe</th><th class="num">Haber</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  doc.autoTable(pdfTablaEstilo({
+    startY:y,
+    head:[['N\u00ba','Fecha','Cuenta','Denominaci\u00f3n','Debe','Haber']],
+    body: body,
+    foot:[['','','','TOTAL LIBRO DIARIO ('+asientos.length+' asientos)',NUM(td),NUM(th)]],
+    columnStyles:{0:{cellWidth:20,halign:'center'},1:{cellWidth:48},2:{cellWidth:42},3:{cellWidth:'auto'},4:{cellWidth:58,halign:'right'},5:{cellWidth:58,halign:'right'}}
+  }));
 }
-
-function pdfBodyMayor2025(){
-  const s = saldosCuentas2025();
-  const cuentas = Object.keys(s).sort();
-  let out='';
+function renderMayorOficial(doc, y, asientosSrc, saldosSrc){
+  const cuentas = Object.keys(saldosSrc).sort();
   cuentas.forEach(c=>{
-    let saldo=0, rows='';
-    DB.asientos2025.forEach(a=>{
+    let saldo=0; const rows=[];
+    asientosSrc.slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).forEach(a=>{
       a.apuntes.forEach(p=>{
-        if(p.cta===c){
-          saldo += (p.d-p.h);
-          rows += '<tr><td>'+FD(a.fecha)+'</td><td>'+esc(a.concepto)+'</td><td class="num">'+(p.d?NUM(p.d):'')+'</td><td class="num">'+(p.h?NUM(p.h):'')+'</td><td class="num">'+NUM(saldo)+'</td></tr>';
-        }
+        if(p.cta===c){ saldo += (p.d-p.h); rows.push([FD(a.fecha), a.concepto, p.d?NUM(p.d):'', p.h?NUM(p.h):'', NUM(saldo)]); }
       });
     });
-    out += '<div class="acctbox"><h2>'+c+' · '+esc(nomCta(c))+'</h2><table><thead><tr><th>Fecha</th><th>Concepto</th><th class="num">Debe</th><th class="num">Haber</th><th class="num">Saldo</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    if (!rows.length) return;
+    y = pdfEspacioDisponible(doc, y, 70);
+    doc.setFillColor(PDF_LIGHTBG[0],PDF_LIGHTBG[1],PDF_LIGHTBG[2]);
+    doc.rect(PDF_M, y, PDF_W-2*PDF_M, 20, 'F');
+    doc.setDrawColor(PDF_BORDER[0],PDF_BORDER[1],PDF_BORDER[2]); doc.setLineWidth(0.6);
+    doc.rect(PDF_M, y, PDF_W-2*PDF_M, 20);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.setTextColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]);
+    doc.text(c+' \u00b7 '+nomCta(c), PDF_M+8, y+13.5);
+    y += 20;
+    doc.autoTable(pdfTablaEstilo({
+      startY:y,
+      head:[['Fecha','Concepto','Debe','Haber','Saldo']],
+      body: rows,
+      columnStyles:{0:{cellWidth:56},1:{cellWidth:'auto'},2:{cellWidth:62,halign:'right'},3:{cellWidth:62,halign:'right'},4:{cellWidth:62,halign:'right'}}
+    }));
+    y = doc.lastAutoTable.finalY + 14;
   });
-  return out;
 }
-
-function pdfBodySumas2025(){
-  const s = saldosCuentas2025();
-  const ks = Object.keys(s).sort();
-  let rows=''; const T={d:0,h:0,sd:0,sh:0};
+function renderSumasOficial(doc, y, saldosSrc){
+  const ks = Object.keys(saldosSrc).sort();
+  const body=[]; const T={d:0,h:0,sd:0,sh:0};
   ks.forEach(k=>{
-    const d=s[k].d, hh=s[k].h, sd=Math.max(0,d-hh), sh=Math.max(0,hh-d);
+    const d=saldosSrc[k].d, hh=saldosSrc[k].h, sd=Math.max(0,d-hh), sh=Math.max(0,hh-d);
     T.d+=d; T.h+=hh; T.sd+=sd; T.sh+=sh;
-    rows += '<tr><td>'+k+'</td><td>'+esc(nomCta(k))+'</td><td class="num">'+NUM(d)+'</td><td class="num">'+NUM(hh)+'</td><td class="num">'+(sd?NUM(sd):'')+'</td><td class="num">'+(sh?NUM(sh):'')+'</td></tr>';
+    body.push([k, nomCta(k), NUM(d), NUM(hh), sd?NUM(sd):'', sh?NUM(sh):'']);
   });
-  rows += '<tr class="total"><td colspan="2">TOTALES</td><td class="num">'+NUM(T.d)+'</td><td class="num">'+NUM(T.h)+'</td><td class="num">'+NUM(T.sd)+'</td><td class="num">'+NUM(T.sh)+'</td></tr>';
-  return '<table><thead><tr><th>Cuenta</th><th>Denominación</th><th class="num">Suma Debe</th><th class="num">Suma Haber</th><th class="num">Saldo Deudor</th><th class="num">Saldo Acreedor</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  doc.autoTable(pdfTablaEstilo({
+    startY:y,
+    head:[['Cuenta','Denominaci\u00f3n','Suma Debe','Suma Haber','Saldo Deudor','Saldo Acreedor']],
+    body: body,
+    foot:[['','TOTALES',NUM(T.d),NUM(T.h),NUM(T.sd),NUM(T.sh)]],
+    columnStyles:{0:{cellWidth:44},1:{cellWidth:'auto'},2:{cellWidth:64,halign:'right'},3:{cellWidth:64,halign:'right'},4:{cellWidth:64,halign:'right'},5:{cellWidth:64,halign:'right'}}
+  }));
 }
+function filasMasa(arr){
+  if (!arr.length) return [{label:'Sin saldo', valor:'0,00 \u20ac', tipo:''}];
+  return arr.slice().sort((a,b)=>a[0].localeCompare(b[0])).map(x=>({label:x[0]+' '+nomCta(x[0]), valor:EUR(x[1]), tipo:''}));
+}
+function renderBalanceOficial(doc, y){
+  const {grupos, totales, resultado, totalActivo, totalPasivoNeto} = balanceAgrupadoOficial();
+  let filas1 = [{label:MASA_LABEL.ANC, valor:'', tipo:''}].concat(filasMasa(grupos.ANC), [{label:'Total activo no corriente', valor:EUR(totales.ANC), tipo:'tot'}]);
+  filas1 = filas1.concat([{label:MASA_LABEL.AC, valor:'', tipo:''}], filasMasa(grupos.AC), [{label:'Total activo corriente', valor:EUR(totales.AC), tipo:'tot'}]);
+  filas1 = filas1.concat([{label:'TOTAL ACTIVO (A + B)', valor:EUR(totalActivo), tipo:'totfinal'}]);
+  y = pdfSeccionRegistro(doc, y, 'BALANCE \u2014 ACTIVO', filas1);
+  let filas2 = filasMasa(grupos.PN).concat([{label:'Resultado del ejercicio', valor:EUR(resultado), tipo:''}], [{label:'Total patrimonio neto', valor:EUR(totales.PN), tipo:'tot'}]);
+  filas2 = filas2.concat(filasMasa(grupos.PNC), [{label:'Total pasivo no corriente', valor:EUR(totales.PNC), tipo:'tot'}]);
+  filas2 = filas2.concat(filasMasa(grupos.PC), [{label:'Total pasivo corriente', valor:EUR(totales.PC), tipo:'tot'}]);
+  filas2 = filas2.concat([{label:'TOTAL PATRIMONIO NETO Y PASIVO (A + B + C)', valor:EUR(totalPasivoNeto), tipo:'totfinal'}]);
+  y = pdfSeccionRegistro(doc, y, 'BALANCE \u2014 PATRIMONIO NETO Y PASIVO', filas2);
+  const cuadra = Math.abs(totalActivo-totalPasivoNeto)<0.01;
+  y = pdfEspacioDisponible(doc, y, 30);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.setTextColor(PDF_INK[0],PDF_INK[1],PDF_INK[2]);
+  doc.text(cuadra ? 'Balance cuadrado: el total del activo coincide con el total del patrimonio neto y pasivo.' : 'Descuadre de '+EUR(totalActivo-totalPasivoNeto)+': revisa los asientos antes de presentar este balance.', PDF_M, y, {maxWidth:PDF_W-2*PDF_M});
+}
+function exportarDiarioOficialPDF(){ generarPDFContable('Libro Diario', function(doc,y){ renderDiarioOficial(doc, y, DB.asientos); }, {ejercicio:EJERCICIO, cerrado:false}); }
+function exportarMayorOficialPDF(){ generarPDFContable('Libro Mayor', function(doc,y){ renderMayorOficial(doc, y, DB.asientos, saldosCuentas()); }, {ejercicio:EJERCICIO, cerrado:false}); }
+function exportarSumasOficialPDF(){ generarPDFContable('Balance de Comprobaci\u00f3n (Sumas y Saldos)', function(doc,y){ renderSumasOficial(doc, y, saldosCuentas(FECHA_CORTE)); }, {ejercicio:EJERCICIO, cerrado:false}); }
+function exportarBalanceOficialPDF(){ generarPDFContable('Balance de Situaci\u00f3n Abreviado', function(doc,y){ renderBalanceOficial(doc, y); }, {ejercicio:EJERCICIO, cerrado:false}); }
 
-function pdfBodyBalance2025(){
+function renderBalance2025Oficial(doc, y){
   const s = saldosCuentas2025PreCierre();
   const saldo = c => ((s[c]||{d:0}).d-(s[c]||{h:0}).h);
   const porTipo = t => Object.keys(s).filter(c=>tipoCta(c)===t);
@@ -10192,37 +10222,49 @@ function pdfBodyBalance2025(){
   const totAct = activo.reduce((a,x)=>a+x[1],0);
   const totPas = pasivo.reduce((a,x)=>a+x[1],0);
   const totNet = neto.reduce((a,x)=>a+x[1],0) + resultado;
-  const lineas = arr => arr.sort((a,b)=>a[0].localeCompare(b[0])).map(x=>'<div class="l"><span>'+x[0]+' '+esc(nomCta(x[0]))+'</span><span>'+EUR(x[1])+'</span></div>').join('');
-  const lineaResultado = '<div class="l"><span>Resultado del ejercicio (pendiente de aplicación)</span><span>'+EUR(resultado)+'</span></div>';
-  return '<div class="rec">'+
-    '<h2>Activo</h2>'+(activo.length?lineas(activo):'<div class="l"><span>Sin saldo</span><span>0,00 €</span></div>')+
-    '<div class="l tot"><span>Total activo</span><span>'+EUR(totAct)+'</span></div>'+
-    '<h2>Patrimonio neto</h2>'+lineas(neto)+lineaResultado+
-    '<h2>Pasivo</h2>'+(pasivo.length?lineas(pasivo):'<div class="l"><span>Sin saldo</span><span>0,00 €</span></div>')+
-    '<div class="l tot"><span>Total patrimonio neto y pasivo</span><span>'+EUR(totNet+totPas)+'</span></div>'+
-    '</div>';
+  const filasActivo = filasMasa(activo).concat([{label:'Total activo', valor:EUR(totAct), tipo:'totfinal'}]);
+  y = pdfSeccionRegistro(doc, y, 'Activo', filasActivo);
+  let filasPN = filasMasa(neto).concat([{label:'Resultado del ejercicio (pendiente de aplicaci\u00f3n)', valor:EUR(resultado), tipo:''}]);
+  y = pdfSeccionRegistro(doc, y, 'Patrimonio neto', filasPN);
+  const filasPasivo = filasMasa(pasivo).concat([{label:'Total patrimonio neto y pasivo', valor:EUR(totNet+totPas), tipo:'totfinal'}]);
+  y = pdfSeccionRegistro(doc, y, 'Pasivo', filasPasivo);
 }
-
-function pdfBodyPyG2025(){
+function renderPyG2025Oficial(doc, y){
   const r = resultadoDetalle2025();
-  const linea = (label,val,destacado)=>'<div class="l'+(destacado?' tot':'')+'"><span>'+label+'</span><span>'+EUR(val)+'</span></div>';
-  return '<div class="rec">'+
-    linea('1. Importe neto de la cifra de negocios', r.importeNeto)+
-    linea('2. Variación de existencias', -r.variacionExistencias)+
-    linea('3. Aprovisionamientos', -r.aprovisionamientos)+
-    linea('4. Gastos de personal', -r.gastosPersonal)+
-    linea('5. Otros gastos de explotación', -r.otrosGastosExplotacion)+
-    linea('6. Amortización del inmovilizado', -r.amortizacion)+
-    linea('7. Deterioro y otros resultados', -r.deterioro)+
-    linea('A) RESULTADO DE EXPLOTACIÓN', r.resultadoExplotacion, true)+
-    linea('8. Gastos financieros', -r.gastosFinancieros)+
-    linea('B) RESULTADO FINANCIERO', r.resultadoFinanciero, true)+
-    linea('C) RESULTADO ANTES DE IMPUESTOS (A+B)', r.resultadoAntesImpuestos, true)+
-    linea('9. Impuesto sobre beneficios', -r.impuesto)+
-    linea('D) RESULTADO DEL EJERCICIO', r.resultadoEjercicio, true)+
-    '</div>';
+  const filas = [
+    {label:'1. Importe neto de la cifra de negocios', valor:EUR(r.importeNeto), tipo:''},
+    {label:'2. Variaci\u00f3n de existencias', valor:EUR(-r.variacionExistencias), tipo:''},
+    {label:'3. Aprovisionamientos', valor:EUR(-r.aprovisionamientos), tipo:''},
+    {label:'4. Gastos de personal', valor:EUR(-r.gastosPersonal), tipo:''},
+    {label:'5. Otros gastos de explotaci\u00f3n', valor:EUR(-r.otrosGastosExplotacion), tipo:''},
+    {label:'6. Amortizaci\u00f3n del inmovilizado', valor:EUR(-r.amortizacion), tipo:''},
+    {label:'7. Deterioro y otros resultados', valor:EUR(-r.deterioro), tipo:''},
+    {label:'A) RESULTADO DE EXPLOTACI\u00d3N', valor:EUR(r.resultadoExplotacion), tipo:'tot'},
+    {label:'8. Gastos financieros', valor:EUR(-r.gastosFinancieros), tipo:''},
+    {label:'B) RESULTADO FINANCIERO', valor:EUR(r.resultadoFinanciero), tipo:'tot'},
+    {label:'C) RESULTADO ANTES DE IMPUESTOS (A+B)', valor:EUR(r.resultadoAntesImpuestos), tipo:'tot'},
+    {label:'9. Impuesto sobre beneficios', valor:EUR(-r.impuesto), tipo:''},
+    {label:'D) RESULTADO DEL EJERCICIO', valor:EUR(r.resultadoEjercicio), tipo:'totfinal'}
+  ];
+  pdfSeccionRegistro(doc, y, 'Cuenta de p\u00e9rdidas y ganancias', filas);
 }
-
+function abrirPDF2025(titulo, cuerpo){
+  const html = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>'+esc(titulo)+' \u00b7 HIGIENEX S.L.</title>'+
+    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:28px;font-size:12px}'+
+    'h1{font-size:19px;margin:0 0 2px 0}.sub{font-size:11px;color:#3C5063;margin-bottom:20px}'+
+    'table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:14px}'+
+    'th,td{border:1px solid #D7E0E7;padding:4px 7px;text-align:left}th{background:#0F1D2B;color:#fff}'+
+    'td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}'+
+    'tr.total td{font-weight:700;border-top:2px solid #0F1D2B;background:#F7FAFC}'+
+    'h2{font-size:13px;margin:18px 0 6px 0;color:#0F1D2B;page-break-after:avoid}'+
+    '.rec .l{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #EEF2F5}'+
+    '.rec .tot{display:flex;justify-content:space-between;font-weight:700;border-top:2px solid #0F1D2B;border-bottom:none;margin-top:4px;padding-top:6px}'+
+    '@media print{ @page{margin:15mm} }</style></head><body>'+
+    '<h1>HIGIENEX S.L. \u2014 '+esc(titulo)+'</h1>'+
+    '<div class="sub">Ejercicio 2025 \u00b7 Generado el '+new Date().toLocaleString('es-ES')+'</div>'+
+    cuerpo+'</body></html>';
+  descargarPDFDirecto(titulo.replace(/\s+/g,'_')+'.pdf', html, {piePagina:'HIGIENEX S.L. \u00b7 '+titulo});
+}
 function pdfBodyIsoc2025(){
   const resultado = resultado2025(); const tipo=0.25; const base=resultado; const cuota=Math.max(0,base*tipo);
   const hayCuota = base > 0;
@@ -10344,17 +10386,24 @@ function pdfBodyAnalisisEco2025(){
 }
 
 function exportarPDF2025(){
+  const nativos = {
+    diario:  ['Libro diario', function(doc,y){ renderDiarioOficial(doc, y, DB.asientos2025); }],
+    mayor:   ['Libro mayor', function(doc,y){ renderMayorOficial(doc, y, DB.asientos2025, saldosCuentas2025()); }],
+    sumas:   ['Sumas y saldos', function(doc,y){ renderSumasOficial(doc, y, saldosCuentas2025()); }],
+    balance: ['Balance de situación a 31/12/2025 (antes del cierre)', function(doc,y){ renderBalance2025Oficial(doc, y); }],
+    pyg:     ['Cuenta de pérdidas y ganancias', function(doc,y){ renderPyG2025Oficial(doc, y); }]
+  };
+  if (nativos[VISTA2025]) {
+    const cfg = nativos[VISTA2025];
+    generarPDFContable(cfg[0], cfg[1], {ejercicio:'2025', cerrado:true});
+    return;
+  }
   const map = {
-    diario:  ['Libro diario',                        pdfBodyDiario2025],
-    mayor:   ['Libro mayor',                          pdfBodyMayor2025],
-    sumas:   ['Sumas y saldos',                       pdfBodySumas2025],
-    balance: ['Balance de situación a 31/12/2025 (antes del cierre)', pdfBodyBalance2025],
-    pyg:     ['Cuenta de pérdidas y ganancias',        pdfBodyPyG2025],
     isoc:    ['Impuesto de Sociedades',                pdfBodyIsoc2025],
     analisisfin: ['Análisis financiero',               pdfBodyAnalisisFin2025],
     analisiseco: ['Análisis económico',                pdfBodyAnalisisEco2025]
   };
-  const cfg = map[VISTA2025] || map.diario;
+  const cfg = map[VISTA2025] || nativos.diario;
   abrirPDF2025(cfg[0], cfg[1]());
 }
 
