@@ -11283,7 +11283,7 @@ function estKey(x){
 }
 function detectRules(text,intentId){
  const t=norm(text);
- return RULES.filter(r=>r.re.test(t)&&!(r.not&&r.not.test(t))&&(!r.in||!intentId||r.in.includes(intentId)));
+ return RULES.filter(r=>r.re.test(t)&&!(r.not&&r.not.test(t))&&(!r.in||r.in.includes(intentId)));
 }
 function detectCats(s,it){
  it=it===undefined?activeIntent(s):it;
