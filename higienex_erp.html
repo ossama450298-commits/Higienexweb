@@ -274,6 +274,7 @@ tr.total td{background:var(--surface-2);font-weight:700;border-top:1px solid var
 /* --------------------------------------------------------------- tags -- */
 .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid;white-space:nowrap;font-weight:700}
 .t-ok{color:var(--teal-dk);border-color:rgba(15,157,116,.3);background:rgba(15,157,116,.1)}
+.t-bad{color:var(--red-dk);border-color:rgba(174,52,39,.35);background:rgba(174,52,39,.1)}
 .t-wait{color:var(--amber-dk);border-color:rgba(217,119,6,.3);background:rgba(217,119,6,.1)}
 .t-late{color:var(--red-dk);border-color:rgba(220,53,69,.3);background:rgba(220,53,69,.1)}
 .t-neu{color:var(--ink-2);border-color:var(--line-strong);background:var(--surface-2)}
@@ -2503,13 +2504,47 @@ productos:[
  {id:'A06',ref:'DISP-IX',nom:'Dispensador mural INOX',     fam:'Accesorios',   stock:150,min:40, coste:18.00,pvp:39.00,prov:'P02',ubi:'C-02'}
 ],
 empleados:[
- {id:'E01',nom:'Oussama',dni:'46112233X',cat:'Dirección general',contrato:'Indefinido',alta:'2015-03-15',brutoAnual:42000,pagas:14,irpf:24,depto:'Dirección'},
- {id:'E02',nom:'Ariadna',dni:'20998877K',cat:'Responsable administración',contrato:'Indefinido',alta:'2017-09-01',brutoAnual:31500,pagas:14,irpf:17,depto:'Administración'},
- {id:'E03',nom:'Lucía',dni:'44556677M',cat:'Responsable comercial',contrato:'Indefinido',alta:'2019-02-11',brutoAnual:29400,pagas:14,irpf:16,depto:'Comercial'},
- {id:'E04',nom:'Marc',dni:'25334411F',cat:'Jefe de almacén',contrato:'Indefinido',alta:'2018-06-04',brutoAnual:26600,pagas:14,irpf:14,depto:'Logística'},
- {id:'E05',nom:'Nadia',dni:'X8123456R',cat:'Técnica de laboratorio',contrato:'Indefinido',alta:'2021-01-18',brutoAnual:27300,pagas:14,irpf:15,depto:'I+D'},
- {id:'E06',nom:'Sergi',dni:'52887744T',cat:'Operario de producción',contrato:'Temporal',alta:'2025-10-01',brutoAnual:21800,pagas:14,irpf:9,depto:'Producción'},
- {id:'E07',nom:'Edu',dni:'39887766P',cat:'Técnico de logística',contrato:'Indefinido',alta:'2026-08-01',brutoAnual:24500,pagas:14,irpf:12,depto:'Logística'}
+ {id:'E01',nom:'Oussama',dni:'46112233X',cat:'Dirección general',contrato:'Indefinido',alta:'2015-03-15',brutoAnual:42000,pagas:14,irpf:24,depto:'Dirección',
+  email:'oussama@higienexvalencia.es',telefon:'963 123 456',contactEmerg:'Amina (esposa) · 611 223 344',
+  epis:[],
+  formacions:[{curs:'Prevenció de Riscos Laborals (bàsic)',entitat:'FREMAP',data:'2024-02-10',caducitat:'2027-02-10'}]},
+ {id:'E02',nom:'Ariadna',dni:'20998877K',cat:'Responsable administración',contrato:'Indefinido',alta:'2017-09-01',brutoAnual:31500,pagas:14,irpf:17,depto:'Administración',
+  email:'ariadna@higienexvalencia.es',telefon:'963 123 457',contactEmerg:'Josep (marit) · 622 334 455',
+  epis:[],
+  formacions:[{curs:'Prevenció de Riscos Laborals (bàsic)',entitat:'FREMAP',data:'2023-05-18',caducitat:'2026-05-18'},
+              {curs:'Protecció de dades (RGPD)',entitat:'Cambra de Comerç de València',data:'2025-01-14',caducitat:'2028-01-14'}]},
+ {id:'E03',nom:'Lucía',dni:'44556677M',cat:'Responsable comercial',contrato:'Indefinido',alta:'2019-02-11',brutoAnual:29400,pagas:14,irpf:16,depto:'Comercial',
+  email:'lucia@higienexvalencia.es',telefon:'963 123 458',contactEmerg:'Rosa (mare) · 633 445 566',
+  epis:[],
+  formacions:[{curs:'Prevenció de Riscos Laborals (bàsic)',entitat:'FREMAP',data:'2024-09-22',caducitat:'2027-09-22'}]},
+ {id:'E04',nom:'Marc',dni:'25334411F',cat:'Jefe de almacén',contrato:'Indefinido',alta:'2018-06-04',brutoAnual:26600,pagas:14,irpf:14,depto:'Logística',
+  email:'marc@higienexvalencia.es',telefon:'963 123 459',contactEmerg:'Elena (esposa) · 644 556 677',
+  epis:[{item:'Guants de nitril',entrega:'2026-01-10',caducitat:'2026-07-10'},
+        {item:'Ulleres de protecció química (EN 166)',entrega:'2025-06-15',caducitat:'2027-06-15'},
+        {item:'Calçat de seguretat (S3)',entrega:'2025-11-03',caducitat:'2027-11-03'}],
+  formacions:[{curs:'Manipulació de productes químics',entitat:'HIGIENEX (intern)',data:'2025-03-12',caducitat:'2027-03-12'},
+              {curs:'Prevenció de Riscos Laborals (nivell bàsic)',entitat:'FREMAP',data:'2024-04-08',caducitat:'2027-04-08'}]},
+ {id:'E05',nom:'Nadia',dni:'X8123456R',cat:'Técnica de laboratorio',contrato:'Indefinido',alta:'2021-01-18',brutoAnual:27300,pagas:14,irpf:15,depto:'I+D',
+  email:'nadia@higienexvalencia.es',telefon:'963 123 460',contactEmerg:'Yasmine (germana) · 655 667 788',
+  epis:[{item:'Guants de nitril',entrega:'2026-04-01',caducitat:'2026-10-01'},
+        {item:'Ulleres de protecció química (EN 166)',entrega:'2025-09-20',caducitat:'2027-09-20'},
+        {item:'Bata de laboratori',entrega:'2026-01-05',caducitat:'2027-01-05'},
+        {item:'Mascareta FFP3',entrega:'2026-06-01',caducitat:'2026-09-01'}],
+  formacions:[{curs:'Manipulació avançada de productes químics',entitat:'HIGIENEX (intern)',data:'2025-05-20',caducitat:'2027-05-20'},
+              {curs:'Primers auxilis',entitat:'Creu Roja',data:'2024-11-11',caducitat:'2026-11-11'}]},
+ {id:'E06',nom:'Sergi',dni:'52887744T',cat:'Operario de producción',contrato:'Temporal',alta:'2025-10-01',brutoAnual:21800,pagas:14,irpf:9,depto:'Producción',
+  email:'sergi@higienexvalencia.es',telefon:'963 123 461',contactEmerg:'Maria (mare) · 666 778 899',
+  epis:[{item:'Guants de nitril',entrega:'2025-10-01',caducitat:'2026-04-01'},
+        {item:'Ulleres de protecció química (EN 166)',entrega:'2025-10-01',caducitat:'2027-10-01'},
+        {item:'Bata de treball',entrega:'2025-10-01',caducitat:'2026-10-01'},
+        {item:'Calçat de seguretat (S3)',entrega:'2025-10-01',caducitat:'2027-10-01'}],
+  formacions:[{curs:'Manipulació de productes químics',entitat:'HIGIENEX (intern)',data:'2025-10-05',caducitat:'2027-10-05'}]},
+ {id:'E07',nom:'Edu',dni:'39887766P',cat:'Técnico de logística',contrato:'Indefinido',alta:'2026-08-01',brutoAnual:24500,pagas:14,irpf:12,depto:'Logística',
+  email:'edu@higienexvalencia.es',telefon:'963 123 462',contactEmerg:'Laura (parella) · 677 889 900',
+  epis:[{item:'Guants de protecció mecànica',entrega:'2026-08-01',caducitat:'2027-08-01'},
+        {item:'Calçat de seguretat (S3)',entrega:'2026-08-01',caducitat:'2028-08-01'}],
+  formacions:[{curs:'Carretó elevador (carnet intern)',entitat:'HIGIENEX (intern)',data:'2026-08-03',caducitat:'2028-08-03'},
+              {curs:'Prevenció de Riscos Laborals (bàsic)',entitat:'FREMAP',data:'2026-08-03',caducitat:'2029-08-03'}]}
 ],
 ausencias:[
  {id:'AU1',emp:'E06',tipo:'Baja por IT (común)',desde:'2026-06-02',hasta:'2026-06-13',dias:10},
@@ -7074,7 +7109,7 @@ ROUTES.rrhh=function(){
     esc(e.cat),esc(e.depto),
     e.contrato==='Indefinido'?'<span class="tag t-ok">Indefinido</span>':'<span class="tag t-wait">'+esc(e.contrato)+'</span>',
     FD(e.alta),EUR(e.brutoAnual),NUM(e.irpf)+' %',EUR(n.liquido),
-    '<button class="btn ghost sm" onclick="verNomina(\''+e.id+'\')" type="button">Nómina</button>'],[5,6,7]);});
+    '<button class="btn ghost sm" onclick="verNomina(\''+e.id+'\')" type="button">Nómina</button> <button class="btn ghost sm" onclick="verFichaEmpleado(\''+e.id+'\')" type="button">Ficha</button>'],[5,6,7]);});
   h+='<div class="card">'+tbl([['Empleado'],['Categoría'],['Departamento'],['Contrato'],['Alta'],['Bruto anual','n'],['IRPF','n'],['Líquido mes','n'],['']],rows,
     ['Sin empleados','Da de alta el primero con «Alta de empleado».'])+'</div>';
   h+='<div class="card" style="margin-top:16px"><h3>Ausencias registradas</h3>'+
@@ -7084,6 +7119,66 @@ ROUTES.rrhh=function(){
   h += panelPlegable('Ver indicadores de RRHH (rotación, absentismo y coste laboral)', ROUTES.panelrrhh());
   return h;
 };
+function diesFins(dataStr){
+  return Math.round((new Date(dataStr) - new Date(TODAY)) / 86400000);
+}
+function verFichaEmpleado(id){
+  const e=emp(id);
+  const epiRows=(e.epis||[]).map(x=>{
+    const d=diesFins(x.caducitat);
+    const tag=d<0?'<span class="tag t-bad">Caducat</span>':d<=60?'<span class="tag t-wait">Caduca en '+d+' dies</span>':'<span class="tag t-ok">Vigent</span>';
+    return rowN([esc(x.item),FD(x.entrega),FD(x.caducitat),tag],[]);
+  });
+  const formRows=(e.formacions||[]).map(x=>{
+    const d=diesFins(x.caducitat);
+    const tag=d<0?'<span class="tag t-bad">Caducada</span>':d<=60?'<span class="tag t-wait">Caduca en '+d+' dies</span>':'<span class="tag t-ok">Vigent</span>';
+    return rowN([esc(x.curs),esc(x.entitat),FD(x.data),FD(x.caducitat),tag],[]);
+  });
+  openModal('Fitxa d\'empleat · '+esc(e.nom),
+    '<div class="frow" style="margin-bottom:16px">'+info('Categoria',e.cat)+info('Departament',e.depto)+info('Contracte',e.contrato)+info('Alta',FD(e.alta))+'</div>'+
+    '<div class="frow" style="margin-bottom:16px">'+info('DNI/NIE',e.dni)+info('Email',e.email||'—')+info('Telèfon',e.telefon||'—')+info('Contacte d\'emergència',e.contactEmerg||'—')+'</div>'+
+    '<div class="sec" style="margin-top:4px">EPIs assignats</div>'+
+    tbl([['Equip'],['Lliurament'],['Caducitat'],['Estat']],epiRows,['Sense EPIs assignats','Aquest lloc no en requereix.'])+
+    '<div style="margin:10px 0 16px"><button class="btn ghost sm" onclick="formEpiEmpleado(\''+e.id+'\')" type="button">+ Assignar EPI</button></div>'+
+    '<div class="sec">Formació i certificacions</div>'+
+    tbl([['Curs'],['Entitat'],['Data'],['Caducitat'],['Estat']],formRows,['Sense formació registrada',''])+
+    '<div style="margin-top:10px"><button class="btn ghost sm" onclick="formFormacioEmpleado(\''+e.id+'\')" type="button">+ Registrar formació</button></div>',
+    '<button class="btn ghost" onclick="closeModal()" type="button">Tancar</button>');
+}
+window.verFichaEmpleado = verFichaEmpleado;
+function formEpiEmpleado(empId){
+  openModal('Assignar EPI',
+    '<div class="frow">'+fInput('Equip de protecció','ep_item','text','Guants de nitril')+
+      fInput('Data de lliurament','ep_entrega','date',TODAY)+
+      fInput('Data de caducitat/renovació','ep_caduc','date',addDays(TODAY,180))+'</div>',
+    '<button class="btn ghost" onclick="verFichaEmpleado(\''+empId+'\')" type="button">Cancel·lar</button><button class="btn" onclick="saveEpiEmpleado(\''+empId+'\')" type="button">Assignar</button>');
+}
+function saveEpiEmpleado(empId){
+  const item=val('ep_item').trim();
+  if(!item){toast('Falta el nom de l\'equip de protecció.');return;}
+  const e=emp(empId);
+  if(!e.epis) e.epis=[];
+  e.epis.push({item:item, entrega:val('ep_entrega')||TODAY, caducitat:val('ep_caduc')||addDays(TODAY,180)});
+  toast('EPI assignat a '+e.nom+'.');
+  verFichaEmpleado(empId);
+}
+function formFormacioEmpleado(empId){
+  openModal('Registrar formació',
+    '<div class="frow">'+fInput('Nom del curs','fo_curs','text','Manipulació de productes químics')+
+      fInput('Entitat formadora','fo_entitat','text','HIGIENEX (intern)')+
+      fInput('Data de realització','fo_data','date',TODAY)+
+      fInput('Data de caducitat','fo_caduc','date',addDays(TODAY,730))+'</div>',
+    '<button class="btn ghost" onclick="verFichaEmpleado(\''+empId+'\')" type="button">Cancel·lar</button><button class="btn" onclick="saveFormacioEmpleado(\''+empId+'\')" type="button">Registrar</button>');
+}
+function saveFormacioEmpleado(empId){
+  const curs=val('fo_curs').trim();
+  if(!curs){toast('Falta el nom del curs.');return;}
+  const e=emp(empId);
+  if(!e.formacions) e.formacions=[];
+  e.formacions.push({curs:curs, entitat:val('fo_entitat').trim()||'—', data:val('fo_data')||TODAY, caducitat:val('fo_caduc')||addDays(TODAY,730)});
+  toast('Formació registrada per a '+e.nom+'.');
+  verFichaEmpleado(empId);
+}
 function formEmpleado(){
   openModal('Alta de empleado',
     '<div class="frow">'+fInput('Nombre y apellidos','ne_nom')+fInput('DNI/NIE','ne_dni')+
@@ -10606,6 +10701,20 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:26px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 
 /* --- Añadidos de la fusión --- */
+dialog.api{border:1px solid var(--line);border-radius:18px;padding:0;background:var(--surface);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.25);width:min(520px,calc(100vw - 32px))}
+dialog.api::backdrop{background:rgba(15,18,30,.45)}
+.api-head{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.api-head b{font-family:'Bricolage Grotesque';font-size:18px}
+.api-body{padding:18px 22px}
+.api-body p{margin:0 0 12px;font-size:13.5px;color:var(--muted)}
+.api-body a{color:var(--accent)}
+.api-actions{display:flex;gap:8px;flex-wrap:wrap;padding:0 22px 20px}
+.api-actions .btn{flex:1;min-width:120px;font-size:13.5px;padding:11px}
+.api-state{font-size:13px;font-weight:600;margin-top:10px;min-height:18px}
+.api-state.ok{color:var(--teal)}.api-state.bad{color:var(--red)}
+.note{font-size:12.5px;color:var(--muted);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.5}
+.theme-btn.on{border-color:var(--teal);color:var(--teal)}
+.x{background:none;border:0;font-size:20px;cursor:pointer;color:var(--muted)}
 .custom-reveal{display:none;margin-top:7px}
 .custom-reveal.show{display:block}
 .error-msg{display:none;color:var(--red);font-size:12.5px;margin:6px 0 0}
@@ -10633,6 +10742,7 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:26px}
  <div class="brand"><div class="logo">✦</div><div><strong>HIGIENEX Prompt</strong><small>Generador de prompts</small></div></div>
  <div class="head-right">
   <div class="privacy" id="privacy"><i></i>Funciona en local, sin enviar datos</div>
+  <button class="theme-btn" id="apiBtn" type="button">⚙️ Conectar IA</button>
   <button class="theme-btn" id="themeBtn" type="button">Modo oscuro</button>
  </div>
 </header>
@@ -10722,7 +10832,7 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:26px}
    </div>
   </details>
 
-  <label class="check ai-row" id="aiRow"><input type="checkbox" id="useAI" checked><span>Pulir el prompt con IA<small>Parte del prompt generado con reglas y lo adapta a tu caso concreto, usando una librería de 44 prompts modelo.</small></span></label>
+  <label class="check ai-row" id="aiRow"><input type="checkbox" id="useAI" checked><span>Pulir el prompt con IA<small id="aiRowSub"></small></span></label>
 
   <div class="actions">
    <button class="btn primary" type="submit" id="genBtn"><span id="genLabel">Generar prompt</span><kbd>Ctrl + Enter</kbd></button>
@@ -10752,6 +10862,29 @@ footer{text-align:center;color:var(--faint);font-size:12.5px;margin-top:26px}
  </div>
 </section>
 </main>
+<dialog class="api" id="apiDlg">
+ <div class="api-head"><b>Conectar con la API de Anthropic</b><button class="x" type="button" id="apiClose" aria-label="Cerrar">×</button></div>
+ <div class="api-body">
+  <p>Con tu propia clave de API, el botón “Pulir el prompt con IA” reescribe cada borrador con Claude y lo adapta a tu caso concreto. Crea la clave en <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.</p>
+  <div class="field"><label class="field-label" for="apiKey">Clave de API</label>
+   <input type="text" id="apiKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" style="font-family:'JetBrains Mono',monospace;-webkit-text-security:disc"></div>
+  <div class="field"><label class="field-label" for="apiModel">Modelo</label>
+   <select id="apiModel">
+    <option value="claude-sonnet-5">Claude Sonnet 5 · recomendado</option>
+    <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 · más rápido y barato</option>
+    <option value="claude-opus-5-5">Claude Opus 5.5 · máxima calidad, más caro</option>
+    <option value="__custom">Otro modelo…</option>
+   </select>
+   <input type="text" id="apiModelCustom" class="custom-reveal" placeholder="Nombre exacto del modelo"></div>
+  <div class="api-state" id="apiState"></div>
+  <div class="note">La clave se guarda solo en este navegador, nunca dentro del archivo del ERP. Aun así, cualquiera que use este ordenador podría verla, así que usa una clave solo para esto y ponle un límite de gasto en la consola de Anthropic. Cada prompt pulido cuesta céntimos y se cobra en tu cuenta de Anthropic.</div>
+ </div>
+ <div class="api-actions">
+  <button class="btn ghost" type="button" id="apiRemove">Desconectar</button>
+  <button class="btn secondary" type="button" id="apiTest">Probar conexión</button>
+  <button class="btn primary" type="button" id="apiSave" style="grid-column:auto">Guardar</button>
+ </div>
+</dialog>
 <footer>HIGIENEX Prompt guarda el historial solo en este navegador. Puedes editar el prompt antes de copiarlo.</footer>
 </div>
 
@@ -11281,6 +11414,61 @@ async function getSample(){
  for(const h of hosts){try{if(typeof h.use==='function'){sampleCap=await h.use('sample');if(sampleCap)break}}catch(e){}}
  return sampleCap;
 }
+/* ===== API de Anthropic (clave propia) ===== */
+const MODEL_NAMES={'claude-sonnet-5':'Claude Sonnet 5','claude-haiku-4-5-20251001':'Claude Haiku 4.5','claude-opus-5-5':'Claude Opus 5.5'};
+function apiCfg(){return{key:store.get('ps_api_key',''),model:store.get('ps_api_model','claude-sonnet-5')}}
+function apiError(status,body){
+ const msg=(body&&body.error&&body.error.message)||'';
+ if(status===401) return 'La clave de API no es válida.';
+ if(status===403) return 'La clave no tiene permiso para usar este modelo.';
+ if(status===404) return 'El modelo no existe o no está disponible para tu cuenta.';
+ if(status===429) return 'Has alcanzado el límite de uso o de gasto de tu cuenta.';
+ if(status===529||status===503) return 'La API está saturada ahora mismo; prueba en unos segundos.';
+ if(status===400&&/credit|billing|balance/i.test(msg)) return 'Tu cuenta de Anthropic no tiene saldo.';
+ return 'Error de la API ('+status+')'+(msg?': '+msg:'');
+}
+async function callAnthropic(prompt,{onText,maxTokens=4000,system,signal}={}){
+ const {key,model}=apiCfg(); if(!key) throw new Error('No hay clave de API configurada.');
+ let res;
+ try{
+  res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',signal,headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+   body:JSON.stringify({model,max_tokens:maxTokens,stream:true,...(system?{system}:{}),messages:[{role:'user',content:prompt}]})});
+ }catch(e){throw new Error('No se pudo conectar con la API. Revisa tu conexión a internet.')}
+ if(!res.ok){let b=null;try{b=await res.json()}catch(e){}throw new Error(apiError(res.status,b))}
+ const reader=res.body.getReader(), dec=new TextDecoder();let buf='',text='';
+ while(true){
+  const {done,value}=await reader.read(); if(done) break;
+  buf+=dec.decode(value,{stream:true});
+  let i;
+  while((i=buf.indexOf('\\n\\n'))>=0){
+   const evt=buf.slice(0,i);buf=buf.slice(i+2);
+   const line=evt.split('\\n').find(l=>l.startsWith('data:')); if(!line) continue;
+   let d;try{d=JSON.parse(line.slice(5).trim())}catch(e){continue}
+   if(d.type==='content_block_delta'&&d.delta&&d.delta.type==='text_delta'){text+=d.delta.text;if(onText)onText(text)}
+   else if(d.type==='error'){const e=new Error(apiError(d.error&&d.error.type==='overloaded_error'?529:500,d));e.text=text;throw e}
+  }
+ }
+ return text;
+}
+const META_SYSTEM='Eres un experto en ingeniería de prompts que trabaja para una pyme española. Escribes prompts en español, concretos, sin relleno y listos para pegar. Nunca realizas la tarea descrita: solo escribes el prompt que la pediría. Respondes únicamente con el prompt final.';
+
+/* Decide qué IA usar: primero la clave propia, después la del ERP */
+async function getEngine(){
+ if(apiCfg().key) return {name:'api',label:MODEL_NAMES[apiCfg().model]||apiCfg().model,run:(prompt,onText)=>callAnthropic(prompt,{onText,system:META_SYSTEM})};
+ const sample=await getSample();
+ if(sample) return {name:'erp',label:'IA del ERP',run:async(prompt,onText)=>{const r=await sample(prompt,{modelTier:'default',cache:false,onText:({text})=>{if(text&&onText)onText(text)}});return r&&r.text?r.text:''}};
+ return null;
+}
+function refreshAiRow(){
+ getEngine().then(eng=>{
+  $('aiRow').classList.toggle('show',!!eng);
+  $('aiRowSub').textContent=eng?(eng.name==='api'?'Con tu API de Anthropic ('+eng.label+'). ':'Con la IA del ERP. ')+'Parte del borrador generado con reglas y lo adapta a tu caso, usando una librería de 44 prompts modelo.':'';
+  $('privacy').innerHTML=eng?'<i></i>'+(eng.name==='api'?'Conectado a la API · '+esc(eng.label):'IA disponible desde el ERP'):'<i></i>Funciona en local, sin enviar datos';
+  $('apiBtn').classList.toggle('on',eng&&eng.name==='api');
+  $('apiBtn').textContent=eng&&eng.name==='api'?'✓ IA conectada':'⚙️ Conectar IA';
+ });
+}
+
 function buildMetaPrompt(s,draft,mode){
  const L=[];
  L.push('Eres un experto en ingeniería de prompts. Tu única tarea es escribir un prompt excelente, en español, listo para copiar y pegar, que una persona usará para pedirle una tarea a '+s.ai+'. No hagas la tarea tú: escribe el prompt que la pediría.');
@@ -11315,20 +11503,20 @@ async function generate(mode){
  $('requestError').classList.remove('show');
  if(editing) toggleEdit(false);
  const draft=buildRulesPrompt(s,mode), cats=isImage(s)?[]:detectCats(s);
- const sample=$('useAI').checked?await getSample():null;
- if(!sample||isImage(s)){
+ const engine=$('useAI').checked?await getEngine():null;
+ if(!engine||isImage(s)){
   show(draft);renderPills(cats,false);
   setStatus(mode==='improve'?'Prompt potenciado':'Prompt generado',true);save(draft,s);return;
  }
  setBusy(true);setStatus('Puliendo el prompt con IA…',false,true);
  try{
-  const r=await sample(buildMetaPrompt(s,draft,mode),{modelTier:'default',cache:false,onText:({text})=>{if(text)show(text,true)}});
-  const final=(r&&r.text)?r.text.trim():draft;
-  show(final);renderPills(cats,!!(r&&r.text));setStatus('Prompt pulido con IA',true);save(final,s);
+  const out=await engine.run(buildMetaPrompt(s,draft,mode),t=>show(t,true));
+  const final=out&&out.trim()?out.trim():draft;
+  show(final);renderPills(cats,!!(out&&out.trim()),engine.label);setStatus('Prompt pulido con '+engine.label,true);save(final,s);
  }catch(err){
   const partial=err&&err.text?err.text:'';
-  show(partial||draft);renderPills(cats,!!partial);
-  setStatus(partial?'Se cortó la generación: puedes editarlo o regenerar':'No se pudo usar la IA; este es el prompt generado con reglas',false,true);
+  show(partial||draft);renderPills(cats,!!partial,engine.label);
+  setStatus(partial?'Se cortó la generación: puedes editarlo o regenerar':(err&&err.message?err.message+' Te dejo el prompt generado con reglas.':'No se pudo usar la IA; este es el prompt generado con reglas'),false,true);
   save(partial||draft,s);
  }finally{setBusy(false)}
 }
@@ -11358,8 +11546,8 @@ function emptyState(){
  $('meta').textContent='Aún no has generado ninguno';$('pills').innerHTML='';
  ['editBtn','regenBtn','copyBtn','dlBtn'].forEach(id=>$(id).disabled=true);
 }
-function renderPills(cats,viaAI){
- $('pills').innerHTML=cats.map(c=>'<span class="pill cat">'+esc(CAT_NAMES[c])+'</span>').join('')+(viaAI?'<span class="pill ai">✨ Pulido con IA</span>':'<span class="pill">Generado con reglas</span>');
+function renderPills(cats,viaAI,label){
+ $('pills').innerHTML=cats.map(c=>'<span class="pill cat">'+esc(CAT_NAMES[c])+'</span>').join('')+(viaAI?'<span class="pill ai">✨ Pulido con '+esc(label||'IA')+'</span>':'<span class="pill">Generado con reglas</span>');
 }
 function setStatus(msg,ok,sticky){const el=$('status');el.textContent=msg;el.className=ok?'ok':'';clearTimeout(setStatus.t);if(!sticky)setStatus.t=setTimeout(()=>{el.textContent='Listo';el.className=''},2400)}
 function setBusy(b){
@@ -11446,7 +11634,32 @@ function applyTheme(t){document.documentElement.dataset.theme=t;$('themeBtn').te
 $('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
 applyTheme(store.get('ps_theme','light'));emptyState();renderHistory();updateAiInfo();updateMeter();
-getSample().then(c=>{if(c){$('aiRow').classList.add('show');$('privacy').innerHTML='<i></i>IA disponible desde el ERP'}});
+refreshAiRow();
+function dlgModel(){return $('apiModel').value==='__custom'?$('apiModelCustom').value.trim():$('apiModel').value}
+function apiState(msg,cls){const el=$('apiState');el.textContent=msg;el.className='api-state'+(cls?' '+cls:'')}
+$('apiBtn').onclick=()=>{const c=apiCfg();$('apiKey').value=c.key;setSel('apiModel','apiModelCustom',c.model);apiState(c.key?'Hay una clave guardada en este navegador.':'','');
+ if(typeof $('apiDlg').showModal==='function')$('apiDlg').showModal();else $('apiDlg').setAttribute('open','')};
+function closeDlg(){const d=$('apiDlg');if(typeof d.close==='function')d.close();else d.removeAttribute('open')}
+$('apiClose').onclick=closeDlg;
+$('apiModel').addEventListener('change',()=>{const on=$('apiModel').value==='__custom';$('apiModelCustom').classList.toggle('show',on);if(on)$('apiModelCustom').focus()});
+$('apiTest').onclick=async()=>{
+ const key=$('apiKey').value.trim(),model=dlgModel();
+ if(!/^sk-ant-/.test(key)){apiState('La clave debe empezar por "sk-ant-".','bad');return}
+ if(!model){apiState('Indica el modelo.','bad');return}
+ const prev=apiCfg();store.set('ps_api_key',key);store.set('ps_api_model',model);
+ apiState('Probando…','');$('apiTest').disabled=true;
+ try{const r=await callAnthropic('Responde solo con la palabra OK.',{maxTokens:10});apiState('Conexión correcta con '+(MODEL_NAMES[model]||model)+'. Pulsa Guardar.','ok')}
+ catch(e){apiState(e.message,'bad')}
+ finally{store.set('ps_api_key',prev.key);store.set('ps_api_model',prev.model);$('apiTest').disabled=false}
+};
+$('apiSave').onclick=()=>{
+ const key=$('apiKey').value.trim(),model=dlgModel();
+ if(!/^sk-ant-/.test(key)){apiState('La clave debe empezar por "sk-ant-".','bad');return}
+ if(!model){apiState('Indica el modelo.','bad');return}
+ store.set('ps_api_key',key);store.set('ps_api_model',model);$('useAI').checked=true;
+ closeDlg();refreshAiRow();setStatus('API conectada: '+(MODEL_NAMES[model]||model),true);
+};
+$('apiRemove').onclick=()=>{store.set('ps_api_key','');$('apiKey').value='';apiState('Clave eliminada de este navegador.','ok');refreshAiRow()};
 })();
 <\/script>
 </body>
