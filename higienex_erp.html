@@ -24,7 +24,6 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
 <script src="jspdf.umd.min.js" defer></script>
 <script src="jspdf.plugin.autotable.min.js" defer></script>
-<script src="html2canvas.min.js" defer></script>
 <style>
 /* ==========================================================================
    HIGIENEX — Sistema de diseño 2026
@@ -4514,23 +4513,63 @@ function savePresupuesto(){
 }
 function descarregarPressupost(id){
   const p=DB.presupuestos.find(x=>x.id===id); if(!p) return;
-  const rows=p.lineas.map(l=>'<tr><td>'+esc(art(l.art).nom)+'</td><td class="num">'+l.cant+'</td><td class="num">'+EUR(l.precio)+'</td><td class="num">'+EUR(l.cant*l.precio)+'</td></tr>').join('');
-  const html='<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Pressupost '+esc(p.num)+'</title>'+
-    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:12.5px;max-width:780px;margin:0 auto}'+
-    '.top{border-bottom:3px solid #0B3D6B;padding-bottom:16px;margin-bottom:22px;display:flex;justify-content:space-between}'+
-    '.brand{font-size:22px;font-weight:800;color:#0B3D6B;font-family:Georgia,serif}.brand span{color:#F2A900}'+
-    'table{width:100%;border-collapse:collapse;font-size:12px;margin-top:14px}th{background:#0B3D6B;color:#fff;text-align:left;padding:8px 10px;font-size:11px}'+
-    'td{border:1px solid #D9E5F0;padding:8px 10px}td.num,th.num{text-align:right}tr:nth-child(even) td{background:#F5FAFF}'+
-    '.tot{text-align:right;font-weight:800;font-size:14px;margin-top:10px;color:#0B3D6B}'+
-    '.foot{margin-top:28px;font-size:9.5px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:10px}'+
-    '@media print{@page{margin:15mm}}</style></head><body>'+
-    '<div class="top"><div class="brand">HIGIENE<span>X</span></div><div style="text-align:right"><div style="font-weight:700">Pressupost '+esc(p.num)+'</div><div style="color:#8A9BAC;font-size:11px">'+FD(p.fecha)+'</div></div></div>'+
-    '<div style="margin-bottom:10px"><b>Client:</b> '+esc(nomCli(p.cli))+' · '+esc(cli(p.cli).nif||'')+'<br>'+esc(cli(p.cli).dir||'')+', '+esc(cli(p.cli).pob||'')+'</div>'+
-    '<table><thead><tr><th>Producte</th><th class="num">Quant.</th><th class="num">Preu unit.</th><th class="num">Import</th></tr></thead><tbody>'+rows+'</tbody></table>'+
-    '<div class="tot">Total: '+EUR(p.total)+' (IVA no inclòs)</div>'+
-    '<div class="foot">HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es · 963 123 456. Pressupost vàlid 30 dies des de la data d\'emissió.</div>'+
-    '</body></html>';
-  abrirImprimible('Pressupost '+p.num, html);
+  if (typeof window.jspdf === 'undefined'){ toast('No se ha podido cargar el generador de PDF.'); return; }
+  const jsPDF = window.jspdf.jsPDF;
+  const doc = new jsPDF({unit:'pt', format:'a4'});
+  const M=42, W=595.28;
+  let y=48;
+  doc.setFont('times','bold'); doc.setFontSize(19);
+  doc.setTextColor(11,61,107);
+  doc.text('HIGIENE', M, y);
+  const w1=doc.getTextWidth('HIGIENE');
+  doc.setTextColor(242,169,0);
+  doc.text('X', M+w1, y);
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.setTextColor(22,35,46);
+  doc.text('Pressupost '+p.num, W-M, y-6, {align:'right'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(138,155,172);
+  doc.text(FD(p.fecha), W-M, y+8, {align:'right'});
+  y += 20;
+  doc.setDrawColor(11,61,107); doc.setLineWidth(2);
+  doc.line(M, y, W-M, y);
+  y += 22;
+  const c = cli(p.cli);
+  doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
+  doc.setTextColor(22,35,46);
+  doc.text('Client: '+nomCli(p.cli)+' \u00b7 '+(c.nif||''), M, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(90,107,122);
+  doc.text((c.dir||'')+', '+(c.pob||''), M, y+13);
+  y += 30;
+  const body = p.lineas.map(l=>{
+    const a = art(l.art);
+    return [a?a.nom:l.art, String(l.cant), EUR(l.precio), EUR(l.cant*l.precio)];
+  });
+  doc.autoTable({
+    startY:y,
+    head:[['Producte','Quant.','Preu unit.','Import']],
+    body: body,
+    theme:'plain',
+    margin:{left:M, right:M},
+    styles:{font:'helvetica', fontSize:9, textColor:[22,35,46], lineColor:[217,229,240], lineWidth:0.5, cellPadding:{top:6,bottom:6,left:8,right:8}},
+    headStyles:{fillColor:[11,61,107], textColor:255, fontStyle:'bold', fontSize:8, halign:'left'},
+    alternateRowStyles:{fillColor:[245,250,255]},
+    columnStyles:{0:{cellWidth:'auto'},1:{cellWidth:56,halign:'right'},2:{cellWidth:70,halign:'right'},3:{cellWidth:78,halign:'right'}}
+  });
+  y = doc.lastAutoTable.finalY + 16;
+  doc.setFont('helvetica','bold'); doc.setFontSize(11.5);
+  doc.setTextColor(11,61,107);
+  doc.text('Total: '+EUR(p.total)+' (IVA no incl\u00f2s)', W-M, y, {align:'right'});
+  y += 26;
+  doc.setDrawColor(217,229,240); doc.setLineWidth(0.5);
+  doc.line(M, y, W-M, y);
+  y += 13;
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.8);
+  doc.setTextColor(138,155,172);
+  const footLines = doc.splitTextToSize('HIGIENEX S.L. \u00b7 Carrer de la Ind\u00fastria, 25, 46010 Val\u00e8ncia \u00b7 contacto@higienexvalencia.es \u00b7 963 123 456. Pressupost v\u00e0lid 30 dies des de la data d\'emissi\u00f3.', W-2*M);
+  doc.text(footLines, M, y);
+  doc.save('Pressupost_'+p.num+'.pdf');
 }
 
 /* =========================================================
@@ -5172,85 +5211,129 @@ function abrirImprimibleFallback(titulo, html){
 function abrirImprimible(titulo, html){
   descargarPDFDirecto(titulo.replace(/\s+/g,'_')+'.pdf', html, {piePagina:'HIGIENEX S.L. · '+titulo});
 }
-function htmlFacturaE(num){
+function imprimirFacturaE(num){
   const f=DB.facturasE.find(x=>x.num===num), c=cli(f.cli);
   const pagada = f.estado==='Cobrada'||f.estado==='Pagada';
   const venc = vencida(f);
   const estLabel = pagada?'PAGADA':(venc?'VENCIDA':'PENDIENTE');
-  const estColor = pagada?'#0B7256':(venc?'#8C281E':'#8A5900');
-  const estBg = pagada?'#E5F3EE':(venc?'#F7E6E4':'#F7F0E0');
-  const filas=f.lineas.map((l,idx)=>{
+  const estColor = pagada?[11,114,86]:(venc?[140,40,30]:[138,89,0]);
+  const estBg = pagada?[229,243,238]:(venc?[247,230,228]:[247,240,224]);
+  if (typeof window.jspdf === 'undefined'){ toast('No se ha podido cargar el generador de PDF.'); return; }
+  const jsPDF = window.jspdf.jsPDF;
+  const doc = new jsPDF({unit:'pt', format:'a4'});
+  const M=42, W=595.28, H=841.89;
+  doc.setFillColor(11,61,107); doc.rect(0,0,6,H,'F');
+  let y=46;
+  doc.setFont('times','bold'); doc.setFontSize(21);
+  doc.setTextColor(11,61,107);
+  doc.text('HIGIENE', M, y);
+  const w1=doc.getTextWidth('HIGIENE');
+  doc.setTextColor(242,169,0);
+  doc.text('X', M+w1, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(122,135,148);
+  doc.text('HIGIENEX S.L. \u00b7 CIF B12345678', M, y+14);
+  doc.text('Carrer de la Ind\u00fastria, 25 \u00b7 46010 Val\u00e8ncia', M, y+24);
+  doc.text('contacto@higienexvalencia.es \u00b7 963 123 456', M, y+34);
+  doc.setFont('times','bold'); doc.setFontSize(16);
+  doc.setTextColor(22,35,46);
+  doc.text('Factura', W-M, y-4, {align:'right'});
+  doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
+  doc.setTextColor(11,61,107);
+  doc.text(num, W-M, y+10, {align:'right'});
+  doc.setFont('helvetica','bold'); doc.setFontSize(8);
+  const pillW=doc.getTextWidth(estLabel)+16;
+  doc.setFillColor(estBg[0],estBg[1],estBg[2]);
+  doc.roundedRect(W-M-pillW, y+16, pillW, 15, 7.5,7.5,'F');
+  doc.setTextColor(estColor[0],estColor[1],estColor[2]);
+  doc.text(estLabel, W-M-pillW/2, y+26, {align:'center'});
+  y += 48;
+  doc.setDrawColor(22,35,46); doc.setLineWidth(2);
+  doc.line(M, y, W-M, y);
+  y += 22;
+  const colW=(W-2*M)/3;
+  function metaItem(label, value, x){
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+    doc.setTextColor(122,135,148);
+    doc.text(label, x, y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    doc.setTextColor(22,35,46);
+    doc.text(String(value), x, y+13);
+  }
+  metaItem('FECHA DE EMISI\u00d3N', FD(f.fecha), M);
+  metaItem('FECHA DE VENCIMIENTO', FD(f.venc), M+colW);
+  metaItem('FORMA DE PAGO', 'Transferencia bancaria', M+colW*2);
+  y += 34;
+  const boxW=(W-2*M-18)/2, boxH=80;
+  function infoBox(x, titulo, lineas){
+    doc.setDrawColor(227,232,237); doc.setLineWidth(0.75);
+    doc.roundedRect(x, y, boxW, boxH, 6, 6);
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+    doc.setTextColor(184,134,11);
+    doc.text(titulo, x+14, y+16);
+    let ty=y+31;
+    lineas.forEach((l,i)=>{
+      doc.setFont('helvetica', i===0?'bold':'normal');
+      doc.setFontSize(i===0?10.5:9);
+      if (i===0) doc.setTextColor(22,35,46); else doc.setTextColor(51,66,79);
+      doc.text(String(l||'\u2014'), x+14, ty);
+      ty += i===0?15:12;
+    });
+  }
+  infoBox(M, 'FACTURAR A', [c.nom, 'NIF: '+(c.nif||'\u2014'), c.dir||'\u2014', c.pob||'\u2014', (c.mail||'')+' \u00b7 '+(c.tel||'')]);
+  infoBox(M+boxW+18, 'DATOS DE HIGIENEX S.L.', ['HIGIENEX S.L.','CIF: B12345678','Carrer de la Ind\u00fastria, 25','46010 Val\u00e8ncia (Val\u00e8ncia)','contacto@higienexvalencia.es']);
+  y += boxH + 20;
+  const body=f.lineas.map(l=>{
     const p=art(l.art);
-    return '<tr style="background:'+(idx%2?'#F7F9FB':'#fff')+'"><td>'+esc(p?p.ref+' — '+p.nom:l.art)+'</td><td class="num">'+NUM(l.cant)+'</td><td class="num">'+EUR(l.precio)+'</td><td class="num strong">'+EUR(l.cant*l.precio)+'</td></tr>';
-  }).join('');
-  return '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>Factura '+esc(num)+' · HIGIENEX S.L.</title>'+
-    '<style>'+
-    '*{box-sizing:border-box;margin:0;padding:0}'+
-    'html{background:#EDEAE2}'+
-    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#fff;font-size:13px;line-height:1.5}'+
-    '.spine{position:fixed;top:0;left:0;bottom:0;width:9px;background:linear-gradient(180deg,#0B3D6B 0%,#0B3D6B 75%,#F2A900 100%)}'+
-    '.sheet{max-width:740px;margin:0 auto;padding:44px 46px 40px 54px}'+
-    '.top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}'+
-    '.brand{font-family:Georgia,\'Times New Roman\',serif;font-size:25px;font-weight:700;color:#0B3D6B}.brand span{color:#F2A900}'+
-    '.brand-sub{font-size:10px;color:#7A8794;margin-top:6px;line-height:1.7}'+
-    '.doc{text-align:right}'+
-    '.doc h1{font-family:Georgia,\'Times New Roman\',serif;font-size:19px;color:#16232E;margin-bottom:5px}'+
-    '.doc .num{font-family:ui-monospace,Consolas,monospace;font-weight:700;font-size:13px;color:#0B3D6B}'+
-    '.pill{display:inline-block;margin-top:8px;font-size:10.5px;font-weight:800;letter-spacing:.06em;padding:4px 12px;border-radius:20px;background:'+estBg+';color:'+estColor+'}'+
-    '.divider{height:2px;background:#16232E;margin-bottom:24px}'+
-    '.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:26px}'+
-    '.info-box{border:1px solid #E3E8ED;border-radius:10px;padding:14px 16px}'+
-    '.info-box h3{font-size:9.5px;letter-spacing:.1em;color:#B8860B;font-weight:700;margin-bottom:8px}'+
-    '.info-box p{font-size:12.5px;color:#33424F;line-height:1.75}'+
-    '.info-box p b{display:block;color:#16232E;font-size:13.5px;margin-bottom:2px}'+
-    '.meta-row{display:flex;gap:28px;margin-bottom:24px;font-size:12.5px}'+
-    '.meta-row div b{display:block;font-size:9.5px;letter-spacing:.08em;color:#7A8794;font-weight:700;margin-bottom:3px}'+
-    'table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:22px}'+
-    'thead th{background:#0B3D6B;color:#fff;padding:9px 10px;text-align:left;font-size:10.5px;letter-spacing:.04em}'+
-    'tbody td{padding:10px}'+
-    'td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}'+
-    'td.strong{font-weight:700;color:#0B3D6B}'+
-    '.totwrap{display:flex;justify-content:flex-end;margin-bottom:26px}'+
-    '.totbox{width:280px;border:1px solid #E3E8ED;border-radius:10px;overflow:hidden}'+
-    '.totbox .l{display:flex;justify-content:space-between;padding:9px 16px;font-size:12.5px;color:#4A5A6A;border-bottom:1px solid #EDF1F4}'+
-    '.totbox .tot{display:flex;justify-content:space-between;padding:13px 16px;background:#0B3D6B}'+
-    '.totbox .tot span:first-child{color:#BFD4E8;font-size:11px;font-weight:700;letter-spacing:.06em}'+
-    '.totbox .tot span:last-child{color:#fff;font-size:18px;font-weight:700;font-family:Georgia,serif}'+
-    '.pay-info{background:#F7F9FB;border-radius:10px;padding:14px 18px;margin-bottom:22px;font-size:11.5px;color:#4A5A6A}'+
-    '.pay-info b{color:#16232E}'+
-    '.foot{padding-top:14px;border-top:1px solid #E3E8ED;font-size:9.5px;color:#94A3B0;text-align:center}'+
-    '@media print{ .spine{position:absolute} @page{margin:14mm 14mm 14mm 18mm} }'+
-    '</style></head><body>'+
-    '<div class="spine"></div>'+
-    '<div class="sheet">'+
-      '<div class="top">'+
-        '<div><div class="brand">HIGIENE<span>X</span></div>'+
-        '<div class="brand-sub">HIGIENEX S.L. · CIF B12345678<br>Carrer de la Indústria, 25 · 46010 València<br>contacto@higienexvalencia.es · 963 123 456</div></div>'+
-        '<div class="doc"><h1>Factura</h1><div class="num">'+esc(num)+'</div><div class="pill">'+estLabel+'</div></div>'+
-      '</div>'+
-      '<div class="divider"></div>'+
-      '<div class="meta-row">'+
-        '<div><b>FECHA DE EMISIÓN</b>'+FD(f.fecha)+'</div>'+
-        '<div><b>FECHA DE VENCIMIENTO</b>'+FD(f.venc)+'</div>'+
-        '<div><b>FORMA DE PAGO</b>Transferencia bancaria</div>'+
-      '</div>'+
-      '<div class="info-grid">'+
-        '<div class="info-box"><h3>FACTURAR A</h3><p><b>'+esc(c.nom)+'</b>NIF: '+esc(c.nif||'—')+'<br>'+esc(c.dir||'—')+'<br>'+esc(c.pob||'—')+'<br>'+esc(c.mail||'')+' · '+esc(c.tel||'')+'</p></div>'+
-        '<div class="info-box"><h3>DATOS DE HIGIENEX S.L.</h3><p><b>HIGIENEX S.L.</b>CIF: B12345678<br>Carrer de la Indústria, 25<br>46010 València (València)<br>contacto@higienexvalencia.es · 963 123 456</p></div>'+
-      '</div>'+
-      '<table><thead><tr><th>Concepto</th><th class="num">Uds.</th><th class="num">Precio</th><th class="num">Importe</th></tr></thead><tbody>'+filas+'</tbody></table>'+
-      '<div class="totwrap"><div class="totbox">'+
-        '<div class="l"><span>Base imponible</span><span>'+EUR(f.base)+'</span></div>'+
-        '<div class="l"><span>IVA 21%</span><span>'+EUR(f.cuota)+'</span></div>'+
-        '<div class="tot"><span>TOTAL</span><span>'+EUR(f.total)+'</span></div>'+
-      '</div></div>'+
-      '<div class="pay-info"><b>Datos para la transferencia:</b> ES21 2100 4455 6612 3456 7890 (CaixaBank) — indica el número de factura como concepto del pago.</div>'+
-      '<div class="foot">HIGIENEX S.L. · Documento generado desde el CRM interno · '+new Date().toLocaleString('es-ES')+'</div>'+
-    '</div>'+
-    '</body></html>';
-}
-function imprimirFacturaE(num){
-  abrirImprimible('Factura '+num, htmlFacturaE(num));
+    return [p?p.ref+' \u2014 '+p.nom:l.art, NUM(l.cant), EUR(l.precio), EUR(l.cant*l.precio)];
+  });
+  doc.autoTable({
+    startY:y,
+    head:[['Concepto','Uds.','Precio','Importe']],
+    body: body,
+    theme:'plain',
+    margin:{left:M, right:M},
+    styles:{font:'helvetica', fontSize:9, textColor:[22,35,46], lineColor:[237,241,244], lineWidth:0.4, cellPadding:{top:6,bottom:6,left:8,right:8}},
+    headStyles:{fillColor:[11,61,107], textColor:255, fontStyle:'bold', fontSize:8, halign:'left'},
+    alternateRowStyles:{fillColor:[247,249,251]},
+    columnStyles:{0:{cellWidth:'auto'},1:{cellWidth:56,halign:'right'},2:{cellWidth:68,halign:'right'},3:{cellWidth:78,halign:'right',fontStyle:'bold',textColor:[11,61,107]}}
+  });
+  y = doc.lastAutoTable.finalY + 20;
+  if (y > H - 170) { doc.addPage(); y = 46; }
+  const totW=220, totX=W-M-totW;
+  doc.setDrawColor(227,232,237); doc.setLineWidth(0.75);
+  doc.roundedRect(totX, y, totW, 76, 8, 8);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+  doc.setTextColor(74,90,106);
+  doc.text('Base imponible', totX+14, y+18);
+  doc.text(EUR(f.base), totX+totW-14, y+18, {align:'right'});
+  doc.text('IVA 21%', totX+14, y+34);
+  doc.text(EUR(f.cuota), totX+totW-14, y+34, {align:'right'});
+  doc.setFillColor(11,61,107);
+  doc.rect(totX, y+44, totW, 32, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.setTextColor(191,212,232);
+  doc.text('TOTAL', totX+14, y+64);
+  doc.setFont('times','bold'); doc.setFontSize(15);
+  doc.setTextColor(255,255,255);
+  doc.text(EUR(f.total), totX+totW-14, y+64, {align:'right'});
+  y += 76 + 20;
+  const payTxt = 'Datos para la transferencia: ES21 2100 4455 6612 3456 7890 (CaixaBank) \u2014 indica el n\u00famero de factura como concepto del pago.';
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  const payLines = doc.splitTextToSize(payTxt, W-2*M-28);
+  const payH = payLines.length*11+16;
+  doc.setFillColor(247,249,251);
+  doc.roundedRect(M, y, W-2*M, payH, 6, 6, 'F');
+  doc.setTextColor(22,35,46);
+  doc.text(payLines, M+14, y+16);
+  y += payH + 16;
+  doc.setDrawColor(227,232,237); doc.setLineWidth(0.5);
+  doc.line(M, y, W-M, y);
+  y += 12;
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+  doc.setTextColor(148,163,176);
+  doc.text('HIGIENEX S.L. \u00b7 Documento generado desde el CRM interno \u00b7 '+new Date().toLocaleString('es-ES'), W/2, y, {align:'center'});
+  doc.save('Factura_'+num+'.pdf');
 }
 
 /* =========================================================
@@ -10265,23 +10348,41 @@ function abrirPDF2025(titulo, cuerpo){
     cuerpo+'</body></html>';
   descargarPDFDirecto(titulo.replace(/\s+/g,'_')+'.pdf', html, {piePagina:'HIGIENEX S.L. \u00b7 '+titulo});
 }
-function pdfBodyIsoc2025(){
-  const resultado = resultado2025(); const tipo=0.25; const base=resultado; const cuota=Math.max(0,base*tipo);
-  const hayCuota = base > 0;
-  const linea=(l,v,d)=>'<div class="l'+(d?' tot':'')+'"><span>'+l+'</span><span>'+EUR(v)+'</span></div>';
-  return '<div class="rec">'+
-      linea('Resultado contable del ejercicio', resultado)+
-      linea('Ajustes fiscales (no identificados)', 0)+
-      linea('Base imponible', base, true)+
-      '<div class="l"><span>Tipo general aplicable</span><span>'+NUM(tipo*100)+' %</span></div>'+
-      linea('Cuota íntegra', cuota, true)+
-    '</div>'+
-    (base<0
-      ? '<p style="margin-top:14px;font-size:11px"><strong>No hay cuota a ingresar.</strong> Base imponible negativa (pérdida de '+EUR(Math.abs(base))+'). Queda pendiente de compensar con bases imponibles positivas de ejercicios futuros, sin límite temporal (límite del 70% de la base positiva de cada año siguiente, salvo el primer millón de euros).</p>'
-      : '<p style="margin-top:14px;font-size:11px;color:#3C5063">Cálculo simplificado de nivel escolar: sin ajustes por gastos no deducibles, diferencias temporarias, ni bonificaciones o deducciones. Cuota a ingresar según Modelo 200.</p>');
+function pdfParrafo(doc, y, texto, opts){
+  opts = opts||{};
+  doc.setFont('helvetica', opts.bold?'bold':'normal'); doc.setFontSize(opts.size||9.5);
+  const col = opts.color||[22,35,46];
+  doc.setTextColor(col[0],col[1],col[2]);
+  const lines = doc.splitTextToSize(texto, PDF_W-2*PDF_M);
+  y = pdfEspacioDisponible(doc, y, lines.length*12+10);
+  doc.text(lines, PDF_M, y);
+  return y + lines.length*12 + 12;
 }
-
-function pdfBodyAnalisisFin2025(){
+function pdfTablaSimple(doc, y, head, body, opts){
+  opts = opts||{};
+  y = pdfEspacioDisponible(doc, y, 40);
+  doc.autoTable(pdfTablaEstilo(Object.assign({
+    startY:y, head:[head], body:body,
+    columnStyles: opts.columnStyles
+  }, opts.extra||{})));
+  return doc.lastAutoTable.finalY + 16;
+}
+function renderIsoc2025(doc, y){
+  const resultado = resultado2025(); const tipo=0.25; const base=resultado; const cuota=Math.max(0,base*tipo);
+  const filas = [
+    {label:'Resultado contable del ejercicio', valor:EUR(resultado), tipo:''},
+    {label:'Ajustes fiscales (no identificados)', valor:EUR(0), tipo:''},
+    {label:'Base imponible', valor:EUR(base), tipo:'tot'},
+    {label:'Tipo general aplicable', valor:NUM(tipo*100)+' %', tipo:''},
+    {label:'Cuota \u00edntegra', valor:EUR(cuota), tipo:'tot'}
+  ];
+  y = pdfSeccionRegistro(doc, y, 'Impuesto de Sociedades (c\u00e1lculo simplificado)', filas);
+  const texto = base<0
+    ? 'No hay cuota a ingresar. Base imponible negativa (p\u00e9rdida de '+EUR(Math.abs(base))+'). Queda pendiente de compensar con bases imponibles positivas de ejercicios futuros, sin l\u00edmite temporal (l\u00edmite del 70% de la base positiva de cada a\u00f1o siguiente, salvo el primer mill\u00f3n de euros).'
+    : 'C\u00e1lculo simplificado de nivel escolar: sin ajustes por gastos no deducibles, diferencias temporarias, ni bonificaciones o deducciones. Cuota a ingresar seg\u00fan Modelo 200.';
+  pdfParrafo(doc, y, texto, {size:8.5, color:[60,80,99]});
+}
+function renderAnalisisFin2025(doc, y){
   const bal = balanceAgrupado2025();
   const activoCorriente = bal.totales.AC, pasivoCorriente = bal.totales.PC;
   const pasivoTotal = bal.totales.PNC + bal.totales.PC, patrimonioNeto = bal.totales.PN;
@@ -10304,38 +10405,37 @@ function pdfBodyAnalisisFin2025(){
   const dpo = Math.round(provPend/comprasBase*365);
   const dio = Math.round(existencias/coste2025*365);
   const ccc = dio+dso-dpo;
-
   const parLiquidez = ratioLiquidez>=1.5
-    ? 'El ratio de liquidez general se sitúa en '+NUM(ratioLiquidez)+', dentro del rango técnicamente saludable (1,5–2), lo que evidencia una cobertura holgada del pasivo corriente por parte del activo circulante y reduce el riesgo de tensión de tesorería ante desviaciones puntuales.'
+    ? 'El ratio de liquidez general se sit\u00faa en '+NUM(ratioLiquidez)+', dentro del rango t\u00e9cnicamente saludable (1,5\u20132), lo que evidencia una cobertura holgada del pasivo corriente por parte del activo circulante y reduce el riesgo de tensi\u00f3n de tesorer\u00eda ante desviaciones puntuales.'
     : ratioLiquidez>=1
     ? 'El ratio de liquidez general es de '+NUM(ratioLiquidez)+': el activo corriente cubre justo el pasivo exigible a corto plazo, sin margen de maniobra apreciable, lo que exige un seguimiento estrecho del calendario de vencimientos.'
-    : 'El ratio de liquidez general se sitúa en '+NUM(ratioLiquidez)+', un nivel inferior a la unidad que evidencia una insuficiencia estructural del activo corriente para hacer frente al pasivo exigible a corto plazo, y que anticipa una probable dependencia de renovaciones de crédito a corto plazo.';
+    : 'El ratio de liquidez general se sit\u00faa en '+NUM(ratioLiquidez)+', un nivel inferior a la unidad que evidencia una insuficiencia estructural del activo corriente para hacer frente al pasivo exigible a corto plazo, y que anticipa una probable dependencia de renovaciones de cr\u00e9dito a corto plazo.';
   const parFM = fondoManiobra>=0
-    ? 'El fondo de maniobra arroja un resultado positivo de '+EUR(fondoManiobra)+': el activo corriente se financia íntegramente con recursos permanentes, con margen adicional, lo que aporta un colchón de seguridad frente a fluctuaciones del ciclo de explotación.'
-    : 'El fondo de maniobra arroja un resultado negativo de '+EUR(fondoManiobra)+': una parte del activo no corriente se financia con pasivo exigible a corto plazo, en contravención del principio de equilibrio financiero mínimo, lo que obliga a renovar recurrentemente deuda a corto plazo y expone a la sociedad a riesgo de refinanciación.';
-  const parEndeuda = 'El ratio de endeudamiento es de '+NUM(endeudamiento)+' veces el patrimonio neto (autonomía financiera del '+NUM(autonomia*100)+' %), '+(endeudamiento<=1?'un nivel moderado que preserva capacidad de acceso a nueva financiación.':endeudamiento<=2?'un nivel notable de dependencia de la financiación ajena, gestionable si la rentabilidad económica supera el coste de la deuda.':'un nivel muy elevado que restringe severamente el margen de maniobra y amplifica —vía apalancamiento— el efecto de la rentabilidad económica sobre la rentabilidad financiera.');
-  const parCiclo = 'El ciclo de conversión de caja es de '+ccc+' días (DIO '+dio+' + DSO '+dso+' − DPO '+dpo+'), '+(ccc>90?'una cifra elevada que implica financiar el circulante durante más de tres meses antes de recuperar en caja la inversión realizada, presionando la tesorería de forma estructural.':'un nivel que exige financiar el circulante durante ese periodo antes de recuperar en caja la inversión realizada.');
-
-  return '<h2>Informe de análisis financiero</h2>'+
-    '<p style="margin:0 0 10px">'+parLiquidez+'</p>'+
-    '<p style="margin:0 0 10px">'+parFM+'</p>'+
-    '<p style="margin:0 0 10px">'+parEndeuda+'</p>'+
-    '<p style="margin:0 0 16px">'+parCiclo+'</p>'+
-    '<table><thead><tr><th>Ratio</th><th class="num">Valor</th><th>Qué mide</th></tr></thead><tbody>'+
-    '<tr><td>Liquidez general (AC ÷ PC)</td><td class="num">'+NUM(ratioLiquidez)+'</td><td>Cobertura del pasivo corriente con todo el activo corriente</td></tr>'+
-    '<tr><td>Prueba ácida ((AC−Exist.) ÷ PC)</td><td class="num">'+NUM(pruebaAcida)+'</td><td>Igual, sin depender de vender el stock</td></tr>'+
-    '<tr><td>Fondo de maniobra (AC − PC)</td><td class="num">'+EUR(fondoManiobra)+'</td><td>Colchón de seguridad a corto plazo</td></tr>'+
-    '<tr><td>Ratio de garantía (Activo ÷ Pasivo)</td><td class="num">'+NUM(garantia)+'</td><td>Cobertura de toda la deuda con el activo total</td></tr>'+
-    '<tr><td>Endeudamiento (Pasivo ÷ PN)</td><td class="num">'+NUM(endeudamiento)+'</td><td>Deuda por cada euro de fondos propios</td></tr>'+
-    '<tr><td>Autonomía financiera (PN ÷ Pasivo)</td><td class="num">'+NUM(autonomia*100)+' %</td><td>Independencia respecto a la financiación ajena</td></tr>'+
-    '<tr><td>DIO — rotación existencias</td><td class="num">'+dio+' días</td><td>Días que tarda en venderse el stock</td></tr>'+
-    '<tr><td>DSO — plazo de cobro</td><td class="num">'+dso+' días</td><td>Días que tarda en cobrarse una venta</td></tr>'+
-    '<tr><td>DPO — plazo de pago</td><td class="num">'+dpo+' días</td><td>Días que se tarda en pagar a proveedores</td></tr>'+
-    '<tr class="total"><td>Ciclo de conversión de caja</td><td class="num">'+ccc+' días</td><td>DIO + DSO − DPO</td></tr>'+
-    '</tbody></table>';
+    ? 'El fondo de maniobra arroja un resultado positivo de '+EUR(fondoManiobra)+': el activo corriente se financia \u00edntegramente con recursos permanentes, con margen adicional, lo que aporta un colch\u00f3n de seguridad frente a fluctuaciones del ciclo de explotaci\u00f3n.'
+    : 'El fondo de maniobra arroja un resultado negativo de '+EUR(fondoManiobra)+': una parte del activo no corriente se financia con pasivo exigible a corto plazo, en contravenci\u00f3n del principio de equilibrio financiero m\u00ednimo, lo que obliga a renovar recurrentemente deuda a corto plazo y expone a la sociedad a riesgo de refinanciaci\u00f3n.';
+  const parEndeuda = 'El ratio de endeudamiento es de '+NUM(endeudamiento)+' veces el patrimonio neto (autonom\u00eda financiera del '+NUM(autonomia*100)+' %), '+(endeudamiento<=1?'un nivel moderado que preserva capacidad de acceso a nueva financiaci\u00f3n.':endeudamiento<=2?'un nivel notable de dependencia de la financiaci\u00f3n ajena, gestionable si la rentabilidad econ\u00f3mica supera el coste de la deuda.':'un nivel muy elevado que restringe severamente el margen de maniobra y amplifica \u2014v\u00eda apalancamiento\u2014 el efecto de la rentabilidad econ\u00f3mica sobre la rentabilidad financiera.');
+  const parCiclo = 'El ciclo de conversi\u00f3n de caja es de '+ccc+' d\u00edas (DIO '+dio+' + DSO '+dso+' - DPO '+dpo+'), '+(ccc>90?'una cifra elevada que implica financiar el circulante durante m\u00e1s de tres meses antes de recuperar en caja la inversi\u00f3n realizada, presionando la tesorer\u00eda de forma estructural.':'un nivel que exige financiar el circulante durante ese periodo antes de recuperar en caja la inversi\u00f3n realizada.');
+  y = pdfEspacioDisponible(doc, y, 40);
+  doc.setFont('times','bold'); doc.setFontSize(12);
+  doc.setTextColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]);
+  doc.text('Informe de an\u00e1lisis financiero', PDF_M, y);
+  y += 18;
+  [parLiquidez, parFM, parEndeuda, parCiclo].forEach(p=>{ y = pdfParrafo(doc, y, p); });
+  y += 4;
+  y = pdfTablaSimple(doc, y, ['Ratio','Valor','Qu\u00e9 mide'], [
+    ['Liquidez general (AC \u00f7 PC)', NUM(ratioLiquidez), 'Cobertura del pasivo corriente con todo el activo corriente'],
+    ['Prueba \u00e1cida ((AC-Exist.) \u00f7 PC)', NUM(pruebaAcida), 'Igual, sin depender de vender el stock'],
+    ['Fondo de maniobra (AC - PC)', EUR(fondoManiobra), 'Colch\u00f3n de seguridad a corto plazo'],
+    ['Ratio de garant\u00eda (Activo \u00f7 Pasivo)', NUM(garantia), 'Cobertura de toda la deuda con el activo total'],
+    ['Endeudamiento (Pasivo \u00f7 PN)', NUM(endeudamiento), 'Deuda por cada euro de fondos propios'],
+    ['Autonom\u00eda financiera (PN \u00f7 Pasivo)', NUM(autonomia*100)+' %', 'Independencia respecto a la financiaci\u00f3n ajena'],
+    ['DIO \u2014 rotaci\u00f3n existencias', dio+' d\u00edas', 'D\u00edas que tarda en venderse el stock'],
+    ['DSO \u2014 plazo de cobro', dso+' d\u00edas', 'D\u00edas que tarda en cobrarse una venta'],
+    ['DPO \u2014 plazo de pago', dpo+' d\u00edas', 'D\u00edas que se tarda en pagar a proveedores'],
+    ['Ciclo de conversi\u00f3n de caja', ccc+' d\u00edas', 'DIO + DSO - DPO']
+  ], {columnStyles:{0:{cellWidth:150},1:{cellWidth:80,halign:'right'},2:{cellWidth:'auto'}}});
 }
-
-function pdfBodyAnalisisEco2025(){
+function renderAnalisisEco2025(doc, y){
   const r = resultadoDetalle2025();
   const bal = balanceAgrupado2025();
   const ventas = r.importeNeto || 1;
@@ -10350,40 +10450,41 @@ function pdfBodyAnalisisEco2025(){
   const margenContribucionPct = ventas ? (ventas-costesVariables)/ventas : 0;
   const puntoEquilibrio = margenContribucionPct>0 ? costesFijos/margenContribucionPct : 0;
   const margenSeguridad = ventas ? (ventas-puntoEquilibrio)/ventas*100 : 0;
-
   const parResultado = r.resultadoEjercicio>=0
     ? 'El ejercicio 2025 se salda con un resultado positivo de '+EUR(r.resultadoEjercicio)+', equivalente a un margen neto sobre ventas del '+NUM(margenNeto)+' %.'
     : 'El ejercicio 2025 se salda con un resultado negativo de '+EUR(Math.abs(r.resultadoEjercicio))+', equivalente a un margen neto sobre ventas del '+NUM(margenNeto)+' %, muy alejado del umbral de equilibrio del 0 %.';
-  const parEstructura = 'Los aprovisionamientos representan el '+NUM(r.aprovisionamientos/ventas*100)+' % de las ventas y los gastos de personal el '+NUM(r.gastosPersonal/ventas*100)+' %'+(r.gastosPersonal/ventas>1?', partida que por sí sola supera la cifra de negocio y constituye el principal factor explicativo del resultado':'')+'.';
-  const parRentabilidad = 'ROA '+NUM(roa)+' %, ROE '+NUM(roe)+' % (apalancamiento ×'+NUM(apalancamiento)+'); la divergencia entre ambos indicadores es atribuible al efecto multiplicador del apalancamiento financiero sobre el retorno de los fondos propios.';
+  const parEstructura = 'Los aprovisionamientos representan el '+NUM(r.aprovisionamientos/ventas*100)+' % de las ventas y los gastos de personal el '+NUM(r.gastosPersonal/ventas*100)+' %'+(r.gastosPersonal/ventas>1?', partida que por s\u00ed sola supera la cifra de negocio y constituye el principal factor explicativo del resultado':'')+'.';
+  const parRentabilidad = 'ROA '+NUM(roa)+' %, ROE '+NUM(roe)+' % (apalancamiento \u00d7'+NUM(apalancamiento)+'); la divergencia entre ambos indicadores es atribuible al efecto multiplicador del apalancamiento financiero sobre el retorno de los fondos propios.';
   const parEquilibrio = margenSeguridad>=0
     ? 'El punto de equilibrio es de '+EUR(puntoEquilibrio)+'; con ventas de '+EUR(ventas)+', el margen de seguridad es del '+NUM(margenSeguridad)+' %.'
-    : 'El punto de equilibrio es de '+EUR(puntoEquilibrio)+', pero las ventas reales fueron de '+EUR(ventas)+' ('+NUM(ventas/puntoEquilibrio*100)+' % del umbral necesario): la cifra de negocio quedó por debajo del punto de equilibrio, explicación cuantitativa directa del resultado negativo del ejercicio.';
-
-  return '<h2>Informe de análisis económico</h2>'+
-    '<p style="margin:0 0 10px">'+parResultado+'</p>'+
-    '<p style="margin:0 0 10px">'+parEstructura+'</p>'+
-    '<p style="margin:0 0 10px">'+parRentabilidad+'</p>'+
-    '<p style="margin:0 0 16px">'+parEquilibrio+'</p>'+
-    '<table><thead><tr><th>Concepto</th><th class="num">% s/ ventas</th><th class="num">Importe</th></tr></thead><tbody>'+
-    '<tr><td>Importe neto de la cifra de negocios</td><td class="num">100,0%</td><td class="num">'+EUR(r.importeNeto)+'</td></tr>'+
-    '<tr><td>− Aprovisionamientos</td><td class="num">'+NUM(r.aprovisionamientos/ventas*100)+'%</td><td class="num">'+EUR(-r.aprovisionamientos)+'</td></tr>'+
-    '<tr><td>− Gastos de personal</td><td class="num">'+NUM(r.gastosPersonal/ventas*100)+'%</td><td class="num">'+EUR(-r.gastosPersonal)+'</td></tr>'+
-    '<tr><td>− Otros gastos de explotación</td><td class="num">'+NUM(r.otrosGastosExplotacion/ventas*100)+'%</td><td class="num">'+EUR(-r.otrosGastosExplotacion)+'</td></tr>'+
-    '<tr><td>− Amortización</td><td class="num">'+NUM(r.amortizacion/ventas*100)+'%</td><td class="num">'+EUR(-r.amortizacion)+'</td></tr>'+
-    '<tr class="total"><td>A) Resultado de explotación</td><td class="num">'+NUM(margenExplotacion)+'%</td><td class="num">'+EUR(r.resultadoExplotacion)+'</td></tr>'+
-    '<tr><td>− Gastos financieros</td><td class="num">'+NUM(r.gastosFinancieros/ventas*100)+'%</td><td class="num">'+EUR(-r.gastosFinancieros)+'</td></tr>'+
-    '<tr class="total"><td>D) Resultado del ejercicio</td><td class="num">'+NUM(margenNeto)+'%</td><td class="num">'+EUR(r.resultadoEjercicio)+'</td></tr>'+
-    '</tbody></table>'+
-    '<table style="margin-top:14px"><thead><tr><th>Ratio de rentabilidad</th><th class="num">Valor</th></tr></thead><tbody>'+
-    '<tr><td>Margen de explotación</td><td class="num">'+NUM(margenExplotacion)+' %</td></tr>'+
-    '<tr><td>Margen neto</td><td class="num">'+NUM(margenNeto)+' %</td></tr>'+
-    '<tr><td>ROA</td><td class="num">'+NUM(roa)+' %</td></tr>'+
-    '<tr><td>ROE</td><td class="num">'+NUM(roe)+' %</td></tr>'+
-    '<tr><td>Rotación de activos</td><td class="num">'+NUM(rotacionActivos)+'</td></tr>'+
-    '<tr class="total"><td>Punto de equilibrio (ventas)</td><td class="num">'+EUR(puntoEquilibrio)+'</td></tr>'+
-    '</tbody></table>';
+    : 'El punto de equilibrio es de '+EUR(puntoEquilibrio)+', pero las ventas reales fueron de '+EUR(ventas)+' ('+NUM(ventas/puntoEquilibrio*100)+' % del umbral necesario): la cifra de negocio qued\u00f3 por debajo del punto de equilibrio, explicaci\u00f3n cuantitativa directa del resultado negativo del ejercicio.';
+  y = pdfEspacioDisponible(doc, y, 40);
+  doc.setFont('times','bold'); doc.setFontSize(12);
+  doc.setTextColor(PDF_NAVY[0],PDF_NAVY[1],PDF_NAVY[2]);
+  doc.text('Informe de an\u00e1lisis econ\u00f3mico', PDF_M, y);
+  y += 18;
+  [parResultado, parEstructura, parRentabilidad, parEquilibrio].forEach(p=>{ y = pdfParrafo(doc, y, p); });
+  y += 4;
+  y = pdfTablaSimple(doc, y, ['Concepto','% s/ ventas','Importe'], [
+    ['Importe neto de la cifra de negocios', '100,0%', EUR(r.importeNeto)],
+    ['- Aprovisionamientos', NUM(r.aprovisionamientos/ventas*100)+'%', EUR(-r.aprovisionamientos)],
+    ['- Gastos de personal', NUM(r.gastosPersonal/ventas*100)+'%', EUR(-r.gastosPersonal)],
+    ['- Otros gastos de explotaci\u00f3n', NUM(r.otrosGastosExplotacion/ventas*100)+'%', EUR(-r.otrosGastosExplotacion)],
+    ['- Amortizaci\u00f3n', NUM(r.amortizacion/ventas*100)+'%', EUR(-r.amortizacion)],
+    ['A) Resultado de explotaci\u00f3n', NUM(margenExplotacion)+'%', EUR(r.resultadoExplotacion)],
+    ['- Gastos financieros', NUM(r.gastosFinancieros/ventas*100)+'%', EUR(-r.gastosFinancieros)],
+    ['D) Resultado del ejercicio', NUM(margenNeto)+'%', EUR(r.resultadoEjercicio)]
+  ], {columnStyles:{0:{cellWidth:'auto'},1:{cellWidth:80,halign:'right'},2:{cellWidth:90,halign:'right'}}});
+  y = pdfTablaSimple(doc, y, ['Ratio de rentabilidad','Valor'], [
+    ['Margen de explotaci\u00f3n', NUM(margenExplotacion)+' %'],
+    ['Margen neto', NUM(margenNeto)+' %'],
+    ['ROA', NUM(roa)+' %'],
+    ['ROE', NUM(roe)+' %'],
+    ['Rotaci\u00f3n de activos', NUM(rotacionActivos)],
+    ['Punto de equilibrio (ventas)', EUR(puntoEquilibrio)]
+  ], {columnStyles:{0:{cellWidth:'auto'},1:{cellWidth:100,halign:'right'}}});
 }
+
 
 function exportarPDF2025(){
   const nativos = {
@@ -10391,20 +10492,13 @@ function exportarPDF2025(){
     mayor:   ['Libro mayor', function(doc,y){ renderMayorOficial(doc, y, DB.asientos2025, saldosCuentas2025()); }],
     sumas:   ['Sumas y saldos', function(doc,y){ renderSumasOficial(doc, y, saldosCuentas2025()); }],
     balance: ['Balance de situación a 31/12/2025 (antes del cierre)', function(doc,y){ renderBalance2025Oficial(doc, y); }],
-    pyg:     ['Cuenta de pérdidas y ganancias', function(doc,y){ renderPyG2025Oficial(doc, y); }]
+    pyg:     ['Cuenta de pérdidas y ganancias', function(doc,y){ renderPyG2025Oficial(doc, y); }],
+    isoc:    ['Impuesto de Sociedades', function(doc,y){ renderIsoc2025(doc, y); }],
+    analisisfin: ['Análisis financiero', function(doc,y){ renderAnalisisFin2025(doc, y); }],
+    analisiseco: ['Análisis económico', function(doc,y){ renderAnalisisEco2025(doc, y); }]
   };
-  if (nativos[VISTA2025]) {
-    const cfg = nativos[VISTA2025];
-    generarPDFContable(cfg[0], cfg[1], {ejercicio:'2025', cerrado:true});
-    return;
-  }
-  const map = {
-    isoc:    ['Impuesto de Sociedades',                pdfBodyIsoc2025],
-    analisisfin: ['Análisis financiero',               pdfBodyAnalisisFin2025],
-    analisiseco: ['Análisis económico',                pdfBodyAnalisisEco2025]
-  };
-  const cfg = map[VISTA2025] || nativos.diario;
-  abrirPDF2025(cfg[0], cfg[1]());
+  const cfg = nativos[VISTA2025] || nativos.diario;
+  generarPDFContable(cfg[0], cfg[1], {ejercicio:'2025', cerrado:true});
 }
 
 function verMayor2025(cod){ CTA2025_SEL=cod; refresh(); }

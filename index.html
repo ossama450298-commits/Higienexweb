@@ -9772,28 +9772,74 @@ window.fpAddToCart = fpAddToCart;
 function fpDescarregarFitxaTecnica() {
   var name = document.getElementById('fpName').textContent;
   var info = PRODUCT_INFO[name] || {};
-  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Fitxa tècnica ' + escHtml(name) + ' · HIGIENEX</title>' +
-    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:13px;max-width:760px;margin:0 auto}' +
-    '.top{border-bottom:3px solid #0B3D6B;padding-bottom:16px;margin-bottom:22px}' +
-    '.brand{font-size:22px;font-weight:800;color:#0B3D6B;font-family:Georgia,serif}.brand span{color:#F2A900}' +
-    'h1{font-size:19px;color:#0B3D6B;margin:4px 0 0}' +
-    'h2{font-size:13px;color:#0B3D6B;border-bottom:1px solid #D9E5F0;padding-bottom:5px;margin:22px 0 10px}' +
-    'table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px}td{border:1px solid #D9E5F0;padding:6px 9px}' +
-    'td.k{background:#F5FAFF;font-weight:700;width:220px}.foot{margin-top:32px;font-size:10px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:10px}' +
-    '@media print{@page{margin:15mm}}</style></head><body>' +
-    '<div class="top"><div class="brand">HIGIENE<span>X</span></div><h1>Fitxa tècnica: ' + escHtml(name) + '</h1></div>' +
-    '<h2>1. Identificació del producte</h2>' +
-    '<table><tr><td class="k">Nom comercial</td><td>' + escHtml(name) + '</td></tr>' +
-    '<tr><td class="k">Fabricant</td><td>HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València</td></tr>' +
-    '<tr><td class="k">Preu de referència</td><td>' + escHtml(info.price||'—') + '</td></tr></table>' +
-    '<h2>2. Descripció</h2><table><tr><td>' + escHtml(hxProdDesc(name)||info.desc||'—') + '</td></tr></table>' +
-    '<h2>3. Mode d\'ús recomanat</h2>' +
-    '<table><tr><td>Diluir segons superfície a tractar. Aplicar amb pols polvoritzador, mopa o bayeta microfibra. Deixar actuar el temps de contacte indicat a l\'etiqueta abans d\'aclarir si escau. Ventilar l\'espai durant l\'aplicació.</td></tr></table>' +
-    '<h2>4. Precaucions i emmagatzematge</h2>' +
-    '<table><tr><td>Mantenir fora de l\'abast dels infants. Emmagatzemar en lloc fresc i sec, protegit de la llum directa. No barrejar amb altres productes químics. Usar guants en manipulació concentrada. Consultar la fitxa de seguretat completa (FDS) abans del primer ús industrial.</td></tr></table>' +
-    '<div class="foot">Document generat automàticament des de la web d\'HIGIENEX el ' + new Date().toLocaleDateString('ca-ES') + '. Aquesta fitxa és orientativa; per a la Fitxa de Dades de Seguretat (FDS) oficial reglamentària, contacta amb el nostre equip tècnic.</div>' +
-    '</body></html>';
-  abrirImprimibleComanda('Fitxa tècnica ' + name, html);
+  if (typeof window.jspdf === 'undefined') { showToast('No s\'ha pogut carregar el generador de PDF.', '⚠️'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt', format:'a4'});
+  var M=44, W=595.28;
+  var y=48;
+  doc.setFont('times','bold'); doc.setFontSize(19);
+  doc.setTextColor(11,61,107);
+  doc.text('HIGIENE', M, y);
+  var w1=doc.getTextWidth('HIGIENE');
+  doc.setTextColor(242,169,0);
+  doc.text('X', M+w1, y);
+  y += 22;
+  doc.setFont('times','bold'); doc.setFontSize(15);
+  doc.setTextColor(11,61,107);
+  doc.text('Fitxa t\u00e8cnica: ' + name, M, y);
+  y += 12;
+  doc.setDrawColor(11,61,107); doc.setLineWidth(2.2);
+  doc.line(M, y, W-M, y);
+  y += 26;
+  function seccio(titol){
+    doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
+    doc.setTextColor(11,61,107);
+    doc.text(titol, M, y);
+    doc.setDrawColor(217,229,240); doc.setLineWidth(0.75);
+    doc.line(M, y+4, W-M, y+4);
+    y += 18;
+  }
+  function paragraf(text, opts){
+    opts = opts || {};
+    doc.setFont('helvetica','normal'); doc.setFontSize(opts.size||9);
+    doc.setTextColor(22,35,46);
+    var lines = doc.splitTextToSize(text, W-2*M-16);
+    doc.setDrawColor(217,229,240); doc.setLineWidth(0.5);
+    var boxH = lines.length*12+14;
+    doc.rect(M, y, W-2*M, boxH);
+    doc.text(lines, M+8, y+13);
+    y += boxH + 16;
+  }
+  seccio('1. Identificaci\u00f3 del producte');
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(22,35,46);
+  var camps = [['Nom comercial', name], ['Fabricant', 'HIGIENEX S.L. \u00b7 Carrer de la Ind\u00fastria, 25, 46010 Val\u00e8ncia'], ['Preu de refer\u00e8ncia', info.price||'\u2014']];
+  camps.forEach(function(c){
+    doc.setDrawColor(217,229,240); doc.setLineWidth(0.5);
+    doc.rect(M, y, W-2*M, 22);
+    doc.line(M+160, y, M+160, y+22);
+    doc.setFillColor(245,250,255);
+    doc.rect(M, y, 160, 22, 'F');
+    doc.setDrawColor(217,229,240);
+    doc.rect(M, y, 160, 22);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.text(c[0], M+8, y+14);
+    doc.setFont('helvetica','normal');
+    doc.text(String(c[1]), M+168, y+14);
+    y += 22;
+  });
+  y += 16;
+  seccio('2. Descripci\u00f3');
+  paragraf(hxProdDesc(name) || info.desc || '\u2014');
+  seccio("3. Mode d'\u00fas recomanat");
+  paragraf("Diluir segons superf\u00edcie a tractar. Aplicar amb polvoritzador, mopa o bayeta microfibra. Deixar actuar el temps de contacte indicat a l'etiqueta abans d'aclarir si escau. Ventilar l'espai durant l'aplicaci\u00f3.");
+  seccio('4. Precaucions i emmagatzematge');
+  paragraf("Mantenir fora de l'abast dels infants. Emmagatzemar en lloc fresc i sec, protegit de la llum directa. No barrejar amb altres productes qu\u00edmics. Usar guants en manipulaci\u00f3 concentrada. Consultar la fitxa de seguretat completa (FDS) abans del primer \u00fas industrial.");
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(148,163,176);
+  var footLines = doc.splitTextToSize("Document generat autom\u00e0ticament des de la web d'HIGIENEX el " + new Date().toLocaleDateString('ca-ES') + ". Aquesta fitxa \u00e9s orientativa; per a la Fitxa de Dades de Seguretat (FDS) oficial reglament\u00e0ria, contacta amb el nostre equip t\u00e8cnic.", W-2*M);
+  doc.text(footLines, M, y);
+  doc.save('Fitxa_tecnica_' + name.replace(/\s+/g,'_') + '.pdf');
 }
 window.fpDescarregarFitxaTecnica = fpDescarregarFitxaTecnica;
 
@@ -9844,29 +9890,58 @@ window.fpDescarregarFDS = fpDescarregarFDS;
 
 // ── CATÀLEG COMPLET EN PDF ──────────────────────────────────
 function hxDescarregarCataleg() {
-  var rows = Object.keys(CMP_DATA).map(function(name){
+  if (typeof window.jspdf === 'undefined') { showToast('No s\'ha pogut carregar el generador de PDF.', '⚠️'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt', format:'a4'});
+  var M=40, W=595.28;
+  var y=46;
+  doc.setFont('times','bold'); doc.setFontSize(21);
+  doc.setTextColor(11,61,107);
+  doc.text('HIGIENE', M, y);
+  var w1=doc.getTextWidth('HIGIENE');
+  doc.setTextColor(242,169,0);
+  doc.text('X', M+w1, y);
+  y += 20;
+  doc.setFont('times','bold'); doc.setFontSize(15);
+  doc.setTextColor(22,35,46);
+  doc.text('Cat\u00e0leg complet de productes', M, y);
+  y += 13;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(138,155,172);
+  doc.text('Higiene professional sostenible \u00b7 Actualitzat ' + new Date().toLocaleDateString('ca-ES'), M, y);
+  y += 14;
+  doc.setDrawColor(11,61,107); doc.setLineWidth(2);
+  doc.line(M, y, W-M, y);
+  y += 20;
+  var body = Object.keys(CMP_DATA).map(function(name){
     var info = CMP_DATA[name];
-    return '<tr><td>' + info.emoji + ' <b>' + escHtml(name) + '</b><br><span style="color:#8A9BAC;font-size:10.5px;">' + escHtml(info.us) + '</span></td>' +
-      '<td>' + escHtml(info.sector) + '</td>' +
-      '<td>' + escHtml(info.price) + '</td>' +
-      '<td>' + escHtml(info.certificacio) + '</td></tr>';
-  }).join('');
-  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Catàleg complet · HIGIENEX</title>' +
-    '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:12.5px;max-width:900px;margin:0 auto}' +
-    '.top{border-bottom:3px solid #0B3D6B;padding-bottom:16px;margin-bottom:22px}' +
-    '.brand{font-size:24px;font-weight:800;color:#0B3D6B;font-family:Georgia,serif}.brand span{color:#F2A900}' +
-    'h1{font-size:18px;color:#0B3D6B;margin:6px 0 0}.subt{color:#8A9BAC;font-size:11px;margin-top:2px}' +
-    'table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px}' +
-    'th{background:#0B3D6B;color:#fff;text-align:left;padding:8px 10px;font-size:11px}' +
-    'td{border:1px solid #D9E5F0;padding:9px 10px;vertical-align:top}' +
-    'tr:nth-child(even) td{background:#F5FAFF}' +
-    '.foot{margin-top:28px;font-size:9.5px;color:#8A9BAC;border-top:1px solid #D9E5F0;padding-top:10px}' +
-    '@media print{@page{margin:15mm}}</style></head><body>' +
-    '<div class="top"><div class="brand">HIGIENE<span>X</span></div><h1>Catàleg complet de productes</h1><div class="subt">Higiene professional sostenible · Actualitzat ' + new Date().toLocaleDateString('ca-ES') + '</div></div>' +
-    '<table><thead><tr><th>Producte</th><th>Sector recomanat</th><th>Preu</th><th>Certificació</th></tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<div class="foot">HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es · 963 123 456. Preus orientatius, subjectes a confirmació per part de l\'equip comercial. Per a fitxes tècniques i de seguretat individuals, consulta cada producte a la web.</div>' +
-    '</body></html>';
-  abrirImprimibleComanda('Catàleg HIGIENEX', html);
+    return [name + '\n' + info.us, info.sector, info.price, info.certificacio];
+  });
+  doc.autoTable({
+    startY:y,
+    head:[['Producte','Sector recomanat','Preu','Certificaci\u00f3']],
+    body: body,
+    theme:'plain',
+    margin:{left:M, right:M, bottom:34},
+    styles:{font:'helvetica', fontSize:9, textColor:[22,35,46], lineColor:[217,229,240], lineWidth:0.5, cellPadding:{top:7,bottom:7,left:8,right:8}, valign:'top'},
+    headStyles:{fillColor:[11,61,107], textColor:255, fontStyle:'bold', fontSize:8.5, halign:'left'},
+    alternateRowStyles:{fillColor:[245,250,255]},
+    columnStyles:{0:{cellWidth:210,fontStyle:'bold'},1:{cellWidth:130},2:{cellWidth:80},3:{cellWidth:'auto'}},
+    didParseCell: function(data){
+      if (data.section==='body' && data.column.index===0){
+        data.cell.styles.fontStyle='normal';
+      }
+    }
+  });
+  var total = doc.internal.getNumberOfPages();
+  for (var i=1;i<=total;i++){
+    doc.setPage(i);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
+    doc.setTextColor(138,155,172);
+    var footLines = doc.splitTextToSize("HIGIENEX S.L. \u00b7 Carrer de la Ind\u00fastria, 25, 46010 Val\u00e8ncia \u00b7 contacto@higienexvalencia.es \u00b7 963 123 456. Preus orientatius, subjectes a confirmaci\u00f3 per part de l'equip comercial.", W-2*M);
+    doc.text(footLines, M, 818);
+  }
+  doc.save('Cataleg_HIGIENEX.pdf');
 }
 window.hxDescarregarCataleg = hxDescarregarCataleg;
 
@@ -10008,181 +10083,261 @@ document.addEventListener('click', function(e){
 // ── RESUM DE CERTIFICACIONS EN PDF ──────────────────────────────────
 function hxDescarregarCertificats() {
   var certs = [
-    {icon:'🌍', color:'#2E7D32', bg:'#E8F5E9', name:'ISO 14001', desc:'Sistema de gestió ambiental certificat per una entitat independent. Vigent des de 2022.'},
-    {icon:'☣️', color:'#B8621B', bg:'#FFF3E0', name:'Registre de Biocides UE', desc:'Desinfectants TP2 (superfícies) i TP4 (contacte alimentari) registrats segons el Reglament de Biocides (UE) 528/2012.'},
-    {icon:'🍽️', color:'#0B70C8', bg:'#E7F1FB', name:'Homologació HACCP', desc:'Productes de la línia ALIM homologats per a ús en superfícies de contacte alimentari.'},
-    {icon:'📜', color:'#8A5900', bg:'#FBF3E0', name:'19 patents pròpies', desc:'Formulacions desenvolupades i patentades pel laboratori R+D independent d\'HIGIENEX des de 2018.'}
+    {name:'ISO 14001', desc:"Sistema de gesti\u00f3 ambiental certificat per una entitat independent. Vigent des de 2022."},
+    {name:'Registre de Biocides UE', desc:'Desinfectants TP2 (superf\u00edcies) i TP4 (contacte alimentari) registrats segons el Reglament de Biocides (UE) 528/2012.'},
+    {name:'Homologaci\u00f3 HACCP', desc:'Productes de la l\u00ednia ALIM homologats per a \u00fas en superf\u00edcies de contacte alimentari.'},
+    {name:'19 patents pr\u00f2pies', desc:"Formulacions desenvolupades i patentades pel laboratori R+D independent d'HIGIENEX des de 2018."}
   ];
-  var cards = certs.map(function(c){
-    return '<div class="cert-card">'+
-      '<div class="cert-ic" style="background:'+c.bg+';color:'+c.color+';">'+c.icon+'</div>'+
-      '<div class="cert-name">'+escHtml(c.name)+'</div>'+
-      '<div class="cert-desc">'+escHtml(c.desc)+'</div>'+
-    '</div>';
-  }).join('');
+  if (typeof window.jspdf === 'undefined') { showToast('No s\'ha pogut carregar el generador de PDF.', '⚠️'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt', format:'a4'});
+  var W=595.28, H=841.89, cx=W/2;
+  var outX=40, outY=40, outW=W-80, outH=H-80;
+  doc.setFillColor(243,239,228); doc.rect(0,0,W,H,'F');
+  doc.setDrawColor(242,169,0); doc.setLineWidth(2);
+  doc.setFillColor(255,255,255);
+  doc.rect(outX, outY, outW, outH, 'FD');
+  var inX=outX+10, inY=outY+10, inW=outW-20, inH=outH-20;
+  doc.setDrawColor(11,61,107); doc.setLineWidth(1);
+  doc.rect(inX, inY, inW, inH);
+  var y = inY+56;
+  doc.setFont('times','bold'); doc.setFontSize(20);
+  doc.setTextColor(11,61,107);
+  var wH=doc.getTextWidth('HIGIENE');
+  doc.text('HIGIENE', cx-wH/2, y);
+  doc.setTextColor(242,169,0);
+  doc.text('X', cx-wH/2+wH, y);
+  y += 20;
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+  doc.setTextColor(184,134,11);
+  doc.text('DOCUMENT OFICIAL DE CERTIFICACIONS', cx, y, {align:'center'});
+  y += 26;
+  doc.setFont('times','bold'); doc.setFontSize(17);
+  doc.setTextColor(22,35,46);
+  doc.text('Resum de Certificacions i Garanties', cx, y, {align:'center'});
+  y += 18;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.setTextColor(138,155,172);
+  var subLines = doc.splitTextToSize('Document per compartir amb el vostre departament de compres. Totes les certificacions estan verificades per entitats independents i disponibles per a consulta detallada.', 380);
+  doc.text(subLines, cx, y, {align:'center'});
+  y += subLines.length*11 + 26;
+  var gap=16, cardW=(inW-40-gap)/2, cardH=92, gx0=inX+20;
+  certs.forEach(function(c, i){
+    var col = i%2, row = Math.floor(i/2);
+    var cx2 = gx0 + col*(cardW+gap);
+    var cy = y + row*(cardH+gap);
+    doc.setDrawColor(237,230,211); doc.setLineWidth(0.75);
+    doc.setFillColor(253,252,248);
+    doc.roundedRect(cx2, cy, cardW, cardH, 8, 8, 'FD');
+    doc.setFont('helvetica','bold'); doc.setFontSize(11);
+    doc.setTextColor(11,61,107);
+    doc.text(c.name, cx2+16, cy+24);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+    doc.setTextColor(85,85,85);
+    var dLines = doc.splitTextToSize(c.desc, cardW-32);
+    doc.text(dLines, cx2+16, cy+40);
+  });
+  y += cardH*2 + gap + 30;
+  doc.setFont('times','bolditalic'); doc.setFontSize(24);
+  doc.setTextColor(242,169,0);
+  doc.text('X', cx, y, {align:'center'});
+  y += 20;
   var dataStr = new Date().toLocaleDateString('ca-ES', {day:'numeric', month:'long', year:'numeric'});
-  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Certificacions · HIGIENEX</title>'+
-    '<style>'+
-    '*{box-sizing:border-box;margin:0;padding:0}'+
-    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#F3EFE4;padding:34px 16px;color:#16232E;}'+
-    '.outer{max-width:780px;margin:0 auto;background:#fff;border:2px solid #F2A900;border-radius:4px;padding:10px;}'+
-    '.inner{border:1px solid #0B3D6B;border-radius:2px;padding:46px 48px 38px;}'+
-    '.brand{text-align:center;font-family:Georgia,\'Times New Roman\',serif;font-size:23px;font-weight:700;color:#0B3D6B;letter-spacing:0.02em;}'+
-    '.brand span{color:#F2A900;}'+
-    '.eyebrow{text-align:center;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:#B8860B;font-weight:700;margin-top:14px;}'+
-    '.divider{display:flex;align-items:center;gap:10px;margin:16px auto 20px;max-width:260px;}'+
-    '.divider .ln{flex:1;height:1px;background:#E3C97A;}'+
-    '.divider .dot{width:6px;height:6px;background:#F2A900;transform:rotate(45deg);}'+
-    'h1{text-align:center;font-family:Georgia,serif;font-size:22px;color:#16232E;font-weight:700;}'+
-    '.subt{text-align:center;font-size:12px;color:#8A9BAC;margin-top:8px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.5;}'+
-    '.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:32px;}'+
-    '.cert-card{border:1px solid #EDE6D3;border-radius:12px;padding:18px 20px;background:#FDFCF8;}'+
-    '.cert-ic{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:10px;}'+
-    '.cert-name{font-weight:700;font-size:13.5px;color:#0B3D6B;margin-bottom:5px;}'+
-    '.cert-desc{font-size:11.5px;color:#555;line-height:1.55;}'+
-    '.seal{width:64px;height:64px;margin:34px auto 4px;display:block;}'+
-    '.foot{text-align:center;margin-top:6px;}'+
-    '.foot .sig{font-size:11px;color:#8A9BAC;font-style:italic;}'+
-    '.foot .info{font-size:10px;color:#B0B8C0;margin-top:14px;line-height:1.6;border-top:1px solid #F0EDE3;padding-top:14px;}'+
-    '@media print{ body{background:#fff;padding:0} .outer{border:none} .inner{border:none} }'+
-    '</style></head><body>'+
-    '<div class="outer"><div class="inner">'+
-      '<div class="brand">HIGIENE<span>X</span></div>'+
-      '<div class="eyebrow">Document oficial de certificacions</div>'+
-      '<div class="divider"><span class="ln"></span><span class="dot"></span><span class="ln"></span></div>'+
-      '<h1>Resum de Certificacions i Garanties</h1>'+
-      '<p class="subt">Document per compartir amb el vostre departament de compres. Totes les certificacions estan verificades per entitats independents i disponibles per a consulta detallada.</p>'+
-      '<div class="grid">' + cards + '</div>'+
-      '<svg class="seal" viewBox="0 0 40 40" aria-hidden="true"><text x="20" y="22" font-family="Georgia, \'Times New Roman\', serif" font-style="italic" font-weight="700" font-size="30" fill="#F2A900" text-anchor="middle" dominant-baseline="central">X</text></svg>'+
-      '<div class="foot"><div class="sig">Emès digitalment per HIGIENEX S.L. · '+dataStr+'</div>'+
-        '<div class="info">HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es · 963 123 456<br>Certificats complets disponibles sota petició al departament tècnic.</div>'+
-      '</div>'+
-    '</div></div>'+
-    '</body></html>';
-  abrirImprimibleComanda('Certificacions HIGIENEX', html);
+  doc.setFont('helvetica','italic'); doc.setFontSize(9.5);
+  doc.setTextColor(138,155,172);
+  doc.text('Em\u00e8s digitalment per HIGIENEX S.L. \u00b7 ' + dataStr, cx, y, {align:'center'});
+  y += 18;
+  doc.setDrawColor(240,237,227); doc.setLineWidth(0.5);
+  doc.line(inX+60, y, inX+inW-60, y);
+  y += 14;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(176,184,192);
+  doc.text('HIGIENEX S.L. \u00b7 Carrer de la Ind\u00fastria, 25, 46010 Val\u00e8ncia \u00b7 contacto@higienexvalencia.es \u00b7 963 123 456', cx, y, {align:'center'});
+  doc.text('Certificats complets disponibles sota petici\u00f3 al departament t\u00e8cnic.', cx, y+11, {align:'center'});
+  doc.save('Certificacions_HIGIENEX.pdf');
 }
 window.hxDescarregarCertificats = hxDescarregarCertificats;
 
 // ── PLA D'EXPANSIÓ A PORTUGAL EN PDF (estil informe executiu) ──────
 function hxDescarregarPlaPortugal() {
   var timeline = [
-    {any:'2025', ic:'🏠', titol:'Consolidació nacional', desc:'Reforç de la posició al mercat espanyol. Xarxa de distribució optimitzada. Preparació del pla Portugal i adaptació d\'etiquetatge.'},
-    {any:'2026', ic:'🚀', titol:'Entrada a Portugal', desc:'Estratègia indirecta via distribuïdors locals especialitzats. Inversió: 15.000-23.000 €/any. Sectors objectiu: hostaleria, sanitari i alimentari.'},
-    {any:'2027', ic:'🏢', titol:'Filial comercial pròpia', desc:'Un cop consolidada la base de clients a Portugal, establiment d\'una filial per augmentar el control sobre la distribució i la marca.'},
-    {any:'2028+', ic:'🌍', titol:'Expansió UE: França i Alemanya', desc:'Mercats on el concepte de wellbeing corporatiu és molt avançat. WorkSafe Smart Space com a producte de bandera per a l\'entrada.'}
+    {any:'2025', titol:'Consolidaci\u00f3 nacional', desc:"Refor\u00e7 de la posici\u00f3 al mercat espanyol. Xarxa de distribuci\u00f3 optimitzada. Preparaci\u00f3 del pla Portugal i adaptaci\u00f3 d'etiquetatge."},
+    {any:'2026', titol:'Entrada a Portugal', desc:'Estrat\u00e8gia indirecta via distribu\u00efdors locals especialitzats. Inversi\u00f3: 15.000-23.000 \u20ac/any. Sectors objectiu: hosteleria, sanitari i alimentari.'},
+    {any:'2027', titol:'Filial comercial pr\u00f2pia', desc:"Un cop consolidada la base de clients a Portugal, establiment d'una filial per augmentar el control sobre la distribuci\u00f3 i la marca."},
+    {any:'2028+', titol:'Expansi\u00f3 UE: Fran\u00e7a i Alemanya', desc:'Mercats on el concepte de wellbeing corporatiu \u00e9s molt avan\u00e7at. WorkSafe Smart Space com a producte de bandera per a l\'entrada.'}
   ];
   var kpis = [
-    {ic:'💰', val:'180.000 €', lbl:'Facturació objectiu any 1'},
-    {ic:'🤝', val:'12-15', lbl:'Clients actius objectiu any 1'},
-    {ic:'📦', val:'2', lbl:'Distribuïdors (Lisboa i Porto)'},
-    {ic:'⏱️', val:'18-24', lbl:'Mesos fins a punt d\'equilibri'}
+    ['180.000 \u20ac', 'Facturaci\u00f3 objectiu any 1'],
+    ['12-15', 'Clients actius objectiu any 1'],
+    ['2', 'Distribu\u00efdors (Lisboa i Porto)'],
+    ['18-24', "Mesos fins a punt d'equilibri"]
   ];
   var pressupost = [
-    ['Adaptació d\'etiquetatge i documentació (PT)', 3500],
-    ['Prospecció i acords amb distribuïdors', 4000],
-    ['Logística i primer estoc a Portugal', 8500],
-    ['Màrqueting i fires sectorials (Lisboa/Porto)', 4500],
+    ["Adaptaci\u00f3 d'etiquetatge i documentaci\u00f3 (PT)", 3500],
+    ['Prospecci\u00f3 i acords amb distribu\u00efdors', 4000],
+    ['Log\u00edstica i primer estoc a Portugal', 8500],
+    ['M\u00e0rqueting i fires sectorials (Lisboa/Porto)', 4500],
     ['Assessoria legal i fiscal transfronterera', 2500]
   ];
   var totalPressupost = pressupost.reduce(function(s,p){ return s+p[1]; }, 0);
   var riscos = [
-    {tit:'Dependència del distribuïdor', desc:'Acord de distribució no exclusiu els primers 12 mesos i objectius de venda revisables trimestralment.'},
-    {tit:'Diferències normatives locals', desc:'Assessoria especialitzada en registre de biocides a Portugal abans del llançament comercial.'},
-    {tit:'Costos logístics transfronterers', desc:'Consolidació de comandes i ús de la mateixa flota que ja cobreix Extremadura per reduir el cost per enviament.'}
+    {tit:'Depend\u00e8ncia del distribu\u00efdor', desc:'Acord de distribuci\u00f3 no exclusiu els primers 12 mesos i objectius de venda revisables trimestralment.'},
+    {tit:'Difer\u00e8ncies normatives locals', desc:'Assessoria especialitzada en registre de biocides a Portugal abans del lla\u00e7ament comercial.'},
+    {tit:'Costos log\u00edstics transfronterers', desc:'Consolidaci\u00f3 de comandes i \u00fas de la mateixa flota que ja cobreix Extremadura per reduir el cost per enviament.'}
   ];
-
-  var tlHtml = timeline.map(function(t, i){
-    return '<div class="tl-item">'+
-      '<div class="tl-dot">'+t.ic+'</div>'+
-      (i < timeline.length - 1 ? '<div class="tl-line"></div>' : '')+
-      '<div class="tl-year">'+t.any+'</div>'+
-      '<div class="tl-title">'+escHtml(t.titol)+'</div>'+
-      '<div class="tl-desc">'+escHtml(t.desc)+'</div>'+
-    '</div>';
-  }).join('');
-  var kpiHtml = kpis.map(function(k){
-    return '<div class="kpi"><div class="kpi-ic">'+k.ic+'</div><div class="kpi-val">'+escHtml(k.val)+'</div><div class="kpi-lbl">'+escHtml(k.lbl)+'</div></div>';
-  }).join('');
-  var pressupostHtml = pressupost.map(function(p){
-    var pct = Math.round((p[1]/totalPressupost)*100);
-    return '<div class="bud-row"><div class="bud-top"><span>'+escHtml(p[0])+'</span><strong>'+p[1].toLocaleString('ca-ES')+' €</strong></div>'+
-      '<div class="bud-bar-bg"><div class="bud-bar" style="width:'+pct+'%"></div></div></div>';
-  }).join('');
-  var riscosHtml = riscos.map(function(r){
-    return '<div class="risk"><div class="risk-tit"><span class="risk-ic">⚠</span>'+escHtml(r.tit)+'</div><div class="risk-desc">'+escHtml(r.desc)+'</div></div>';
-  }).join('');
-
-  var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>Pla d\'Expansió a Portugal · HIGIENEX</title>'+
-    '<style>'+
-    '*{box-sizing:border-box;margin:0;padding:0}'+
-    'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#16232E;background:#fff;}'+
-    '.header{background:linear-gradient(135deg,#0F4A82 0%,#0B3D6B 55%,#062338 100%);color:#fff;padding:42px 50px 34px;position:relative;overflow:hidden;}'+
-    '.header::after{content:"";position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(242,169,0,0.07);}'+
-    '.header::before{content:"";position:absolute;bottom:-90px;left:30%;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.03);}'+
-    '.confbadge{position:absolute;top:22px;right:26px;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:4px 12px;font-weight:700;}'+
-    '.logo{font-family:Georgia,\'Times New Roman\',serif;font-size:16px;font-weight:700;letter-spacing:0.01em;position:relative;z-index:2;}'+
-    '.logo .x{color:#F2A900;font-style:italic;}'+
-    '.header .tag{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#F2A900;font-weight:700;display:flex;align-items:center;gap:8px;margin-top:18px;position:relative;z-index:2;}'+
-    '.header h1{font-family:Georgia,serif;font-size:28px;margin-top:11px;max-width:480px;position:relative;z-index:2;}'+
-    '.header p{font-size:12.5px;color:rgba(255,255,255,0.72);margin-top:10px;max-width:460px;line-height:1.6;position:relative;z-index:2;}'+
-    '.header .flag{font-size:15px;}'+
-    '.ptstripe{height:5px;display:flex;}'+
-    '.ptstripe span:first-child{flex:0 0 38%;background:#046A38;}'+
-    '.ptstripe span:last-child{flex:1;background:#DA020E;}'+
-    '.wrap{max-width:760px;margin:0 auto;padding:0 50px;}'+
-    '.summary{margin-top:-24px;position:relative;z-index:3;background:#fff;border:1px solid #EDF1F4;border-left:4px solid #F2A900;border-radius:10px;padding:16px 20px;box-shadow:0 8px 24px rgba(11,61,107,0.08);font-size:12px;color:#4A5A6A;line-height:1.6;}'+
-    '.summary b{color:#0B3D6B;}'+
-    '.section{margin-top:38px;}'+
-    '.section h2{font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#0B3D6B;font-weight:800;border-bottom:2px solid #F2A900;padding-bottom:8px;margin-bottom:22px;display:inline-block;}'+
-    '.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}'+
-    '.tl-item{position:relative;padding-top:2px;}'+
-    '.tl-dot{width:30px;height:30px;border-radius:50%;background:#F5F8FA;border:1.5px solid #0B3D6B;font-size:14px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;position:relative;z-index:2;}'+
-    '.tl-line{position:absolute;top:15px;left:30px;width:100%;height:1.5px;background:#E3C97A;}'+
-    '.tl-year{font-family:Georgia,serif;font-weight:700;color:#F2A900;font-size:15px;}'+
-    '.tl-title{font-weight:700;font-size:12px;color:#16232E;margin-top:3px;}'+
-    '.tl-desc{font-size:10.5px;color:#666;line-height:1.5;margin-top:5px;}'+
-    '.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}'+
-    '.kpi{background:#F7F9FB;border-radius:12px;padding:18px 14px;text-align:center;border:1px solid #EDF1F4;}'+
-    '.kpi-ic{font-size:17px;margin-bottom:6px;}'+
-    '.kpi-val{font-family:Georgia,serif;font-size:19px;font-weight:700;color:#0B3D6B;}'+
-    '.kpi-lbl{font-size:9.5px;color:#8A9BAC;margin-top:5px;line-height:1.4;}'+
-    '.bud-row{padding:10px 0;border-bottom:1px solid #F3F3F3;}'+
-    '.bud-top{display:flex;justify-content:space-between;font-size:12px;color:#333;margin-bottom:6px;}'+
-    '.bud-top strong{color:#0B3D6B;font-weight:700;}'+
-    '.bud-bar-bg{height:5px;border-radius:6px;background:#EEF2F5;overflow:hidden;}'+
-    '.bud-bar{height:100%;background:linear-gradient(90deg,#F2A900,#0B3D6B);border-radius:6px;}'+
-    '.bud-total{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;margin-top:12px;background:linear-gradient(120deg,#0B3D6B,#072947);border-radius:10px;color:#fff;}'+
-    '.bud-total span{font-size:11.5px;font-weight:700;letter-spacing:0.05em;color:#BFD4E8;}'+
-    '.bud-total strong{color:#F2A900;font-size:18px;font-family:Georgia,serif;}'+
-    '.risks{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}'+
-    '.risk{background:#FBF6EB;border-radius:12px;padding:15px 16px;border-left:3px solid #C98A00;}'+
-    '.risk-tit{font-size:11px;font-weight:700;color:#8A5900;margin-bottom:7px;display:flex;align-items:center;gap:6px;}'+
-    '.risk-ic{display:inline-flex;width:16px;height:16px;border-radius:50%;background:#F2A900;color:#fff;font-size:9px;align-items:center;justify-content:center;flex-shrink:0;}'+
-    '.risk-desc{font-size:10px;color:#666;line-height:1.55;}'+
-    '.foot{margin-top:46px;padding:20px 0 40px;border-top:1px solid #eee;font-size:9.5px;color:#B0B8C0;text-align:center;line-height:1.8;}'+
-    '.foot .ref{font-family:ui-monospace,Consolas,monospace;letter-spacing:0.04em;color:#C9B27A;font-weight:700;}'+
-    '@media print{ .header{padding:30px 40px} .wrap{padding:0 40px} .summary{margin-left:40px;margin-right:40px} @page{margin:0} .risk,.kpi,.tl-item{page-break-inside:avoid} }'+
-    '</style></head><body>'+
-    '<div class="header"><div class="confbadge">Confidencial · Ús intern</div>'+
-    '<div class="logo">HIGIENE<span class="x">X</span></div>'+
-    '<div class="tag"><span class="flag">🇵🇹</span> Pla estratègic · Horitzó 2025-2028</div>'+
-    '<h1>Pla d\'Expansió a Portugal 2026</h1>'+
-    '<p>Mercat atractiu per proximitat, similitud cultural i estructura de demanda similar. Entrada via distribuïdors locals especialitzats en higiene professional.</p>'+
-    '</div>'+
-    '<div class="ptstripe"><span></span><span></span></div>'+
-    '<div class="wrap"><div class="summary"><b>Resum executiu:</b> entrada gradual i de risc controlat al mercat portuguès mitjançant distribuïdors especialitzats, amb un pressupost d\'any 1 de 23.000 € i un objectiu de facturació de 180.000 €, com a primer pas cap a una filial pròpia i l\'expansió posterior a França i Alemanya.</div>'+
-      '<div class="section"><h2>Full de ruta</h2><div class="timeline">'+tlHtml+'</div></div>'+
-      '<div class="section"><h2>Objectius clau</h2><div class="kpis">'+kpiHtml+'</div></div>'+
-      '<div class="section"><h2>Pressupost estimat · Any 1</h2>'+pressupostHtml+
-        '<div class="bud-total"><span>TOTAL ESTIMAT</span><strong>'+totalPressupost.toLocaleString('ca-ES')+' €</strong></div>'+
-      '</div>'+
-      '<div class="section"><h2>Riscos i mitigació</h2><div class="risks">'+riscosHtml+'</div></div>'+
-      '<div class="foot"><span class="ref">REF: HX-PT2026-V1</span><br>HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València · contacto@higienexvalencia.es · 963 123 456<br>Document intern de planificació estratègica · Generat el '+new Date().toLocaleDateString('ca-ES', {day:'numeric', month:'long', year:'numeric'})+'</div>'+
-    '</div>'+
-    '</body></html>';
-  abrirImprimibleComanda('Pla Portugal HIGIENEX', html);
+  if (typeof window.jspdf === 'undefined') { showToast('No s\'ha pogut carregar el generador de PDF.', '⚠️'); return; }
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF({unit:'pt', format:'a4'});
+  var M=44, W=595.28, H=841.89;
+  function espai(y, minim){ if (y > H-40-minim) { doc.addPage(); return 40; } return y; }
+  // Capçalera navy
+  doc.setFillColor(11,61,107);
+  doc.rect(0,0,W,118,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+  doc.setTextColor(255,255,255);
+  doc.text('CONFIDENCIAL \u00b7 \u00daS INTERN', W-M, 26, {align:'right'});
+  doc.setFont('times','bold'); doc.setFontSize(14);
+  doc.text('HIGIENE', M, 34);
+  var wH=doc.getTextWidth('HIGIENE');
+  doc.setTextColor(242,169,0);
+  doc.text('X', M+wH, 34);
+  doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+  doc.setTextColor(242,169,0);
+  doc.text('PLA ESTRAT\u00c8GIC \u00b7 HORITZ\u00d3 2025-2028', M, 56);
+  doc.setFont('times','bold'); doc.setFontSize(21);
+  doc.setTextColor(255,255,255);
+  doc.text("Pla d'Expansi\u00f3 a Portugal 2026", M, 80);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  doc.setTextColor(210,222,234);
+  var headDesc = doc.splitTextToSize('Mercat atractiu per proximitat, similitud cultural i estructura de demanda similar. Entrada via distribu\u00efdors locals especialitzats en higiene professional.', 420);
+  doc.text(headDesc, M, 98);
+  doc.setFillColor(4,106,56); doc.rect(0,118,W*0.38,4,'F');
+  doc.setFillColor(218,2,14); doc.rect(W*0.38,118,W*0.62,4,'F');
+  var y = 150;
+  doc.setDrawColor(242,169,0); doc.setLineWidth(3);
+  doc.line(M, y-8, M, y+34);
+  doc.setDrawColor(237,241,244); doc.setLineWidth(0.75);
+  doc.roundedRect(M+6, y-8, W-2*M-6, 44, 6, 6);
+  doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.setTextColor(11,61,107);
+  doc.text('Resum executiu:', M+16, y+6);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
+  doc.setTextColor(74,90,106);
+  var sumLines = doc.splitTextToSize("entrada gradual i de risc controlat al mercat portugu\u00e8s mitjan\u00e7ant distribu\u00efdors especialitzats, amb un pressupost d'any 1 de 23.000 \u20ac i un objectiu de facturaci\u00f3 de 180.000 \u20ac, com a primer pas cap a una filial pr\u00f2pia i l'expansi\u00f3 posterior a Fran\u00e7a i Alemanya.", W-2*M-32);
+  doc.text(sumLines, M+16, y+18);
+  y += 60;
+  function seccioTitol(text){
+    y = espai(y, 50);
+    doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
+    doc.setTextColor(11,61,107);
+    doc.text(text.toUpperCase(), M, y);
+    doc.setDrawColor(242,169,0); doc.setLineWidth(2);
+    doc.line(M, y+5, M+doc.getTextWidth(text.toUpperCase()), y+5);
+    y += 22;
+  }
+  // Full de ruta (timeline en 4 columnes)
+  seccioTitol('Full de ruta');
+  var tlW=(W-2*M-3*12)/4;
+  var tlH=110;
+  y = espai(y, tlH);
+  timeline.forEach(function(t,i){
+    var x = M + i*(tlW+12);
+    doc.setFillColor(245,248,250);
+    doc.setDrawColor(11,61,107); doc.setLineWidth(1.2);
+    doc.circle(x+13, y+11, 12, 'FD');
+    doc.setFont('times','bold'); doc.setFontSize(12.5);
+    doc.setTextColor(242,169,0);
+    doc.text(t.any, x, y+38);
+    doc.setFont('helvetica','bold'); doc.setFontSize(9);
+    doc.setTextColor(22,35,46);
+    var titLines = doc.splitTextToSize(t.titol, tlW);
+    doc.text(titLines, x, y+50);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.8);
+    doc.setTextColor(102,102,102);
+    var descLines = doc.splitTextToSize(t.desc, tlW);
+    doc.text(descLines, x, y+50+titLines.length*10+8);
+  });
+  y += tlH + 20;
+  // KPIs
+  seccioTitol('Objectius clau');
+  var kW=(W-2*M-3*10)/4, kH=64;
+  y = espai(y, kH);
+  kpis.forEach(function(k,i){
+    var x = M + i*(kW+10);
+    doc.setFillColor(247,249,251);
+    doc.setDrawColor(237,241,244); doc.setLineWidth(0.75);
+    doc.roundedRect(x, y, kW, kH, 8, 8, 'FD');
+    doc.setFont('times','bold'); doc.setFontSize(15);
+    doc.setTextColor(11,61,107);
+    doc.text(k[0], x+kW/2, y+26, {align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(7);
+    doc.setTextColor(138,155,172);
+    var lblLines = doc.splitTextToSize(k[1], kW-10);
+    doc.text(lblLines, x+kW/2, y+40, {align:'center'});
+  });
+  y += kH + 24;
+  // Pressupost
+  seccioTitol('Pressupost estimat \u00b7 Any 1');
+  y = espai(y, pressupost.length*24+40);
+  pressupost.forEach(function(p){
+    var pct = p[1]/totalPressupost;
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.setTextColor(51,51,51);
+    doc.text(p[0], M, y);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(11,61,107);
+    doc.text(p[1].toLocaleString('ca-ES')+' \u20ac', W-M, y, {align:'right'});
+    y += 8;
+    doc.setFillColor(238,242,245);
+    doc.roundedRect(M, y, W-2*M, 5, 2.5, 2.5, 'F');
+    doc.setFillColor(242,169,0);
+    doc.roundedRect(M, y, (W-2*M)*pct, 5, 2.5, 2.5, 'F');
+    y += 18;
+  });
+  doc.setFillColor(11,61,107);
+  doc.roundedRect(M, y, W-2*M, 32, 8, 8, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.setTextColor(191,212,232);
+  doc.text('TOTAL ESTIMAT', M+16, y+20);
+  doc.setFont('times','bold'); doc.setFontSize(15);
+  doc.setTextColor(242,169,0);
+  doc.text(totalPressupost.toLocaleString('ca-ES')+' \u20ac', W-M-16, y+21, {align:'right'});
+  y += 32 + 24;
+  // Riscos
+  seccioTitol('Riscos i mitigaci\u00f3');
+  var rW=(W-2*M-2*12)/3, rH=100;
+  y = espai(y, rH);
+  riscos.forEach(function(r,i){
+    var x = M + i*(rW+12);
+    doc.setFillColor(251,246,235);
+    doc.setDrawColor(201,138,0); doc.setLineWidth(2.2);
+    doc.roundedRect(x, y, rW, rH, 6, 6, 'FD');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+    doc.setTextColor(138,89,0);
+    var titLines = doc.splitTextToSize(r.tit, rW-20);
+    doc.text(titLines, x+12, y+18);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.8);
+    doc.setTextColor(102,102,102);
+    var descLines = doc.splitTextToSize(r.desc, rW-20);
+    doc.text(descLines, x+12, y+18+titLines.length*11+10);
+  });
+  y += rH + 30;
+  y = espai(y, 40);
+  doc.setDrawColor(238,238,238); doc.setLineWidth(0.5);
+  doc.line(M, y, W-M, y);
+  y += 14;
+  doc.setFont('helvetica','bold'); doc.setFontSize(8);
+  doc.setTextColor(201,178,122);
+  doc.text('REF: HX-PT2026-V1', W/2, y, {align:'center'});
+  y += 12;
+  doc.setFont('helvetica','normal'); doc.setFontSize(8);
+  doc.setTextColor(176,184,192);
+  doc.text('HIGIENEX S.L. \u00b7 Carrer de la Ind\u00fastria, 25, 46010 Val\u00e8ncia \u00b7 contacto@higienexvalencia.es \u00b7 963 123 456', W/2, y, {align:'center'});
+  doc.text('Document intern de planificaci\u00f3 estrat\u00e8gica \u00b7 Generat el '+new Date().toLocaleDateString('ca-ES',{day:'numeric',month:'long',year:'numeric'}), W/2, y+11, {align:'center'});
+  doc.save('Pla_Expansio_Portugal_HIGIENEX.pdf');
 }
 window.hxDescarregarPlaPortugal = hxDescarregarPlaPortugal;
+
 
 // ── FILTRE DEL BLOG PER CATEGORIA ──────────────────────────────────
 function hxFilterBlog(cat){
