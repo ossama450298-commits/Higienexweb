@@ -544,7 +544,6 @@ button,.navitem,.btn,a{min-height:32px}
 
 
 /* ── Herramientas de dirección ── */
-body.hx-direccio .topbar .hx-top-tool{display:none !important}
 .hx-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
 .hx-tool{background:var(--card,#fff);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:8px;transition:box-shadow .15s,transform .15s}
 .hx-tool:hover{box-shadow:0 8px 22px -12px rgba(11,58,102,.35);transform:translateY(-1px)}
@@ -555,6 +554,23 @@ body.hx-direccio .topbar .hx-top-tool{display:none !important}
 .hx-tool.danger .ti{background:rgba(220,53,69,.1)}
 .hx-tools-sec{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--ink-2);margin:22px 2px 10px}
 .hx-tools-sec:first-of-type{margin-top:4px}
+
+/* ── Barra superior blanca eliminada: buscador, avisos y perfil viven en la barra azul ── */
+.topbar{display:none !important}
+.topnav{top:0 !important;overflow:visible !important;align-items:stretch;padding:0 10px 0 10px}
+.topnav-items{display:flex;align-items:stretch;gap:6px;flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none}
+.topnav-items::-webkit-scrollbar{height:0;display:none}
+.topnav-items .topnavitem{flex:0 0 auto;max-width:none}
+.topnav-right{display:flex;align-items:center;gap:8px;flex-shrink:0;padding:6px 4px 6px 12px;margin-left:auto;border-left:1px solid var(--side-line)}
+.topnav-right .searchbtn{min-width:150px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:var(--side-ink-2,#cfdcea);padding:7px 12px}
+.topnav-right .searchbtn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.35);color:#fff;box-shadow:none}
+.topnav-right .searchbtn .kbd{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#e6eef7}
+.topnav-right #hxNotifBell{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;box-shadow:none}
+.topnav-right #hxNotifBell:hover{background:rgba(255,255,255,.16)}
+.topnav-right .avatar{box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+.topnav-right .hx-notif-panel{top:calc(100% + 8px);z-index:80}
+@media(max-width:1280px){.topnav-right .searchbtn{min-width:0;width:34px;height:34px;padding:0;border-radius:50%;justify-content:center;gap:0}.topnav-right .searchbtn .lbl,.topnav-right .searchbtn .kbd{display:none}.topnav-right .searchbtn .search-ic{display:inline;font-size:14px}}
+@media(max-width:820px){.topnav-right .hx-notif-panel{position:fixed !important;top:64px !important;right:12px !important;left:auto !important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
@@ -2352,25 +2368,33 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
   <main>
     <div class="topbar">
       <span class="eyebrow" id="crumb">Panel</span>
-      <button class="searchbtn" onclick="openPalette()" type="button"><span class="search-ic">🔍</span><span class="lbl">Buscar en todo el CRM…</span><span class="kbd">Ctrl K</span></button>
+      
       <div class="who">
         <button class="hx-top-tool btn ghost sm hx-admin-tool" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">🌓 <span class="lbl">Modo oscuro</span></button>
         <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ <span class="lbl">Instal·lar</span></button>
         <span class="hx-top-tool exercise hx-admin-tool">Ejercicio 2026</span>
         <button class="hx-top-tool btn ghost sm" id="hxCalTopBtn" onclick="go('calendariolab')" title="Calendari laboral" type="button">🗓️ <span class="lbl">Calendario</span></button>
         <button class="hx-top-tool btn ghost sm" id="hxPromptLabBtn" onclick="hxOpenPromptLab()" title="HIGIENEX Prompt (pestaña nueva)" aria-label="HIGIENEX Prompt" type="button" style="display:none">📐 GP</button>
+        
+        <span id="whoName" class="hx-top-tool hx-admin-tool"></span>
+        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxBackupBtn" title="Descarrega totes les dades del panell en un fitxer .json" onclick="hxBackupDB()" type="button">💾 <span class="lbl">Còpia de seguretat</span></button>
+        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxRestoreBtn" title="Restaura dades des d'un fitxer .json de còpia de seguretat" onclick="document.getElementById('hxRestoreInput').click()" type="button">📂 <span class="lbl">Restaurar</span></button>
+        
+        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxResetBtn" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()" type="button">♻️ <span class="lbl">Restablecer datos</span></button>
+        <button class="hx-top-tool btn ghost sm hx-admin-tool" onclick="logout()" type="button">Salir</button>
+        
+      </div>
+    </div>
+    <nav class="topnav" id="topnavBar">
+      <div id="topnav" class="topnav-items"></div>
+      <div class="topnav-right" id="topnavRight">
+        <button class="searchbtn" onclick="openPalette()" type="button"><span class="search-ic">🔍</span><span class="lbl">Buscar…</span><span class="kbd">Ctrl K</span></button>
         <div style="position:relative">
           <button class="btn ghost sm" id="hxNotifBell" onclick="hxToggleNotifPanel()" title="Notificacions" aria-label="Notificacions" type="button" style="position:relative">
             🔔<span id="hxNotifBadge" role="status" aria-live="polite" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:20px;min-width:16px;height:16px;align-items:center;justify-content:center;padding:0 3px">0</span>
           </button>
           <div id="hxNotifPanel" class="hx-notif-panel"></div>
         </div>
-        <span id="whoName" class="hx-top-tool hx-admin-tool"></span>
-        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxBackupBtn" title="Descarrega totes les dades del panell en un fitxer .json" onclick="hxBackupDB()" type="button">💾 <span class="lbl">Còpia de seguretat</span></button>
-        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxRestoreBtn" title="Restaura dades des d'un fitxer .json de còpia de seguretat" onclick="document.getElementById('hxRestoreInput').click()" type="button">📂 <span class="lbl">Restaurar</span></button>
-        <input type="file" id="hxRestoreInput" accept="application/json" style="display:none" onchange="hxRestoreDB(event)">
-        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxResetBtn" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()" type="button">♻️ <span class="lbl">Restablecer datos</span></button>
-        <button class="hx-top-tool btn ghost sm hx-admin-tool" onclick="logout()" type="button">Salir</button>
         <div style="position:relative" id="hxAvatarWrap">
           <button id="whoAv" class="avatar" onclick="hxToggleAvatarMenu()" type="button" aria-label="Cuenta y ajustes"></button>
           <div id="hxAvatarMenu" class="hx-notif-panel">
@@ -2383,9 +2407,9 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
             <button class="hx-notif-item" onclick="hxToggleAvatarMenu();logout()" type="button" style="border-top:1px solid var(--line);margin-top:4px;padding-top:12px;color:var(--red)"><span class="hx-notif-ic">🚪</span><span>Salir</span></button>
           </div>
         </div>
+        <input type="file" id="hxRestoreInput" accept="application/json" style="display:none" onchange="hxRestoreDB(event)">
       </div>
-    </div>
-    <nav id="topnav" class="topnav"></nav>
+    </nav>
     <div class="wrap" id="view"></div>
   </main>
 </div>
@@ -3131,7 +3155,7 @@ const NAV=[
  {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh'],['candidaturas','Candidaturas','rrhh'],['gastos','Gastos y dietas','rrhh'],['objetivos','Objetivos comerciales','rrhh'],['calendariolab','Calendario laboral','rrhh']]},
  {g:'Sistema',items:[['automat','Automatizaciones','admin'],['auditoria','Registro de auditoría','admin']]},
  {g:'Dirección',items:[['sistema','Administración del sistema','super'],['analitica','Analítica web','super']]},
- {g:'Herramientas',items:[['herramientas','Herramientas de dirección','super']]}
+ {g:'Herramientas',items:[['herramientas','Herramientas','herr']]}
 ];
 const NAV_ICONS={
   panel:'📊', clientes:'👥', pipeline:'🎯', actividad:'📈',
@@ -3151,6 +3175,7 @@ function can(area){
   if(!ME) return false;
   if(area==='super') return ME.perms==='all';
   if(area==='promptlab') return ME.alias==='oussama'||ME.alias==='edu';
+  if(area==='herr') return ME.alias==='oussama'||ME.alias==='edu';
   return true; // pàgina de prova: tots els rols veuen totes les altres seccions
 }
 const isAdmin = () => !!ME && ME.perms==='all';
@@ -8454,7 +8479,7 @@ ROUTES.herramientas=function(){
   const instalable = (typeof _hxInstallPromptErp!=='undefined' && _hxInstallPromptErp);
   const card=(ic,tit,txt,acts,cls)=>'<div class="hx-tool'+(cls?' '+cls:'')+'"><div class="ti">'+ic+'</div><h4>'+tit+'</h4><p>'+txt+'</p><div class="acts">'+acts+'</div></div>';
   const btn=(lbl,on,ghost)=>'<button class="btn sm'+(ghost?' ghost':'')+'" onclick="'+on+'" type="button">'+lbl+'</button>';
-  let h=head('Herramientas de dirección','Todas las opciones de la barra superior en un solo sitio. Solo visible para el perfil de Dirección.');
+  let h=head('Herramientas','Todas las opciones de trabajo en un solo sitio. Solo visible para Oussama y Edu.');
   h+='<div class="hx-tools-sec">Trabajo diario</div><div class="hx-tools">'+
     card('🔍','Buscar en todo el CRM','Clientes, productos, facturas, lotes, empleados o acciones rápidas. Atajo de teclado: <strong>Ctrl K</strong>.',btn('Abrir buscador','openPalette()'))+
     card('🗓️','Calendario laboral','Festivos, vacaciones y turnos del equipo.',btn('Abrir calendario',"go('calendariolab')"))+
