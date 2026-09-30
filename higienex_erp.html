@@ -542,6 +542,19 @@ button,.navitem,.btn,a{min-height:32px}
 #hxChatSendBtn:hover { opacity: 0.9; }
 @media (max-width: 480px) { #hxChatWindow { right: 1rem; left: 1rem; width: auto; bottom: 5.6rem; } }
 
+
+/* ── Herramientas de dirección ── */
+body.hx-direccio .topbar .hx-top-tool{display:none !important}
+.hx-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.hx-tool{background:var(--card,#fff);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;display:flex;flex-direction:column;gap:8px;transition:box-shadow .15s,transform .15s}
+.hx-tool:hover{box-shadow:0 8px 22px -12px rgba(11,58,102,.35);transform:translateY(-1px)}
+.hx-tool .ti{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:21px;background:var(--blue-soft,#EAF1F8)}
+.hx-tool h4{margin:4px 0 0;font-size:14.5px;color:var(--ink)}
+.hx-tool p{margin:0;font-size:12.5px;line-height:1.55;color:var(--ink-2);flex:1}
+.hx-tool .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.hx-tool.danger .ti{background:rgba(220,53,69,.1)}
+.hx-tools-sec{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--ink-2);margin:22px 2px 10px}
+.hx-tools-sec:first-of-type{margin-top:4px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
@@ -2341,23 +2354,23 @@ NKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1pTGMa05jGNKYxjWlMYxrTmMY0pjGNaUxjGtOYxjSmMY1p
       <span class="eyebrow" id="crumb">Panel</span>
       <button class="searchbtn" onclick="openPalette()" type="button"><span class="search-ic">🔍</span><span class="lbl">Buscar en todo el CRM…</span><span class="kbd">Ctrl K</span></button>
       <div class="who">
-        <button class="btn ghost sm hx-admin-tool" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">🌓 <span class="lbl">Modo oscuro</span></button>
-        <button class="btn ghost sm hx-admin-tool" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ <span class="lbl">Instal·lar</span></button>
-        <span class="exercise hx-admin-tool">Ejercicio 2026</span>
-        <button class="btn ghost sm" id="hxCalTopBtn" onclick="go('calendariolab')" title="Calendari laboral" type="button">🗓️ <span class="lbl">Calendario</span></button>
-        <button class="btn ghost sm" id="hxPromptLabBtn" onclick="hxOpenPromptLab()" title="HIGIENEX Prompt (pestaña nueva)" aria-label="HIGIENEX Prompt" type="button" style="display:none">📐 GP</button>
+        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="themeBtn" onclick="toggleTema()" title="Cambiar tema" type="button">🌓 <span class="lbl">Modo oscuro</span></button>
+        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxInstallBtnErp" onclick="hxInstallAppErp()" type="button" title="Instal·lar l'app" style="display:none">⬇️ <span class="lbl">Instal·lar</span></button>
+        <span class="hx-top-tool exercise hx-admin-tool">Ejercicio 2026</span>
+        <button class="hx-top-tool btn ghost sm" id="hxCalTopBtn" onclick="go('calendariolab')" title="Calendari laboral" type="button">🗓️ <span class="lbl">Calendario</span></button>
+        <button class="hx-top-tool btn ghost sm" id="hxPromptLabBtn" onclick="hxOpenPromptLab()" title="HIGIENEX Prompt (pestaña nueva)" aria-label="HIGIENEX Prompt" type="button" style="display:none">📐 GP</button>
         <div style="position:relative">
           <button class="btn ghost sm" id="hxNotifBell" onclick="hxToggleNotifPanel()" title="Notificacions" aria-label="Notificacions" type="button" style="position:relative">
             🔔<span id="hxNotifBadge" role="status" aria-live="polite" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:10px;font-weight:800;border-radius:20px;min-width:16px;height:16px;align-items:center;justify-content:center;padding:0 3px">0</span>
           </button>
           <div id="hxNotifPanel" class="hx-notif-panel"></div>
         </div>
-        <span id="whoName" class="hx-admin-tool"></span>
-        <button class="btn ghost sm hx-admin-tool" id="hxBackupBtn" title="Descarrega totes les dades del panell en un fitxer .json" onclick="hxBackupDB()" type="button">💾 <span class="lbl">Còpia de seguretat</span></button>
-        <button class="btn ghost sm hx-admin-tool" id="hxRestoreBtn" title="Restaura dades des d'un fitxer .json de còpia de seguretat" onclick="document.getElementById('hxRestoreInput').click()" type="button">📂 <span class="lbl">Restaurar</span></button>
+        <span id="whoName" class="hx-top-tool hx-admin-tool"></span>
+        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxBackupBtn" title="Descarrega totes les dades del panell en un fitxer .json" onclick="hxBackupDB()" type="button">💾 <span class="lbl">Còpia de seguretat</span></button>
+        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxRestoreBtn" title="Restaura dades des d'un fitxer .json de còpia de seguretat" onclick="document.getElementById('hxRestoreInput').click()" type="button">📂 <span class="lbl">Restaurar</span></button>
         <input type="file" id="hxRestoreInput" accept="application/json" style="display:none" onchange="hxRestoreDB(event)">
-        <button class="btn ghost sm hx-admin-tool" id="hxResetBtn" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()" type="button">♻️ <span class="lbl">Restablecer datos</span></button>
-        <button class="btn ghost sm hx-admin-tool" onclick="logout()" type="button">Salir</button>
+        <button class="hx-top-tool btn ghost sm hx-admin-tool" id="hxResetBtn" title="Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo" onclick="restablecerDatosEjemplo()" type="button">♻️ <span class="lbl">Restablecer datos</span></button>
+        <button class="hx-top-tool btn ghost sm hx-admin-tool" onclick="logout()" type="button">Salir</button>
         <div style="position:relative" id="hxAvatarWrap">
           <button id="whoAv" class="avatar" onclick="hxToggleAvatarMenu()" type="button" aria-label="Cuenta y ajustes"></button>
           <div id="hxAvatarMenu" class="hx-notif-panel">
@@ -3042,11 +3055,12 @@ function completeLogin(found){
   document.getElementById('whoName').textContent=ME.nom+' · '+ME.rol;
   document.getElementById('whoAv').textContent=ME.nom.split(' ').map(w=>w[0]).slice(0,2).join('');
   const plBtn=document.getElementById('hxPromptLabBtn'); if(plBtn) plBtn.style.display=can('promptlab')?'':'none';
+  document.body.classList.toggle('hx-direccio', ME.perms==='all');
   buildNav(); go('panel');
   try{ if(localStorage.getItem('hx_sidebar_collapsed')==='1') document.querySelector('.shell').classList.add('collapsed'); }catch(e){}
   toast('Sesión iniciada. Bienvenido, '+ME.nom.split(' ')[0]+'.');
 }
-function logout(){ME=null;document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex';document.querySelectorAll('#login .box')[0].style.display='block';document.getElementById('lp').value='';document.getElementById('loginErr').style.display='none';}
+function logout(){ME=null;document.body.classList.remove('hx-direccio');document.getElementById('app').style.display='none';document.getElementById('login').style.display='flex';document.querySelectorAll('#login .box')[0].style.display='block';document.getElementById('lp').value='';document.getElementById('loginErr').style.display='none';}
 
 // ── PORTAL DE CLIENT ───────────────────────────────────────
 // Consulta informativa i de només lectura amb usuari i contrasenya
@@ -3092,6 +3106,8 @@ window.addEventListener('appinstalled', function() {
 
 
 /* Navegación */
+/* Icono de «Herramientas»: una llave fija y una llave mixta cruzadas */
+const HX_ICO_LLAVES='<svg class="hx-ico-llaves" viewBox="0 0 24 24" width="1.25em" height="1.25em" aria-hidden="true" style="vertical-align:-0.25em"><defs><mask id="hxmF" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24"><rect width="24" height="24" fill="#fff"/><rect x="-1" y="10.7" width="5.4" height="2.6" fill="#000"/><rect x="19.6" y="10.7" width="5.4" height="2.6" fill="#000"/></mask><mask id="hxmM" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24"><rect width="24" height="24" fill="#fff"/><rect x="-1" y="10.7" width="5.4" height="2.6" fill="#000"/><circle cx="20" cy="12" r="1.75" fill="#000"/></mask></defs><g transform="rotate(45 12 12)"><g mask="url(#hxmF)" fill="#C9D6E3"><circle cx="3.9" cy="12" r="3.5"/><circle cx="20.1" cy="12" r="3.5"/><rect x="5" y="10.8" width="14" height="2.4" rx="1.2"/></g></g><g transform="rotate(-45 12 12)"><g mask="url(#hxmM)" fill="#F2A900"><circle cx="3.9" cy="12" r="3.5"/><circle cx="20" cy="12" r="3.2"/><rect x="5" y="10.8" width="14" height="2.4" rx="1.2"/></g></g></svg>';
 const NAV=[
  {g:null,items:[['panel','Panel','all']]},
  {g:'Comercial',items:[['clientes','Clientes','comercial'],['pipeline','Oportunidades','comercial'],['actividad','Actividad','comercial'],['kpis','Panel comercial (KPIs)','comercial'],['incidencias','Incidencias','comercial'],['presupuestos','Presupuestos','comercial'],['mensajes','Mensajes de clientes','comercial']]},
@@ -3114,7 +3130,8 @@ const NAV=[
  {g:'Personas',items:[['fichajes','Control de fichajes','all']]},
  {g:'RRHH',items:[['rrhh','Empleados','rrhh'],['nominas','Nóminas','rrhh'],['candidaturas','Candidaturas','rrhh'],['gastos','Gastos y dietas','rrhh'],['objetivos','Objetivos comerciales','rrhh'],['calendariolab','Calendario laboral','rrhh']]},
  {g:'Sistema',items:[['automat','Automatizaciones','admin'],['auditoria','Registro de auditoría','admin']]},
- {g:'Dirección',items:[['sistema','Administración del sistema','super'],['analitica','Analítica web','super']]}
+ {g:'Dirección',items:[['sistema','Administración del sistema','super'],['analitica','Analítica web','super']]},
+ {g:'Herramientas',items:[['herramientas','Herramientas de dirección','super']]}
 ];
 const NAV_ICONS={
   panel:'📊', clientes:'👥', pipeline:'🎯', actividad:'📈',
@@ -3128,7 +3145,7 @@ const NAV_ICONS={
   fichajes:'⏱️', rrhh:'🪪', nominas:'💰',
   automat:'⚡', auditoria:'🛡️',
   sistema:'⚙️',
-  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊', calendario:'📅', candidaturas:'📋', mantenimiento:'🔧', gastos:'🧾', objetivos:'🎯', calendariolab:'🗓️', mensajes:'💬'
+  kpis:'📈', incidencias:'⚠️', presupuestos:'🧮', alertasstock:'🔔', analitica:'📊', calendario:'📅', candidaturas:'📋', mantenimiento:'🔧', gastos:'🧾', objetivos:'🎯', calendariolab:'🗓️', mensajes:'💬', herramientas:HX_ICO_LLAVES
 };
 function can(area){
   if(!ME) return false;
@@ -3233,7 +3250,7 @@ document.addEventListener('click', function(e){
 const NAV_GROUP_ICONS={
   'Comercial':'🤝', 'Compras':'🛒', 'Facturación':'🧾',
   'Contabilidad':'📖', 'Bancos':'🏦', 'Logística':'🚚', 'Fabricación':'🧪',
-  'Personas':'⏱️', 'RRHH':'👥', 'Sistema':'⚙️', 'Dirección':'🛡️'
+  'Personas':'⏱️', 'RRHH':'👥', 'Sistema':'⚙️', 'Dirección':'🛡️', 'Herramientas':HX_ICO_LLAVES
 };
 function hxSyncTopbarHeight(){
   const tb=document.querySelector('.topbar');
@@ -4516,59 +4533,131 @@ function descarregarPressupost(id){
   if (typeof window.jspdf === 'undefined'){ toast('No se ha podido cargar el generador de PDF.'); return; }
   const jsPDF = window.jspdf.jsPDF;
   const doc = new jsPDF({unit:'pt', format:'a4'});
-  const M=42, W=595.28;
-  let y=48;
-  doc.setFont('times','bold'); doc.setFontSize(19);
-  doc.setTextColor(11,61,107);
-  doc.text('HIGIENE', M, y);
-  const w1=doc.getTextWidth('HIGIENE');
-  doc.setTextColor(242,169,0);
-  doc.text('X', M+w1, y);
-  doc.setFont('helvetica','bold'); doc.setFontSize(11);
-  doc.setTextColor(22,35,46);
-  doc.text('Pressupost '+p.num, W-M, y-6, {align:'right'});
-  doc.setFont('helvetica','normal'); doc.setFontSize(9);
-  doc.setTextColor(138,155,172);
-  doc.text(FD(p.fecha), W-M, y+8, {align:'right'});
-  y += 20;
-  doc.setDrawColor(11,61,107); doc.setLineWidth(2);
-  doc.line(M, y, W-M, y);
-  y += 22;
-  const c = cli(p.cli);
-  doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
-  doc.setTextColor(22,35,46);
-  doc.text('Client: '+nomCli(p.cli)+' \u00b7 '+(c.nif||''), M, y);
-  doc.setFont('helvetica','normal'); doc.setFontSize(9);
-  doc.setTextColor(90,107,122);
-  doc.text((c.dir||'')+', '+(c.pob||''), M, y+13);
-  y += 30;
-  const body = p.lineas.map(l=>{
-    const a = art(l.art);
-    return [a?a.nom:l.art, String(l.cant), EUR(l.precio), EUR(l.cant*l.precio)];
+  const W=595.28, H=841.89, M=40;
+  const NAVY=[11,58,102], GOLD=[201,154,46], INK=[27,42,58], MUTED=[110,125,142], LINE=[220,229,239], SOFT=[244,247,251];
+  /* Importes siempre con separador de miles (Intl es-ES no agrupa 4 cifras) y espacio normal */
+  const eur = n => { const v=(Math.round((Number(n)||0)*100)/100).toFixed(2).split('.'); return v[0].replace(/\B(?=(\d{3})+(?!\d))/g,'.')+','+v[1]+' \u20ac'; };
+  const fd = s => { const d=String(s||'').slice(0,10).split('-'); return d.length===3 ? d[2]+'/'+d[1]+'/'+d[0] : String(s||''); };
+  const sumaDies = (s,n) => { const d=new Date(String(s).slice(0,10)+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+n); return d.toISOString().slice(0,10); };
+  const c = cli(p.cli) || {};
+  const E = Object.assign({nom:'HIGIENEX S.L.', nif:'B12345678', dir:'Carrer de la Ind\u00fastria, 25, 46010 Val\u00e8ncia', mail:'contacto@higienexvalencia.es', tel:'963 123 456'}, (DB.empresa||{}));
+  Object.keys(E).forEach(k=>{ if(!E[k]) E[k]={nom:'HIGIENEX S.L.',nif:'B12345678',dir:'Carrer de la Ind\u00fastria, 25, 46010 Val\u00e8ncia',mail:'contacto@higienexvalencia.es',tel:'963 123 456'}[k]||''; });
+  const base = Math.round(p.lineas.reduce((s,l)=>s+l.cant*l.precio,0)*100)/100;
+  const iva = Math.round(base*0.21*100)/100, total = Math.round((base+iva)*100)/100;
+  const validesa = sumaDies(p.fecha,30);
+
+  /* ── Capçalera ── */
+  const capcalera = (primera) => {
+    doc.setFillColor(...NAVY); doc.rect(0,0,W,primera?104:54,'F');
+    doc.setFillColor(...GOLD); doc.rect(0,primera?104:54,W,3,'F');
+    doc.setFont('times','bold'); doc.setFontSize(primera?30:18); doc.setTextColor(255,255,255);
+    const yl = primera?52:34; doc.text('HIGIENE', M, yl);
+    doc.setFont('times','bolditalic'); doc.setTextColor(...GOLD); doc.text('X', M+doc.getTextWidth('HIGIENE')+1, yl);
+    doc.setFont('helvetica','normal'); doc.setTextColor(174,196,219);
+    if(primera){
+      doc.setFontSize(8); doc.setCharSpace(1.6); doc.text('HIGIENE PROFESSIONAL SOSTENIBLE', M, 70); doc.setCharSpace(0);
+      doc.setFontSize(8.5); doc.text(E.nom+'  \u00b7  CIF '+E.nif, M, 86);
+      doc.setFont('helvetica','bold'); doc.setFontSize(24); doc.setTextColor(255,255,255);
+      doc.text('PRESSUPOST', W-M, 50, {align:'right'});
+      doc.setFontSize(11); doc.setTextColor(...GOLD); doc.text('N\u00ba '+p.num, W-M, 70, {align:'right'});
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(174,196,219);
+      doc.text('Data: '+fd(p.fecha), W-M, 86, {align:'right'});
+    } else {
+      doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(255,255,255);
+      doc.text('Pressupost '+p.num+' (continuaci\u00f3)', W-M, 32, {align:'right'});
+    }
+  };
+  capcalera(true);
+  let y = 132;
+
+  /* ── Franja de dades clau ── */
+  const claus = [['DATA D\u2019EMISSI\u00d3', fd(p.fecha)], ['V\u00c0LID FINS AL', fd(validesa)], ['PAGAMENT', (c.cond? c.cond+' dies' : '30 dies')+' \u00b7 transfer\u00e8ncia'], ['IMPORT TOTAL', eur(total)]];
+  const cw = (W-2*M)/claus.length;
+  doc.setFillColor(...SOFT); doc.setDrawColor(...LINE); doc.setLineWidth(0.6);
+  doc.roundedRect(M, y, W-2*M, 46, 5, 5, 'FD');
+  claus.forEach((k,i)=>{
+    const x = M + i*cw + 14;
+    if(i) { doc.setDrawColor(...LINE); doc.line(M+i*cw, y+9, M+i*cw, y+37); }
+    doc.setFont('helvetica','bold'); doc.setFontSize(6.8); doc.setTextColor(...MUTED); doc.setCharSpace(0.8); doc.text(k[0], x, y+18); doc.setCharSpace(0);
+    doc.setFontSize(i===3?11.5:10); doc.setTextColor(...(i===3?NAVY:INK)); doc.text(k[1], x, y+34);
   });
+  y += 64;
+
+  /* ── Caixes client / emissor ── */
+  const bw = (W-2*M-16)/2;
+  const caixa = (x, titol, linies, destacat) => {
+    doc.setDrawColor(...LINE); doc.setLineWidth(0.6); doc.setFillColor(255,255,255);
+    doc.roundedRect(x, y, bw, 98, 5, 5, 'FD');
+    doc.setFillColor(...(destacat?GOLD:NAVY)); doc.rect(x, y+10, 3, 20, 'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...MUTED); doc.setCharSpace(1); doc.text(titol, x+14, y+18); doc.setCharSpace(0);
+    doc.setFontSize(10.5); doc.setTextColor(...INK);
+    const nom = doc.splitTextToSize(linies[0], bw-28)[0]; doc.text(nom, x+14, y+34);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.6); doc.setTextColor(80,96,112);
+    linies.slice(1).filter(Boolean).slice(0,4).forEach((l,i)=> doc.text(doc.splitTextToSize(l, bw-28)[0], x+14, y+50+i*12));
+  };
+  caixa(M, 'CLIENT', [nomCli(p.cli)||c.nom||'', c.nif?'NIF: '+c.nif:'', [c.dir,c.pob].filter(Boolean).join(', '), c.tel?'Tel. '+c.tel:'', c.mail||''], true);
+  caixa(M+bw+16, 'EMISSOR', [E.nom, 'CIF: '+E.nif, E.dir, 'Tel. '+E.tel, E.mail], false);
+  y += 118;
+
+  /* ── Línies ── */
+  const body = p.lineas.map(l=>{ const a = art(l.art)||{}; return [a.ref||'', a.nom||l.art, String(l.cant), eur(l.precio), eur(l.cant*l.precio)]; });
   doc.autoTable({
     startY:y,
-    head:[['Producte','Quant.','Preu unit.','Import']],
+    head:[['REF.','DESCRIPCI\u00d3','QUANT.','PREU UNIT.','IMPORT']],
     body: body,
     theme:'plain',
-    margin:{left:M, right:M},
-    styles:{font:'helvetica', fontSize:9, textColor:[22,35,46], lineColor:[217,229,240], lineWidth:0.5, cellPadding:{top:6,bottom:6,left:8,right:8}},
-    headStyles:{fillColor:[11,61,107], textColor:255, fontStyle:'bold', fontSize:8, halign:'left'},
-    alternateRowStyles:{fillColor:[245,250,255]},
-    columnStyles:{0:{cellWidth:'auto'},1:{cellWidth:56,halign:'right'},2:{cellWidth:70,halign:'right'},3:{cellWidth:78,halign:'right'}}
+    margin:{left:M, right:M, top:78, bottom:70},
+    styles:{font:'helvetica', fontSize:9, textColor:INK, cellPadding:{top:8,bottom:8,left:10,right:10}, valign:'middle'},
+    headStyles:{fillColor:NAVY, textColor:255, fontStyle:'bold', fontSize:7.5, cellPadding:{top:9,bottom:9,left:10,right:10}},
+    alternateRowStyles:{fillColor:SOFT},
+    columnStyles:{0:{cellWidth:70, textColor:MUTED, fontSize:8}, 1:{cellWidth:'auto', fontStyle:'bold'}, 2:{cellWidth:54, halign:'right'}, 3:{cellWidth:78, halign:'right'}, 4:{cellWidth:86, halign:'right', fontStyle:'bold'}},
+    didParseCell: d => { if(d.section==='head' && d.column.index>=2) d.cell.styles.halign='right'; },
+    didDrawCell: d => { if(d.section==='body'){ doc.setDrawColor(...LINE); doc.setLineWidth(0.5); doc.line(d.cell.x, d.cell.y+d.cell.height, d.cell.x+d.cell.width, d.cell.y+d.cell.height); } },
+    didDrawPage: d => { if(d.pageNumber>1) capcalera(false); }
   });
-  y = doc.lastAutoTable.finalY + 16;
-  doc.setFont('helvetica','bold'); doc.setFontSize(11.5);
-  doc.setTextColor(11,61,107);
-  doc.text('Total: '+EUR(p.total)+' (IVA no incl\u00f2s)', W-M, y, {align:'right'});
-  y += 26;
-  doc.setDrawColor(217,229,240); doc.setLineWidth(0.5);
-  doc.line(M, y, W-M, y);
-  y += 13;
-  doc.setFont('helvetica','normal'); doc.setFontSize(7.8);
-  doc.setTextColor(138,155,172);
-  const footLines = doc.splitTextToSize('HIGIENEX S.L. \u00b7 Carrer de la Ind\u00fastria, 25, 46010 Val\u00e8ncia \u00b7 contacto@higienexvalencia.es \u00b7 963 123 456. Pressupost v\u00e0lid 30 dies des de la data d\'emissi\u00f3.', W-2*M);
-  doc.text(footLines, M, y);
+  y = doc.lastAutoTable.finalY + 20;
+
+  /* ── Totals + condicions (si no hi caben, pàgina nova) ── */
+  if (y + 250 > H - 70){ doc.addPage(); capcalera(false); y = 84; }
+  const tw = 220, tx = W-M-tw;
+  const filaT = (lbl, val, yy) => { doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(80,96,112); doc.text(lbl, tx+14, yy); doc.setTextColor(...INK); doc.text(val, W-M-14, yy, {align:'right'}); };
+  doc.setDrawColor(...LINE); doc.setLineWidth(0.6); doc.setFillColor(255,255,255);
+  doc.roundedRect(tx, y, tw, 104, 5, 5, 'FD');
+  filaT('Base imposable', eur(base), y+24);
+  filaT('IVA (21 %)', eur(iva), y+44);
+  doc.setFillColor(...NAVY); doc.roundedRect(tx, y+60, tw, 44, 5, 5, 'F'); doc.rect(tx, y+60, tw, 8, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(174,196,219); doc.setCharSpace(1); doc.text('TOTAL', tx+14, y+86); doc.setCharSpace(0);
+  doc.setFontSize(15); doc.setTextColor(255,255,255); doc.text(eur(total), W-M-14, y+88, {align:'right'});
+
+  const cx = M, cwid = W-2*M-tw-18;
+  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...MUTED); doc.setCharSpace(1); doc.text('CONDICIONS', cx, y+12); doc.setCharSpace(0);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.4); doc.setTextColor(80,96,112);
+  let yc = y+28;
+  ['Pressupost v\u00e0lid durant 30 dies des de la data d\u2019emissi\u00f3 (fins al '+fd(validesa)+').',
+   'Preus en euros. L\u2019IVA aplicable (21 %) es detalla a part.',
+   'Lliurament en 48\u201372 h laborables a Val\u00e8ncia i \u00e0rea metropolitana.',
+   'Pagament per transfer\u00e8ncia banc\u00e0ria a '+(c.cond? c.cond+' dies' : '30 dies')+' data factura.'
+  ].forEach(t=>{ const ls=doc.splitTextToSize(t, cwid-12); doc.setFillColor(...GOLD); doc.circle(cx+2.5, yc-3, 1.8, 'F'); doc.text(ls, cx+12, yc); yc += ls.length*11+5; });
+  y += 128;
+
+  /* ── Acceptació ── */
+  doc.setDrawColor(...LINE); doc.setLineWidth(0.6); doc.setFillColor(...SOFT);
+  doc.roundedRect(M, y, W-2*M, 86, 5, 5, 'FD');
+  doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...MUTED); doc.setCharSpace(1); doc.text('ACCEPTACI\u00d3 DEL CLIENT', M+14, y+18); doc.setCharSpace(0);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.2); doc.setTextColor(80,96,112);
+  doc.text('Signeu i retorneu aquest pressupost per confirmar la comanda.', M+14, y+32);
+  const sw = (W-2*M-28-24)/3;
+  ['Nom i c\u00e0rrec','Signatura i segell','Data'].forEach((t,i)=>{ const x=M+14+i*(sw+12); doc.setDrawColor(170,184,200); doc.setLineWidth(0.6); doc.line(x, y+66, x+sw, y+66); doc.setFontSize(7.5); doc.setTextColor(...MUTED); doc.text(t, x, y+77); });
+
+  /* ── Peu a totes les pàgines ── */
+  const n = doc.getNumberOfPages();
+  for (let i=1;i<=n;i++){
+    doc.setPage(i);
+    doc.setDrawColor(...GOLD); doc.setLineWidth(1); doc.line(M, H-48, W-M, H-48);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.6); doc.setTextColor(...MUTED);
+    doc.text(E.nom+'  \u00b7  CIF '+E.nif+'  \u00b7  '+E.dir+'  \u00b7  '+E.tel+'  \u00b7  '+E.mail, M, H-34, {maxWidth:W-2*M-60});
+    doc.text('P\u00e0g. '+i+' de '+n, W-M, H-34, {align:'right'});
+  }
   doc.save('Pressupost_'+p.num+'.pdf');
 }
 
@@ -8355,6 +8444,38 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&PRES[PSEL]) PRES[PSEL].go();
 });
 
+
+/* =========================================================
+   HERRAMIENTAS DE DIRECCIÓN — las opciones de la barra superior
+   reunidas en un solo apartado (solo perfil Dirección)
+   ========================================================= */
+ROUTES.herramientas=function(){
+  const nNotif = (function(){ try{ const b=document.getElementById('hxNotifBadge'); return b && b.style.display!=='none' ? parseInt(b.textContent,10)||0 : 0; }catch(e){ return 0; } })();
+  const instalable = (typeof _hxInstallPromptErp!=='undefined' && _hxInstallPromptErp);
+  const card=(ic,tit,txt,acts,cls)=>'<div class="hx-tool'+(cls?' '+cls:'')+'"><div class="ti">'+ic+'</div><h4>'+tit+'</h4><p>'+txt+'</p><div class="acts">'+acts+'</div></div>';
+  const btn=(lbl,on,ghost)=>'<button class="btn sm'+(ghost?' ghost':'')+'" onclick="'+on+'" type="button">'+lbl+'</button>';
+  let h=head('Herramientas de dirección','Todas las opciones de la barra superior en un solo sitio. Solo visible para el perfil de Dirección.');
+  h+='<div class="hx-tools-sec">Trabajo diario</div><div class="hx-tools">'+
+    card('🔍','Buscar en todo el CRM','Clientes, productos, facturas, lotes, empleados o acciones rápidas. Atajo de teclado: <strong>Ctrl K</strong>.',btn('Abrir buscador','openPalette()'))+
+    card('🗓️','Calendario laboral','Festivos, vacaciones y turnos del equipo.',btn('Abrir calendario',"go('calendariolab')"))+
+    (can('promptlab')?card('📐','HIGIENEX Prompt (GP)','Laboratorio de prompts de HIGIENEX. Se abre en una pestaña nueva.',btn('Abrir GP','hxOpenPromptLab()')):'')+
+    card('🔔','Notificaciones',(nNotif?'Tienes <strong>'+nNotif+'</strong> avisos pendientes.':'No hay avisos pendientes.')+' La campana sigue arriba para verlos en cualquier pantalla.',btn('Ver avisos',"window.scrollTo(0,0);setTimeout(hxToggleNotifPanel,60)"))+
+  '</div>';
+  h+='<div class="hx-tools-sec">Ejercicio y apariencia</div><div class="hx-tools">'+
+    card('📅','Ejercicio 2026','Ejercicio contable abierto. El ejercicio 2025 está cerrado y archivado, con sus libros y modelos AEAT.',btn('Ejercicio 2025',"go('ejercicio2025')",true)+btn('Asistente de cierre',"go('cierre')",true))+
+    card('🌓',TEMA==='oscuro'?'Modo claro':'Modo oscuro','Tema actual: <strong>'+(TEMA==='oscuro'?'oscuro':'claro')+'</strong>. Cambia la apariencia de todo el ERP.',btn(TEMA==='oscuro'?'Activar modo claro':'Activar modo oscuro',"toggleTema();go('herramientas',true)"))+
+    card('⬇️','Instalar la app',instalable?'Instala el ERP como aplicación en este dispositivo.':'La app ya está instalada o este navegador no permite instalarla ahora.',instalable?btn('Instalar',"hxInstallAppErp()"):'')+
+  '</div>';
+  h+='<div class="hx-tools-sec">Datos</div><div class="hx-tools">'+
+    card('💾','Copia de seguridad','Descarga todos los datos del panel en un archivo .json.',btn('Descargar copia','hxBackupDB()'))+
+    card('📂','Restaurar copia','Carga los datos desde un archivo .json de copia de seguridad.',btn('Elegir archivo',"document.getElementById('hxRestoreInput').click()"))+
+    card('♻️','Restablecer datos','Borra los cambios guardados en este navegador y vuelve a los datos de ejemplo. No se puede deshacer.',btn('Restablecer','restablecerDatosEjemplo()',true),'danger')+
+  '</div>';
+  h+='<div class="hx-tools-sec">Sesión</div><div class="hx-tools">'+
+    card('👤',esc(ME.nom),esc(ME.rol)+' · '+esc(ME.mail||''),btn('Salir','logout()',true))+
+  '</div>';
+  return h;
+};
 /* ---------- Tema claro / oscuro ---------- */
 let TEMA='claro';
 function toggleTema(){
