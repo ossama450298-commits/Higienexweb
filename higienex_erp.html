@@ -5647,16 +5647,201 @@ async function hxAuditRun(){
 }
 window.hxAuditRun = hxAuditRun;
 
+/* =========================================================
+   VERI*FACTU — SIMULACIÓN DIDÁCTICA (sin conexión real con la AEAT)
+   Reproduce el funcionamiento del sistema VERI*FACTU (RD 1007/2023):
+   cada factura emitida genera un registro de alta con una huella
+   SHA-256 encadenada con la del registro anterior, se "remite" a la
+   AEAT y lleva un código QR de cotejo. Todo es ficticio: la empresa,
+   el CSV y la respuesta de la AEAT son inventados.
+   ========================================================= */
+(function(){
+  var NIF='B12345678', RAZON='HIGIENEX S.L.';
+
+  function sha256(ascii){
+    ascii=unescape(encodeURIComponent(ascii));
+    function rr(v,a){return (v>>>a)|(v<<(32-a));}
+    var mp=Math.pow, mw=mp(2,32), r='', words=[], abl=ascii.length*8, hash=[], k=[], pc=0, isC={}, i, j;
+    for(var cand=2; pc<64; cand++){ if(!isC[cand]){ for(i=0;i<313;i+=cand) isC[i]=cand; hash[pc]=(mp(cand,.5)*mw)|0; k[pc++]=(mp(cand,1/3)*mw)|0; } }
+    ascii+='\x80'; while(ascii.length%64-56) ascii+='\x00';
+    for(i=0;i<ascii.length;i++){ j=ascii.charCodeAt(i); words[i>>2]|=j<<((3-i)%4)*8; }
+    words[words.length]=((abl/mw)|0); words[words.length]=abl;
+    for(j=0;j<words.length;){
+      var w=words.slice(j,j+=16), oh=hash; hash=hash.slice(0,8);
+      for(i=0;i<64;i++){
+        var w15=w[i-15], w2=w[i-2], a=hash[0], e=hash[4];
+        var t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]
+          +(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+        var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+        hash=[(t1+t2)|0].concat(hash); hash[4]=(hash[4]+t1)|0;
+      }
+      for(i=0;i<8;i++) hash[i]=(hash[i]+oh[i])|0;
+    }
+    for(i=0;i<8;i++) for(j=3;j+1;j--){ var b=(hash[i]>>(j*8))&255; r+=((b<16)?'0':'')+b.toString(16); }
+    return r;
+  }
+  function p2(n){ return (n<10?'0':'')+n; }
+  function dmy(iso){ var p=String(iso||'').split('-'); return p.length===3?p[2]+'-'+p[1]+'-'+p[0]:String(iso||''); }
+  function n2(x){ return (Math.round((+x||0)*100)/100).toFixed(2); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+  /* Cadena de registros: ordenados por fecha y número, cada huella
+     incluye la del registro anterior (primer registro: Huella vacía). */
+  function cadena(lista){
+    var ord=(lista||[]).slice().sort(function(a,b){ return String(a.fecha).localeCompare(String(b.fecha))||String(a.num).localeCompare(String(b.num)); });
+    var prev='', out={}, arr=[];
+    ord.forEach(function(f,i){
+      var ts=f.fecha+'T'+p2(9+(i%9))+':'+p2((i*17+7)%60)+':'+p2((i*31+12)%60)+'+01:00';
+      var cad='IDEmisorFactura='+NIF+'&NumSerieFactura='+f.num+'&FechaExpedicionFactura='+dmy(f.fecha)+
+              '&TipoFactura=F1&CuotaTotal='+n2(f.cuota)+'&ImporteTotal='+n2(f.total)+'&Huella='+prev+'&FechaHoraHusoGenRegistro='+ts;
+      var h=sha256(cad).toUpperCase();
+      var rec={orden:i+1, num:f.num, fechaISO:f.fecha, fecha:dmy(f.fecha), cuota:n2(f.cuota), importe:n2(f.total), base:n2(f.base),
+               ts:ts, huella:h, anterior:prev, cadena:cad,
+               csv:'A-'+h.slice(0,4)+h.slice(-4)+'-'+sha256('csv'+h).slice(0,6).toUpperCase(),
+               estado:'Correcto'};
+      out[f.num]=rec; arr.push(rec); prev=h;
+    });
+    return {map:out, lista:arr};
+  }
+
+  function urlCotejo(r){
+    var base='index.html';
+    try{ base=location.href.split('#')[0].split('?')[0].replace(/[^\/]*$/,'')+'index.html'; }catch(e){}
+    return base+'?verifactu=1&nif='+NIF+'&numserie='+encodeURIComponent(r.num)+'&fecha='+r.fecha+'&importe='+r.importe;
+  }
+
+  /* Matriz del QR: con la librería qrcode si está cargada; si no, un
+     patrón falso (pero con aspecto de QR) generado a partir de la huella. */
+  function matriz(text){
+    try{
+      if(window.QRCode && typeof QRCode.create==='function'){
+        var q=QRCode.create(text,{errorCorrectionLevel:'M'}), n=q.modules.size, d=q.modules.data;
+        return {n:n, get:function(x,y){ return !!d[y*n+x]; }, real:true};
+      }
+    }catch(e){}
+    var N=29, bits=[], seed='', i;
+    for(i=0;bits.length<N*N;i++){ seed=sha256(text+'#'+i); for(var c=0;c<seed.length;c++){ var v=parseInt(seed[c],16); bits.push(v&1,(v>>1)&1,(v>>2)&1,(v>>3)&1); } }
+    function finder(x,y,ox,oy){ var dx=x-ox, dy=y-oy; if(dx<-1||dy<-1||dx>7||dy>7) return null; if(dx<0||dy<0||dx>6||dy>6) return false;
+      return (dx===0||dy===0||dx===6||dy===6)||(dx>=2&&dx<=4&&dy>=2&&dy<=4); }
+    return {n:N, real:false, get:function(x,y){
+      var f=finder(x,y,0,0); if(f===null) f=finder(x,y,N-7,0); if(f===null) f=finder(x,y,0,N-7);
+      if(f!==null) return f;
+      if(y===6) return x%2===0; if(x===6) return y%2===0;
+      return !!bits[y*N+x];
+    }};
+  }
+  function qrSVG(text, px, color){
+    var m=matriz(text), q=4, n=m.n, d='';
+    for(var y=0;y<n;y++) for(var x=0;x<n;x++) if(m.get(x,y)) d+='M'+(x+q)+' '+(y+q)+'h1v1h-1z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="'+px+'" height="'+px+'" viewBox="0 0 '+(n+2*q)+' '+(n+2*q)+'" shape-rendering="crispEdges" role="img" aria-label="QR VeriFactu">'+
+      '<rect width="100%" height="100%" fill="#fff"/><path d="'+d+'" fill="'+(color||'#0B3D6B')+'"/></svg>';
+  }
+  function qrPDF(doc, text, x, y, size){
+    var m=matriz(text), n=m.n, s=size/(n+2), ox=x+s, oy=y+s;
+    doc.setFillColor(255,255,255); doc.rect(x,y,size,size,'F');
+    doc.setFillColor(11,61,107);
+    for(var j=0;j<n;j++){ var i=0; while(i<n){ if(m.get(i,j)){ var st=i; while(i<n&&m.get(i,j)) i++; doc.rect(ox+st*s, oy+j*s, (i-st)*s+0.05, s+0.05, 'F'); } else i++; } }
+  }
+
+  var TXT={
+    ca:{tit:'VERI*FACTU', leyenda:'Factura verificable a la seu electrònica de l\u2019AEAT', huella:'Empremta (SHA-256)', anterior:'Empremta anterior', csv:'CSV de l\u2019AEAT', reg:'Registre', enviado:'Remès a l\u2019AEAT', estado:'Estat', ok:'Acceptat', xml:'Veure el registre remès (XML)', aviso:'Simulació didàctica · sense validesa fiscal', escanea:'Escaneja per cotejar la factura', primero:'(primer registre de la cadena)'},
+    es:{tit:'VERI*FACTU', leyenda:'Factura verificable en la sede electrónica de la AEAT', huella:'Huella (SHA-256)', anterior:'Huella anterior', csv:'CSV de la AEAT', reg:'Registro', enviado:'Remitido a la AEAT', estado:'Estado', ok:'Aceptado', xml:'Ver el registro remitido (XML)', aviso:'Simulación didáctica · sin validez fiscal', escanea:'Escanea para cotejar la factura', primero:'(primer registro de la cadena)'},
+    en:{tit:'VERI*FACTU', leyenda:'Invoice verifiable at the AEAT e-office', huella:'Hash (SHA-256)', anterior:'Previous hash', csv:'AEAT CSV code', reg:'Record', enviado:'Sent to AEAT', estado:'Status', ok:'Accepted', xml:'View submitted record (XML)', aviso:'Educational simulation · no tax validity', escanea:'Scan to verify the invoice', primero:'(first record in the chain)'}
+  };
+  function t(k, lang){ var L=TXT[lang]||TXT.es; return L[k]||TXT.es[k]; }
+  function fmtTs(ts){ return dmy(ts.slice(0,10))+' '+ts.slice(11,19); }
+
+  function xmlRegistro(r){
+    return '<sum1:RegistroAlta>\n'+
+      '  <sum1:IDVersion>1.0</sum1:IDVersion>\n'+
+      '  <sum1:IDFactura>\n    <sum1:IDEmisorFactura>'+NIF+'</sum1:IDEmisorFactura>\n    <sum1:NumSerieFactura>'+r.num+'</sum1:NumSerieFactura>\n    <sum1:FechaExpedicionFactura>'+r.fecha+'</sum1:FechaExpedicionFactura>\n  </sum1:IDFactura>\n'+
+      '  <sum1:NombreRazonEmisor>'+RAZON+'</sum1:NombreRazonEmisor>\n  <sum1:TipoFactura>F1</sum1:TipoFactura>\n'+
+      '  <sum1:Desglose><sum1:DetalleDesglose>\n    <sum1:ClaveRegimen>01</sum1:ClaveRegimen><sum1:CalificacionOperacion>S1</sum1:CalificacionOperacion>\n    <sum1:TipoImpositivo>21.00</sum1:TipoImpositivo><sum1:BaseImponibleOimporteNoSujeto>'+r.base+'</sum1:BaseImponibleOimporteNoSujeto><sum1:CuotaRepercutida>'+r.cuota+'</sum1:CuotaRepercutida>\n  </sum1:DetalleDesglose></sum1:Desglose>\n'+
+      '  <sum1:CuotaTotal>'+r.cuota+'</sum1:CuotaTotal>\n  <sum1:ImporteTotal>'+r.importe+'</sum1:ImporteTotal>\n'+
+      '  <sum1:Encadenamiento>'+(r.anterior?'<sum1:RegistroAnterior><sum1:Huella>'+r.anterior+'</sum1:Huella></sum1:RegistroAnterior>':'<sum1:PrimerRegistro>S</sum1:PrimerRegistro>')+'</sum1:Encadenamiento>\n'+
+      '  <sum1:SistemaInformatico><sum1:NombreSistemaInformatico>HIGIENEX ERP</sum1:NombreSistemaInformatico><sum1:IdSistemaInformatico>HX</sum1:IdSistemaInformatico><sum1:Version>2026.1</sum1:Version></sum1:SistemaInformatico>\n'+
+      '  <sum1:FechaHoraHusoGenRegistro>'+r.ts+'</sum1:FechaHoraHusoGenRegistro>\n  <sum1:TipoHuella>01</sum1:TipoHuella>\n  <sum1:Huella>'+r.huella+'</sum1:Huella>\n'+
+      '</sum1:RegistroAlta>';
+  }
+
+  /* Bloque para los modales de factura (ERP y portal de cliente) */
+  function panelHTML(r, lang){
+    var url=urlCotejo(r);
+    return '<div style="margin-top:20px;border:1px solid #D6E0EA;border-radius:12px;padding:16px;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;background:#F7FAFC">'+
+      '<a href="'+esc(url)+'" target="_blank" rel="noopener" title="'+esc(t('escanea',lang))+'" style="flex:0 0 auto;line-height:0;border:1px solid #D6E0EA;border-radius:8px;overflow:hidden">'+qrSVG(url,118)+'</a>'+
+      '<div style="flex:1;min-width:220px;font-size:12.5px;color:#33424F;line-height:1.55">'+
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px"><b style="font-size:14px;color:#0B3D6B;letter-spacing:.02em">'+t('tit',lang)+'</b>'+
+          '<span style="font-size:11px;font-weight:700;color:#0B7256;background:#E5F3EE;border-radius:20px;padding:2px 9px">✓ '+esc(t('ok',lang))+'</span></div>'+
+        '<div style="margin-bottom:8px">'+esc(t('leyenda',lang))+'</div>'+
+        '<div style="font-size:11.5px"><b>'+esc(t('huella',lang))+':</b> <span style="font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all">'+r.huella+'</span></div>'+
+        '<div style="font-size:11.5px"><b>'+esc(t('anterior',lang))+':</b> <span style="font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all">'+(r.anterior?r.anterior.slice(0,24)+'…':esc(t('primero',lang)))+'</span></div>'+
+        '<div style="font-size:11.5px"><b>'+esc(t('csv',lang))+':</b> <span style="font-family:ui-monospace,Menlo,Consolas,monospace">'+r.csv+'</span> · <b>'+esc(t('reg',lang))+'</b> nº '+r.orden+' · '+esc(t('enviado',lang))+' '+fmtTs(r.ts)+'</div>'+
+        '<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px;color:#0B3D6B;font-weight:600">'+esc(t('xml',lang))+'</summary>'+
+          '<pre style="margin:8px 0 0;max-height:220px;overflow:auto;background:#fff;border:1px solid #E3E8ED;border-radius:8px;padding:10px;font-size:10.5px;line-height:1.45;white-space:pre">'+esc(xmlRegistro(r))+'</pre></details>'+
+        '<div style="margin-top:8px;font-size:10.5px;color:#8A97A3">'+esc(t('aviso',lang))+'</div>'+
+      '</div></div>';
+  }
+
+  /* Bloque para los PDF de factura. Devuelve la nueva coordenada y. */
+  function bloquePDF(doc, r, M, W, H, y, lang){
+    var hBox=96;
+    if(y > H - hBox - 40){ doc.addPage(); y=46; }
+    var url=urlCotejo(r);
+    doc.setDrawColor(214,224,234); doc.setLineWidth(0.75);
+    doc.setFillColor(247,250,252); doc.roundedRect(M, y, W-2*M, hBox, 6, 6, 'FD');
+    qrPDF(doc, url, M+10, y+10, hBox-20);
+    var tx=M+hBox+6, tw=W-M-14-tx;
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(11,61,107);
+    doc.text('VERI*FACTU', tx, y+20);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(22,35,46);
+    doc.text(t('leyenda',lang), tx, y+33);
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(122,135,148);
+    doc.text(t('huella',lang).toUpperCase(), tx, y+47);
+    doc.setFont('courier','normal'); doc.setFontSize(7.2); doc.setTextColor(51,66,79);
+    doc.text(doc.splitTextToSize(r.huella, tw), tx, y+56);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(51,66,79);
+    doc.text(t('csv',lang)+': '+r.csv+'   \u00b7   '+t('reg',lang)+' n\u00ba '+r.orden+'   \u00b7   '+t('enviado',lang)+' '+fmtTs(r.ts), tx, y+75);
+    doc.setFontSize(6.8); doc.setTextColor(148,163,176);
+    doc.text(t('aviso',lang), tx, y+86);
+    return y+hBox+14;
+  }
+
+  window.HXVF={NIF:NIF, sha256:sha256, cadena:cadena, urlCotejo:urlCotejo, qrSVG:qrSVG, qrPDF:qrPDF,
+               panelHTML:panelHTML, bloquePDF:bloquePDF, xmlRegistro:xmlRegistro, t:t, fmtTs:fmtTs, esc:esc};
+})();
+
+/* Registro VeriFactu del ERP: la cadena se calcula sobre todas las facturas emitidas */
+function vfRegistro(num){ return HXVF.cadena(DB.facturasE).map[num]; }
+function vfVerRegistro(){
+  const ch=HXVF.cadena(DB.facturasE).lista.slice().reverse();
+  const rows=ch.map(r=>rowN(['<span class="mono">'+r.orden+'</span>','<strong>'+esc(r.num)+'</strong>',r.fecha,EUR(+r.importe),
+    '<span class="mono" title="'+r.huella+'">'+r.huella.slice(0,16)+'…</span>','<span class="mono">'+r.csv+'</span>',HXVF.fmtTs(r.ts),
+    '<span class="tag" style="color:#0B7256;background:#E5F3EE;border-color:#0B725644">✓ Aceptado</span>'],[3],
+    ' class="clickable" onclick="closeModal();verFacturaE(\''+r.num+'\')"'));
+  openModal('Registro VERI*FACTU',
+    '<p style="font-size:13px;color:var(--ink-2);margin:0 0 14px">Cada factura emitida genera un registro de alta que se remite automáticamente a la AEAT. La huella SHA-256 de cada registro incluye la del anterior, de modo que no se puede modificar ni borrar una factura sin romper la cadena. <em>Simulación didáctica: no hay conexión real con la AEAT.</em></p>'+
+    '<div class="frow f3" style="margin-bottom:16px">'+info('Sistema','HIGIENEX ERP 2026.1')+info('Modalidad','VERI*FACTU (remisión inmediata)')+info('Registros',ch.length+' · '+ch.length+' aceptados')+'</div>'+
+    tbl([['Nº'],['Factura'],['Fecha'],['Importe','n'],['Huella'],['CSV'],['Remitido'],['Estado']],rows,['Sin registros','Emite una factura y aparecerá aquí.']),
+    '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button><button class="btn" onclick="vfComprobarCadena()" type="button">Comprobar integridad de la cadena</button>',true);
+}
+function vfComprobarCadena(){
+  const ch=HXVF.cadena(DB.facturasE).lista;
+  const ok=ch.every((r,i)=>r.anterior===(i?ch[i-1].huella:'') && HXVF.sha256(r.cadena).toUpperCase()===r.huella);
+  toast(ok?'Cadena íntegra: '+ch.length+' registros encadenados correctamente.':'La cadena de registros presenta incidencias.');
+}
+
 ROUTES.femitidas=function(){
   const all=DB.facturasE.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
   const lista=all.filter(f=>hit(f.num+' '+nomCli(f.cli)+' '+f.estado));
   let h=head('Facturas emitidas','Base '+EUR(all.reduce((s,f)=>s+f.base,0))+' · IVA repercutido '+EUR(all.reduce((s,f)=>s+f.cuota,0)),
-    '<button class="btn ghost" onclick="exportFacturasECSV()" type="button">⬇ Exportar CSV</button><button class="btn" onclick="formFacturaE()" type="button">Nueva factura</button>');
+    '<button class="btn ghost" onclick="vfVerRegistro()" type="button">🛡 Registro VERI*FACTU</button><button class="btn ghost" onclick="exportFacturasECSV()" type="button">⬇ Exportar CSV</button><button class="btn" onclick="formFacturaE()" type="button">Nueva factura</button>');
   h+=buscador('Buscar por número, cliente o estado…',all.length,lista.length);
+  const VFC=HXVF.cadena(DB.facturasE).map;
   const rows=lista.map(f=>rowN([
-    '<strong>'+f.num+'</strong>',FD(f.fecha),esc(nomCli(f.cli)),EUR(f.base),EUR(f.cuota),'<strong>'+EUR(f.total)+'</strong>',FD(f.venc),estadoTag(f)
+    '<strong>'+f.num+'</strong>',FD(f.fecha),esc(nomCli(f.cli)),EUR(f.base),EUR(f.cuota),'<strong>'+EUR(f.total)+'</strong>',FD(f.venc),estadoTag(f),
+    VFC[f.num]?'<span class="tag t-ok" title="Huella '+VFC[f.num].huella+'">✓ Remitida</span>':''
   ],[3,4,5],' class="clickable" onclick="verFacturaE(\''+f.num+'\')"'));
-  h+='<div class="card">'+tbl([['Nº'],['Fecha'],['Cliente'],['Base','n'],['IVA 21%','n'],['Total','n'],['Vence'],['Estado']],rows,
+  h+='<div class="card">'+tbl([['Nº'],['Fecha'],['Cliente'],['Base','n'],['IVA 21%','n'],['Total','n'],['Vence'],['Estado'],['VERI*FACTU']],rows,
     ['Sin facturas','Emite la primera con «Nueva factura».'])+'</div>';
   return h;
 };
@@ -5674,6 +5859,7 @@ function verFacturaE(num){
       return ls.length?'<div class="eyebrow" style="display:block;margin:20px 0 8px">Lotes servidos</div>'+
         tbl([['Lote'],['Producto'],['Unidades','n'],['Caducidad']],ls.map(l=>{const d=l.destino.filter(x=>x.fact===num).reduce((s,x)=>s+x.cant,0);
           return rowN(['<span class="mono">'+l.lote+'</span>',esc(art(l.prod).nom),NUM(d),FD(l.cad)],[2]);})):'';})()+
+    (vfRegistro(num)?HXVF.panelHTML(vfRegistro(num),'es'):'')+
     '<div class="eyebrow" style="display:block;margin:20px 0 8px">Asientos generados</div>'+asientoHTML(as)+(cob?'<div style="margin-top:10px">'+asientoHTML(cob)+'</div>':''),
     '<button class="btn ghost" onclick="closeModal()" type="button">Cerrar</button>'+
     '<button class="btn ghost" onclick="imprimirFacturaE(\''+num+'\')" type="button"><i data-lucide="download"></i> Descargar factura</button>'+
@@ -5855,6 +6041,7 @@ function imprimirFacturaE(num){
   doc.setTextColor(22,35,46);
   doc.text(payLines, M+14, y+16);
   y += payH + 16;
+  { const vr=vfRegistro(num); if(vr) y=HXVF.bloquePDF(doc, vr, M, W, H, y, 'es'); }
   doc.setDrawColor(227,232,237); doc.setLineWidth(0.5);
   doc.line(M, y, W-M, y);
   y += 12;
@@ -6054,7 +6241,8 @@ function saveFacturaE(){
   if(typeof log==='function') log('Factura emitida',f.num+' · '+cli(cliId).nom+' · '+EUR(f.total));
   closeModal(); go('femitidas');
   imprimirFacturaE(f.num);
-  toast('Factura '+f.num+' emitida y guardada. Se ha abierto para descargarla.');
+  { const vr=vfRegistro(f.num); if(typeof log==='function'&&vr) log('VERI*FACTU',f.num+' remitida a la AEAT · CSV '+vr.csv+' (simulación)'); }
+  toast('Factura '+f.num+' emitida, remitida a VERI*FACTU y guardada. Se ha abierto para descargarla.');
 }
 
 /* =========================================================

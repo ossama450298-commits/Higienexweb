@@ -1978,6 +1978,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-web.png">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js" defer></script>
 <script src="jspdf.umd.min.js" defer></script>
 <script src="jspdf.plugin.autotable.min.js" defer></script>
 <script src="html2canvas.min.js" defer></script>
@@ -5563,6 +5564,201 @@ function cpViewComandes(){
     cards;
 }
 
+/* =========================================================
+   VERI*FACTU — SIMULACIÓN DIDÁCTICA (sin conexión real con la AEAT)
+   Reproduce el funcionamiento del sistema VERI*FACTU (RD 1007/2023):
+   cada factura emitida genera un registro de alta con una huella
+   SHA-256 encadenada con la del registro anterior, se "remite" a la
+   AEAT y lleva un código QR de cotejo. Todo es ficticio: la empresa,
+   el CSV y la respuesta de la AEAT son inventados.
+   ========================================================= */
+(function(){
+  var NIF='B12345678', RAZON='HIGIENEX S.L.';
+
+  function sha256(ascii){
+    ascii=unescape(encodeURIComponent(ascii));
+    function rr(v,a){return (v>>>a)|(v<<(32-a));}
+    var mp=Math.pow, mw=mp(2,32), r='', words=[], abl=ascii.length*8, hash=[], k=[], pc=0, isC={}, i, j;
+    for(var cand=2; pc<64; cand++){ if(!isC[cand]){ for(i=0;i<313;i+=cand) isC[i]=cand; hash[pc]=(mp(cand,.5)*mw)|0; k[pc++]=(mp(cand,1/3)*mw)|0; } }
+    ascii+='\x80'; while(ascii.length%64-56) ascii+='\x00';
+    for(i=0;i<ascii.length;i++){ j=ascii.charCodeAt(i); words[i>>2]|=j<<((3-i)%4)*8; }
+    words[words.length]=((abl/mw)|0); words[words.length]=abl;
+    for(j=0;j<words.length;){
+      var w=words.slice(j,j+=16), oh=hash; hash=hash.slice(0,8);
+      for(i=0;i<64;i++){
+        var w15=w[i-15], w2=w[i-2], a=hash[0], e=hash[4];
+        var t1=hash[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&hash[5])^((~e)&hash[6]))+k[i]
+          +(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+        var t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&hash[1])^(a&hash[2])^(hash[1]&hash[2]));
+        hash=[(t1+t2)|0].concat(hash); hash[4]=(hash[4]+t1)|0;
+      }
+      for(i=0;i<8;i++) hash[i]=(hash[i]+oh[i])|0;
+    }
+    for(i=0;i<8;i++) for(j=3;j+1;j--){ var b=(hash[i]>>(j*8))&255; r+=((b<16)?'0':'')+b.toString(16); }
+    return r;
+  }
+  function p2(n){ return (n<10?'0':'')+n; }
+  function dmy(iso){ var p=String(iso||'').split('-'); return p.length===3?p[2]+'-'+p[1]+'-'+p[0]:String(iso||''); }
+  function n2(x){ return (Math.round((+x||0)*100)/100).toFixed(2); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+
+  /* Cadena de registros: ordenados por fecha y número, cada huella
+     incluye la del registro anterior (primer registro: Huella vacía). */
+  function cadena(lista){
+    var ord=(lista||[]).slice().sort(function(a,b){ return String(a.fecha).localeCompare(String(b.fecha))||String(a.num).localeCompare(String(b.num)); });
+    var prev='', out={}, arr=[];
+    ord.forEach(function(f,i){
+      var ts=f.fecha+'T'+p2(9+(i%9))+':'+p2((i*17+7)%60)+':'+p2((i*31+12)%60)+'+01:00';
+      var cad='IDEmisorFactura='+NIF+'&NumSerieFactura='+f.num+'&FechaExpedicionFactura='+dmy(f.fecha)+
+              '&TipoFactura=F1&CuotaTotal='+n2(f.cuota)+'&ImporteTotal='+n2(f.total)+'&Huella='+prev+'&FechaHoraHusoGenRegistro='+ts;
+      var h=sha256(cad).toUpperCase();
+      var rec={orden:i+1, num:f.num, fechaISO:f.fecha, fecha:dmy(f.fecha), cuota:n2(f.cuota), importe:n2(f.total), base:n2(f.base),
+               ts:ts, huella:h, anterior:prev, cadena:cad,
+               csv:'A-'+h.slice(0,4)+h.slice(-4)+'-'+sha256('csv'+h).slice(0,6).toUpperCase(),
+               estado:'Correcto'};
+      out[f.num]=rec; arr.push(rec); prev=h;
+    });
+    return {map:out, lista:arr};
+  }
+
+  function urlCotejo(r){
+    var base='index.html';
+    try{ base=location.href.split('#')[0].split('?')[0].replace(/[^\/]*$/,'')+'index.html'; }catch(e){}
+    return base+'?verifactu=1&nif='+NIF+'&numserie='+encodeURIComponent(r.num)+'&fecha='+r.fecha+'&importe='+r.importe;
+  }
+
+  /* Matriz del QR: con la librería qrcode si está cargada; si no, un
+     patrón falso (pero con aspecto de QR) generado a partir de la huella. */
+  function matriz(text){
+    try{
+      if(window.QRCode && typeof QRCode.create==='function'){
+        var q=QRCode.create(text,{errorCorrectionLevel:'M'}), n=q.modules.size, d=q.modules.data;
+        return {n:n, get:function(x,y){ return !!d[y*n+x]; }, real:true};
+      }
+    }catch(e){}
+    var N=29, bits=[], seed='', i;
+    for(i=0;bits.length<N*N;i++){ seed=sha256(text+'#'+i); for(var c=0;c<seed.length;c++){ var v=parseInt(seed[c],16); bits.push(v&1,(v>>1)&1,(v>>2)&1,(v>>3)&1); } }
+    function finder(x,y,ox,oy){ var dx=x-ox, dy=y-oy; if(dx<-1||dy<-1||dx>7||dy>7) return null; if(dx<0||dy<0||dx>6||dy>6) return false;
+      return (dx===0||dy===0||dx===6||dy===6)||(dx>=2&&dx<=4&&dy>=2&&dy<=4); }
+    return {n:N, real:false, get:function(x,y){
+      var f=finder(x,y,0,0); if(f===null) f=finder(x,y,N-7,0); if(f===null) f=finder(x,y,0,N-7);
+      if(f!==null) return f;
+      if(y===6) return x%2===0; if(x===6) return y%2===0;
+      return !!bits[y*N+x];
+    }};
+  }
+  function qrSVG(text, px, color){
+    var m=matriz(text), q=4, n=m.n, d='';
+    for(var y=0;y<n;y++) for(var x=0;x<n;x++) if(m.get(x,y)) d+='M'+(x+q)+' '+(y+q)+'h1v1h-1z';
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="'+px+'" height="'+px+'" viewBox="0 0 '+(n+2*q)+' '+(n+2*q)+'" shape-rendering="crispEdges" role="img" aria-label="QR VeriFactu">'+
+      '<rect width="100%" height="100%" fill="#fff"/><path d="'+d+'" fill="'+(color||'#0B3D6B')+'"/></svg>';
+  }
+  function qrPDF(doc, text, x, y, size){
+    var m=matriz(text), n=m.n, s=size/(n+2), ox=x+s, oy=y+s;
+    doc.setFillColor(255,255,255); doc.rect(x,y,size,size,'F');
+    doc.setFillColor(11,61,107);
+    for(var j=0;j<n;j++){ var i=0; while(i<n){ if(m.get(i,j)){ var st=i; while(i<n&&m.get(i,j)) i++; doc.rect(ox+st*s, oy+j*s, (i-st)*s+0.05, s+0.05, 'F'); } else i++; } }
+  }
+
+  var TXT={
+    ca:{tit:'VERI*FACTU', leyenda:'Factura verificable a la seu electrònica de l\u2019AEAT', huella:'Empremta (SHA-256)', anterior:'Empremta anterior', csv:'CSV de l\u2019AEAT', reg:'Registre', enviado:'Remès a l\u2019AEAT', estado:'Estat', ok:'Acceptat', xml:'Veure el registre remès (XML)', aviso:'Simulació didàctica · sense validesa fiscal', escanea:'Escaneja per cotejar la factura', primero:'(primer registre de la cadena)'},
+    es:{tit:'VERI*FACTU', leyenda:'Factura verificable en la sede electrónica de la AEAT', huella:'Huella (SHA-256)', anterior:'Huella anterior', csv:'CSV de la AEAT', reg:'Registro', enviado:'Remitido a la AEAT', estado:'Estado', ok:'Aceptado', xml:'Ver el registro remitido (XML)', aviso:'Simulación didáctica · sin validez fiscal', escanea:'Escanea para cotejar la factura', primero:'(primer registro de la cadena)'},
+    en:{tit:'VERI*FACTU', leyenda:'Invoice verifiable at the AEAT e-office', huella:'Hash (SHA-256)', anterior:'Previous hash', csv:'AEAT CSV code', reg:'Record', enviado:'Sent to AEAT', estado:'Status', ok:'Accepted', xml:'View submitted record (XML)', aviso:'Educational simulation · no tax validity', escanea:'Scan to verify the invoice', primero:'(first record in the chain)'}
+  };
+  function t(k, lang){ var L=TXT[lang]||TXT.es; return L[k]||TXT.es[k]; }
+  function fmtTs(ts){ return dmy(ts.slice(0,10))+' '+ts.slice(11,19); }
+
+  function xmlRegistro(r){
+    return '<sum1:RegistroAlta>\n'+
+      '  <sum1:IDVersion>1.0</sum1:IDVersion>\n'+
+      '  <sum1:IDFactura>\n    <sum1:IDEmisorFactura>'+NIF+'</sum1:IDEmisorFactura>\n    <sum1:NumSerieFactura>'+r.num+'</sum1:NumSerieFactura>\n    <sum1:FechaExpedicionFactura>'+r.fecha+'</sum1:FechaExpedicionFactura>\n  </sum1:IDFactura>\n'+
+      '  <sum1:NombreRazonEmisor>'+RAZON+'</sum1:NombreRazonEmisor>\n  <sum1:TipoFactura>F1</sum1:TipoFactura>\n'+
+      '  <sum1:Desglose><sum1:DetalleDesglose>\n    <sum1:ClaveRegimen>01</sum1:ClaveRegimen><sum1:CalificacionOperacion>S1</sum1:CalificacionOperacion>\n    <sum1:TipoImpositivo>21.00</sum1:TipoImpositivo><sum1:BaseImponibleOimporteNoSujeto>'+r.base+'</sum1:BaseImponibleOimporteNoSujeto><sum1:CuotaRepercutida>'+r.cuota+'</sum1:CuotaRepercutida>\n  </sum1:DetalleDesglose></sum1:Desglose>\n'+
+      '  <sum1:CuotaTotal>'+r.cuota+'</sum1:CuotaTotal>\n  <sum1:ImporteTotal>'+r.importe+'</sum1:ImporteTotal>\n'+
+      '  <sum1:Encadenamiento>'+(r.anterior?'<sum1:RegistroAnterior><sum1:Huella>'+r.anterior+'</sum1:Huella></sum1:RegistroAnterior>':'<sum1:PrimerRegistro>S</sum1:PrimerRegistro>')+'</sum1:Encadenamiento>\n'+
+      '  <sum1:SistemaInformatico><sum1:NombreSistemaInformatico>HIGIENEX ERP</sum1:NombreSistemaInformatico><sum1:IdSistemaInformatico>HX</sum1:IdSistemaInformatico><sum1:Version>2026.1</sum1:Version></sum1:SistemaInformatico>\n'+
+      '  <sum1:FechaHoraHusoGenRegistro>'+r.ts+'</sum1:FechaHoraHusoGenRegistro>\n  <sum1:TipoHuella>01</sum1:TipoHuella>\n  <sum1:Huella>'+r.huella+'</sum1:Huella>\n'+
+      '</sum1:RegistroAlta>';
+  }
+
+  /* Bloque para los modales de factura (ERP y portal de cliente) */
+  function panelHTML(r, lang){
+    var url=urlCotejo(r);
+    return '<div style="margin-top:20px;border:1px solid #D6E0EA;border-radius:12px;padding:16px;display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;background:#F7FAFC">'+
+      '<a href="'+esc(url)+'" target="_blank" rel="noopener" title="'+esc(t('escanea',lang))+'" style="flex:0 0 auto;line-height:0;border:1px solid #D6E0EA;border-radius:8px;overflow:hidden">'+qrSVG(url,118)+'</a>'+
+      '<div style="flex:1;min-width:220px;font-size:12.5px;color:#33424F;line-height:1.55">'+
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px"><b style="font-size:14px;color:#0B3D6B;letter-spacing:.02em">'+t('tit',lang)+'</b>'+
+          '<span style="font-size:11px;font-weight:700;color:#0B7256;background:#E5F3EE;border-radius:20px;padding:2px 9px">✓ '+esc(t('ok',lang))+'</span></div>'+
+        '<div style="margin-bottom:8px">'+esc(t('leyenda',lang))+'</div>'+
+        '<div style="font-size:11.5px"><b>'+esc(t('huella',lang))+':</b> <span style="font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all">'+r.huella+'</span></div>'+
+        '<div style="font-size:11.5px"><b>'+esc(t('anterior',lang))+':</b> <span style="font-family:ui-monospace,Menlo,Consolas,monospace;word-break:break-all">'+(r.anterior?r.anterior.slice(0,24)+'…':esc(t('primero',lang)))+'</span></div>'+
+        '<div style="font-size:11.5px"><b>'+esc(t('csv',lang))+':</b> <span style="font-family:ui-monospace,Menlo,Consolas,monospace">'+r.csv+'</span> · <b>'+esc(t('reg',lang))+'</b> nº '+r.orden+' · '+esc(t('enviado',lang))+' '+fmtTs(r.ts)+'</div>'+
+        '<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px;color:#0B3D6B;font-weight:600">'+esc(t('xml',lang))+'</summary>'+
+          '<pre style="margin:8px 0 0;max-height:220px;overflow:auto;background:#fff;border:1px solid #E3E8ED;border-radius:8px;padding:10px;font-size:10.5px;line-height:1.45;white-space:pre">'+esc(xmlRegistro(r))+'</pre></details>'+
+        '<div style="margin-top:8px;font-size:10.5px;color:#8A97A3">'+esc(t('aviso',lang))+'</div>'+
+      '</div></div>';
+  }
+
+  /* Bloque para los PDF de factura. Devuelve la nueva coordenada y. */
+  function bloquePDF(doc, r, M, W, H, y, lang){
+    var hBox=96;
+    if(y > H - hBox - 40){ doc.addPage(); y=46; }
+    var url=urlCotejo(r);
+    doc.setDrawColor(214,224,234); doc.setLineWidth(0.75);
+    doc.setFillColor(247,250,252); doc.roundedRect(M, y, W-2*M, hBox, 6, 6, 'FD');
+    qrPDF(doc, url, M+10, y+10, hBox-20);
+    var tx=M+hBox+6, tw=W-M-14-tx;
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(11,61,107);
+    doc.text('VERI*FACTU', tx, y+20);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(22,35,46);
+    doc.text(t('leyenda',lang), tx, y+33);
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(122,135,148);
+    doc.text(t('huella',lang).toUpperCase(), tx, y+47);
+    doc.setFont('courier','normal'); doc.setFontSize(7.2); doc.setTextColor(51,66,79);
+    doc.text(doc.splitTextToSize(r.huella, tw), tx, y+56);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(51,66,79);
+    doc.text(t('csv',lang)+': '+r.csv+'   \u00b7   '+t('reg',lang)+' n\u00ba '+r.orden+'   \u00b7   '+t('enviado',lang)+' '+fmtTs(r.ts), tx, y+75);
+    doc.setFontSize(6.8); doc.setTextColor(148,163,176);
+    doc.text(t('aviso',lang), tx, y+86);
+    return y+hBox+14;
+  }
+
+  window.HXVF={NIF:NIF, sha256:sha256, cadena:cadena, urlCotejo:urlCotejo, qrSVG:qrSVG, qrPDF:qrPDF,
+               panelHTML:panelHTML, bloquePDF:bloquePDF, xmlRegistro:xmlRegistro, t:t, fmtTs:fmtTs, esc:esc};
+})();
+
+/* Página de cotejo simulada: se abre al escanear el QR VeriFactu
+   (index.html?verifactu=1&nif=…&numserie=…&fecha=…&importe=…). */
+(function(){
+  function abrir(){
+    var q; try{ q=new URLSearchParams(location.search); }catch(e){ return; }
+    if(q.get('verifactu')!=='1') return;
+    var E=window.HXVF.esc, num=q.get('numserie')||'', fecha=q.get('fecha')||'', imp=q.get('importe')||'', nif=q.get('nif')||'';
+    var lista=(window.CP_DB&&CP_DB.facturas)||[], r=null;
+    if(lista.length){ var ch=HXVF.cadena(lista); r=ch.map[num]||null; }
+    var coincide=!r || (r.importe===imp && r.fecha===fecha);
+    var filas=[['NIF del emisor',nif+' · HIGIENEX S.L.'],['Número de factura',num],['Fecha de expedición',fecha],['Importe total',imp+' €']];
+    var ov=document.createElement('div');
+    ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+    ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(6,20,38,.55);display:flex;align-items:center;justify-content:center;padding:16px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
+    ov.innerHTML='<div style="background:#fff;max-width:480px;width:100%;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">'+
+      '<div style="background:#0B3D6B;color:#fff;padding:16px 20px"><div style="font-size:12px;opacity:.75">Agencia Tributaria · sede electrónica (simulación)</div>'+
+      '<div style="font-size:18px;font-weight:700;margin-top:2px">Cotejo de factura VERI*FACTU</div></div>'+
+      '<div style="padding:18px 20px">'+
+        '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;margin-bottom:14px;background:'+(coincide?'#E5F3EE':'#F7E6E4')+';color:'+(coincide?'#0B7256':'#8C281E')+';font-weight:600;font-size:14px">'+
+          (coincide?'✓ La factura consta como registrada y sus datos coinciden.':'✕ Los datos del QR no coinciden con ningún registro.')+'</div>'+
+        '<table style="width:100%;border-collapse:collapse;font-size:13px">'+filas.map(function(f){return '<tr><td style="padding:6px 0;color:#7A8794;width:42%;vertical-align:top">'+E(f[0])+'</td><td style="padding:6px 0;color:#16232E">'+E(f[1])+'</td></tr>';}).join('')+'</table>'+
+        '<p style="font-size:11px;color:#8A97A3;margin:14px 0 0">Página ficticia creada para el proyecto HIGIENEX. No consulta la AEAT ni tiene validez fiscal.</p>'+
+        '<div style="text-align:right;margin-top:14px"><button type="button" style="background:#0B3D6B;color:#fff;border:0;border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer">Cerrar</button></div>'+
+      '</div></div>';
+    ov.querySelector('button').onclick=function(){ ov.remove(); try{ history.replaceState(null,'',location.pathname); }catch(e){} };
+    document.body.appendChild(ov);
+    ov.querySelector('button').focus();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(abrir,300); }); else setTimeout(abrir,300);
+})();
+
+function cpVFLang(){ var l=cpLang(); return (l==='ca'||l==='es'||l==='en')?l:'es'; }
 function cpViewFactures(){
   var fac=CP_DB.facturas.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
   if(CP_FILTER!=='totes') fac=fac.filter(function(f){return cpEstatFactura(f)===CP_FILTER;});
@@ -5572,11 +5768,12 @@ function cpViewFactures(){
     return '<button type="button" class="cp-chip '+(CP_FILTER===ch[0]?'active':'')+'" onclick="cpFiltrar(\''+ch[0]+'\')">'+cpT(ch[1])+'</button>';
   }).join('');
 
+  var VFC=HXVF.cadena(CP_DB.facturas).map;
   var rows=fac.map(function(f){
     var e=cpEstatFactura(f);
     return '<div class="cp-inv-row" onclick="cpVeureFactura(\''+f.num+'\')">'+
       '<span class="cp-inv-dot" style="background:'+cpEstatColor(e)+'"></span>'+
-      '<div style="flex:1;min-width:0"><div class="cp-inv-num">'+escHtml(f.num)+'</div><div class="cp-inv-date">'+CP_FD(f.fecha)+' · '+cpT('t776')+'</div></div>'+
+      '<div style="flex:1;min-width:0"><div class="cp-inv-num">'+escHtml(f.num)+'</div><div class="cp-inv-date">'+CP_FD(f.fecha)+' · '+cpT('t776')+(VFC[f.num]?' · <span style="color:#0B7256;font-weight:700" title="'+VFC[f.num].huella+'">✓ VERI*FACTU</span>':'')+'</div></div>'+
       '<div style="text-align:right"><div class="cp-inv-amt">'+CP_EUR(f.total)+'</div><span class="cp-tag" style="color:'+cpEstatColor(e)+';border-color:'+cpEstatColor(e)+'44;background:'+cpEstatColor(e)+'18">'+cpEstatLabel(e)+'</span></div>'+
       '<div class="cp-inv-actions" onclick="event.stopPropagation()">'+
         '<button type="button" title="'+cpT('t777')+'" onclick="cpVeureFactura(\''+f.num+'\')">👁</button>'+
@@ -5632,7 +5829,8 @@ function cpVeureFactura(num){
       '<div style="display:flex;justify-content:space-between;padding:5px 0"><span>'+cpT('t792')+'</span><span>'+CP_EUR(f.base)+'</span></div>'+
       '<div style="display:flex;justify-content:space-between;padding:5px 0"><span>'+cpT('t793')+'</span><span>'+CP_EUR(f.cuota)+'</span></div>'+
       '<div style="display:flex;justify-content:space-between;padding:8px 0;border-top:2px solid var(--green-deep);font-weight:800;color:var(--green-deep)"><span>'+cpT('t794')+'</span><span>'+CP_EUR(f.total)+'</span></div>'+
-    '</div>';
+    '</div>'+
+    (function(){ var vr=HXVF.cadena(CP_DB.facturas).map[num]; return vr?HXVF.panelHTML(vr,cpVFLang()):''; })();
   cpOpenModal(cpT('t795')+' '+escHtml(num), body,
     '<button class="cp-btn ghost" onclick="cpCloseModal()" type="button">'+cpT('t796')+'</button>'+
     '<button class="cp-btn ghost" onclick="window.print()" type="button">'+cpT('t797')+'</button>'+
@@ -5872,6 +6070,7 @@ function cpDescarregarFactura(num){
   doc.setTextColor(22,35,46);
   doc.text(payLines, M+14, y+16);
   y += payH + 16;
+  (function(){ var vr=HXVF.cadena(CP_DB.facturas).map[num]; if(vr) y=HXVF.bloquePDF(doc, vr, M, W, H, y, cpVFLang()); })();
   doc.setDrawColor(227,232,237); doc.setLineWidth(0.5);
   doc.line(M, y, W-M, y);
   y += 12;
