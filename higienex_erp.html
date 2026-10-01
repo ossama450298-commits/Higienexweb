@@ -889,6 +889,97 @@ button,.navitem,.btn,a{min-height:32px}
   .tr-bright{margin-left:0;width:100%;justify-content:space-between}
   .tr-board{scroll-snap-type:x mandatory}.tr-list{flex-basis:86vw;width:86vw;scroll-snap-align:start}
 }
+
+/* ══════════ Tablero: identidad HIGIENEX (sustituye al aspecto Trello) ══════════ */
+.tr-root{font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+.tr-top{background:rgba(8,32,58,.72);border-bottom:2px solid #C99A2E;padding:9px 18px;gap:14px}
+.tr-logo{font-size:21px}
+.tr-logo i{color:#F2A900}
+.tr-create{background:#F2A900;color:#0B3A66;border-radius:10px;padding:10px 16px;font-weight:800}
+.tr-create:hover{background:#FFC132}
+.tr-tb{border-radius:10px}
+.tr-search{border-radius:10px;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22)}
+.tr-boardbar{background:rgba(8,32,58,.35);padding:12px 18px;gap:10px}
+.tr-bname{font-family:var(--kb-disp);font-size:22px;font-weight:800;letter-spacing:-.02em}
+.tr-star{color:#F2A900}
+.tr-bb,.tr-bsel select{border-radius:10px !important}
+.tr-bb.on{background:#F2A900;color:#0B3A66}
+.tr-memb.on .kb-av{box-shadow:0 0 0 2px #fff,0 0 0 4px #F2A900}
+.tr-board{gap:16px;padding:16px 18px 24px}
+.tr-list{flex-basis:292px;width:292px;background:rgba(255,255,255,.95);border-radius:18px;border-top:4px solid var(--sc);box-shadow:0 18px 40px -26px rgba(4,20,40,.75),0 1px 2px rgba(4,20,40,.12)}
+.tr-list.over{background:#FFF8E6;box-shadow:0 0 0 2px #F2A900}
+.tr-lh{padding:12px 8px 8px 16px}
+.tr-lh h3{font-family:var(--kb-disp);font-size:15.5px;font-weight:700;color:#0E2A47;letter-spacing:-.01em}
+.tr-ln{display:inline-grid;place-items:center;min-width:22px;height:20px;padding:0 6px;border-radius:10px;background:color-mix(in srgb,var(--sc) 14%,#fff);color:color-mix(in srgb,var(--sc) 75%,#000);font-size:11.5px;font-weight:800}
+.tr-cards{gap:9px;padding:2px 10px}
+.tr-card{border-radius:12px;padding:10px 12px 8px 15px;box-shadow:0 1px 2px rgba(14,42,71,.12),0 0 0 1px rgba(14,42,71,.06)}
+.tr-card::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:4px;border-radius:0 4px 4px 0;background:var(--dc)}
+.tr-card:hover{box-shadow:0 0 0 2px #F2A900,0 10px 20px -12px rgba(14,42,71,.45)}
+.tr-card:focus-visible{box-shadow:0 0 0 2px #F2A900}
+.tr-card.done::before{opacity:.45}
+.tr-lb{height:18px;line-height:18px;border-radius:6px;padding:0 8px;font-size:11px;font-weight:700}
+.tr-lb.dept{color:#fff}
+.tr-lb.tg{background:color-mix(in srgb,var(--lc) 22%,#fff) !important;color:color-mix(in srgb,var(--lc) 45%,#0E2A47);min-width:0}
+.tr-tit{font-weight:600;color:#0E2A47}
+.tr-bd{border-radius:6px;color:#52677D}
+.tr-bd.ok{background:#1F9D7A}
+.tr-bd.late{background:#D14A3B}
+.tr-bd.soon{background:#F2A900;color:#3A2A00}
+.tr-addbtn{border-radius:10px;color:#52677D}
+.tr-addbtn:hover{background:#EEF3F8;color:#0B3A66}
+.tr-ib:hover{background:#EEF3F8}
+.tr-add .kb-addacts .btn:not(.ghost){background:#0B3A66;border-color:#0B3A66}
+/* Densidad compacta */
+.tr-board.compacta .tr-card{padding:7px 10px 5px 13px}
+.tr-board.compacta .tr-lbs{margin-bottom:4px}
+.tr-board.compacta .tr-lb{height:8px;min-width:34px;font-size:0;padding:0;border-radius:4px}
+.tr-board.compacta .tr-tit{font-size:13px;line-height:18px}
+.tr-board.compacta .tr-bds{margin-top:4px;min-height:20px}
+.tr-board.compacta .tr-cards{gap:6px}
+/* Fondo claro: barras en tono oscuro */
+.tr-root:has(.tr-bg[data-tono="claro"]) .tr-top{background:#0B3A66}
+.tr-root:has(.tr-bg[data-tono="claro"]) .tr-boardbar{background:rgba(11,58,102,.08);color:#0E2A47}
+.tr-root:has(.tr-bg[data-tono="claro"]) .tr-bname{color:#0E2A47}
+.tr-root:has(.tr-bg[data-tono="claro"]) .tr-bb,.tr-root:has(.tr-bg[data-tono="claro"]) .tr-bsel select{background-color:rgba(11,58,102,.09) !important;color:#0E2A47 !important}
+.tr-root:has(.tr-bg[data-tono="claro"]) .tr-bsel select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5l3 3 3-3' fill='none' stroke='%230E2A47' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E") !important}
+.tr-root:has(.tr-bg[data-tono="claro"]) .tr-bb.warn{background:#D14A3B !important;color:#fff !important}
+.tr-root:has(.tr-bg[data-tono="claro"]) .tr-bb.on{background:#F2A900 !important;color:#0B3A66 !important}
+.tr-root:has(.tr-bg[data-tono="claro"]) .tr-lanehead{color:#0E2A47}
+/* Panel Personalizar */
+.tr-panelbg{position:fixed;inset:0;z-index:110;background:rgba(4,20,40,.28)}
+.tr-panel{position:fixed;top:0;right:0;bottom:0;z-index:111;width:min(380px,100vw);background:#fff;color:#0E2A47;display:flex;flex-direction:column;box-shadow:-24px 0 48px -20px rgba(4,20,40,.5);font-family:'Plus Jakarta Sans',system-ui,sans-serif;animation:trPanelIn .22s cubic-bezier(.16,1,.3,1)}
+@keyframes trPanelIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.tr-panel{animation:none}}
+.tr-phead{display:flex;align-items:center;padding:16px 14px 12px 20px;border-bottom:1px solid #E6ECF2}
+.tr-phead h3{margin:0;font-family:var(--kb-disp);font-size:19px;font-weight:800;letter-spacing:-.01em}
+.tr-phead .tr-ib{font-size:22px;color:#52677D}
+.tr-pbody{flex:1;overflow-y:auto;padding:6px 20px 24px}
+.tr-pbody section{padding:14px 0;border-bottom:1px solid #EEF2F6}
+.tr-pbody section:last-child{border-bottom:0}
+.tr-pbody h4{margin:0 0 10px;font-size:13.5px;font-weight:700;color:#0E2A47}
+.tr-pin{width:100%;font-size:14px}
+.tr-prow{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13.5px;font-weight:600;color:#33475B;cursor:pointer}
+.tr-prow > i{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tr-pcol{width:34px !important;height:28px;padding:0 !important;border:0 !important;border-radius:8px !important;background:none !important;cursor:pointer}
+.tr-panel .tr-fondos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0}
+.tr-panel .tr-fondos > *{height:62px;border:0;border-radius:10px;cursor:pointer;display:flex;align-items:flex-end;padding:7px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);position:relative}
+.tr-panel .tr-fondos span{font:700 11.5px/1 inherit;font-family:inherit;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.tr-panel .tr-fondos button[data-k=claro] span{color:#0E2A47;text-shadow:none}
+.tr-panel .tr-fondos .on{box-shadow:0 0 0 2px #fff,0 0 0 4px #F2A900}
+.tr-fcolor input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.tr-seg2{display:grid;grid-template-columns:1fr 1fr;background:#EEF3F8;border-radius:10px;padding:3px;margin-bottom:12px}
+.tr-seg2 button{border:0;background:none;padding:8px;border-radius:8px;font:600 13px/1 inherit;font-family:inherit;color:#52677D;cursor:pointer}
+.tr-seg2 button.on{background:#fff;color:#0E2A47;box-shadow:0 1px 3px rgba(14,42,71,.15)}
+.tr-phint{margin:0 0 6px;font-size:12.5px;color:#7A8CA0}
+.tr-tog{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13.5px;color:#33475B;cursor:pointer}
+.tr-tog input{position:absolute;opacity:0;pointer-events:none}
+.tr-tog span{width:34px;height:20px;border-radius:10px;background:#CBD6E2;position:relative;flex-shrink:0;transition:background .15s}
+.tr-tog span::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .15s}
+.tr-tog input:checked + span{background:#0B3A66}
+.tr-tog input:checked + span::after{transform:translateX(14px)}
+.tr-tog input:focus-visible + span{box-shadow:0 0 0 3px rgba(242,169,0,.45)}
+.tr-reset{width:100%;border:1px solid #E1E8EF;background:#fff;color:#D14A3B;font:600 13px/1 inherit;font-family:inherit;padding:11px;border-radius:10px;cursor:pointer}
+.tr-reset:hover{background:#FDF1EF}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
@@ -8821,7 +8912,7 @@ function kbData(){
 }
 function kbEmp(id){ return (DB.empleados||[]).find(e=>e.id===id); }
 function kbIni(n){ return String(n||'?').trim().split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase(); }
-function kbDeptColor(d){ return KB_DEPTS[d] || '#4A5A6A'; }
+function kbDeptColor(d){ const t=DB.tablero&&DB.tablero.cfg; return (t&&t.depts&&t.depts[d]) || KB_DEPTS[d] || '#4A5A6A'; }
 function kbPrio(p){ return KB_PRIOS.find(x=>x[0]===p) || KB_PRIOS[1]; }
 function kbFD(s){ if(!s) return ''; const d=s.split('-'); return d[2]+'/'+d[1]; }
 function kbDepts(){
@@ -8864,26 +8955,26 @@ const KB_IC = {
   imagen:'<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><rect x="1.8" y="2.5" width="12.4" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 12l3.5-3.8 2.6 2.6 1.9-1.9 3 3.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10.8" cy="5.6" r="1.2" fill="currentColor"/></svg>'
 };
 function kbCardHTML(c){
-  const e = kbEmp(c.emp), hecho = c.col==='hecho';
+  const e = kbEmp(c.emp), hecho = c.col==='hecho', M = kbCfg().mostrar;
   const chk = c.check||[], done = chk.filter(x=>x.ok).length;
   let due='';
-  if(c.vence){
+  if(c.vence && M.fecha){
     const d = Math.round((new Date(c.vence+'T00:00:00Z') - new Date(TODAY+'T00:00:00Z'))/86400000);
     const cls = hecho ? 'ok' : d<0 ? 'late' : d<=1 ? 'soon' : '';
     due = '<span class="tr-bd '+cls+'" title="Fecha límite'+(cls==='late'?' (vencida)':'')+'">'+KB_IC.reloj+kbFecha(c.vence)+'</span>';
   }
   const labels = '<span class="tr-lb dept" style="background:'+kbDeptColor(c.dept)+'">'+esc(c.dept)+'</span>'+
-    (c.prio==='urgente'||c.prio==='alta' ? '<span class="tr-lb" style="background:'+(c.prio==='urgente'?'#F87168':'#FEA362')+'">'+(c.prio==='urgente'?'Urgente':'Alta')+'</span>' : '')+
-    (c.etq||[]).map(t=>'<span class="tr-lb" style="background:'+kbLblColor(t)+'">'+esc(t)+'</span>').join('');
-  return '<article class="tr-card'+(hecho?' done':'')+(KB_LANDED===c.id?' landed':'')+'" draggable="true" tabindex="0" data-id="'+c.id+'" '+
+    (M.prio && (c.prio==='urgente'||c.prio==='alta') ? '<span class="tr-lb" style="background:'+(c.prio==='urgente'?'#F87168':'#FEA362')+'">'+(c.prio==='urgente'?'Urgente':'Alta')+'</span>' : '')+
+    (M.etq ? (c.etq||[]).map(t=>'<span class="tr-lb tg" style="--lc:'+kbLblColor(t)+'">'+esc(t)+'</span>').join('') : '');
+  return '<article class="tr-card'+(hecho?' done':'')+(KB_LANDED===c.id?' landed':'')+'" draggable="true" tabindex="0" data-id="'+c.id+'" style="--dc:'+kbDeptColor(c.dept)+'" '+
       'ondragstart="kbDragStart(event,\''+c.id+'\')" ondragend="kbDragEnd(event)" onclick="kbAbrir(\''+c.id+'\')" onkeydown="if(event.key===\'Enter\')kbAbrir(\''+c.id+'\')">'+
     '<div class="tr-lbs">'+labels+'</div>'+
     '<div class="tr-tit">'+esc(c.tit)+'</div>'+
     '<div class="tr-bds">'+due+
-      (c.desc ? '<span class="tr-bd ic" title="Tiene descripción">'+KB_IC.desc+'</span>' : '')+
-      ((c.coments||[]).length ? '<span class="tr-bd ic" title="Comentarios">'+KB_IC.com+c.coments.length+'</span>' : '')+
-      (chk.length ? '<span class="tr-bd'+(done===chk.length?' ok':'')+'" title="Checklist">'+KB_IC.chk+done+'/'+chk.length+'</span>' : '')+
-      '<span class="tr-mem" title="'+esc(e?e.nom:'Sin asignar')+'"><span class="kb-av" style="--ac:'+kbDeptColor(e?e.depto:c.dept)+'">'+(e?kbIni(e.nom):'?')+'</span></span>'+
+      (M.desc && c.desc ? '<span class="tr-bd ic" title="Tiene descripción">'+KB_IC.desc+'</span>' : '')+
+      (M.com && (c.coments||[]).length ? '<span class="tr-bd ic" title="Comentarios">'+KB_IC.com+c.coments.length+'</span>' : '')+
+      (M.check && chk.length ? '<span class="tr-bd'+(done===chk.length?' ok':'')+'" title="Checklist">'+KB_IC.chk+done+'/'+chk.length+'</span>' : '')+
+      (M.av ? '<span class="tr-mem" title="'+esc(e?e.nom:'Sin asignar')+'"><span class="kb-av" style="--ac:'+kbDeptColor(e?e.depto:c.dept)+'">'+(e?kbIni(e.nom):'?')+'</span></span>' : '')+
     '</div>'+
   '</article>';
 }
@@ -8893,7 +8984,7 @@ function kbColumna(col, cards, extraKey){
   const key = col[0]+(extraKey||'');
   return '<section class="tr-list kb-col" data-col="'+col[0]+'" style="--sc:'+col[2]+'"'+(extraKey?' data-emp="'+extraKey+'"':'')+
       ' ondragover="kbDragOver(event)" ondragleave="kbDragLeave(event)" ondrop="kbDrop(event,\''+col[0]+'\''+(extraKey?',\''+extraKey+'\'':'')+')">'+
-    '<header class="tr-lh"><h3>'+col[1]+'</h3><span class="tr-ln">'+lista.length+'</span>'+
+    '<header class="tr-lh"><h3>'+esc(kbColName(col))+'</h3><span class="tr-ln">'+lista.length+'</span>'+
       '<button class="tr-ib" type="button" aria-label="Opciones de la lista" onclick="kbMenuLista(event,\''+col[0]+'\',\''+(extraKey||'')+'\')">'+KB_IC.dots+'</button></header>'+
     '<div class="tr-cards">'+lista.map(kbCardHTML).join('')+'</div>'+
     '<div class="tr-add kb-add" id="kbAdd_'+key+'">'+
@@ -8925,32 +9016,76 @@ function kbOrdenar(col,by){
 }
 
 const KB_FONDOS = {
-  atardecer:{n:'Atardecer', css:'linear-gradient(180deg,#F6C76B 0%,#F39A5A 38%,#E46B5E 62%,#B9527A 100%)', m:['#E9896A','#D56A62','#B35470']},
-  oceano:{n:'Océano', css:'linear-gradient(180deg,#7CC4E8 0%,#3E8FD0 45%,#1F5FA8 100%)', m:['#3D86C6','#2A6CB0','#1A4F8C']},
-  bosque:{n:'Bosque', css:'linear-gradient(180deg,#B8DDB0 0%,#6FB27F 45%,#2F7D5C 100%)', m:['#5FA370','#3F8A5F','#2A6A4A']},
-  higienex:{n:'HIGIENEX', css:'linear-gradient(180deg,#2B5C8F 0%,#174B7E 45%,#0B3A66 100%)', m:['#1E5385','#164571','#0E355B']},
-  lavanda:{n:'Lavanda', css:'linear-gradient(180deg,#D9C7F2 0%,#A98DE0 50%,#7558C2 100%)', m:['#9C80D8','#8467C9','#6A4FB4']}
+  higienex:{n:'HIGIENEX', thumb:'radial-gradient(circle at 85% 0%,rgba(242,169,0,.55),transparent 55%),linear-gradient(160deg,#164F86,#0B3A66 55%,#082A4B)', tipo:'marca'},
+  claro:{n:'Claro', thumb:'linear-gradient(160deg,#F4F8FC,#DCE7F1)', tipo:'claro'},
+  pizarra:{n:'Pizarra', thumb:'linear-gradient(160deg,#3A4656,#1E2733)', tipo:'pizarra'},
+  atardecer:{n:'Atardecer', thumb:'linear-gradient(180deg,#F6C76B 0%,#F39A5A 38%,#E46B5E 62%,#B9527A 100%)', tipo:'paisaje', m:['#E9896A','#D56A62','#B35470']},
+  oceano:{n:'Océano', thumb:'linear-gradient(180deg,#7CC4E8 0%,#3E8FD0 45%,#1F5FA8 100%)', tipo:'paisaje', m:['#3D86C6','#2A6CB0','#1A4F8C']},
+  bosque:{n:'Bosque', thumb:'linear-gradient(180deg,#B8DDB0 0%,#6FB27F 45%,#2F7D5C 100%)', tipo:'paisaje', m:['#5FA370','#3F8A5F','#2A6A4A']}
 };
-function kbFondoKey(){ try{ return localStorage.getItem('hx_kb_fondo')||'atardecer'; }catch(e){ return 'atardecer'; } }
 function kbFondoHTML(){
-  const f = KB_FONDOS[kbFondoKey()]||KB_FONDOS.atardecer;
-  return '<div class="tr-bg" style="background:'+f.css+'"><svg viewBox="0 0 1440 400" preserveAspectRatio="none" aria-hidden="true">'+
+  const c = kbCfg(), f = KB_FONDOS[c.fondo];
+  const grid = 'linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px)';
+  if(c.fondo==='color') return '<div class="tr-bg" data-tono="oscuro" style="background:'+grid+','+esc(c.color)+';background-size:32px 32px,32px 32px,auto"></div>';
+  if(!f || f.tipo==='marca') return '<div class="tr-bg" data-tono="oscuro" style="background:'+grid+',radial-gradient(1200px 520px at 92% -10%,rgba(242,169,0,.32),transparent 60%),radial-gradient(900px 600px at -10% 110%,rgba(46,109,180,.45),transparent 60%),linear-gradient(160deg,#164F86 0%,#0B3A66 50%,#082A4B 100%);background-size:32px 32px,32px 32px,auto,auto,auto"></div>';
+  if(f.tipo==='claro') return '<div class="tr-bg" data-tono="claro" style="background:linear-gradient(rgba(11,58,102,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(11,58,102,.05) 1px,transparent 1px),linear-gradient(160deg,#F4F8FC,#DCE7F1);background-size:32px 32px,32px 32px,auto"></div>';
+  if(f.tipo==='pizarra') return '<div class="tr-bg" data-tono="oscuro" style="background:'+grid+',linear-gradient(160deg,#3A4656,#1E2733);background-size:32px 32px,32px 32px,auto"></div>';
+  return '<div class="tr-bg" data-tono="oscuro" style="background:'+f.thumb+'"><svg viewBox="0 0 1440 400" preserveAspectRatio="none" aria-hidden="true">'+
     '<path d="M0 250 L120 190 L230 235 L360 150 L480 215 L610 170 L720 225 L860 140 L980 210 L1100 165 L1230 220 L1350 180 L1440 205 V400 H0Z" fill="'+f.m[0]+'" opacity=".55"/>'+
     '<path d="M0 300 L150 240 L270 285 L420 220 L560 280 L690 235 L820 290 L960 230 L1090 285 L1230 245 L1340 280 L1440 255 V400 H0Z" fill="'+f.m[1]+'" opacity=".7"/>'+
     '<path d="M0 345 L180 300 L330 335 L470 295 L640 340 L800 305 L950 345 L1120 310 L1280 340 L1440 315 V400 H0Z" fill="'+f.m[2]+'" opacity=".85"/></svg></div>';
 }
-function kbElegirFondo(ev){
-  ev.stopPropagation(); kbCerrarPop();
-  const r = ev.currentTarget.getBoundingClientRect();
-  const m = document.createElement('div'); m.className='tr-pop'; m.id='trPop';
-  m.style.top=(r.bottom+6)+'px'; m.style.left=Math.min(r.left, window.innerWidth-260)+'px';
-  m.innerHTML='<div class="tr-poph">Fondo del tablero</div><div class="tr-fondos">'+Object.keys(KB_FONDOS).map(k=>
-    '<button type="button" class="'+(k===kbFondoKey()?'on':'')+'" style="background:'+KB_FONDOS[k].css+'" onclick="kbSetFondo(\''+k+'\')"><span>'+KB_FONDOS[k].n+'</span></button>').join('')+'</div>';
-  m.addEventListener('click',e=>e.stopPropagation());
-  document.body.appendChild(m);
-  setTimeout(()=>document.addEventListener('click',kbCerrarPop,{once:true}),0);
+/* ── Personalización del tablero (se guarda con los datos del ERP, la ve todo el equipo) ── */
+const KB_CFG_DEF = {titulo:'Tareas HIGIENEX', fondo:'higienex', color:'#0B3A66', densidad:'comoda',
+  mostrar:{etq:true, prio:true, fecha:true, check:true, com:true, desc:true, av:true}, cols:{}, depts:{}};
+function kbCfg(){
+  const T = kbData();
+  if(T.cfg && T.cfg._ok) return T.cfg;
+  const c = Object.assign(JSON.parse(JSON.stringify(KB_CFG_DEF)), T.cfg||{});
+  c.mostrar = Object.assign({}, KB_CFG_DEF.mostrar, (T.cfg||{}).mostrar||{});
+  c.cols = c.cols||{}; c.depts = c.depts||{};
+  Object.defineProperty(c,'_ok',{value:true,enumerable:false});
+  T.cfg = c; return c;
 }
-function kbSetFondo(k){ try{ localStorage.setItem('hx_kb_fondo',k); }catch(e){} kbCerrarPop(); const bg=document.querySelector('.tr-bg'); if(bg) bg.outerHTML=kbFondoHTML(); }
+function kbColName(col){ return kbCfg().cols[col[0]] || col[1]; }
+let KB_PANEL = false;
+function kbPanelAbrir(){ KB_PANEL = true; kbPanelRender(); }
+function kbPanelCerrar(){ KB_PANEL = false; const p=document.getElementById('kbPanel'); if(p) p.remove(); const o=document.getElementById('kbPanelBg'); if(o) o.remove(); }
+function kbCfgSet(fn, soloRoot){
+  fn(kbCfg()); guardarDBDebounced();
+  kbRender(); kbFondoRefresh();
+  if(!soloRoot) kbPanelRender();
+}
+function kbFondoRefresh(){ const bg=document.querySelector('.tr-bg'); if(bg) bg.outerHTML=kbFondoHTML(); }
+function kbPanelRender(){
+  if(!KB_PANEL) return;
+  const c = kbCfg();
+  let p = document.getElementById('kbPanel');
+  if(!p){
+    const o=document.createElement('div'); o.id='kbPanelBg'; o.className='tr-panelbg'; o.onclick=kbPanelCerrar; document.body.appendChild(o);
+    p=document.createElement('div'); p.id='kbPanel'; p.setAttribute('role','dialog'); p.className='tr-panel'; p.setAttribute('aria-label','Personalizar tablero'); document.body.appendChild(p);
+  }
+  const sc = p.querySelector('.tr-pbody') ? p.querySelector('.tr-pbody').scrollTop : 0;
+  const tog = (k,lbl)=>'<label class="tr-tog"><input type="checkbox"'+(c.mostrar[k]?' checked':'')+' onchange="kbCfgSet(c=>c.mostrar.'+k+'=this.checked)"><span></span>'+lbl+'</label>';
+  p.innerHTML =
+    '<div class="tr-phead"><h3>Personalizar tablero</h3><button class="tr-ib" type="button" aria-label="Cerrar" onclick="kbPanelCerrar()">×</button></div>'+
+    '<div class="tr-pbody">'+
+      '<section><h4>Nombre</h4><input class="tr-pin" value="'+esc(c.titulo)+'" maxlength="40" oninput="kbCfgSet(c=>c.titulo=this.value||\'Tareas HIGIENEX\',true)"></section>'+
+      '<section><h4>Fondo</h4><div class="tr-fondos">'+Object.keys(KB_FONDOS).map(k=>
+        '<button type="button" data-k="'+k+'" class="'+(c.fondo===k?'on':'')+'" style="background:'+KB_FONDOS[k].thumb+'" onclick="kbCfgSet(c=>c.fondo=\''+k+'\')"><span>'+KB_FONDOS[k].n+'</span></button>').join('')+
+        '<label class="tr-fcolor'+(c.fondo==='color'?' on':'')+'" style="background:'+esc(c.color)+'"><input type="color" value="'+esc(c.color)+'" onchange="kbCfgSet(c=>{c.fondo=\'color\';c.color=this.value})"><span>Color propio</span></label>'+
+      '</div></section>'+
+      '<section><h4>Columnas</h4>'+KB_COLS.map(k=>'<div class="tr-prow"><i style="background:'+k[2]+'"></i><input class="tr-pin" value="'+esc(kbColName(k))+'" maxlength="24" oninput="kbCfgSet(c=>c.cols.'+k[0]+'=this.value.trim(),true)" aria-label="Nombre de la columna '+k[1]+'"></div>').join('')+'</section>'+
+      '<section><h4>Colores de los departamentos</h4>'+kbDepts().map(d=>'<label class="tr-prow"><input type="color" class="tr-pcol" value="'+kbDeptColor(d)+'" onchange="kbCfgSet(c=>c.depts[\''+esc(d)+'\']=this.value)"><span>'+esc(d)+'</span></label>').join('')+'</section>'+
+      '<section><h4>Tarjetas</h4>'+
+        '<div class="tr-seg2"><button type="button" class="'+(c.densidad==='comoda'?'on':'')+'" onclick="kbCfgSet(c=>c.densidad=\'comoda\')">Cómodas</button><button type="button" class="'+(c.densidad==='compacta'?'on':'')+'" onclick="kbCfgSet(c=>c.densidad=\'compacta\')">Compactas</button></div>'+
+        '<p class="tr-phint">Qué se ve en cada tarjeta</p>'+
+        tog('etq','Etiquetas')+tog('prio','Prioridad alta y urgente')+tog('fecha','Fecha límite')+tog('check','Checklist')+tog('com','Comentarios')+tog('desc','Icono de descripción')+tog('av','Responsable')+
+      '</section>'+
+      '<section><button class="tr-reset" type="button" onclick="if(confirm(\'¿Volver al diseño original del tablero?\')){kbData().cfg=null;kbCfgSet(()=>{})}">Volver al diseño original</button></section>'+
+    '</div>';
+  const nb = p.querySelector('.tr-pbody'); if(nb) nb.scrollTop = sc;
+}
 function kbSoloVencidas(){ KB_F.vencidas = !KB_F.vencidas; kbRender(); }
 function kbLimpiar(){ KB_F = {dept:'', emp:'', q:'', prio:'', vista:KB_F.vista}; kbRender(); }
 function kbInner(){
@@ -8963,7 +9098,7 @@ function kbInner(){
   const filtros = !!(KB_F.emp||KB_F.dept||KB_F.prio||KB_F.q||KB_F.vencidas);
   let h = '<div class="tr-boardbar">'+
     '<button class="tr-bb strong" type="button" onclick="kbSet(\'vista\',KB_F.vista===\'estado\'?\'empleado\':\'estado\')" title="Cambiar de vista">'+KB_IC.tablero+(KB_F.vista==='estado'?'Por estado':'Por persona')+'</button>'+
-    '<h2 class="tr-bname">Tareas HIGIENEX</h2>'+
+    '<h2 class="tr-bname">'+esc(kbCfg().titulo)+'</h2>'+
     '<span class="tr-star" title="Tablero destacado">'+KB_IC.estrella+'</span>'+
     '<label class="tr-bsel"><select onchange="kbSet(\'dept\',this.value)" aria-label="Departamento"><option value="">Todos los departamentos</option>'+
       kbDepts().map(d=>'<option value="'+esc(d)+'"'+(KB_F.dept===d?' selected':'')+'>'+esc(d)+' ('+abiertas.filter(c=>c.dept===d).length+')</option>').join('')+'</select></label>'+
@@ -8975,7 +9110,7 @@ function kbInner(){
       '<div class="tr-members">'+(DB.empleados||[]).map(e=>{ const on=KB_F.emp===e.id, n=abiertas.filter(c=>c.emp===e.id).length;
         return '<button type="button" class="tr-memb'+(on?' on':'')+(KB_F.emp&&!on?' dim':'')+'" title="'+esc(e.nom)+' · '+n+(n===1?' abierta':' abiertas')+'" onclick="kbSet(\'emp\',\''+(on?'':e.id)+'\')"><span class="kb-av" style="--ac:'+kbDeptColor(e.depto)+'">'+kbIni(e.nom)+'</span></button>'; }).join('')+'</div>'+
       (mine?'<button class="tr-bb'+(KB_F.emp===mine?' on':'')+'" type="button" onclick="kbSet(\'emp\',\''+(KB_F.emp===mine?'':mine)+'\')">Mis tareas</button>':'')+
-      '<button class="tr-bb" type="button" onclick="kbElegirFondo(event)">'+KB_IC.imagen+'Fondo</button>'+
+      '<button class="tr-bb" type="button" onclick="kbPanelAbrir()">'+KB_IC.imagen+'Personalizar</button>'+
     '</div>'+
   '</div>';
   if(KB_F.vista==='empleado'){
@@ -8985,10 +9120,10 @@ function kbInner(){
       if(KB_F.dept && !suyas.length && e.depto!==KB_F.dept) return '';
       const ab = suyas.filter(c=>c.col!=='hecho').length;
       return '<div class="tr-lane"><div class="tr-lanehead"><span class="kb-av lg" style="--ac:'+kbDeptColor(e.depto)+'">'+kbIni(e.nom)+'</span><strong>'+esc(e.nom)+'</strong><small>'+esc(e.cat||e.depto||'')+' · '+ab+(ab===1?' abierta':' abiertas')+'</small></div>'+
-        '<div class="tr-board lane">'+KB_COLS.map(col=>kbColumna(col, suyas, e.id)).join('')+'</div></div>';
+        '<div class="tr-board lane'+(kbCfg().densidad==='compacta'?' compacta':'')+'">'+KB_COLS.map(col=>kbColumna(col, suyas, e.id)).join('')+'</div></div>';
     }).join('')+'</div>';
   } else {
-    h += '<div class="tr-board">'+KB_COLS.map(col=>kbColumna(col, cards)).join('')+'</div>';
+    h += '<div class="tr-board'+(kbCfg().densidad==='compacta'?' compacta':'')+'">'+KB_COLS.map(col=>kbColumna(col, cards)).join('')+'</div>';
   }
   if(!cards.length && todas.length) h += '<div class="tr-none">Ninguna tarjeta coincide con los filtros. <button type="button" onclick="kbLimpiar()">Quitar filtros</button></div>';
   return h;
