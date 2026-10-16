@@ -64,42 +64,6 @@ textarea:focus-visible, [tabindex]:focus-visible {
   left: 0;
 }
 
-/* ── HIGIENEX Premium: insígnia + botons amb aparença VIP (fons fosc + or) ── */
-.hx-premium-badge {
-  width: 1.15rem;
-  height: 1.15rem;
-  flex-shrink: 0;
-}
-.hx-premium-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  background: #fff;
-  border: 1.5px solid #F2A900;
-  color: var(--green-deep);
-  padding: 0.45rem 1rem;
-  border-radius: 40px;
-  cursor: pointer;
-  font-family: Arial, sans-serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s;
-}
-.hx-premium-btn:hover {
-  background: #FFF7E6;
-  border-color: #C98A00;
-}
-.hx-premium-btn span { color: var(--green-deep); }
-a.dditem.hx-premium-dditem {
-  border-left: 3px solid #F2A900;
-  background: rgba(242,169,0,0.07);
-}
-a.dditem.hx-premium-dditem span {
-  color: var(--green-deep);
-  font-weight: 700;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -1512,9 +1476,7 @@ html.hx-rtl .form-row { direction: rtl; }
   h2 { font-size: 1.8rem; }
   section:not(#home) { padding: 3.5rem 1.2rem; }
   #home { padding: 3rem 1.2rem; }
-  .mvv-grid, .valors-list, .premium-grid { grid-template-columns: 1fr; }
-  #navPremiumBtn span { display: none; }
-  #navPremiumBtn { padding: 0.45rem 0.6rem; }
+  .mvv-grid, .valors-list { grid-template-columns: 1fr; }
   .clients-grid { grid-template-columns: 1fr; }
   .casos-grid, .blog-grid, .futur-grid, .sost-grid, .rsc-grid, .rrhh-grid, .mkt-grid { grid-template-columns: 1fr; }
   .process-flow { flex-direction: column; }
@@ -2023,16 +1985,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 </head>
 <body>
 <a href="#home" class="hx-skip-link">Saltar al contingut principal</a>
-
-<!-- Insígnia HIGIENEX Premium: la X daurada del logotip, sense fons, reutilitzada
-     via <use> al botó de la barra superior, al menú lateral i a la secció Premium. -->
-<svg style="position:absolute;width:0;height:0;overflow:hidden;" aria-hidden="true" focusable="false">
-  <defs>
-    <symbol id="hxPremiumBadge" viewBox="0 0 40 40">
-      <text x="20" y="22" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="700" font-size="30" fill="#F2A900" text-anchor="middle" dominant-baseline="central">X</text>
-    </symbol>
-  </defs>
-</svg>
 
 <!-- BANNER SENSE CONNEXIÓ -->
 <div id="hxOfflineBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999999;background:#B8621B;color:#fff;text-align:center;padding:0.5rem 1rem;font-size:0.8rem;font-weight:700;">
@@ -2712,47 +2664,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 #samplePopupBox > p { font-size: 0.85rem; color: #666; line-height: 1.5; margin-bottom: 1.2rem; }
 #samplePopupBox .form-field { margin-bottom: 0.85rem; }
 
-/* Benvinguda especial en fer-se soci HIGIENEX Premium */
-#premiumWelcomeModal {
-  display: none; position: fixed; inset: 0; z-index: 9999999;
-  background: rgba(4,17,31,0.7); backdrop-filter: blur(5px);
-  align-items: center; justify-content: center; padding: 1rem;
-}
-#premiumWelcomeModal.open { display: flex; }
-#premiumWelcomeBox {
-  background: #fff; border-radius: 22px; padding: 2.4rem 2rem 2rem;
-  width: min(460px, 92vw); max-height: 90vh; overflow-y: auto;
-  box-shadow: 0 32px 80px rgba(11,61,107,0.28);
-  border-top: 5px solid #F2A900;
-  animation: toastIn 0.35s ease; position: relative; text-align: center;
-}
-#premiumWelcomeBox .popup-close {
-  position: absolute; top: 1rem; right: 1rem; background: #F5F5F5; border: none;
-  width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1rem;
-  display: flex; align-items: center; justify-content: center; color: #666;
-}
-#premiumWelcomeBox .popup-close:hover { background: #E8E8E8; }
-.premium-welcome-badge {
-  width: 4.4rem; height: 4.4rem; margin-bottom: 0.9rem;
-  animation: premiumPop 0.5s cubic-bezier(0.26,1.4,0.44,1) 0.1s both;
-}
-.premium-welcome-eyebrow {
-  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
-  color: #C98A00; margin-bottom: 0.4rem;
-}
-#premiumWelcomeBox h3 { color: #0B3D6B; font-size: 1.35rem; margin-bottom: 0.6rem; }
-#premiumWelcomeBox > p { font-size: 0.86rem; color: #666; line-height: 1.55; margin-bottom: 1.4rem; }
-.premium-welcome-list {
-  list-style: none; padding: 0; margin: 0 0 1.5rem; display: grid; gap: 0.8rem;
-  text-align: left; background: #FBF6EB; border-radius: 14px; padding: 1.1rem 1.2rem;
-}
-.premium-welcome-list li { display: flex; gap: 0.65rem; align-items: flex-start; font-size: 0.84rem; color: #444; line-height: 1.4; }
-.premium-welcome-list .pw-ic { flex-shrink: 0; }
-@keyframes premiumPop {
-  from { opacity: 0; transform: scale(0.55); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
 /* Càrrega massiva de comanda des d'un fitxer Excel/CSV */
 #bulkUploadModal {
   display: none; position: fixed; inset: 0; z-index: 9999996;
@@ -3058,7 +2969,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
         </div>
       </div>
       <button id="hxInstallBtn" onclick="hxInstallApp()" type="button" title="Instal·lar l'app" aria-label="Instal·lar l'app" style="display:none;align-items:center;gap:0.4rem;background:var(--accent);border:none;color:#1A1A1A;padding:0.45rem 0.9rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.78rem;font-weight:700;white-space:nowrap;">⬇️ <span class="hxInstallLabel" data-i18n-key="t576">Instal·lar app</span></button>
-      <button id="navPremiumBtn" onclick="navTo('premium')" type="button" title="HIGIENEX Premium" aria-label="HIGIENEX Premium" class="hx-premium-btn"><svg class="hx-premium-badge" viewBox="0 0 40 40" aria-hidden="true"><use href="#hxPremiumBadge"></use></svg> <span data-i18n-key="t941">HIGIENEX Premium</span></button>
       <div id="authBtns" style="display:flex;gap:0.5rem;">
         <button onclick="openAuthModal();switchTab('login')" style="display:flex;align-items:center;gap:0.4rem;background:white;border:1.5px solid var(--border);color:var(--green-deep);padding:0.45rem 1rem;border-radius:40px;cursor:pointer;font-family:Arial,sans-serif;font-size:0.82rem;font-weight:600;transition:all 0.2s;white-space:nowrap;" type="button">
           <span data-i18n-key="t001">Accedir</span>
@@ -3097,7 +3007,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
       <a class="dditem" onclick="navTo('operacions')"><span data-i18n-key="t178">🏭 Operacions</span></a>
       <a class="dditem" onclick="navTo('safestock')"><span>🧪</span> <span data-i18n-key="t1021">HIGIENEX SafeStock</span></a>
       <a class="dditem" onclick="navTo('compromis')"><span data-i18n-key="t179">♻️ Compromís i Mercat</span></a>
-      <a class="dditem hx-premium-dditem" onclick="navTo('premium')"><svg class="hx-premium-badge" viewBox="0 0 40 40" aria-hidden="true"><use href="#hxPremiumBadge"></use></svg><span data-i18n-key="t941">HIGIENEX Premium</span></a>
       <a class="dditem" onclick="navTo('pressupost')"><span>📋 Fes un Pressupost</span></a>
       <a class="dditem" onclick="navTo('newsletter')"><span data-i18n-key="t180">📰 Newsletter</span></a>
       <a class="dditem" onclick="navTo('contacte')"><span data-i18n-key="t181">📞 Ajuda i Contacte</span></a>
@@ -4563,37 +4472,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
     <div style="margin-top:1.6rem;background:var(--green-cream);border-radius:14px;padding:1.2rem 1.4rem;display:flex;align-items:center;gap:0.8rem;flex-wrap:wrap;">
       <span class="hx-u19">🔁</span>
       <span style="color:var(--green-deep);font-size:0.86rem;" data-i18n-key="t699">Recorda: el simulador de comanda recurrent suma punts automàticament cada vegada que es processa una reposició programada.</span>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════
-     HIGIENEX PREMIUM (suscripció mensual)
-     ═══════════════════════════════════════ -->
-<section id="premium" style="background:var(--green-deep);color:#fff;">
-  <div class="container">
-    <span class="section-tag" style="background:rgba(255,255,255,0.12);color:#fff;" data-i18n-key="t920">⭐ Nou</span>
-    <h2 style="color:#fff;display:flex;align-items:center;gap:0.7rem;"><svg viewBox="0 0 40 40" aria-hidden="true" style="width:2.4rem;height:2.4rem;flex-shrink:0;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.3));"><use href="#hxPremiumBadge"></use></svg> HIGIENEX Premium</h2>
-    <p class="section-sub" style="color:rgba(255,255,255,0.8);" data-i18n-key="t921">Fes-te soci per 20 €/mes i estalvia des del primer dia en totes les teves comandes.</p>
-    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:2rem;margin-top:2rem;align-items:start;" class="premium-grid">
-      <div style="background:rgba(255,255,255,0.08);border-radius:18px;padding:1.8rem;">
-        <div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:1.2rem;">
-          <span id="premiumPriceDisplay" style="font-size:2.4rem;font-weight:800;">20 €</span>
-          <span style="opacity:0.75;" data-i18n-key="t922">/ mes</span>
-        </div>
-        <ul style="list-style:none;padding:0;margin:0 0 1.6rem;display:grid;gap:0.9rem;">
-          <li style="display:flex;gap:0.7rem;align-items:flex-start;"><span>🏷️</span><span data-i18n-key="t923"><strong>5% de descompte extra</strong> en tots els productes, acumulable amb els descomptes per volum que ja tens.</span></li>
-          <li style="display:flex;gap:0.7rem;align-items:flex-start;"><span>🔔</span><span data-i18n-key="t924"><strong>Avís prioritari</strong> quan llancem un producte nou, abans que ningú més.</span></li>
-          <li style="display:flex;gap:0.7rem;align-items:flex-start;"><span>❌</span><span data-i18n-key="t925">Cancel·la quan vulguis, sense permanència.</span></li>
-        </ul>
-        <div id="premiumActionWrap">
-          <button type="button" class="btn-primary" onclick="hxSubscribePremium()" data-i18n-key="t926">Fer-me soci Premium — 20 €/mes</button>
-        </div>
-      </div>
-      <div>
-        <div style="font-weight:700;margin-bottom:0.8rem;" data-i18n-key="t927">📢 Novetats per a socis</div>
-        <div id="premiumNewsWrap"></div>
-      </div>
     </div>
   </div>
 </section>
@@ -6666,7 +6544,7 @@ function navTo(id) {
     productes:'productes', rd:'productes', innovacio:'productes', digitalitzacio:'productes', futur:'productes',
     processos:'operacions', logistica:'operacions', internacionalitzacio:'operacions',
     sostenibilitat:'compromis', rsc:'compromis', clients:'compromis', marqueting:'compromis', competencia:'compromis', blog:'compromis',
-    faq:'contacte', contacte:'contacte', fidelitzacio:'contacte', premium:'contacte', garanties:'contacte', pressupost:'contacte', auditoria:'contacte'
+    faq:'contacte', contacte:'contacte', fidelitzacio:'contacte', garanties:'contacte', pressupost:'contacte', auditoria:'contacte'
   };
   var g = GROUP_OF[id];
   if (g) {
@@ -7610,23 +7488,6 @@ window.submitTreballaForm = submitTreballaForm;
       <button type="submit" class="btn-submit" style="width:100%;" data-i18n-key="t392">Sol·licitar mostra →</button>
     </form>
     <div id="samplePopupSuccess" style="display:none;background:#E8F5E9;border-radius:8px;padding:0.9rem 1rem;margin-top:1rem;color:#2E7D32;font-size:0.85rem;">✅ Rebut! Et contactarem en menys de 48h per enviar-te la mostra.</div>
-  </div>
-</div>
-
-<!-- Benvinguda especial en fer-se soci HIGIENEX Premium -->
-<div id="premiumWelcomeModal" onclick="if(event.target===this) closePremiumWelcome()">
-  <div id="premiumWelcomeBox">
-    <button class="popup-close" onclick="closePremiumWelcome()" type="button" aria-label="Tancar">✕</button>
-    <svg class="premium-welcome-badge" viewBox="0 0 40 40" aria-hidden="true"><use href="#hxPremiumBadge"></use></svg>
-    <div class="premium-welcome-eyebrow" data-i18n-key="t942">Ets soci des d'ara mateix</div>
-    <h3 data-i18n-key="t943">Benvingut/da a HIGIENEX Premium</h3>
-    <p data-i18n-key="t944">El teu 5% de descompte extra ja està actiu en totes les teves compres, i seràs el primer a saber quan llancem un producte nou.</p>
-    <ul class="premium-welcome-list">
-      <li><span class="pw-ic">🏷️</span><span data-i18n-key="t923"><strong>5% de descompte extra</strong> en tots els productes, acumulable amb els descomptes per volum que ja tens.</span></li>
-      <li><span class="pw-ic">🔔</span><span data-i18n-key="t924"><strong>Avís prioritari</strong> quan llancem un producte nou, abans que ningú més.</span></li>
-      <li><span class="pw-ic">❌</span><span data-i18n-key="t925">Cancel·la quan vulguis, sense permanència.</span></li>
-    </ul>
-    <button type="button" class="btn-primary" style="width:100%;" onclick="closePremiumWelcome();navTo('productes');" data-i18n-key="t945">Començar a comprar →</button>
   </div>
 </div>
 
@@ -8665,7 +8526,6 @@ function filterCatalog(q) {
   if (empty) empty.style.display = (visibleCount === 0 && query) ? 'block' : 'none';
 }
 window.filterCatalog = filterCatalog;
-// ── HIGIENEX PREMIUM: suscripció mensual amb 5% extra + novetats prioritàries ──
 // ── Moneda per idioma ──────────────────────────────────────────
 // Català, castellà, francès i alemany usen tots euro de veritat, així que
 // només canviem de moneda per anglès (dòlar) i àrab (dirham marroquí), que
@@ -8693,92 +8553,13 @@ function hxRefreshAllPrices() {
   document.querySelectorAll('.hx-price[data-eur]').forEach(function(el) {
     el.textContent = hxFormatPrice(parseFloat(el.getAttribute('data-eur')));
   });
-  var premiumPrice = document.getElementById('premiumPriceDisplay');
-  if (premiumPrice) premiumPrice.textContent = hxFormatPrice(20);
   if (typeof CP_FITXA_ACTUAL !== 'undefined' && CP_FITXA_ACTUAL) {
     if (typeof obrirFitxaProducte === 'function') obrirFitxaProducte(CP_FITXA_ACTUAL);
   }
   if (typeof renderCart === 'function') renderCart();
-  if (typeof hxRenderPremiumSection === 'function') hxRenderPremiumSection();
 }
 window.hxRefreshAllPrices = hxRefreshAllPrices;
 document.addEventListener('DOMContentLoaded', hxRefreshAllPrices);
-
-var HX_PREMIUM_KEY = 'hx_premium_member';
-var HX_PREMIUM_SINCE_KEY = 'hx_premium_since';
-var HX_PREMIUM_DISCOUNT = 0.05;
-var HX_PREMIUM_NEWS = [
-  {date:'2026-10-01', titleKey:'t935', descKey:'t936'},
-  {date:'2026-11-15', titleKey:'t937', descKey:'t938'}
-];
-function isHxPremiumMember() {
-  try { return localStorage.getItem(HX_PREMIUM_KEY) === '1'; } catch(e) { return false; }
-}
-window.isHxPremiumMember = isHxPremiumMember;
-function hxPremiumExtraRate() {
-  return isHxPremiumMember() ? HX_PREMIUM_DISCOUNT : 0;
-}
-window.hxPremiumExtraRate = hxPremiumExtraRate;
-function hxSubscribePremium() {
-  if (!confirm(cpT('t928'))) return;
-  try {
-    localStorage.setItem(HX_PREMIUM_KEY, '1');
-    localStorage.setItem(HX_PREMIUM_SINCE_KEY, new Date().toISOString().slice(0,10));
-  } catch(e) {}
-  hxRenderPremiumSection();
-  Object.keys(cart).forEach(function(k){ recalcCartLine(k); });
-  if (typeof renderCart === 'function') renderCart();
-  openPremiumWelcome();
-}
-window.hxSubscribePremium = hxSubscribePremium;
-function openPremiumWelcome() {
-  var m = document.getElementById('premiumWelcomeModal');
-  if (m) m.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-window.openPremiumWelcome = openPremiumWelcome;
-function closePremiumWelcome() {
-  var m = document.getElementById('premiumWelcomeModal');
-  if (m) m.classList.remove('open');
-  document.body.style.overflow = '';
-}
-window.closePremiumWelcome = closePremiumWelcome;
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closePremiumWelcome();
-});
-function hxCancelPremium() {
-  if (!confirm(cpT('t930'))) return;
-  try { localStorage.removeItem(HX_PREMIUM_KEY); localStorage.removeItem(HX_PREMIUM_SINCE_KEY); } catch(e) {}
-  hxRenderPremiumSection();
-  Object.keys(cart).forEach(function(k){ recalcCartLine(k); });
-  if (typeof renderCart === 'function') renderCart();
-  showToast(cpT('t931'), '👋');
-}
-window.hxCancelPremium = hxCancelPremium;
-function hxRenderPremiumSection() {
-  var actionWrap = document.getElementById('premiumActionWrap');
-  var newsWrap = document.getElementById('premiumNewsWrap');
-  if (!actionWrap || !newsWrap) return;
-  var member = isHxPremiumMember();
-  if (member) {
-    var since = '';
-    try { since = localStorage.getItem(HX_PREMIUM_SINCE_KEY) || ''; } catch(e) {}
-    actionWrap.innerHTML =
-      '<div style="background:rgba(255,255,255,0.14);border-radius:10px;padding:0.8rem 1rem;margin-bottom:0.8rem;font-size:0.85rem;">' + cpT('t932') + (since ? ' ' + since : '') + '. ' + cpT('t933') + '</div>' +
-      '<button type="button" class="btn-fp-outline" style="border-color:rgba(255,255,255,0.4);color:#fff;" onclick="hxCancelPremium()">' + cpT('t934') + '</button>';
-    newsWrap.innerHTML = HX_PREMIUM_NEWS.map(function(n){
-      return '<div style="background:rgba(255,255,255,0.08);border-radius:12px;padding:1rem 1.1rem;margin-bottom:0.7rem;">' +
-        '<div style="font-size:0.72rem;opacity:0.7;margin-bottom:0.2rem;">' + n.date + '</div>' +
-        '<div style="font-weight:700;margin-bottom:0.2rem;">' + cpT(n.titleKey) + '</div>' +
-        '<div style="font-size:0.84rem;opacity:0.85;">' + cpT(n.descKey) + '</div>' +
-      '</div>';
-    }).join('');
-  } else {
-    actionWrap.innerHTML = '<button type="button" class="btn-primary" onclick="hxSubscribePremium()">' + cpT('t926') + '</button>';
-    newsWrap.innerHTML = '<div style="background:rgba(255,255,255,0.08);border-radius:12px;padding:1.4rem;font-size:0.85rem;opacity:0.85;">' + cpT('t939') + '</div>';
-  }
-}
-window.hxRenderPremiumSection = hxRenderPremiumSection;
 
 function volumeDiscountRate(qty) {
   if (qty >= 20) return 0.15;
@@ -8791,7 +8572,7 @@ window.volumeDiscountRate = volumeDiscountRate;
 function recalcCartLine(name) {
   var it = cart[name];
   if (!it) return;
-  var rate = volumeDiscountRate(it.qty) + hxPremiumExtraRate();
+  var rate = volumeDiscountRate(it.qty);
   it.discountRate = rate;
   it.rawTotal = it.price * it.qty;
   it.total = it.rawTotal * (1 - rate);
@@ -9242,7 +9023,7 @@ function renderCart() {
   var totalDescompte = keys.reduce(function(s,k){ var it = cart[k]; return s + (it.discountRate > 0 ? (it.rawTotal - it.total) : 0); }, 0);
 
   items.innerHTML += '<div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px dashed #ddd;font-size:0.82rem;color:#666;">' +
-    (totalDescompte > 0 ? '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;color:#B8860B;font-weight:600;"><span>🎉 ' + (isHxPremiumMember() ? cpT('t940') : 'Descomptes per volum') + '</span><span>-' + hxFormatPrice(totalDescompte) + '</span></div>' : '') +
+    (totalDescompte > 0 ? '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;color:#B8860B;font-weight:600;"><span>🎉 ' + 'Descomptes per volum' + '</span><span>-' + hxFormatPrice(totalDescompte) + '</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>Subtotal</span><span>' + hxFormatPrice(subtotal) + '</span></div>' +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>IVA (21%)</span><span>' + hxFormatPrice(iva) + '</span></div>' +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>Transport</span><span>' + hxFormatPrice(TRANSPORT) + '</span></div>' +
@@ -10418,7 +10199,6 @@ function hxRenderPriceBadge(){
   el.innerHTML = (HX_PRICE_BADGE_LABEL[lang] || HX_PRICE_BADGE_LABEL.ca) + ' ' + dateStr;
 }
 document.addEventListener('DOMContentLoaded', hxRenderPriceBadge);
-document.addEventListener('DOMContentLoaded', hxRenderPremiumSection);
 document.addEventListener('click', function(e){
   if (e.target && e.target.closest && e.target.closest('#langDropdownMenu button')) {
     setTimeout(hxRenderPriceBadge, 60);
