@@ -31,3 +31,19 @@ La nueva versión de `worker.js`:
 
 No hace falta tocar nada en `index.html` — el problema estaba solo en el
 código del Worker, no en la web.
+
+---
+
+# Migración a Claude (octubre 2026)
+
+`worker.js` ahora usa Claude (`claude-haiku-5-5`) si existe el secreto
+`ANTHROPIC_API_KEY`; si no existe, sigue usando Gemini como antes.
+
+1. Crea una API key en https://console.anthropic.com (pago por uso).
+2. Cloudflare → Workers & Pages → tu worker → **Settings → Variables and Secrets**
+   → añade el secreto `ANTHROPIC_API_KEY` (tipo *Secret*).
+3. **Edit code**, pega el nuevo `worker.js` y **Save and Deploy**.
+4. Prueba el chat. Para volver a Gemini basta con borrar el secreto `ANTHROPIC_API_KEY`.
+
+Mejoras incluidas: prompt en el campo `system`, respuestas hasta 700 tokens y contexto
+de hasta 12000 caracteres (antes 4000, que cortaba el JSON del catálogo).
