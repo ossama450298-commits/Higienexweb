@@ -9091,20 +9091,26 @@ function descargarPDFDirecto(filename, htmlDoc, onDone) {
         var body = doc0.body;
         var alturaReal = Math.max(body.scrollHeight, doc0.documentElement.scrollHeight);
         iframe.style.height = alturaReal + 'px';
-        var jsPDF = window.jspdf.jsPDF;
-        var doc = new jsPDF({ unit: 'pt', format: 'a4' });
-        doc.html(body, {
-          callback: function (doc) {
-            doc.save(filename);
+        // Captura exacta del document (amb tot el seu disseny) i el PDF es
+        // munta a partir d'aquesta imatge. Abans s'usava doc.html(), que
+        // redibuixava el text i perdia bona part del CSS.
+        var opcions = { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 900, width: 900, height: alturaReal, windowHeight: alturaReal };
+        // 1r intent: el navegador mateix dibuixa el text (foreignObject), idèntic al que es veu en pantalla.
+        // Si el navegador no ho suporta o la captura surt en blanc, es torna al mode normal.
+        html2canvas(body, Object.assign({ foreignObjectRendering: true }, opcions))
+          .then(function (canvas) { return canvasBuit(canvas) ? html2canvas(body, opcions) : canvas; },
+                function () { return html2canvas(body, opcions); })
+          .then(function (canvas) {
+            pdfDesDeCanvas(canvas, filename);
             document.body.removeChild(iframe);
             if (onDone) onDone();
-          },
-          x: 0, y: 0,
-          width: 595.28,
-          windowWidth: 900,
-          autoPaging: 'text',
-          html2canvas: { scale: 595.28 / 900, useCORS: true, backgroundColor: '#ffffff', windowWidth: 900, height: alturaReal, windowHeight: alturaReal }
-        });
+          })
+          .catch(function (e) {
+            console.warn('No s\'ha pogut generar el PDF directe, usant alternativa:', e);
+            if (iframe.parentNode) document.body.removeChild(iframe);
+            abrirImprimibleFallback(filename.replace(/\.pdf$/i, ''), htmlDoc);
+            if (onDone) onDone();
+          });
       } catch (e) {
         console.warn('No s\'ha pogut generar el PDF directe, usant alternativa:', e);
         document.body.removeChild(iframe);
@@ -9116,6 +9122,59 @@ function descargarPDFDirecto(filename, htmlDoc, onDone) {
   iframe.srcdoc = htmlDoc;
 }
 window.descargarPDFDirecto = descargarPDFDirecto;
+
+// Una captura «buida» (tot del mateix color) vol dir que el mode foreignObject ha fallat.
+function canvasBuit(canvas) {
+  try {
+    var d = canvas.getContext('2d').getImageData(0, 0, canvas.width, Math.min(canvas.height, 400)).data;
+    for (var i = 4; i < d.length; i += 40) { if (Math.abs(d[i] - d[0]) > 8 || Math.abs(d[i + 1] - d[1]) > 8 || Math.abs(d[i + 2] - d[2]) > 8) return false; }
+    return true;
+  } catch (e) { return true; }
+}
+
+// Converteix la captura d'un document en un PDF A4 de diverses pàgines.
+// Talla cada pàgina en una franja blanca (entre línies) perquè cap text
+// quedi partit per la meitat.
+function pdfDesDeCanvas(canvas, filename) {
+  var jsPDF = window.jspdf.jsPDF;
+  var pdf = new jsPDF({ unit: 'pt', format: 'a4' });
+  var PW = 595.28, PH = 841.89, MARGE = 24;          // marge de dalt i de baix a partir de la 2a pàgina
+  var ratio = PW / canvas.width;                     // punts per píxel de la captura
+  var ctx = canvas.getContext('2d');
+  // Dues files iguals (amb tolerància): no hi passa cap línia de text ni cap vora.
+  function filesIguals(y1, y2) {
+    var a = ctx.getImageData(0, y1, canvas.width, 1).data, b = ctx.getImageData(0, y2, canvas.width, 1).data;
+    for (var i = 0; i < a.length; i += 8) { if (Math.abs(a[i] - b[i]) > 6 || Math.abs(a[i + 1] - b[i + 1]) > 6 || Math.abs(a[i + 2] - b[i + 2]) > 6) return false; }
+    return true;
+  }
+  // Bon lloc per tallar: tres files seguides iguals (un espai entre línies).
+  function filaBuida(y) { return y > 0 && y + 1 < canvas.height && filesIguals(y - 1, y) && filesIguals(y, y + 1); }
+  // Zona sense contingut: totes les files iguals a la primera (només marge o fons).
+  function zonaBuida(y0, alt) {
+    for (var f = 1; f < alt; f += 2) { if (!filesIguals(y0, y0 + f)) return false; }
+    return true;
+  }
+  var y = 0, pagina = 0;
+  while (y < canvas.height - 2) {
+    var dalt = pagina === 0 ? 0 : MARGE;
+    var maxAlt = Math.floor((PH - dalt - MARGE) / ratio);
+    var tall = Math.min(canvas.height, y + maxAlt);
+    if (tall < canvas.height) {                      // busca cap amunt una fila en blanc (fins a un 25 % de la pàgina)
+      for (var k = tall; k > tall - maxAlt * 0.25; k--) { if (filaBuida(k)) { tall = k; break; } }
+    }
+    var alt = tall - y;
+    if (pagina > 0 && zonaBuida(y, alt)) break;        // només queda marge (sense text ni dibuix): no cal una pàgina més
+    var tros = document.createElement('canvas');
+    tros.width = canvas.width; tros.height = alt;
+    var c2 = tros.getContext('2d');
+    c2.fillStyle = '#ffffff'; c2.fillRect(0, 0, tros.width, alt);
+    c2.drawImage(canvas, 0, y, canvas.width, alt, 0, 0, canvas.width, alt);
+    if (pagina > 0) pdf.addPage();
+    pdf.addImage(tros.toDataURL('image/jpeg', 0.9), 'JPEG', 0, dalt, PW, alt * ratio);
+    y = tall; pagina++;
+  }
+  pdf.save(filename);
+}
 
 function abrirImprimibleFallback(titol, html) {
   var w = window.open('', '_blank');
