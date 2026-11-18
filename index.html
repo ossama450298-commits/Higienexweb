@@ -1976,6 +1976,8 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 <script src="jspdf.umd.min.js" defer></script>
 <script src="jspdf.plugin.autotable.min.js" defer></script>
 <script src="html2canvas.min.js" defer></script>
+<script src="pdf-kit.js" defer></script>
+<script src="pdf-docs.js" defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -5851,6 +5853,7 @@ function cpOpenOrDownloadHtml(html, filename){
 }
 
 function cpDescarregarExtracte(){
+  if (window.HXPDF_DOCS && HXPDF.disponible()) return HXPDF_DOCS.extracte();
   var fac = CP_DB.facturas.slice().sort(function(a,b){ return a.fecha.localeCompare(b.fecha); });
   var c = CP_DB.cliente;
   if (!fac.length) { alert(cpT('t827')); return; }
@@ -5942,6 +5945,7 @@ window.cpDescarregarExtracte = cpDescarregarExtracte;
 
 
 function cpDescarregarFactura(num){
+  if (window.HXPDF_DOCS && HXPDF.disponible()) return HXPDF_DOCS.factura(num);
   var f=CP_DB.facturas.find(function(x){return x.num===num;}); if(!f) return;
   var c=CP_DB.cliente;
   var e=cpEstatFactura(f);
@@ -6232,6 +6236,7 @@ function cpViewImpacte(){
 window.cpViewImpacte = cpViewImpacte;
 
 function cpDescarregarCertificatImpacte(){
+  if (window.HXPDF_DOCS && HXPDF.disponible()) return HXPDF_DOCS.certificatImpacte();
   var d = hxCalcularImpacteCliente();
   var c = CP_DB.cliente;
   var data = new Date().toLocaleDateString('ca-ES', {year:'numeric', month:'long', day:'numeric'});
@@ -9739,7 +9744,8 @@ function sendOrder() {
       return null;
     })();
     if (fuPdf && fuPdf.company) clientInfoPdf.company = fuPdf.company;
-    abrirImprimibleComanda('Comanda ' + inv.invoiceNum, htmlComanda(inv, historyItems, clientInfoPdf));
+    if (window.HXPDF_DOCS && HXPDF.disponible()) HXPDF_DOCS.comanda(inv, historyItems, clientInfoPdf);
+    else abrirImprimibleComanda('Comanda ' + inv.invoiceNum, htmlComanda(inv, historyItems, clientInfoPdf));
   } catch(err) { console.warn('No s\'ha pogut obrir el PDF de la comanda:', err); }
 
   // Enviar al client un email de confirmació amb el detall complet de la comanda
@@ -10324,6 +10330,7 @@ window.fpAddToCart = fpAddToCart;
 // imprimible — mateix mecanisme que el PDF de comandes (window.print()).
 function fpDescarregarFitxaTecnica() {
   var name = document.getElementById('fpName').textContent;
+  if (window.HXPDF_DOCS && HXPDF.disponible()) return HXPDF_DOCS.fitxaTecnica(name);
   var info = PRODUCT_INFO[name] || {};
   if (typeof window.jspdf === 'undefined') { showToast('No s\'ha pogut carregar el generador de PDF.', '⚠️'); return; }
   var jsPDF = window.jspdf.jsPDF;
@@ -10399,6 +10406,7 @@ window.fpDescarregarFitxaTecnica = fpDescarregarFitxaTecnica;
 // ── FITXA DE SEGURETAT (FDS) — versió orientativa amb estructura estàndard ──
 function fpDescarregarFDS(name) {
   name = name || (document.getElementById('fpName') ? document.getElementById('fpName').textContent : '');
+  if (window.HXPDF_DOCS && HXPDF.disponible()) return HXPDF_DOCS.fds(name);
   var info = CMP_DATA[name] || PRODUCT_INFO[name] || {};
   var html = '<!DOCTYPE html><html lang="ca"><head><meta charset="UTF-8"><title>FDS ' + escHtml(name) + ' · HIGIENEX</title>' +
     '<style>body{font-family:Arial,Helvetica,sans-serif;color:#0F1D2B;padding:36px;font-size:12.5px;max-width:780px;margin:0 auto}' +
@@ -10443,6 +10451,7 @@ window.fpDescarregarFDS = fpDescarregarFDS;
 
 // ── CATÀLEG COMPLET EN PDF ──────────────────────────────────
 function hxDescarregarCataleg() {
+  if (window.HXPDF_DOCS && HXPDF.disponible()) return HXPDF_DOCS.cataleg();
   if (typeof window.jspdf === 'undefined') { showToast('No s\'ha pogut carregar el generador de PDF.', '⚠️'); return; }
   var jsPDF = window.jspdf.jsPDF;
   var doc = new jsPDF({unit:'pt', format:'a4'});
@@ -10634,6 +10643,7 @@ document.addEventListener('click', function(e){
 
 // ── RESUM DE CERTIFICACIONS EN PDF ──────────────────────────────────
 function hxDescarregarCertificats() {
+  if (window.HXPDF_DOCS && HXPDF.disponible()) return HXPDF_DOCS.certificacions();
   var certs = [
     {name:'ISO 14001', desc:"Sistema de gesti\u00f3 ambiental certificat per una entitat independent. Vigent des de 2022."},
     {name:'Registre de Biocides UE', desc:'Desinfectants TP2 (superf\u00edcies) i TP4 (contacte alimentari) registrats segons el Reglament de Biocides (UE) 528/2012.'},

@@ -1,0 +1,360 @@
+/* ==========================================================================
+   HIGIENEX · documents PDF de la web amb la plantilla comuna (pdf-kit.js)
+   Cada funció substitueix la versió antiga; si la plantilla no ha carregat,
+   la web continua fent servir la versió antiga com a alternativa.
+   ========================================================================== */
+(function () {
+  'use strict';
+  var NOTA_FDS =
+    "Document generat automàticament des de la web d'HIGIENEX. Aquesta FDS és una versió simplificada amb finalitat informativa i de projecte acadèmic; no substitueix la Fitxa de Dades de Seguretat oficial reglamentària (Reglament REACH 1907/2006, Annex II), disponible sota petició al departament tècnic.";
+
+  function fitxer(t) {
+    return String(t)
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\s+/g, '_');
+  }
+  function infoProducte(nom) {
+    var cmp = (typeof CMP_DATA !== 'undefined' && CMP_DATA[nom]) || {};
+    var pi = (typeof PRODUCT_INFO !== 'undefined' && PRODUCT_INFO[nom]) || {};
+    var desc = (typeof hxProdDesc === 'function' && hxProdDesc(nom)) || pi.desc || cmp.us || '';
+    return { cmp: cmp, pi: pi, desc: desc, preu: cmp.price || pi.price || '—' };
+  }
+
+  /* ---------- Fitxa tècnica ---------- */
+  function fitxaTecnica(nom) {
+    var p = infoProducte(nom), c = p.cmp;
+    var k = HXPDF.nou({ kicker: 'Fitxa tècnica de producte', titol: nom, titolCurt: 'Fitxa tècnica', num: 'Ref. ' + nom.split(' ')[0].toUpperCase() + '-' + (nom.length * 37 % 900 + 100) });
+    k.franja([
+      ['Preu de referència', p.preu, true],
+      ['Sector', c.sector || 'Professional'],
+      ['Concentració', c.concentracio || '—'],
+      ['Certificació', c.certificacio || '—'],
+    ]);
+    k.seccio('Descripció del producte', 1);
+    k.paragraf(p.desc || '—', { mida: 9.8 });
+    k.seccio('Dades del producte', 2);
+    k.parells([
+      ['Nom comercial', nom],
+      ['Ús recomanat', c.us || '—'],
+      ['Sector', c.sector || '—'],
+      ['Concentració / dilució', c.concentracio || '—'],
+      ['Biodegradabilitat', c.biodegradable || '—'],
+      ['Envàs', c.envas || '—'],
+      ['Fabricant', 'HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València'],
+    ]);
+    k.seccio("Mode d'ús recomanat", 3);
+    k.llista([
+      'Diluir segons la superfície a tractar i el nivell de brutícia.',
+      'Aplicar amb polvoritzador, mopa o baieta de microfibra.',
+      "Deixar actuar el temps de contacte indicat a l'etiqueta i aclarir si escau.",
+      "Ventilar l'espai durant l'aplicació.",
+    ]);
+    k.seccio('Precaucions i emmagatzematge', 4);
+    k.llista([
+      "Mantenir fora de l'abast dels infants.",
+      'Emmagatzemar en lloc fresc i sec, protegit de la llum directa (entre 5 i 30 °C).',
+      'No barrejar amb altres productes químics, especialment lleixius o àcids.',
+      'Usar guants per manipular el producte concentrat.',
+    ]);
+    k.avis('Necessites la fitxa de seguretat?', 'Descarrega la FDS des de la fitxa del producte a la web o demana-la a contacto@higienexvalencia.es indicant la referència.', 'blau');
+    k.tancar('Fitxa_tecnica_' + fitxer(nom) + '.pdf', "Aquesta fitxa és orientativa. Per a la Fitxa de Dades de Seguretat (FDS) oficial reglamentària, contacta amb l'equip tècnic.");
+  }
+
+  /* ---------- Fitxa de dades de seguretat (FDS) ---------- */
+  function fds(nom) {
+    var p = infoProducte(nom), info = p.cmp;
+    var k = HXPDF.nou({ kicker: 'Fitxa de dades de seguretat', titol: 'Fitxa de seguretat', titolCurt: 'FDS', num: nom });
+    k.franja([
+      ['Producte', nom, true],
+      ['Versió', '1.0 (simplificada)'],
+      ['Reglament', 'CE 1907/2006 · CLP'],
+      ['Urgències 24 h', '631 706 398'],
+    ]);
+    var s = [
+      ['Identificació de la substància i de la societat', null, [
+        ['Nom del producte', nom],
+        ['Ús recomanat', info.us || p.desc || '—'],
+        ['Fabricant', 'HIGIENEX S.L. · Carrer de la Indústria, 25, 46010 València'],
+        ['Contacte', 'contacto@higienexvalencia.es'],
+        ["Telèfon d'emergència", '631 706 398 (horari laboral i urgències 24/7)'],
+      ]],
+      ['Identificació de perills', 'Classificació segons el Reglament (CE) 1272/2008 (CLP). ' + (info.certificacio ? 'Certificació: ' + info.certificacio + '. ' : '') + 'Pot causar irritació ocular i cutània lleu en contacte perllongat. No ingerir. Evitar el contacte amb els ulls.'],
+      ['Composició / informació sobre els components', 'Tensioactius aniònics i no iònics (5-15 %), agents desinfectants segons la variant, aigua i conservants. Formulació pròpia HIGIENEX registrada. Composició exacta disponible sota petició per a auditories.'],
+      ['Primers auxilis', '**Contacte amb els ulls:** rentar abundantment amb aigua durant 15 minuts, mantenint les parpelles obertes. **Contacte amb la pell:** rentar amb aigua i sabó. **Ingestió:** no provocar el vòmit, beure aigua i contactar amb el Servei d\'Informació Toxicològica (915 620 420). **Inhalació:** traslladar a l\'aire lliure.'],
+      ['Mesures de lluita contra incendis', "Producte no inflamable. En cas d'incendi de l'entorn, usar agents extintors adequats (CO2, pols seca, escuma). No es preveuen productes de descomposició perillosos en condicions normals d'ús."],
+      ["Mesures en cas d'abocament accidental", "Absorbir amb material inert (sorra, terra de diatomees). Recollir en un recipient tancat per a la seva eliminació. Esbandir la zona amb aigua. Evitar l'abocament a la xarxa de clavegueram sense diluir."],
+      ['Manipulació i emmagatzematge', 'Emmagatzemar en lloc fresc, sec i ben ventilat, protegit de la llum directa, entre 5 °C i 30 °C. Mantenir el recipient ben tancat. No barrejar amb altres productes químics, especialment lleixius o àcids.'],
+      ["Controls d'exposició / protecció individual", "Ús recomanat de guants de nitril per a la manipulació del concentrat. Ventilar l'espai durant l'aplicació. No cal protecció respiratòria en ús normal diluït."],
+      ['Propietats fisicoquímiques', null, [
+        ['Estat físic', 'Líquid'],
+        ['pH (concentrat)', '6,5 - 8,5 aprox.'],
+        ['Solubilitat en aigua', 'Total'],
+        ['Concentració', info.concentracio || '—'],
+      ]],
+      ['Estabilitat i reactivitat', 'Estable en les condicions recomanades de manipulació i emmagatzematge. Evitar temperatures extremes i el contacte amb oxidants forts.'],
+      ['Informació toxicològica', "No es coneixen efectes greus en les condicions d'ús previstes. Consultar la secció 4 en cas d'exposició accidental."],
+      ['Informació ecològica', (info.biodegradable ? 'Biodegradabilitat: ' + info.biodegradable + '. ' : '') + "Formulació dissenyada per minimitzar l'impacte en ecosistemes aquàtics."],
+      ["Consideracions sobre l'eliminació", "Eliminar el contingut i l'envàs segons la normativa local. Els envasos buits i esbandits es poden reciclar."],
+      ['Informació relativa al transport', 'No classificat com a mercaderia perillosa per al transport (ADR/RID).'],
+      ['Informació reglamentària', 'Producte fabricat de conformitat amb la normativa europea de detergents (Reglament (CE) 648/2004) i, si escau, el Reglament de biocides (UE) 528/2012. ' + (info.certificacio ? 'Certificacions: ' + info.certificacio + '.' : '')],
+      ['Altra informació', 'Revisió del ' + HXPDF.dd() + '. Document preparat pel departament tècnic d\'HIGIENEX.'],
+    ];
+    s.forEach(function (x, i) {
+      k.seccio(x[0], i + 1);
+      if (x[2]) k.parells(x[2]);
+      else k.paragraf(x[1]);
+    });
+    k.tancar('FDS_' + fitxer(nom) + '.pdf', NOTA_FDS);
+  }
+
+  /* ---------- Catàleg ---------- */
+  function cataleg() {
+    var noms = Object.keys(CMP_DATA);
+    var sectors = {};
+    noms.forEach(function (n) { sectors[CMP_DATA[n].sector] = 1; });
+    var k = HXPDF.nou({ kicker: 'Catàleg de productes', titol: 'Catàleg ' + new Date().getFullYear(), titolCurt: 'Catàleg', num: 'Higiene professional sostenible' });
+    k.franja([
+      ['Productes', noms.length + ' referències', true],
+      ['Sectors', Object.keys(sectors).length + ' sectors'],
+      ['Web', 'higienexvalencia.es'],
+      ['Telèfon', '631 706 398'],
+    ]);
+    k.taula({
+      head: ['Producte', 'Sector', 'Dilució', 'Certificació', 'Preu'],
+      body: noms.map(function (n) {
+        var c = CMP_DATA[n];
+        return [n + '\n' + (c.us || ''), c.sector || '', c.concentracio || '', c.certificacio || '', c.price || ''];
+      }),
+      columnStyles: { 0: { cellWidth: 170 }, 1: { cellWidth: 92 }, 2: { cellWidth: 74 }, 3: { cellWidth: 'auto' }, 4: { cellWidth: 70, halign: 'right', fontStyle: 'bold', textColor: HXPDF.C.NAVY } },
+      willDrawCell: function (d) { if (d.section === 'body' && d.column.index === 0) { d.cell._t = String(d.cell.raw).split('\n'); d.cell.text = []; } },
+      didDrawCell: function (d) {
+        if (d.section === 'body' && d.column.index === 0 && d.cell._t) {
+          var doc = k.doc, x = d.cell.x + 10, y = d.cell.y + d.cell.height / 2;
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(9.5); k.color(HXPDF.C.INK); doc.text(HXPDF.net(d.cell._t[0]), x, y - 2);
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(7.6); k.color(HXPDF.C.MUTED); doc.text(doc.splitTextToSize(HXPDF.net(d.cell._t[1] || ''), d.cell.width - 20)[0], x, y + 9);
+        }
+      },
+      didParseCell: function (d) { if (d.section === 'body' && d.column.index === 0) d.cell.styles.minCellHeight = 36; },
+    });
+    k.seccio('Per què HIGIENEX');
+    k.llista([
+      'Concentrats que redueixen fins a un 70 % els envasos de plàstic.',
+      'Desinfectants registrats com a biocides a la UE i productes homologats HACCP.',
+      'Descomptes automàtics per volum i transport de 5 € per comanda.',
+      'Fitxes tècniques i de seguretat descarregables des de la web.',
+    ]);
+    k.avis('Vols un pressupost a mida?', 'Fes-lo a la web en un minut (secció Pressupost) o escriu-nos a contacto@higienexvalencia.es.');
+    k.tancar('Cataleg_HIGIENEX.pdf', "Preus orientatius sense IVA, subjectes a confirmació per part de l'equip comercial.");
+  }
+
+  /* ---------- Certificacions ---------- */
+  function certificacions() {
+    var certs = [
+      ['ISO 14001', 'Gestió ambiental', 'Sistema de gestió ambiental certificat per una entitat independent. Vigent des de 2022.'],
+      ['Registre de biocides UE', 'TP2 i TP4', 'Desinfectants TP2 (superfícies) i TP4 (contacte alimentari) registrats segons el Reglament de biocides (UE) 528/2012.'],
+      ['Homologació HACCP', 'Línia ALIM', "Productes de la línia ALIM homologats per a l'ús en superfícies de contacte alimentari."],
+      ['19 patents pròpies', 'R+D', "Formulacions desenvolupades i patentades pel laboratori R+D d'HIGIENEX des de 2018."],
+    ];
+    var k = HXPDF.nou({ kicker: 'Document de certificacions', titol: 'Certificacions', num: 'Resum per a compres i qualitat' });
+    k.franja([
+      ['Certificacions', '4 vigents', true],
+      ['Entitats', 'Independents'],
+      ['Ref. empresa', 'CIF B12345678'],
+      ['Validesa', 'Revisió anual'],
+    ]);
+    k.paragraf("Aquest document resumeix les certificacions i garanties d'HIGIENEX perquè el pugueu compartir amb el vostre departament de compres o de qualitat. Tots els certificats complets estan disponibles sota petició.", { mida: 9.8, despres: 14 });
+    var doc = k.doc, C = HXPDF.C, gap = 14, cw = (k.W - 2 * k.M - gap) / 2, ch = 92;
+    certs.forEach(function (c, i) {
+      var x = k.M + (i % 2) * (cw + gap), y = k.y + Math.floor(i / 2) * (ch + gap);
+      k.stroke(C.LINE); doc.setLineWidth(0.6); doc.setFillColor(255, 255, 255); doc.roundedRect(x, y, cw, ch, 6, 6, 'FD');
+      k.fill(C.NAVY); doc.circle(x + 26, y + 28, 12, 'F');
+      doc.setDrawColor(255, 255, 255); doc.setLineWidth(1.6); doc.lines([[4, 4], [8, -8]], x + 20, y + 28);
+      k.kicker(c[1], x + 48, y + 22, C.GOLD_D);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); k.color(C.INK); doc.text(HXPDF.net(c[0]), x + 48, y + 36);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.6); k.color(C.TXT); doc.text(doc.splitTextToSize(HXPDF.net(c[2]), cw - 32), x + 16, y + 62);
+    });
+    k.y += 2 * ch + gap + 26;
+    k.seccio('Declaració');
+    k.paragraf("HIGIENEX S.L. declara que la informació d'aquest document és correcta a la data d'emissió i que manté vigents les certificacions indicades.", { despres: 30 });
+    k.cal(60);
+    k.stroke(C.INK); doc.setLineWidth(0.6); doc.line(k.M, k.y + 30, k.M + 180, k.y + 30);
+    doc.setFont('times', 'italic'); doc.setFontSize(16); k.color(C.NAVY); doc.text('Direcció Tècnica', k.M + 6, k.y + 24);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); k.color(C.MUTED); doc.text('Departament de qualitat · HIGIENEX S.L.', k.M, k.y + 42);
+    k.y += 64;
+    k.tancar('Certificacions_HIGIENEX.pdf', 'Certificats complets disponibles sota petició al departament tècnic.');
+  }
+
+  /* ---------- Portal: extracte de compte ---------- */
+  function extracte() {
+    var fac = CP_DB.facturas.slice().sort(function (a, b) { return a.fecha.localeCompare(b.fecha); });
+    var c = CP_DB.cliente;
+    if (!fac.length) { alert(cpT('t827')); return; }
+    var tot = fac.reduce(function (s, f) { return s + f.total; }, 0);
+    var pagat = fac.filter(function (f) { return cpEstatFactura(f) === 'pagada'; }).reduce(function (s, f) { return s + f.total; }, 0);
+    var pend = tot - pagat, C = HXPDF.C;
+    var k = HXPDF.nou({ kicker: cpT('t828'), titol: cpT('t828'), num: CP_FD(fac[0].fecha) + ' - ' + CP_FD(fac[fac.length - 1].fecha) });
+    k.caixes([
+      { titol: cpT('t786'), linies: [c.nom, 'NIF: ' + (c.nif || '—'), c.dir, c.pob, c.mail] },
+      { titol: cpT('t787'), linies: ['HIGIENEX S.L.', 'CIF: B12345678', 'Carrer de la Indústria, 25 · 46010 València', 'contacto@higienexvalencia.es'] },
+    ]);
+    k.xifres([
+      [CP_EUR(tot), cpT('t829'), C.NAVY],
+      [CP_EUR(pagat), cpT('t830'), C.OK],
+      [CP_EUR(pend), cpT('t831'), pend > 0 ? C.WARN : C.OK],
+      [String(fac.length), cpT('t832'), C.INK],
+    ]);
+    var estats = fac.map(cpEstatFactura);
+    k.taula({
+      head: [cpT('t833'), cpT('t834'), cpT('t835'), cpT('t791'), cpT('t836')],
+      body: fac.map(function (f, i) { return [f.num, CP_FD(f.fecha), CP_FD(f.venc), CP_EUR(f.total), cpEstatLabel(estats[i])]; }),
+      columnStyles: { 0: { fontStyle: 'bold' }, 1: { cellWidth: 72 }, 2: { cellWidth: 72 }, 3: { cellWidth: 84, halign: 'right', fontStyle: 'bold', textColor: C.NAVY }, 4: { cellWidth: 84 } },
+      willDrawCell: function (d) { if (d.section === 'body' && d.column.index === 4) { d.cell._e = estats[d.row.index]; d.cell.text = []; } },
+      didDrawCell: function (d) {
+        if (d.section === 'body' && d.column.index === 4) {
+          var e = d.cell._e, fg = e === 'pagada' ? C.OK : e === 'vencida' ? C.BAD : C.WARN, bg = e === 'pagada' ? C.OK_BG : e === 'vencida' ? C.BAD_BG : C.WARN_BG;
+          k.pindola(cpEstatLabel(e), d.cell.x + 8, d.cell.y + d.cell.height / 2 - 7.5, fg, bg);
+        }
+      },
+    });
+    k.totals([[cpT('t829'), CP_EUR(tot)], [cpT('t830'), CP_EUR(pagat), C.OK]], cpT('t831'), CP_EUR(pend));
+    k.tancar('extracte-de-compte.pdf', 'HIGIENEX S.L. · ' + cpT('t838'));
+  }
+
+  /* ---------- Portal: factura ---------- */
+  function factura(num) {
+    var f = CP_DB.facturas.find(function (x) { return x.num === num; });
+    if (!f) return;
+    var c = CP_DB.cliente, e = cpEstatFactura(f), C = HXPDF.C;
+    var k = HXPDF.nou({ kicker: 'Factura', titol: cpT('t795'), num: num, data: CP_FD(f.fecha) });
+    var fg = e === 'pagada' ? C.OK : e === 'vencida' ? C.BAD : C.WARN, bg = e === 'pagada' ? C.OK_BG : e === 'vencida' ? C.BAD_BG : C.WARN_BG;
+    k.franja([
+      [cpT('t799'), CP_FD(f.fecha)],
+      [cpT('t800'), CP_FD(f.venc)],
+      [cpT('t801'), cpT('t802')],
+      [cpT('t794'), CP_EUR(f.total), true],
+    ]);
+    k.pindola(cpEstatLabel(e), k.W - k.M, k.y - 12, fg, bg, 'right');
+    k.y += 10;
+    k.caixes([
+      { titol: cpT('t786'), linies: [c.nom, 'NIF: ' + (c.nif || '—'), c.dir, c.pob, [c.mail, c.tel].filter(Boolean).join(' · ')] },
+      { titol: cpT('t787'), linies: ['HIGIENEX S.L.', 'CIF: B12345678', 'Carrer de la Indústria, 25', '46010 València (València)', 'contacto@higienexvalencia.es'] },
+    ], 98);
+    k.taula({
+      head: [cpT('t788'), cpT('t789'), cpT('t790'), cpT('t791')],
+      body: (f.lineas || []).map(function (l) {
+        var p = CP_DB.productos[l.art];
+        return [l.nom || (p ? p.nom : l.art), CP_NUM(l.cant), CP_EUR(l.precio), CP_EUR(l.cant * l.precio)];
+      }),
+      columnStyles: { 0: { fontStyle: 'bold' }, 1: { cellWidth: 56, halign: 'right' }, 2: { cellWidth: 78, halign: 'right' }, 3: { cellWidth: 86, halign: 'right', fontStyle: 'bold', textColor: C.NAVY } },
+    });
+    k.totals([[cpT('t792'), CP_EUR(f.base)], [cpT('t793'), CP_EUR(f.cuota)]], cpT('t794'), CP_EUR(f.total), {
+      esquerra: function (x, y, w) {
+        k.kicker(cpT('t801'), x, y + 12);
+        var doc = k.doc;
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8.6); k.color(C.TXT);
+        doc.text(doc.splitTextToSize(HXPDF.net(cpT('t803') + ' ES21 2100 4455 6612 3456 7890 (CaixaBank)'), w), x, y + 28);
+        doc.setFontSize(8); k.color(C.MUTED);
+        doc.text(doc.splitTextToSize(HXPDF.net(cpT('t804')), w), x, y + 56);
+      },
+    });
+    try {
+      var vr = HXVF.cadena(CP_DB.facturas).map[num];
+      if (vr) { k.cal(116); k.y = HXVF.bloquePDF(k.doc, vr, k.M, k.W, k.H, k.y, cpVFLang()); }
+    } catch (err) { /* sense registre VeriFactu: la factura es descarrega igualment */ }
+    k.tancar('factura-' + num + '.pdf', 'HIGIENEX S.L. · ' + cpT('t805'));
+  }
+
+  /* ---------- Portal: certificat d'impacte ---------- */
+  function certificatImpacte() {
+    var d = hxCalcularImpacteCliente(), c = CP_DB.cliente, C = HXPDF.C, VERD = [46, 125, 50];
+    var data = new Date().toLocaleDateString('ca-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+    var k = HXPDF.nou({ kicker: "Certificat d'impacte ambiental", titol: 'Certificat ECO', num: 'Emès per a ' + c.nom });
+    var doc = k.doc, W = k.W, M = k.M, cx = W / 2;
+    k.y = 170;
+    k.kicker('Es certifica que', cx - 40, k.y, C.MUTED);
+    doc.setFont('times', 'bold'); doc.setFontSize(28); k.color(C.INK);
+    doc.text(HXPDF.net(c.nom), cx, k.y + 38, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10.5); k.color(C.TXT);
+    doc.text(doc.splitTextToSize("ha reduït el seu impacte ambiental fent servir productes concentrats HIGIENEX ECO en lloc de producte ja diluït. Aquest és el resultat de les seves comandes:", 400), cx, k.y + 64, { align: 'center' });
+    k.y += 110;
+    k.xifres([
+      [d.envasosEvitats.toLocaleString('ca-ES'), 'Envasos evitats', VERD],
+      [d.kgPlasticEvitat.toLocaleString('ca-ES', { maximumFractionDigits: 1 }) + ' kg', 'Plàstic evitat', VERD],
+      [d.kgCo2Evitat.toLocaleString('ca-ES', { maximumFractionDigits: 1 }) + ' kg', 'CO2 evitat (est.)', VERD],
+    ]);
+    k.avis('Com es calcula', "Es comparen les comandes reals de productes concentrats amb la quantitat equivalent de producte ja diluït: menys envasos, menys plàstic i menys transport. Xifres orientatives amb finalitat informativa i de comunicació de sostenibilitat.", 'ok');
+    /* segell */
+    var sy = k.y + 60;
+    k.stroke(VERD); doc.setLineWidth(1.5); doc.circle(cx, sy, 40, 'S'); doc.setLineWidth(0.6); doc.circle(cx, sy, 34, 'S');
+    doc.setFont('times', 'bolditalic'); doc.setFontSize(26); k.color(C.GOLD); doc.text('X', cx, sy + 4, { align: 'center' });
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(VERD[0], VERD[1], VERD[2]); doc.text('HIGIENEX ECO', cx, sy + 18, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(9); k.color(C.MUTED);
+    doc.text('València, ' + data, cx, sy + 62, { align: 'center' });
+    k.tancar('certificat-impacte-higienex.pdf');
+  }
+
+  /* ---------- Justificant de comanda ---------- */
+  function comanda(inv, items, client) {
+    var C = HXPDF.C, eur = HXPDF.eur;
+    var hiHaDte = items.some(function (it) { return it.discountRate > 0; });
+    var dte = items.reduce(function (s, i) { return s + (i.discountRate > 0 ? i.rawTotal - i.total : 0); }, 0);
+    var sub = items.reduce(function (s, i) { return s + i.total; }, 0);
+    var transport = (typeof TRANSPORT !== 'undefined' && TRANSPORT) || 0;
+    var iva = (sub + transport) * IVA_PCT;
+    var k = HXPDF.nou({ kicker: 'Justificant de comanda', titol: 'Comanda', num: 'Nº ' + inv.invoiceNum, data: inv.dateStr });
+    k.franja([
+      ['Data de comanda', inv.dateStr],
+      ['Lliurament estimat', inv.entregaStr],
+      ['Pagament', 'Confirmat'],
+      ['Total (IVA incl.)', eur(inv.total), true],
+    ]);
+    k.caixes([
+      { titol: 'Client', linies: [client.name || 'Client', client.company || '', client.email || ''] },
+      { titol: 'Emissor', linies: ['HIGIENEX S.L.', 'CIF: B12345678', 'Carrer de la Indústria, 25 · 46010 València', 'contacto@higienexvalencia.es'] },
+    ], 84);
+    var head = ['Producte', 'Uds.', 'Preu/ut.'].concat(hiHaDte ? ['Dte.'] : []).concat(['Import']);
+    var cs = { 0: { fontStyle: 'bold' }, 1: { cellWidth: 50, halign: 'right' }, 2: { cellWidth: 74, halign: 'right' } };
+    if (hiHaDte) cs[3] = { cellWidth: 52, halign: 'right' };
+    cs[head.length - 1] = { cellWidth: 86, halign: 'right', fontStyle: 'bold', textColor: C.NAVY };
+    k.taula({
+      head: head,
+      body: items.map(function (it) {
+        var preu = it.rawTotal ? it.rawTotal / it.qty : it.total / it.qty;
+        var r = [it.name, String(it.qty), eur(preu)];
+        if (hiHaDte) r.push(it.discountRate > 0 ? '-' + Math.round(it.discountRate * 100) + ' %' : '-');
+        r.push(eur(it.total));
+        return r;
+      }),
+      columnStyles: cs,
+      didParseCell: function (d) { if (d.section === 'body' && hiHaDte && d.column.index === 3 && d.cell.raw !== '-') { d.cell.styles.textColor = C.GOLD_D; d.cell.styles.fontStyle = 'bold'; } },
+    });
+    var files = [['Subtotal productes', eur(sub + dte)]];
+    if (dte > 0) files.push(['Descomptes per volum', '-' + eur(dte), C.GOLD_D]);
+    if (transport) files.push(['Transport', eur(transport)]);
+    files.push(['IVA (' + Math.round(IVA_PCT * 100) + ' %)', eur(iva)]);
+    k.totals(files, 'Total', eur(inv.total), {
+      esquerra: function (x, y, w) {
+        var doc = k.doc, sx = x + 44, sy = y + 52;
+        doc.setDrawColor(46, 125, 50); doc.setLineWidth(1.4); doc.circle(sx, sy, 34, 'S'); doc.setLineWidth(0.5); doc.circle(sx, sy, 29, 'S');
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(46, 125, 50);
+        doc.text('PAGAMENT', sx, sy - 2, { align: 'center' }); doc.text('CONFIRMAT', sx, sy + 8, { align: 'center' });
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8.4); k.color(C.TXT);
+        doc.text(doc.splitTextToSize('Hem rebut el pagament. Prepararem la comanda i rebràs un avís quan surti del magatzem.', w - 100), x + 92, y + 40);
+      },
+    });
+    k.avis('Seguiment de la comanda', 'Pots consultar on és la comanda a la web, a Seguiment de comanda, amb el número ' + inv.invoiceNum + '.', 'blau');
+    k.tancar('Comanda_' + inv.invoiceNum + '.pdf', "Aquest document és un justificant de comanda, no una factura. La factura s'emetrà quan s'expedeixi la mercaderia. Per a qualsevol consulta, indica el número de comanda.");
+  }
+
+  window.HXPDF_DOCS = {
+    fitxaTecnica: fitxaTecnica,
+    fds: fds,
+    cataleg: cataleg,
+    certificacions: certificacions,
+    extracte: extracte,
+    factura: factura,
+    certificatImpacte: certificatImpacte,
+    comanda: comanda,
+  };
+})();
