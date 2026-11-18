@@ -1413,6 +1413,39 @@ footer ul a:hover { color: var(--green-light); }
   display: flex; align-items: center; justify-content: center;
 }
 #hxChatClose:hover { background: rgba(255,255,255,0.28); }
+/* Mapa i passos del seguiment de comandes */
+.hx-mapa { margin-top: 14px; border-radius: 16px; overflow: hidden; border: 1px solid #E3EDF5; background: #F7FBFF; }
+.hx-mapa svg { display: block; width: 100%; height: auto; }
+.hx-mapa-txt { font: 700 12px/1 inherit; fill: #0B3D6B; }
+.hx-mapa-sub { font: 500 10.5px/1 inherit; fill: #6B7C88; }
+.hx-mapa-eta { padding: 10px 14px; font-size: 0.85rem; font-weight: 700; color: #0B3D6B; border-top: 1px solid #E3EDF5; background: #fff; }
+.hx-mapa.cancel .hx-mapa-eta { color: #8C281E; }
+.hx-ruta-viva { animation: hxRutaFlux 1.6s linear infinite; }
+@keyframes hxRutaFlux { 0% { opacity: 1; } 50% { opacity: .65; } 100% { opacity: 1; } }
+.hx-furgo { animation: hxFurgo 0.9s ease-in-out infinite alternate; }
+@keyframes hxFurgo { from { translate: 0 0; } to { translate: 0 -2px; } }
+.hx-pols { animation: hxPols 1.8s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+@keyframes hxPols { 0% { transform: scale(.7); opacity: .5; } 100% { transform: scale(1.8); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .hx-ruta-viva, .hx-furgo, .hx-pols { animation: none; } }
+.hx-seguiment { background: #fff; border: 1px solid #E3EDF5; border-radius: 14px; padding: 1.1rem 1.2rem; box-shadow: 0 4px 16px rgba(11,61,107,0.06); }
+.hx-passos { display: flex; align-items: flex-start; margin-top: 14px; }
+.hx-pas { display: flex; flex-direction: column; align-items: center; width: 70px; flex-shrink: 0; text-align: center; }
+.hx-pas span { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; background: #E8ECEF; color: #888; }
+.hx-pas.fet span { background: #0B3D6B; color: #fff; }
+.hx-pas.ara span { box-shadow: 0 0 0 4px rgba(242,169,0,.35); }
+.hx-pas small { font-size: 10px; line-height: 1.2; margin-top: 5px; color: #888; }
+.hx-pas.fet small { color: #1A1A1A; font-weight: 700; }
+.hx-pas-linia { flex: 1; height: 3px; background: #E8ECEF; margin-top: 13px; min-width: 8px; }
+.hx-pas.fet + .hx-pas-linia { background: #0B3D6B; }
+@media (max-width: 520px) { .hx-pas { width: 52px; } .hx-pas small { font-size: 8.5px; } }
+#hxChatVeu { background: rgba(255,255,255,0.15); border: none; color: white; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; }
+#hxChatVeu[hidden], #hxChatMic[hidden] { display: none; }
+#hxChatVeu:hover { background: rgba(255,255,255,0.28); }
+#hxChatVeu[aria-pressed="true"] { background: #F2A900; color: #0B3D6B; }
+#hxChatMic { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid #DEEEFB; background: white; font-size: 1.05rem; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+#hxChatMic:hover { border-color: #1565A8; }
+#hxChatMic.escoltant { background: #D64545; border-color: #D64545; animation: hxMicPols 1.2s infinite; }
+@keyframes hxMicPols { 0% { box-shadow: 0 0 0 0 rgba(214,69,69,0.5); } 70% { box-shadow: 0 0 0 10px rgba(214,69,69,0); } 100% { box-shadow: 0 0 0 0 rgba(214,69,69,0); } }
 #hxChatBody {
   flex: 1;
   overflow-y: auto;
@@ -3980,11 +4013,11 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
         </div>
         <div class="form-field hx-u37">
           <label for="calcPreuActual" style="color:#DEEEFB;" data-i18n-key="t612">Preu actual per litre ja diluït (€)</label>
-          <input id="calcPreuActual" type="number" min="0" step="0.01" value="3.20" oninput="calcEcoRun()" style="width:100%;padding:0.7rem;border-radius:10px;border:1.5px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.95);font-size:0.92rem;">
+          <input id="calcPreuActual" type="number" min="0" step="0.01" value="1.40" oninput="calcEcoRun()" style="width:100%;padding:0.7rem;border-radius:10px;border:1.5px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.95);font-size:0.92rem;">
         </div>
       </div>
 
-      <div id="calcEcoResult" style="margin-top:1.8rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;text-align:center;">
+      <div id="calcEcoResult" style="margin-top:1.8rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;text-align:center;">
         <div style="background:rgba(255,255,255,0.1);border-radius:14px;padding:1.1rem 0.6rem;">
           <div id="calcOutAnual" class="hx-u44">—</div>
           <div style="font-size:0.75rem;color:#DEEEFB;" data-i18n-key="t613">Estalvi anual estimat</div>
@@ -3997,8 +4030,17 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
           <div id="calcOutPct" class="hx-u44">—</div>
           <div style="font-size:0.75rem;color:#DEEEFB;" data-i18n-key="t615">Reducció de cost</div>
         </div>
+        <div style="background:rgba(255,255,255,0.1);border-radius:14px;padding:1.1rem 0.6rem;">
+          <div id="calcOutCo2" class="hx-u44">—</div>
+          <div style="font-size:0.75rem;color:#DEEEFB;" data-i18n-key="t920">CO₂ evitat/any</div>
+        </div>
       </div>
-      <p style="color:rgba(255,255,255,0.55);font-size:0.72rem;margin-top:1.2rem;text-align:center;" data-i18n-key="t616">Càlcul orientatiu basat en una dilució ×3 i un envàs estàndard de 5 L. El resultat final depèn del producte i sector concrets.</p>
+      <div style="text-align:center;margin-top:1.4rem;">
+        <button type="button" id="calcEcoCistell" onclick="calcEcoAlCistell()" style="background:var(--accent);color:#1A1A1A;border:none;padding:0.8rem 1.4rem;border-radius:12px;font-weight:700;font-size:0.92rem;cursor:pointer;font-family:inherit;">
+          🧴 <span id="calcEcoCistellTxt">Afegir ECO Concentrat Pro al cistell</span>
+        </button>
+      </div>
+      <p style="color:rgba(255,255,255,0.55);font-size:0.72rem;margin-top:1.2rem;text-align:center;" data-i18n-key="t616">Càlcul orientatiu: ECO Concentrat Pro a 12,50 € la garrafa de 5 L, diluït 1:3 (4 L d'ús per litre). El CO₂ inclou els envasos que no es fabriquen i l'aigua que no es transporta. El resultat real depèn del producte i del sector.</p>
     </div>
   </div>
 </section>
@@ -4706,12 +4748,16 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
         <div id="hxChatStatus"><span id="hxChatDot"></span>En línia</div>
       </div>
     </div>
-    <button id="hxChatClose" onclick="toggleHxChat(false)" aria-label="Tancar xat" type="button">✕</button>
+    <div style="display:flex;gap:0.4rem">
+      <button id="hxChatVeu" onclick="hxCanviarVeu()" aria-pressed="false" aria-label="Llegir les respostes en veu alta" title="Llegir les respostes en veu alta" type="button" hidden>🔈</button>
+      <button id="hxChatClose" onclick="toggleHxChat(false)" aria-label="Tancar xat" type="button">✕</button>
+    </div>
   </div>
   <div id="hxChatBody"></div>
   <div id="hxChatQuickReplies"></div>
   <form id="hxChatForm" onsubmit="return hxChatSend(event)">
     <input id="hxChatInput" type="text" placeholder="Escriu la teva pregunta..." data-i18n-placeholder="t505" autocomplete="off">
+    <button type="button" id="hxChatMic" onclick="hxMicro()" aria-label="Parlar amb la Mònica" title="Parlar amb la Mònica" hidden>🎤</button>
     <button type="submit" id="hxChatSendBtn" aria-label="Enviar">➤</button>
   </form>
 </div>
@@ -5195,7 +5241,7 @@ function cpViewInici(){
     '<div class="cp-topbar"><div class="cp-greet"><h2>'+cpT('t744')+', '+escHtml(c.nom.split(' ')[0])+' 👋</h2>'+
       '<p>'+cpT('t745')+'</p>'+statusPill+
       '<div class="cp-updated">'+cpT('t746')+'</div></div></div>'+
-    banner+kpis+reorderCard+
+    banner+kpis+cpEstocBaixHTML()+reorderCard+
     '<div class="cp-card" style="margin-bottom:20px">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">'+
         '<div class="cp-section-title" style="margin:0">'+cpT('t747')+'</div>'+
@@ -5206,6 +5252,54 @@ function cpViewInici(){
     '</div>'+
     '<div class="cp-card"><div class="cp-section-title">'+cpT('t748')+'</div>'+notifs+'</div>';
 }
+
+// Avís d'estoc baix per producte: a partir de les comandes del client es calcula
+// el seu ritme de consum (unitats/dia) i quant li deu quedar des de l'última
+// compra. Si s'acabarà en 10 dies o menys, s'avisa amb un botó per demanar-ne.
+var CP_NO_CONSUMIBLES = /dispensador|accessori|suport/i;
+function cpEstocBaix(){
+  var dies = function(a, b){ return (new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000; };
+  var compres = {};
+  (CP_DB.comandes || []).forEach(function(c){
+    (c.lineas || []).forEach(function(l){
+      var map = CP_PRODUCT_MAP[l.nom];
+      if (!map || CP_NO_CONSUMIBLES.test(l.nom)) return;
+      (compres[map.nom] = compres[map.nom] || []).push({ f: c.fecha, q: +l.cant || 0 });
+    });
+  });
+  var avisos = [];
+  Object.keys(compres).forEach(function(nom){
+    var llista = compres[nom].sort(function(a, b){ return a.f.localeCompare(b.f); });
+    if (llista.length < 3) return;
+    var periode = dies(llista[0].f, llista[llista.length - 1].f);
+    if (periode < 14) return;
+    var ritme = llista.slice(0, -1).reduce(function(s, x){ return s + x.q; }, 0) / periode;   // unitats/dia
+    if (!(ritme > 0)) return;
+    var ultima = llista[llista.length - 1];
+    var queden = (ultima.q - ritme * dies(ultima.f, CP_TODAY)) / ritme;
+    if (queden <= 10 && queden > -45) avisos.push({ nom: nom, dies: Math.round(queden), mes: Math.max(1, Math.round(ritme * 30)), ultima: ultima.f });
+  });
+  return avisos.sort(function(a, b){ return a.dies - b.dies; }).slice(0, 3);
+}
+function cpEstocBaixHTML(){
+  var avisos = cpEstocBaix();
+  if (!avisos.length) return '';
+  var files = avisos.map(function(a){
+    var titol = a.dies <= 0 ? cpT('t932').replace('{p}', a.nom) : cpT('t931').replace('{d}', a.dies).replace('{p}', a.nom);
+    var color = a.dies <= 0 ? '#8C281E' : a.dies <= 5 ? '#8A5900' : '#0B3D6B';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-top:1px solid rgba(0,0,0,.06)">' +
+      '<div style="min-width:220px;flex:1"><div style="font-weight:700;font-size:14px;color:' + color + '">' + (a.dies <= 0 ? '🔴 ' : '🟠 ') + escHtml(titol) + '</div>' +
+      '<div style="font-size:12px;color:var(--cp-muted,rgba(26,26,26,.55));margin-top:2px">' + escHtml(cpT('t933').replace('{u}', a.mes).replace('{f}', CP_FD(a.ultima))) + '</div></div>' +
+      '<button type="button" class="cp-btn" style="padding:8px 14px;font-size:12.5px" data-nom="' + escHtml(a.nom) + '" data-n="' + a.mes + '" onclick="cpDemanarEstoc(this)">🛒 ' + escHtml(cpT('t934').replace('{n}', a.mes)) + '</button>' +
+    '</div>';
+  }).join('');
+  return '<div class="cp-card" style="margin-bottom:20px;border-left:4px solid #F2A900">' +
+    '<div class="cp-section-title" style="margin:0 0 4px">⏳ ' + escHtml(cpT('t930')) + '</div>' + files + '</div>';
+}
+function cpDemanarEstoc(boto){
+  cpTornarAComprar([{ nom: boto.getAttribute('data-nom'), cant: +boto.getAttribute('data-n') || 1 }]);
+}
+window.cpDemanarEstoc = cpDemanarEstoc;
 
 function cpReorderCardHTML(){
   var com=CP_DB.comandes.slice().sort(function(a,b){return b.fecha.localeCompare(a.fecha);});
@@ -5371,6 +5465,55 @@ function cpStepperHTML(estatActual){
   '</div>';
 }
 
+// ── MAPA DE SEGUIMENT DE LA COMANDA ───────────────────────
+// Il·lustració de la ruta (no és un mapa extern: no carrega res de fora ni
+// posa galetes): magatzem de València → destinació, amb la furgoneta a la
+// posició que toca segons l'estat i l'arribada estimada.
+var HX_RUTA = { x0: 110, y0: 124, cx: 300, cy: 18, x1: 500, y1: 116 };
+function hxPuntRuta(f){
+  // Punt de la corba a la fracció f de la seva LONGITUD (no del paràmetre).
+  var R = HX_RUTA, pts = [], llarg = [0];
+  for (var i = 0; i <= 60; i++) {
+    var u = i / 60, a = (1-u)*(1-u), b = 2*(1-u)*u, c = u*u;
+    pts.push([a*R.x0 + b*R.cx + c*R.x1, a*R.y0 + b*R.cy + c*R.y1]);
+    if (i) llarg.push(llarg[i-1] + Math.hypot(pts[i][0]-pts[i-1][0], pts[i][1]-pts[i-1][1]));
+  }
+  var objectiu = Math.max(0, Math.min(1, f)) * llarg[60];
+  for (var k = 1; k <= 60; k++) if (llarg[k] >= objectiu) {
+    var r = (objectiu - llarg[k-1]) / ((llarg[k] - llarg[k-1]) || 1);
+    return [pts[k-1][0] + (pts[k][0]-pts[k-1][0])*r, pts[k-1][1] + (pts[k][1]-pts[k-1][1])*r];
+  }
+  return pts[60];
+}
+function hxMapaRuta(progres, desti, eta, cancel){
+  var R = HX_RUTA, cami = 'M' + R.x0 + ',' + R.y0 + ' Q' + R.cx + ',' + R.cy + ' ' + R.x1 + ',' + R.y1;
+  var p = Math.max(0, Math.min(1, progres)), fet = (p * 100).toFixed(1), pos = hxPuntRuta(p);
+  var lliurat = p >= 1, color = cancel ? '#B4B9BE' : '#0B3D6B';
+  var furgo = cancel ? '' : lliurat
+    ? '<g transform="translate(' + R.x1 + ',' + (R.y1 - 44) + ')"><circle r="15" fill="#0B7256"/><path d="M-6 0l4 4 8-9" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/></g>'
+    : '<g class="hx-furgo" transform="translate(' + pos[0].toFixed(1) + ',' + (pos[1] - 4).toFixed(1) + ')">' +
+        '<rect x="-17" y="-12" width="22" height="14" rx="3" fill="#F2A900"/><path d="M5-8h7l5 6v4H5z" fill="#F2A900"/>' +
+        '<rect x="7" y="-6" width="5" height="4" rx="1" fill="#0B3D6B" opacity=".55"/>' +
+        '<circle cx="-10" cy="3" r="3.2" fill="#0B3D6B"/><circle cx="11" cy="3" r="3.2" fill="#0B3D6B"/></g>';
+  return '<div class="hx-mapa' + (cancel ? ' cancel' : '') + '">' +
+    '<svg viewBox="0 0 600 170" role="img" aria-label="' + escHtml(eta) + '">' +
+      '<defs><linearGradient id="hxMar" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#EAF4FC"/><stop offset="1" stop-color="#F7FBFF"/></linearGradient></defs>' +
+      '<rect width="600" height="170" rx="16" fill="url(#hxMar)"/>' +
+      '<path d="M0 150 C120 138 190 160 300 150 S480 140 600 152 V170 H0Z" fill="#DCEBF7"/>' +
+      '<path d="' + cami + '" fill="none" stroke="#C9D6E2" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 10"/>' +
+      '<path d="' + cami + '" pathLength="100" fill="none" stroke="' + color + '" stroke-width="5" stroke-linecap="round" stroke-dasharray="' + fet + ' 100" class="' + (lliurat || cancel ? '' : 'hx-ruta-viva') + '"/>' +
+      '<g transform="translate(' + R.x0 + ',' + R.y0 + ')"><circle r="9" fill="#0B3D6B"/><path d="M-4 3v-5l4-3 4 3v5z" fill="#fff"/></g>' +
+      '<text x="' + R.x0 + '" y="' + (R.y0 + 30) + '" text-anchor="middle" class="hx-mapa-txt">' + escHtml(cpT('t923')) + '</text>' +
+      '<text x="' + R.x0 + '" y="' + (R.y0 + 44) + '" text-anchor="middle" class="hx-mapa-sub">València</text>' +
+      '<g transform="translate(' + R.x1 + ',' + R.y1 + ')"><circle r="16" fill="' + (lliurat ? '#0B7256' : '#1565A8') + '" opacity=".18" class="' + (lliurat || cancel ? '' : 'hx-pols') + '"/>' +
+        '<circle r="9" fill="' + (lliurat ? '#0B7256' : '#1565A8') + '"/><circle r="3.5" fill="#fff"/></g>' +
+      '<text x="' + R.x1 + '" y="' + (R.y1 + 30) + '" text-anchor="middle" class="hx-mapa-txt">' + escHtml(desti) + '</text>' +
+      furgo +
+    '</svg>' +
+    '<div class="hx-mapa-eta">' + (cancel ? '⛔ ' : lliurat ? '✅ ' : '🕒 ') + escHtml(eta) + '</div>' +
+  '</div>';
+}
+
 function cpTornarAComprarComanda(num){
   var c = CP_DB.comandes.find(function(x){ return x.num===num; });
   if (c) cpTornarAComprar(c.lineas);
@@ -5399,7 +5542,9 @@ function cpViewComandes(){
         '<span class="cp-tag" style="color:'+color+';border-color:'+color+'44;background:'+color+'18">'+CP_ESTATS_ICONS[c.estat]+' '+cpT(CP_ESTATS_KEY[c.estat])+'</span></div>'+
       '</div>'+
       cpStepperHTML(c.estat)+
-      (c.estat==='Entregat' ? '<div style="text-align:right;margin-top:14px"><button type="button" onclick="cpTornarAComprarComanda(\''+c.num+'\')" class="cp-btn ghost" style="padding:7px 14px;font-size:12px">'+cpT('t768')+'</button></div>' : '')+
+      hxMapaRuta([0.04, 0.35, 0.75, 1][Math.max(0, CP_ESTATS_COMANDA.indexOf(c.estat))], CP_DB.cliente.pob || cpT('t928'),
+        c.estat==='Entregat' ? cpT('t927') + ' · ' + CP_FD(c.fecha) : c.estat==='En repartiment' ? cpT('t926') : c.estat==='Enviat' ? cpT('t925') : cpT('t924'))+
+      '<div style="text-align:right;margin-top:14px"><button type="button" onclick="cpTornarAComprarComanda(\''+c.num+'\')" class="cp-btn ghost" style="padding:7px 14px;font-size:12px">'+cpT('t768')+'</button></div>'+
     '</div>';
   }).join('');
   return ''+
@@ -7699,6 +7844,18 @@ var REGISTERED_USERS = hxLoadRegisteredUsers();
 // solo se rellenan en memoria cuando un administrador abre su panel.
 var USERS = {};
 var HX_API_BASE = 'https://higienexweb2.ossama450298.workers.dev/api';
+
+// Estadístiques anònimes per al panell «En directe» del Centre de control:
+// quina pàgina s'obre i com respon la Mònica. No s'envien dades personals, ni
+// cookies, ni el text que escriu el visitant. Si el navegador té activat
+// «No rastrejar» no s'envia res.
+function hxStat(dades){
+  try {
+    if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return;
+    fetch(HX_API_BASE + '/stat', { method: 'POST', body: JSON.stringify(dades), keepalive: true,
+      headers: { 'Content-Type': 'text/plain' }, mode: 'cors', credentials: 'omit' }).catch(function(){});
+  } catch (e) {}
+}
 function hxApiToken(){ try { return localStorage.getItem('hx_api_token') || ''; } catch(e) { return ''; } }
 function hxSetApiToken(t){ try { if (t) localStorage.setItem('hx_api_token', t); else localStorage.removeItem('hx_api_token'); } catch(e) {} }
 async function hxApi(path, opts) {
@@ -7905,10 +8062,94 @@ function hxSaveHistory(){
 
 function hxAddMessage(text, who){
   hxRenderMessageDOM(text, who);
+  if (who === 'bot') hxParlar(text);
   HX_CHAT_HISTORY.push({who: who, text: text});
   if (HX_CHAT_HISTORY.length > HX_CHAT_MAX_HISTORY) HX_CHAT_HISTORY = HX_CHAT_HISTORY.slice(-HX_CHAT_MAX_HISTORY);
   hxSaveHistory();
 }
+
+// ── MÒNICA AMB VEU ─────────────────────────────────────────
+// Micròfon: dictar la pregunta (reconeixement de veu del navegador).
+// Altaveu: la Mònica llegeix les respostes en veu alta (síntesi del navegador).
+// Tot passa dins del navegador: la veu no s'envia a cap servidor d'HIGIENEX.
+var HX_VEU_IDIOMA = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB', fr: 'fr-FR', de: 'de-DE', ar: 'ar-SA' };
+var HX_VEU_ACTIVA = false, HX_RECONEIXEMENT = null;
+function hxIdiomaVeu(){ var l = HX_LAST_LANG || cpLang(); return HX_VEU_IDIOMA[l] || 'ca-ES'; }
+function hxTextPerLlegir(text){
+  return String(text || '')
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu, '')
+    .replace(/[•*_#>]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function hxParlar(text){
+  if (!HX_VEU_ACTIVA || !('speechSynthesis' in window)) return;
+  var frase = hxTextPerLlegir(text);
+  if (!frase) return;
+  var u = new SpeechSynthesisUtterance(frase), idioma = hxIdiomaVeu();
+  u.lang = idioma;
+  var veus = window.speechSynthesis.getVoices() || [];
+  var veu = veus.find(function(v){ return v.lang === idioma; }) || veus.find(function(v){ return v.lang && v.lang.slice(0, 2) === idioma.slice(0, 2); });
+  if (veu) u.voice = veu;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+function hxActualitzarBotoVeu(){
+  var b = document.getElementById('hxChatVeu'); if (!b) return;
+  var lang = HX_LAST_LANG || cpLang();
+  b.setAttribute('aria-pressed', HX_VEU_ACTIVA ? 'true' : 'false');
+  b.textContent = HX_VEU_ACTIVA ? '🔊' : '🔈';
+  var etiqueta = hxUiStr(HX_VEU_ACTIVA ? 'veu_off' : 'veu_on', lang) || 'Veu';
+  b.setAttribute('aria-label', etiqueta); b.title = etiqueta;
+  var m = document.getElementById('hxChatMic');
+  if (m) { var em = hxUiStr('mic', lang) || 'Parlar'; m.setAttribute('aria-label', em); m.title = em; }
+}
+function hxCanviarVeu(forcar){
+  HX_VEU_ACTIVA = (typeof forcar === "boolean") ? forcar : !HX_VEU_ACTIVA;
+  try { localStorage.setItem('hx_chat_veu', HX_VEU_ACTIVA ? '1' : '0'); } catch (e) {}
+  if (!HX_VEU_ACTIVA && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+  hxActualitzarBotoVeu();
+}
+window.hxCanviarVeu = hxCanviarVeu;
+function hxMicro(){
+  var Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var input = document.getElementById('hxChatInput'), boto = document.getElementById('hxChatMic');
+  if (!Rec || !input) return;
+  if (HX_RECONEIXEMENT) { HX_RECONEIXEMENT.stop(); return; }
+  var lang = HX_LAST_LANG || cpLang();
+  var rec = new Rec();
+  rec.lang = hxIdiomaVeu(); rec.interimResults = true; rec.maxAlternatives = 1;
+  var placeholder = input.placeholder, final = '';
+  rec.onstart = function(){ HX_RECONEIXEMENT = rec; boto.classList.add('escoltant'); input.value = ''; input.placeholder = hxUiStr('mic_escolto', lang); };
+  rec.onresult = function(ev){
+    var parcial = '';
+    for (var i = ev.resultIndex; i < ev.results.length; i++) {
+      if (ev.results[i].isFinal) final += ev.results[i][0].transcript; else parcial += ev.results[i][0].transcript;
+    }
+    input.value = (final + parcial).trim();
+  };
+  rec.onerror = function(ev){
+    if (ev.error === 'not-allowed' || ev.error === 'service-not-allowed') showToast(hxUiStr('mic_denegat', lang), '🎤');
+    else if (ev.error === 'no-speech') showToast(hxUiStr('mic_res', lang), '🎤');
+  };
+  rec.onend = function(){
+    HX_RECONEIXEMENT = null; boto.classList.remove('escoltant'); input.placeholder = placeholder;
+    if (input.value.trim()) {
+      if (!HX_VEU_ACTIVA) hxCanviarVeu(true);   // si li parles, et contesta parlant
+      hxChatSend();
+    }
+  };
+  try { rec.start(); } catch (e) { HX_RECONEIXEMENT = null; }
+}
+window.hxMicro = hxMicro;
+// Els botons només apareixen si el navegador ho permet.
+document.addEventListener('DOMContentLoaded', function(){
+  try { HX_VEU_ACTIVA = localStorage.getItem('hx_chat_veu') === '1'; } catch (e) {}
+  if ('speechSynthesis' in window) { var v = document.getElementById('hxChatVeu'); if (v) v.hidden = false; window.speechSynthesis.getVoices(); }
+  if (window.SpeechRecognition || window.webkitSpeechRecognition) { var m = document.getElementById('hxChatMic'); if (m) m.hidden = false; }
+  hxActualitzarBotoVeu();
+});
 
 function hxRestoreHistory(){
   var saved = null;
@@ -8013,6 +8254,7 @@ function hxAskAI(userText, lang){
   .then(function(data){
     clearTimeout(avisEspera); clearTimeout(limit);
     hxHideTyping();
+    hxStat({ k: 'c', s: (data && data.reply) ? 'ia' : 'error', l: lang });
     if (data && data.reply) {
       hxAddMessage(data.reply, 'bot');
       HX_CHAT_FALLBACK_STREAK++;
@@ -8028,10 +8270,12 @@ function hxAskAI(userText, lang){
     hxHideTyping();
     if (err && err.name === 'AbortError') {
       console.warn('L\'assistent IA ha trigat més de 15 s; es mostra la resposta de reserva.');
+      hxStat({ k: 'c', s: 'ia-lenta', l: lang });
       hxAddMessage(hxUiStr('ai_slow', lang), 'bot');
       hxAddEscalation(lang);
     } else {
       console.warn('Error connectant amb l\'assistent IA:', err);
+      hxStat({ k: 'c', s: 'error', l: lang });
       hxAddMessage(hxUiStr('ai_error', lang), 'bot');
     }
     hxRenderQuickReplies(lang);
@@ -8102,6 +8346,7 @@ function hxRespond(userText){
     var delayP = 450 + Math.random()*400;
     setTimeout(function(){
       hxHideTyping();
+      hxStat({ k: 'c', s: 'producte', l: lang });
       hxAddMessage(hxUiStr('product_intro', lang, {name: producte.name}), 'bot');
       hxRenderProductCard(producte);
       hxRenderQuickReplies(lang);
@@ -8116,6 +8361,7 @@ function hxRespond(userText){
     var dia = ara.getDay();
     var minutsAra = ara.getHours()*60 + ara.getMinutes();
     var esObert = (dia >= 1 && dia <= 5) && minutsAra >= (8*60) && minutsAra <= (17*60+30);
+    hxStat({ k: 'c', s: 'tema', l: lang });
     var textObert = HX_OBERT_ARA[lang] ? (esObert ? HX_OBERT_ARA[lang].open : HX_OBERT_ARA[lang].closed) : '';
     setTimeout(function(){ hxHideTyping(); hxAddMessage(textObert, 'bot'); hxRenderQuickReplies(lang); }, 600);
     return;
@@ -8125,6 +8371,7 @@ function hxRespond(userText){
     HX_CHAT_FALLBACK_STREAK = 0;
     setTimeout(function(){
       hxHideTyping();
+      hxStat({ k: 'c', s: 'tema', l: lang });
       var cs = HX_COMANDA_STATUS[lang] || HX_COMANDA_STATUS['ca'];
       if (!CP_CURRENT_USER) {
         hxAddMessage(cs.noLogin, 'bot');
@@ -8144,6 +8391,7 @@ function hxRespond(userText){
 
   if (topicId) {
     HX_CHAT_FALLBACK_STREAK = 0;
+    hxStat({ k: 'c', s: 'tema', l: lang });
     var replyText = hxTopicAnswer(topicId, lang);
     var action = hxTopicAction(topicId, lang);
     var delay = Math.min(1400, 500 + replyText.length*4 + Math.random()*400);
@@ -8163,6 +8411,7 @@ function hxRespond(userText){
       var delayF = Math.min(1400, 500 + faqMatch.a.length*4 + Math.random()*400);
       setTimeout(function(){
         hxHideTyping();
+        hxStat({ k: 'c', s: 'faq', l: lang });
         hxAddMessage(faqMatch.a, 'bot');
         if (faqMatch.action) hxAddAction(faqMatch.action);
         hxRenderQuickReplies(lang);
@@ -9682,7 +9931,7 @@ var HX_PRODUCT_DESC = {
     de: "Ein neutral duftender Mehrflächenreiniger für den täglichen Zimmer- und Gemeinschaftsbereichswechsel im Hotelgewerbe. Er hinterlässt keine sichtbaren Rückstände oder Schlieren auf Möbeln oder Spiegeln, und seine hohe Kalkwassertoleranz macht ihn in jeder Region zuverlässig. ISO-14001-zertifiziert, vereint er Leistung und Umweltschutz, ohne die Reinigungszeit des Personals zu verlängern."
   },
   'WorkSafe Antimicrobial': {
-    ca: "Solució de recobriment antimicrobià per a superfícies de contacte freqüent, desenvolupada conjuntament amb OfiNova dins del projecte WorkSafe Smart Space. Redueix la càrrega microbiana entre neteges i s'integra amb sensors IoT que avisen quan cal reforçar la desinfecció, pensat per a oficines, coworkings i espais de treball compartit que volen anar més enllà de la neteja tradicional.",
+    ca: "Solució de recobriment antimicrobià per a superfícies de contacte freqüent, desenvolupada conjuntament amb OfiNova dins del projecte WorkSafe Smart Space. Redueix la càrrega microbiana entre neteges i s'integra amb sensors IoT que avisen quan cal reforcar la desinfecció, pensat per a oficines, coworkings i espais de treball compartit que volen anar més enllà de la neteja tradicional.",
     es: "Solución de recubrimiento antimicrobiano para superficies de contacto frecuente, desarrollada conjuntamente con OfiNova dentro del proyecto WorkSafe Smart Space. Reduce la carga microbiana entre limpiezas y se integra con sensores IoT que avisan cuando conviene reforzar la desinfección, pensado para oficinas, coworkings y espacios de trabajo compartido que quieren ir más allá de la limpieza tradicional.",
     en: "An antimicrobial coating solution for high-touch surfaces, co-developed with OfiNova as part of the WorkSafe Smart Space project. It reduces microbial load between cleanings and integrates with IoT sensors that flag when disinfection needs reinforcing — built for offices, coworking spaces and shared workspaces looking to go beyond traditional cleaning.",
     fr: "Solution de revêtement antimicrobien pour surfaces à contact fréquent, développée conjointement avec OfiNova dans le cadre du projet WorkSafe Smart Space. Elle réduit la charge microbienne entre les nettoyages et s'intègre à des capteurs IoT qui signalent quand renforcer la désinfection, pensée pour les bureaux, espaces de coworking et lieux de travail partagés qui veulent aller au-delà du nettoyage traditionnel.",
@@ -9761,37 +10010,52 @@ var cmpSelected = [];
 // ═══════════════════════════════════════════════════════════
 // CALCULADORA D'ESTALVI ECO
 // ═══════════════════════════════════════════════════════════
+// Calculadora d'estalvi amb ECO Concentrat Pro.
+//  · Preu: 12,50 € la garrafa de 5 L de concentrat = 2,50 €/L. Es dilueix 1:3
+//    (1 L de concentrat + 3 L d'aigua = 4 L de producte d'ús) → 0,625 € per litre d'ús.
+//  · Envasos: el producte convencional ve llest per usar en garrafes de 5 L;
+//    amb el concentrat calen 4 vegades menys litres i, per tant, 4 vegades menys garrafes.
+//  · CO₂ (orientatiu): ~0,45 kg per garrafa de plàstic de 5 L que no es fabrica i
+//    ~0,027 kg per kg d'aigua que no es transporta (camió, ~300 km).
+var CALC_ECO = { preuGarrafa: 12.50, litresGarrafa: 5, factor: 4, co2Garrafa: 0.45, co2KgTransportat: 0.027, garrafesMes: 0 };
 function calcEcoRun(){
   var litresEl = document.getElementById('calcLitres');
   var preuEl = document.getElementById('calcPreuActual');
   if (!litresEl || !preuEl) return;
-  var litres = parseFloat(litresEl.value) || 0;
-  var preuActual = parseFloat(preuEl.value) || 0;
+  var litres = Math.max(0, parseFloat(litresEl.value) || 0);
+  var preuActual = Math.max(0, parseFloat(preuEl.value) || 0);
 
-  // Un concentrat ×3 d'HIGIENEX es dilueix 1:3, així que el preu del
-  // producte concentrat (12,50€/L de mitjana) equival a 12,50/4 = 3,125€
-  // per litre ja diluït (1 L concentrat + 3 L aigua = 4 L de producte d'ús).
-  var preuEcoConcentratPerLitre = 12.50;
-  var preuEcoDiluitPerLitre = preuEcoConcentratPerLitre / 4;
-
+  var preuEcoPerLitreUs = CALC_ECO.preuGarrafa / CALC_ECO.litresGarrafa / CALC_ECO.factor;
   var costActualAnual = litres * preuActual * 12;
-  var costEcoAnual = litres * preuEcoDiluitPerLitre * 12;
+  var costEcoAnual = litres * preuEcoPerLitreUs * 12;
   var estalvi = Math.max(0, costActualAnual - costEcoAnual);
   var pct = costActualAnual > 0 ? Math.round((estalvi / costActualAnual) * 100) : 0;
 
-  // Envasos evitats: un envàs estàndard és de 5L de producte ja diluït;
-  // amb concentrat ×3 necessites 4 vegades menys envasos físics.
-  var envasosSenseEco = Math.round((litres * 12) / 5);
-  var envasosAmbEco = Math.round(envasosSenseEco / 4);
-  var envasosEstalviats = Math.max(0, envasosSenseEco - envasosAmbEco);
+  var garrafesSenseEco = (litres * 12) / CALC_ECO.litresGarrafa;
+  var garrafesAmbEco = garrafesSenseEco / CALC_ECO.factor;
+  var envasosEstalviats = Math.max(0, Math.round(garrafesSenseEco - garrafesAmbEco));
+  var aiguaNoTransportada = litres * 12 * (1 - 1 / CALC_ECO.factor);   // kg ≈ litres
+  var co2 = envasosEstalviats * CALC_ECO.co2Garrafa + aiguaNoTransportada * CALC_ECO.co2KgTransportat;
+  CALC_ECO.garrafesMes = Math.max(1, Math.ceil(litres / CALC_ECO.factor / CALC_ECO.litresGarrafa));
 
-  var outAnual = document.getElementById('calcOutAnual');
-  var outEnvasos = document.getElementById('calcOutEnvasos');
-  var outPct = document.getElementById('calcOutPct');
-  if (outAnual) outAnual.textContent = estalvi.toLocaleString('es-ES', {maximumFractionDigits:0}) + ' €';
-  if (outEnvasos) outEnvasos.textContent = envasosEstalviats.toLocaleString('es-ES');
-  if (outPct) outPct.textContent = (pct > 0 ? pct : 0) + '%';
+  var fmt = function(n){ return Math.round(n).toLocaleString('es-ES'); };
+  var set = function(id, v){ var el = document.getElementById(id); if (el) el.textContent = v; };
+  set('calcOutAnual', fmt(estalvi) + ' €');
+  set('calcOutEnvasos', fmt(envasosEstalviats));
+  set('calcOutPct', (pct > 0 ? pct : 0) + '%');
+  set('calcOutCo2', co2 >= 1000 ? (co2 / 1000).toLocaleString('es-ES', { maximumFractionDigits: 1 }) + ' t' : fmt(co2) + ' kg');
+  var txt = (typeof cpT === 'function' ? cpT('t921') : 'Afegir {n} garrafes al cistell');
+  set('calcEcoCistellTxt', (txt === 't921' ? 'Afegir {n} garrafes al cistell' : txt).replace('{n}', CALC_ECO.garrafesMes));
+  var boto = document.getElementById('calcEcoCistell'); if (boto) boto.disabled = litres <= 0;
 }
+function calcEcoAlCistell(){
+  var n = CALC_ECO.garrafesMes || 1;
+  cpAddDirectToCart('ECO Concentrat Pro', CALC_ECO.preuGarrafa, n);
+  if (typeof renderCart === 'function') renderCart();
+  if (typeof updateCartBadge === 'function') updateCartBadge();
+  showToast((cpT('t922') === 't922' ? 'Afegides {n} garrafes d\'ECO Concentrat Pro al cistell' : cpT('t922')).replace('{n}', n), '🧴');
+}
+window.calcEcoAlCistell = calcEcoAlCistell;
 document.addEventListener('DOMContentLoaded', calcEcoRun);
 
 function cmpLang(){ try { return localStorage.getItem('hx_lang') || 'ca'; } catch(e){ return 'ca'; } }
@@ -10913,6 +11177,7 @@ function hxAnalyticsSave(data){
 }
 function hxTrackPageView(pageId){
   if (!pageId) return;
+  hxStat({ k: 'v', p: String(pageId).toLowerCase().replace(/[^a-z0-9-]/g, '-').slice(0, 40) });
   var data = hxAnalyticsLoad();
   data.pageViews[pageId] = (data.pageViews[pageId] || 0) + 1;
   data.events.push({ t: Date.now(), type: 'page', id: pageId });
@@ -10951,6 +11216,7 @@ function hxLocalTrack(email, num) {
   try { var raw = localStorage.getItem('hx_orders_' + email); list = raw ? JSON.parse(raw) : []; } catch(err) { list = []; }
   return list.find(function(o){ return (o.invoiceNum||'').toUpperCase() === num; }) || null;
 }
+var HX_ESTATS_WEB = ['Pendent de confirmació', 'Confirmada', 'En preparació', 'Enviada', 'Entregada'];
 function hxShowTrackedOrder(box, found) {
   if (!found) {
     box.innerHTML = '<div style="background:#FFF3E0;border-radius:10px;padding:1rem;color:#B8621B;font-size:0.85rem;">' +
@@ -10959,10 +11225,23 @@ function hxShowTrackedOrder(box, found) {
     return false;
   }
   var itemsTxt = found.items.map(function(it){ return escHtml(it.name) + ' ×' + it.qty; }).join(', ');
-  box.innerHTML = '<div style="background:#E8F5E9;border-radius:10px;padding:1.2rem;color:#2E7D32;">' +
-    '<strong>✅ Comanda ' + escHtml(found.invoiceNum) + '</strong><br>' +
-    '<span style="font-size:0.85rem;">Data: ' + escHtml(found.date) + ' · Total: ' + found.total.toFixed(2) + ' €<br>' +
-    'Estat: <strong>' + escHtml(found.status) + '</strong><br>Productes: ' + itemsTxt + '</span></div>';
+  var estat = found.status || HX_ESTATS_WEB[0];
+  var cancel = estat === 'Cancel·lada';
+  var idx = Math.max(0, HX_ESTATS_WEB.indexOf(estat));
+  var progres = [0, 0.06, 0.2, 0.6, 1][idx];
+  var eta = cancel ? cpT('t929') : idx === 4 ? cpT('t927') : idx === 3 ? cpT('t925') : cpT('t924');
+  var passos = HX_ESTATS_WEB.map(function(e, i){
+    var fet = !cancel && i <= idx;
+    return '<div class="hx-pas' + (fet ? ' fet' : '') + (i === idx && !cancel ? ' ara' : '') + '"><span>' + (fet ? '✓' : (i + 1)) + '</span><small>' + escHtml(e) + '</small></div>';
+  }).join('<div class="hx-pas-linia' + '"></div>');
+  box.innerHTML = '<div class="hx-seguiment">' +
+    '<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px">' +
+      '<strong style="font-size:1rem;color:#0B3D6B">📦 Comanda ' + escHtml(found.invoiceNum) + '</strong>' +
+      '<span style="font-size:0.85rem;color:#555">' + escHtml(found.date) + ' · <b>' + Number(found.total).toFixed(2) + ' €</b></span></div>' +
+    '<div class="hx-passos">' + passos + '</div>' +
+    hxMapaRuta(progres, cpT('t928'), eta, cancel) +
+    '<div style="font-size:0.82rem;color:#555;margin-top:0.6rem">Productes: ' + itemsTxt + '</div>' +
+  '</div>';
   return false;
 }
 window.hxTrackOrder = hxTrackOrder;
