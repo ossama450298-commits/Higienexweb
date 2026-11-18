@@ -6243,7 +6243,9 @@ function cpEnviarReferit() {
       subtitle: c.nom + ' ha recomanat HIGIENEX a una altra empresa.',
       detailLabel: 'Dades de la recomanació',
       message: 'Empresa recomanada: ' + nom + '\nEmail de contacte: ' + email + '\nRecomanada per: ' + c.nom + ' (' + (c.email||c.mail||'') + ')\nCodi de referit: ' + hxCodiReferit(),
-      ctaButtonHtml: hxEmailCtaButton('Contactar amb l\'empresa →', 'mailto:' + email, 'gold')
+      ctaButtonHtml: hxEmailCtaButton('Contactar amb l\'empresa →', 'mailto:' + email, 'gold'),
+      data: { event: 'recomanacio', contact: { email: email }, recommender: c.nom, extra: nom,
+        fields: [['Empresa recomanada', nom], ['Correu de contacte', email], ['Recomanada per', c.nom + ((c.email||c.mail) ? ' (' + (c.email||c.mail) + ')' : '')], ['Codi de referit', hxCodiReferit()]] }
     });
   } catch(err) { console.warn('No s\'ha pogut enviar la recomanació:', err); }
   var referits = hxLlistaReferits();
@@ -6364,6 +6366,7 @@ function enviarNotificacioEmail(opts) {
     detail_label: opts.detailLabel || 'Detall',
     erp_url: HX_ERP_URL
   };
+  if (opts.data) { try { params.data = JSON.stringify(opts.data); } catch(e) {} }
   var kind = opts.templateId === EMAILJS_TEMPLATE_ID_COMANDA ? 'comanda' : 'aviso';
   hxNotify(kind, params).then(function(){
     // Notificació enviada correctament
@@ -6814,7 +6817,9 @@ function submitForm(e) {
       badge: 'NOVA CONSULTA',
       subtitle: 'Algú ha enviat una nova consulta des del formulari de contacte.',
       detailLabel: 'Missatge',
-      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold')
+      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold'),
+      data: { event: 'consulta', contact: { name: nom, email: email, company: empresa, phone: telefon },
+        fields: files.filter(function(x){ return ['Nom','Empresa','Email','Telèfon'].indexOf(x[0]) < 0; }), message: missatge }
     });
   } catch(err) { console.warn('No s\'ha pogut preparar l\'email de contacte:', err); }
 
@@ -6867,7 +6872,8 @@ function submitAuditoria(e) {
       badge: 'AUDITORIA GRATUÏTA',
       subtitle: 'Algú ha sol·licitat una visita tècnica gratuïta des de la web.',
       detailLabel: 'Dades de la sol·licitud',
-      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold')
+      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold'),
+      data: { event: 'auditoria', contact: { name: nom, email: email, company: empresa, phone: telefon }, fields: files.filter(function(x){ return ['Nom','Empresa','Email','Telèfon'].indexOf(x[0]) < 0; }) }
     });
   } catch(err) { console.warn('No s\'ha pogut preparar l\'email d\'auditoria:', err); }
 
@@ -6920,7 +6926,8 @@ function submitSafeStock(e) {
       badge: 'SAFESTOCK · AUDITORIA',
       subtitle: 'Algú ha sol·licitat una auditoria d\'emmagatzematge químic des de la web.',
       detailLabel: 'Dades de la sol·licitud',
-      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold')
+      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold'),
+      data: { event: 'safestock', contact: { name: nom, email: email, company: empresa, phone: telefon }, fields: files.filter(function(x){ return ['Nom','Empresa','Email','Telèfon'].indexOf(x[0]) < 0; }), message: missatge }
     });
   } catch(err) { console.warn('No s\'ha pogut preparar l\'email de SafeStock:', err); }
 
@@ -7555,7 +7562,8 @@ function submitNewsletterPopup(e) {
       badge: 'NOVA SUBSCRIPCIÓ',
       subtitle: 'Algú s\'ha subscrit a la newsletter des del pop-up.',
       detailLabel: 'Subscriptor',
-      message: 'Email: ' + email
+      message: 'Email: ' + email,
+      data: { event: 'newsletter', contact: { email: email } }
     });
   } catch(err) { console.warn('No s\'ha pogut registrar la subscripció:', err); }
   var s = document.getElementById('newsletterPopupSuccess');
@@ -7595,7 +7603,8 @@ function submitSamplePopup(e) {
       subtitle: 'Algú ha sol·licitat una mostra gratuïta des de la web.',
       detailLabel: 'Sol·licitud',
       message: 'Nom: ' + escHtml(nom) + '<br>Email: ' + escHtml(email) + (empresa ? ('<br>Empresa: ' + escHtml(empresa)) : '') + '<br>Producte: ' + escHtml(producte),
-      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold')
+      ctaButtonHtml: hxEmailCtaButton('Respondre al client →', 'mailto:' + email, 'gold'),
+      data: { event: 'mostra', contact: { name: nom, email: email, company: empresa }, fields: [['Producte', producte]] }
     });
   } catch(err) { console.warn('No s\'ha pogut enviar la sol·licitud de mostra:', err); }
   var s = document.getElementById('samplePopupSuccess');
@@ -8281,7 +8290,9 @@ async function registerUser() {
     email: email,
     detailLabel: 'Dades del registre',
     message: 'Nom: ' + name + '\nEmail: ' + email + (company ? ('\nEmpresa: ' + company) : '') + (cif ? ('\nCIF: ' + cif) : '') + (sector ? ('\nSector: ' + sector) : '') + (refActiu ? ('\nCodi de referit: ' + refActiu + ' (aplicar el descompte de benvinguda)') : ''),
-    ctaButtonHtml: hxEmailCtaButton('Donar la benvinguda →', 'mailto:' + email, 'gold')
+    ctaButtonHtml: hxEmailCtaButton('Donar la benvinguda →', 'mailto:' + email, 'gold'),
+    data: { event: 'registro', contact: { name: name, email: email, company: company },
+      fields: [['CIF', cif], ['Sector', sector]], referral: refActiu || '' }
   });
   closeAuthModal(); setLoggedInUser(name,'','client',email); showWelcome(name,false);
   _registerInFlight = false;
@@ -9421,7 +9432,11 @@ function sendOrder() {
       email: inv.email,
       badge: 'NOVA COMANDA',
       subtitle: 'Un client acaba de fer una comanda a la web. Gestiona-la des del panell.',
-      detailLabel: 'Detall de la comanda'
+      detailLabel: 'Detall de la comanda',
+      data: { event: 'pedido',
+        contact: { name: userName, email: inv.email, company: (window.HX_PROFILE && HX_PROFILE.company) || '' },
+        items: keys.map(function(k){ return { name: k, qty: cart[k].qty, total: Math.round(cart[k].total * 100) / 100 }; }),
+        order: { num: inv.invoiceNum, total: inv.total, date: inv.dateStr || '', delivery: inv.entregaStr || '' } }
     });
   } catch(e) { console.warn('No s\'ha pogut preparar l\'email de la comanda:', e); }
 
