@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ossama450298-commits.github.io/Higienexweb/sitemap.xml
