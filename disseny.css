@@ -34,10 +34,10 @@ section:nth-of-type(even):not(#home) { background: #fff; }
 .fade-in, .fade-in.visible { opacity: 1 !important; transform: none !important; transition: none !important; }
 
 /* ---------- Títols de secció ---------- */
-section h2 { color: var(--ds-ink); font-weight: 750 !important; font-stretch: 114%; letter-spacing: -0.02em; font-size: clamp(1.8rem, 3vw, 2.6rem) !important; line-height: 1.1 !important; text-align: left; }
+section h2 { color: var(--ds-ink); font-weight: 750 !important; font-stretch: 114%; letter-spacing: -0.02em; font-size: clamp(1.8rem, 3vw, 2.6rem) !important; line-height: 1.1 !important; text-align: start; }
 section h3 { color: var(--ds-ink); font-stretch: 106%; }
 .section-sub, section .container > p:first-of-type { color: var(--ds-muted); max-width: 62ch; font-size: 1.04rem; line-height: 1.65; }
-section .container { text-align: left; }
+section .container { text-align: start; }
 
 /* ---------- Capçaleres de pàgina: tinta + capa daurada ---------- */
 .cat-banner {
