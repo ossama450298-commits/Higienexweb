@@ -9783,14 +9783,14 @@ window.renderOrderHistory = renderOrderHistory;
 // Correu de confirmació al client amb el justificant en PDF adjunt. Espera que la
 // comanda estigui desada al servidor (el servidor ho comprova); si no hi ha PDF o
 // no s'ha pogut desar, envia la confirmació de sempre, sense adjunt.
-function hxConfirmacioComanda(num, params, pdfBlob, liniaPdf) {
+function hxConfirmacioComanda(num, params, pdfBlob, liniaPdf, botoPdf) {
   var desada = window.HX_ORDER_SAVED || Promise.resolve(null);
   return desada.then(function(emailComanda){
     if (pdfBlob && emailComanda && emailComanda.toLowerCase() === String(params.email).toLowerCase()) {
       var fd = new FormData();
-      Object.keys(params).forEach(function(k){
-        fd.append(k, k === 'message' ? params.message + '\n\n' + liniaPdf : params[k]);
-      });
+      Object.keys(params).forEach(function(k){ fd.append(k, params[k]); });
+      fd.append('pdf_line', liniaPdf);
+      fd.append('pdf_label', botoPdf || 'PDF');
       fd.append('num', num);
       fd.append('pdf', pdfBlob, 'Comanda_' + num + '.pdf');
       return fetch(HX_API_BASE + '/notify-comanda', { method: 'POST', body: fd }).then(function(r){
@@ -9922,7 +9922,7 @@ function sendOrder() {
           Tc('Pots seguir la comanda a la web, a «Seguiment de comanda», amb el número {0}.', inv.invoiceNum)
       };
       hxConfirmacioComanda(inv.invoiceNum, paramsC, pdfComandaBlob,
-        Tc('Justificant de la comanda en PDF (descàrrega): {0}', '{PDF_URL}'))
+        Tc('Justificant de la comanda en PDF (descàrrega): {0}', '{PDF_URL}'), Tc('Descarregar el PDF de la comanda'))
         .catch(function(err){ console.warn('No s\'ha pogut enviar la confirmació al client:', err); });
     }
   } catch(e) { console.warn('No s\'ha pogut preparar la confirmació per al client:', e); }
