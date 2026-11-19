@@ -286,3 +286,26 @@ h1, h2, h3, .cat-banner h2, section h2 { font-family: 'Archivo', -apple-system, 
   .hxct-ico { flex-basis: 36px; height: 36px; }
   .hxct-ico svg { width: 18px; height: 18px; }
 }
+
+/* ---------- Carret: avís de compte abans de pagar ---------- */
+#hxAvisCompte { margin-top: 1rem; padding: 0.9rem 1rem; border-radius: 12px; background: #FFF8E6; border: 1px solid #F2D8A0; display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.88rem; color: var(--hx-ink); }
+#hxAvisCompte b { font-size: 0.95rem; }
+#hxAvisCompte span { color: var(--hx-muted); line-height: 1.5; }
+.hxac-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem; }
+.hxac-btns button { font: inherit; font-weight: 700; padding: 0.6rem 1rem; border-radius: 10px; cursor: pointer; border: 1.5px solid var(--hx-navy); background: #fff; color: var(--hx-navy); min-height: 44px; }
+.hxac-btns button:first-child { background: var(--hx-navy); color: #fff; }
+.hxct-op.seguir .hxct-ico { background: var(--hx-gold-d, #B08A2E); }
+
+/* ---------- Mòbil: objectius tàctils d'almenys 44 px ---------- */
+@media (max-width: 760px) {
+  #langToggleBtn, #authBtns > button, #navCartBtn, #menuToggleBtn { min-height: 44px !important; min-width: 44px; }
+  footer a { display: inline-block; min-height: 44px; line-height: 44px; }
+  footer .footer-bottom-bar a { min-height: 0; line-height: inherit; padding: 0.4rem 0; }
+  .hxh-link { padding: 0.7rem 0; }
+  .qty-num, button[onclick^="changeQty"] { min-height: 44px; min-width: 44px; }
+}
+@media (max-width: 760px) {
+  footer a { min-width: 44px; }
+  footer .footer-bottom-bar a, .hx-intern a { display: inline-block; min-height: 36px; line-height: 36px; padding: 0 0.3rem; }
+  #mainNav .nav-inner > .logo { display: inline-flex; align-items: center; min-height: 44px; }
+}
