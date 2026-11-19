@@ -8617,7 +8617,7 @@ async function registerUser() {
   var res;
   try {
     res = await hxApi('/register', { method: 'POST', body: { name: name, email: email, password: password,
-      company: company, cif: cif, sector: sector, ref: refActiu || '' } });
+      company: company, cif: cif, sector: sector, ref: refActiu || '', lang: window.HXT ? HXT.idioma() : 'ca' } });
   } catch(e) {
     _registerInFlight = false;
     if (e.status === 409) { alert('Aquest email ja està registrat. Inicia sessió.'); switchTab('login'); }
@@ -9915,6 +9915,7 @@ function sendOrder() {
         detail_label: Tc('Detall de la comanda'),
         time: new Date().toLocaleString(locC),
         lang: window.HXT ? HXT.idioma() : 'ca',
+        delivery: inv.entregaStr || '',
         message: Tc('Comanda') + ': ' + inv.invoiceNum + '\n' +
           Tc('Data de comanda') + ': ' + (inv.dateStr || '') + '\n' +
           Tc('Lliurament estimat') + ': ' + (inv.entregaStr || '') + '\n\n' + liniesC + '\n\n' +
