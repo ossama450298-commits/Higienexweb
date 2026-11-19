@@ -9319,14 +9319,28 @@ function enviarPressupostEmail() {
   var subtotal = items.reduce(function(s, i){ return s + i.total; }, 0);
   var iva = (subtotal + TRANSPORT) * IVA_PCT;
   var total = subtotal + TRANSPORT + iva;
-  var resumText = items.map(function(i){ return i.qty + ' × ' + i.name + ' — ' + i.total.toFixed(2) + ' €'; }).join('\n');
+  var resumText = items.map(function(i){ return i.qty + ' × ' + i.name + ' — ' + i.total.toFixed(2).replace('.', ',') + ' €'; }).join('\n');
+  var numPres = pressupostInvoiceNum();
+  /* El email que recibe el cliente va siempre en castellano, sea cual sea el idioma de la web. */
   var params = {
     to_email: info.email,
+    email: info.email,
     empresa: info.empresa || '—',
     contacte: info.contacte || '—',
     resum: resumText,
-    total: total.toFixed(2) + ' €',
-    invoice_num: pressupostInvoiceNum()
+    total: total.toFixed(2).replace('.', ',') + ' €',
+    invoice_num: numPres,
+    title: 'Tu presupuesto ' + numPres + ' — HIGIENEX',
+    name: info.contacte || info.empresa || '',
+    badge: 'PRESUPUESTO',
+    subtitle: 'Aquí tienes el presupuesto que has preparado en nuestra web. Es válido durante 30 días.',
+    detail_label: 'Detalle del presupuesto',
+    time: new Date().toLocaleString('es-ES'),
+    message: 'Empresa: ' + (info.empresa || '—') + '\n' +
+      'Presupuesto: ' + numPres + '\n\n' + resumText + '\n\n' +
+      'Transporte: ' + TRANSPORT.toFixed(2).replace('.', ',') + ' €\n' +
+      'Total (IVA incluido): ' + total.toFixed(2).replace('.', ',') + ' €\n\n' +
+      'Para confirmar el pedido o cambiar cantidades, responde a este correo o llámanos al 631 706 398 indicando el número de presupuesto.'
   };
   if (btn) { btn.disabled = true; btn.textContent = 'Enviant...'; }
   hxNotify('pressupost', params).then(function(){
