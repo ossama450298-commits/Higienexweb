@@ -8,6 +8,11 @@
 (function () {
   'use strict';
   var D = {
+  'Fitxa i FDS sempre al mòbil': ['Ficha y FDS siempre en el móvil', 'Data sheet and SDS on your phone', 'Fiche et FDS toujours sur le mobile', 'Datenblatt und SDB immer auf dem Handy'],
+  "Escaneja aquest codi amb la càmera del mòbil: s'obre la fitxa del producte amb la FDS, en l'idioma del teu telèfon. Enganxa'l al magatzem o al carro de neteja.": ['Escanea este código con la cámara del móvil: se abre la ficha del producto con la FDS, en el idioma de tu teléfono. Pégalo en el almacén o en el carro de limpieza.', 'Scan this code with your phone camera to open the product page and its SDS in your phone\'s language. Stick it in the storeroom or on the cleaning trolley.', 'Scannez ce code avec l\'appareil photo du mobile : la fiche produit et sa FDS s\'ouvrent dans la langue de votre téléphone. Collez-le dans la réserve ou sur le chariot de ménage.', 'Scannen Sie diesen Code mit der Handykamera: Produktseite und SDB öffnen sich in der Sprache Ihres Telefons. Kleben Sie ihn ins Lager oder an den Reinigungswagen.'],
+  'FDS sempre al mòbil': ['FDS siempre en el móvil', 'SDS on your phone', 'FDS toujours sur le mobile', 'SDB immer auf dem Handy'],
+  "Escaneja aquest codi per obrir la FDS actualitzada en l'idioma del teu telèfon. Útil en cas d'inspecció o d'accident.": ['Escanea este código para abrir la FDS actualizada en el idioma de tu teléfono. Útil en caso de inspección o accidente.', 'Scan this code to open the latest SDS in your phone\'s language. Useful during inspections or after an accident.', 'Scannez ce code pour ouvrir la FDS à jour dans la langue de votre téléphone. Utile en cas d\'inspection ou d\'accident.', 'Scannen Sie diesen Code, um das aktuelle SDB in der Sprache Ihres Telefons zu öffnen. Nützlich bei Inspektionen oder Unfällen.'],
+
     /* ---- plantilla comuna ---- */
     'HIGIENE PROFESSIONAL SOSTENIBLE': ['HIGIENE PROFESIONAL SOSTENIBLE', 'SUSTAINABLE PROFESSIONAL HYGIENE', 'HYGIÈNE PROFESSIONNELLE DURABLE', 'NACHHALTIGE PROFESSIONELLE HYGIENE'],
     'Data': ['Fecha', 'Date', 'Date', 'Datum'],

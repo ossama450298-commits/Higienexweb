@@ -27,6 +27,11 @@
     return { cmp: tc, pi: pi, desc: desc, preu: cmp.price || pi.price || '—' };
   }
 
+  /* Adreça que obre la fitxa del producte (la llegeix el codi QR) */
+  function urlProducte(nom, doc) {
+    return 'https://ossama450298-commits.github.io/Higienexweb/?producte=' + encodeURIComponent(nom) + '&doc=' + doc;
+  }
+
   /* ---------- Fitxa tècnica ---------- */
   function fitxaTecnica(nom) {
     var p = infoProducte(nom), c = p.cmp;
@@ -63,7 +68,7 @@
       T('No barrejar amb altres productes químics, especialment lleixius o àcids.'),
       T('Usar guants per manipular el producte concentrat.'),
     ]);
-    k.avis(T('Necessites la fitxa de seguretat?'), T('Descarrega la FDS des de la fitxa del producte a la web o demana-la a contacto@higienexvalencia.es indicant la referència.'), 'blau');
+    k.qr(urlProducte(nom, 'fitxa'), T('Fitxa i FDS sempre al mòbil'), T("Escaneja aquest codi amb la càmera del mòbil: s'obre la fitxa del producte amb la FDS, en l'idioma del teu telèfon. Enganxa'l al magatzem o al carro de neteja."));
     k.tancar('Fitxa_tecnica_' + fitxer(nom) + '.pdf', T("Aquesta fitxa és orientativa. Per a la Fitxa de Dades de Seguretat (FDS) oficial reglamentària, contacta amb l'equip tècnic."));
   }
 
@@ -111,6 +116,7 @@
       if (x[2]) k.parells(x[2]);
       else k.paragraf(x[1]);
     });
+    k.qr(urlProducte(nom, 'fds'), T('FDS sempre al mòbil'), T("Escaneja aquest codi per obrir la FDS actualitzada en l'idioma del teu telèfon. Útil en cas d'inspecció o d'accident."));
     k.tancar('FDS_' + fitxer(nom) + '.pdf', NOTA_FDS);
   }
 

@@ -1977,6 +1977,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 <script src="jspdf.plugin.autotable.min.js" defer></script>
 <script src="html2canvas.min.js" defer></script>
 <script src="pdf-i18n.js" defer></script>
+<script src="hx-plus.js" defer></script>
 <script src="pdf-kit.js" defer></script>
 <script src="pdf-docs.js" defer></script>
 <script type="application/ld+json">
@@ -3043,6 +3044,8 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
       <a class="dditem" onclick="navTo('safestock')"><span>🧪</span> <span data-i18n-key="t1021">HIGIENEX SafeStock</span></a>
       <a class="dditem" onclick="navTo('compromis')"><span data-i18n-key="t179">♻️ Compromís i Mercat</span></a>
       <a class="dditem" onclick="navTo('pressupost')"><span>📋 Fes un Pressupost</span></a>
+      <a class="dditem" onclick="navTo('calculadora')"><span data-hxp="menuCalc">🧮 Calculadora de cost per ús</span></a>
+      <a class="dditem" onclick="navTo('cita')"><span data-hxp="menuCita">📅 Demana una cita</span></a>
       <a class="dditem" onclick="navTo('newsletter')"><span data-i18n-key="t180">📰 Newsletter</span></a>
       <a class="dditem" onclick="navTo('contacte')"><span data-i18n-key="t181">📞 Ajuda i Contacte</span></a>
       <a class="dditem" id="navClientDditem" onclick="cpNavAction();return false;"><span id="navClientDditemLabel">👤 Àrea de Clients</span></a>
@@ -3667,6 +3670,13 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
       </table>
     </div>
   </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     CALCULADORA DE DOSIFICACIÓ I COST PER ÚS (hx-plus.js)
+     ═══════════════════════════════════════ -->
+<section id="calculadora" class="hx-u13">
+  <div class="container" id="hxCalc"><h2>Calculadora de dosificació i cost per ús</h2></div>
 </section>
 
 <!-- ═══════════════════════════════════════
@@ -4481,6 +4491,13 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
       </div>
     </div>
   </div>
+</section>
+
+<!-- ═══════════════════════════════════════
+     DEMANA UNA CITA (hx-plus.js)
+     ═══════════════════════════════════════ -->
+<section id="cita" style="background:#fff;">
+  <div class="container" id="hxCita"><h2>Demana una visita o una formació</h2></div>
 </section>
 
 <!-- ═══════════════════════════════════════
@@ -6701,7 +6718,7 @@ function navTo(id) {
     productes:'productes', rd:'productes', innovacio:'productes', digitalitzacio:'productes', futur:'productes',
     processos:'operacions', logistica:'operacions', internacionalitzacio:'operacions',
     sostenibilitat:'compromis', rsc:'compromis', clients:'compromis', marqueting:'compromis', competencia:'compromis', blog:'compromis',
-    faq:'contacte', contacte:'contacte', fidelitzacio:'contacte', garanties:'contacte', pressupost:'contacte', auditoria:'contacte'
+    faq:'contacte', contacte:'contacte', cita:'contacte', calculadora:'productes', fidelitzacio:'contacte', garanties:'contacte', pressupost:'contacte', auditoria:'contacte'
   };
   var g = GROUP_OF[id];
   if (g) {
@@ -7498,6 +7515,7 @@ window.submitTreballaForm = submitTreballaForm;
           <span data-i18n-key="t419" style="font-weight:700;color:#0B3D6B;">Total estimat:</span>
           <span id="cartTotalAmount" style="font-weight:800;font-size:1.2rem;color:#B8860B;">0,00 €</span>
         </div>
+        <div id="hxSedeCart"></div>
         <button id="sendOrder" onclick="startCheckout()" data-i18n-key="t420" style="width:100%;margin-top:1.2rem;padding:1rem;background:linear-gradient(135deg,#F2A900,#d08800);color:#1A1A1A;border:none;border-radius:14px;font-size:1rem;font-weight:800;cursor:pointer;letter-spacing:0.3px;" type="button">
           🛒 Tramitar comanda
         </button>
@@ -7506,6 +7524,7 @@ window.submitTreballaForm = submitTreballaForm;
           <span data-i18n-key="t339" class="hx-u12">El nostre equip et contactarà en menys de 24h · contacto@higienexvalencia.es</span>
         </div>
         <div id="orderHistory" class="hx-u52"></div>
+        <div id="hxPlusArea"></div>
       </div>
 
     </div><!-- /max-width -->
@@ -9695,7 +9714,7 @@ function hxFetchOrders() {
   _hxOrdersLoading = true;
   hxApi('/orders').then(function(d){
     HX_SERVER_ORDERS = (d.orders || []).map(function(o){
-      return { invoiceNum: o.invoiceNum, date: new Date(o.date).toLocaleString('ca-ES'), total: o.total, items: o.items, status: o.status };
+      return { invoiceNum: o.invoiceNum, date: new Date(o.date).toLocaleString('ca-ES'), total: o.total, items: o.items, status: o.status, site: o.site || '' };
     });
     _hxOrdersLoading = false; renderOrderHistory();
   }).catch(function(){ _hxOrdersLoading = false; });
@@ -9712,6 +9731,7 @@ function saveOrderToHistory(inv, items) {
     var list = loadOrderHistory();
     list.unshift({
       invoiceNum: inv.invoiceNum,
+      site: window.HX_SEDE_SEL || '',
       date: new Date().toLocaleString('ca-ES'),
       total: inv.total,
       items: items,
@@ -9723,7 +9743,7 @@ function saveOrderToHistory(inv, items) {
   } catch(e) { console.warn('No s\'ha pogut desar l\'historial de comandes:', e); }
   // Copia en la base de datos (accesible desde cualquier dispositivo y desde el ERP)
   var email = (window.HX_USER && window.HX_USER.email) || inv.email || '';
-  hxApi('/orders', { method: 'POST', body: { invoiceNum: inv.invoiceNum, total: inv.total, email: email,
+  hxApi('/orders', { method: 'POST', body: { invoiceNum: inv.invoiceNum, total: inv.total, email: email, site: window.HX_SEDE_SEL || '',
     items: (items || []).map(function(it){ return { name: it.name, qty: it.qty, total: it.total }; }) } })
     .catch(function(e){ console.warn('No s\'ha pogut desar la comanda al servidor:', e); });
 }
@@ -9739,7 +9759,7 @@ function renderOrderHistory() {
       '<p style="color:#888;font-size:0.85rem;">Encara no has fet cap comanda.</p>';
     return;
   }
-  var rows = list.map(function(o){
+  var rows = list.map(function(o, idx){
     var itemsTxt = o.items.map(function(it){ return it.name + ' ×' + it.qty; }).join(', ');
     return '<div style="border:1px solid #EEF2F5;border-radius:12px;padding:0.8rem 1rem;margin-bottom:0.6rem;">' +
       '<div style="display:flex;justify-content:space-between;align-items:center;">' +
@@ -9748,11 +9768,13 @@ function renderOrderHistory() {
       '</div>' +
       '<div style="font-size:0.8rem;color:#666;margin-top:0.3rem;">' + escHtml(o.date) + '</div>' +
       '<div style="font-size:0.82rem;color:#444;margin-top:0.3rem;">' + escHtml(itemsTxt) + '</div>' +
+      (o.site ? '<div style="font-size:0.78rem;color:#0B3D6B;margin-top:0.3rem;">📍 ' + escHtml(o.site) + '</div>' : '') +
       '<div style="text-align:right;font-weight:800;color:#0B3D6B;margin-top:0.3rem;">' + o.total.toFixed(2) + ' €</div>' +
+      (window.hxpBotonsComanda ? hxpBotonsComanda(idx) : '') +
     '</div>';
   }).join('');
   box.style.display = 'block';
-  box.innerHTML = '<h3 style="color:#0B3D6B;font-size:0.95rem;font-weight:700;margin:1.6rem 0 0.6rem;">📦 Les meves comandes</h3>' + rows;
+  box.innerHTML = '<h3 style="color:#0B3D6B;font-size:0.95rem;font-weight:700;margin:1.6rem 0 0.6rem;">' + escHtml(typeof cpT === 'function' ? cpT('t173') : '📦 Les meves comandes') + '</h3>' + rows;
 }
 window.renderOrderHistory = renderOrderHistory;
 

@@ -309,6 +309,33 @@
       k.y += h + 16;
     };
 
+    /* Requadre amb un codi QR (enllaç) i un text explicatiu.
+       Usa la llibreria qrcode de la web; si no ha carregat, no dibuixa res. */
+    k.qr = function (url, titol, text) {
+      if (!window.QRCode || typeof window.QRCode.create !== 'function') return;
+      var q;
+      try { q = window.QRCode.create(url, { errorCorrectionLevel: 'M' }); } catch (e) { return; }
+      var n = q.modules.size, data = q.modules.data, mida = 84, pas = mida / (n + 2);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.6);
+      var ls = doc.splitTextToSize(net(text), W - 2 * M - mida - 48);
+      var h = Math.max(mida + 20, 40 + ls.length * 11.5);
+      k.cal(h + 6);
+      stroke(C.LINE); doc.setLineWidth(0.6); doc.setFillColor(255, 255, 255); doc.roundedRect(M, k.y, W - 2 * M, h, 5, 5, 'FD');
+      var ox = M + 10, oy = k.y + (h - mida) / 2;
+      fill(C.NAVY);
+      for (var j = 0; j < n; j++) {
+        var i = 0;
+        while (i < n) {
+          if (data[j * n + i]) { var st = i; while (i < n && data[j * n + i]) i++; doc.rect(ox + (st + 1) * pas, oy + (j + 1) * pas, (i - st) * pas + 0.05, pas + 0.05, 'F'); }
+          else i++;
+        }
+      }
+      var tx = M + mida + 30, yy = k.y + h / 2 - (ls.length * 11.5 + 16) / 2 + 10;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); color(C.INK); doc.text(net(titol), tx, yy);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.6); color(C.TXT); doc.text(ls, tx, yy + 16);
+      k.y += h + 16;
+    };
+
     /* Targetes de xifres: [[valor, etiqueta, color]] */
     k.xifres = function (xs) {
       var gap = 12, n = xs.length, cw = (W - 2 * M - gap * (n - 1)) / n;
