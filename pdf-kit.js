@@ -379,7 +379,8 @@
         doc.setFontSize(6.6); color(C.PALE);
         doc.text(net(o.generat || tr('Document generat a higienexvalencia.es')) + ' · ' + dd() + ' ' + new Date().toTimeString().slice(0, 5), M, H - 24);
       }
-      if (fitxer) doc.save(fitxer);
+      // Amb HXPDF_SENSE_DESAR el PDF no es descarrega: es fa servir per enviar-lo per email.
+      if (fitxer && !window.HXPDF_SENSE_DESAR) doc.save(fitxer);
       return doc;
     };
 

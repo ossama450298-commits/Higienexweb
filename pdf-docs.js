@@ -274,7 +274,7 @@
       var vr = HXVF.cadena(CP_DB.facturas).map[num];
       if (vr) { k.cal(116); k.y = HXVF.bloquePDF(k.doc, vr, k.M, k.W, k.H, k.y, cpVFLang()); }
     } catch (err) { /* sense registre VeriFactu: la factura es descarrega igualment */ }
-    k.tancar('factura-' + num + '.pdf', 'HIGIENEX S.L. · ' + cpT('t805'));
+    return k.tancar('factura-' + num + '.pdf', 'HIGIENEX S.L. · ' + cpT('t805'));
   }
 
   /* ---------- Portal: certificat d'impacte ---------- */
