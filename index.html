@@ -1971,11 +1971,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HIGIENEX">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-web.png">
-<script src="vendor/xlsx.full.min.js" defer></script>
 <script src="vendor/qrcode.min.js" defer></script>
-<script src="jspdf.umd.min.js" defer></script>
-<script src="jspdf.plugin.autotable.min.js" defer></script>
-<script src="html2canvas.min.js" defer></script>
 <script src="pdf-i18n.js" defer></script>
 <script src="hx-plus.js" defer></script>
 <script src="pdf-kit.js" defer></script>
@@ -2980,6 +2976,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 <!-- MINI NAV -->
 <nav id="mainNav">
   <div class="nav-inner">
+    <a href="#" onclick="goTop();return false;" class="logo" style="color:#0B3D6B;" aria-label="HIGIENEX, inici">HIGIENE<span style="color:#F2A900;">X</span></a>
     <button id="menuToggleBtn" onclick="toggleMenu()" type="button">
       <span id="menuIcon">☰</span> <span data-i18n-key="t688">Menú</span>
     </button>
@@ -3023,9 +3020,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
           <circle cx="12" cy="8" r="4"></circle>
           <path d="M4 20c0-4.418 3.582-8 8-8s8 3.582 8 8"></path>
         </svg>
-      </a>
-      <a href="#" onclick="goTop();return false;" class="logo" style="color:#0B3D6B;">
-        HIGIENE<span style="color:#F2A900;">X</span>
       </a>
   </div>
   </div>
@@ -4748,8 +4742,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
       </div>
     </div>
     <p data-i18n-key="t319" style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin:0;text-align:center;border-top:1px solid rgba(255,255,255,0.06);padding-top:0.8rem;">
-      © 2025 HIGIENEX S.L. · CIF: B12345678 · Carrer de la Indústria, 25 · 46010 València ·
-      <a href="mailto:contacto@higienexvalencia.es" style="color:rgba(255,255,255,0.35);" data-i18n-key="t424">Avís Legal</a> ·
+      © 2026 HIGIENEX S.L. · CIF: B12345678 · Carrer de la Indústria, 25 · 46010 València ·
       <a href="#" onclick="legalOpen('page-aviso-legal');return false;" style="color:rgba(255,255,255,0.55);text-decoration:underline;" data-i18n-key="t425">Avís Legal</a> ·
       <a href="#" onclick="legalOpen('page-privacidad');return false;" style="color:rgba(255,255,255,0.55);text-decoration:underline;" data-i18n-key="t428">Política de Privacitat</a> ·
       <a href="#" onclick="legalOpen('page-cookies');return false;" style="color:rgba(255,255,255,0.55);text-decoration:underline;" data-i18n-key="t427">Política de Cookies</a>
@@ -6654,13 +6647,8 @@ function enterWeb() {
 window.enterWeb = enterWeb;
 
 function goTop() {
-  var splash = document.getElementById('splashScreen');
-  if (splash) {
-    splash.style.display = 'flex';
-    splash.style.opacity = '1';
-    document.body.style.overflow = 'hidden';
-    window.scrollTo(0, 0);
-  }
+  if (typeof navTo === 'function') navTo('home');
+  window.scrollTo(0, 0);
 }
 window.goTop = goTop;
 
@@ -6675,7 +6663,11 @@ document.addEventListener('DOMContentLoaded', function() {
       enterWeb();
     }, { passive: false });
   }
-  document.body.style.overflow = 'hidden';
+  // Ja no hi ha pantalla de benvinguda: la web es mostra directament i
+  // l'avís de cookies surt com una barra inferior que no bloqueja.
+  var spl = document.getElementById('splashScreen'); if (spl) spl.style.display = 'none';
+  document.body.style.overflow = '';
+  setTimeout(function(){ if (typeof hgInitCookies === 'function') hgInitCookies(); }, 400);
   // Xarxa de seguretat: si per qualsevol motiu l'avís de cookies no s'ha
   // pogut mostrar uns segons després d'entrar (per exemple, per un error
   // de JavaScript en un altre punt de la pàgina), desbloquegem el scroll
@@ -11630,30 +11622,27 @@ window.openAdminPanel = function() {
 
 
 // ════════════ COOKIES ════════════
+function hgCookieChoice() {
+  try { return localStorage.getItem('hx_cookie_prefs'); } catch(e) { return null; }
+}
+function hgSaveCookieChoice(pref, analytics) {
+  try { localStorage.setItem('hx_cookie_prefs', JSON.stringify({ necessary: true, preferences: pref, analytics: analytics })); } catch(e) {}
+}
 function hgInitCookies() {
-  // Sempre mostrar el modal quan l'usuari entra a la web (no es persisteix l'elecció)
-  window._hgCookiesPending = true;
+  // Barra inferior que no bloqueja la web. Només surt si encara no s'ha triat.
+  window._hgCookiesPending = false;
+  if (hgCookieChoice()) return;
   var m = document.getElementById('hgCookieModal');
   if (m) m.classList.add('active');
-  document.body.style.overflow = 'hidden';
 }
 function hgAcceptCookies() {
-  window._hgCookiesPending = false;
+  hgSaveCookieChoice(true, true);
   var m = document.getElementById('hgCookieModal'); if (m) m.classList.remove('active');
-  document.body.style.overflow = '';
 }
 function hgRejectCookies() {
-  window._hgCookiesPending = false;
-  // Tanca el modal i torna a la pantalla principal (splash)
+  // Rebutjar les cookies opcionals no impedeix navegar: només queden les necessàries.
+  hgSaveCookieChoice(false, false);
   var m = document.getElementById('hgCookieModal'); if (m) m.classList.remove('active');
-  var splash = document.getElementById('splashScreen');
-  if (splash) {
-    splash.style.display = 'flex';
-    splash.style.opacity = '1';
-    splash.style.transition = '';
-  }
-  document.body.style.overflow = 'hidden';
-  window.scrollTo(0, 0);
 }
 function hgGoCookiesPolicy() {
   // Només tanquem el modal per poder llegir la política — NO acceptem les
@@ -11682,9 +11671,7 @@ function hgSavePersonalitzat(){
       analytics: analytics ? analytics.checked : true
     }));
   } catch(e) {}
-  window._hgCookiesPending = false;
   var m = document.getElementById('hgCookieModal'); if (m) m.classList.remove('active');
-  document.body.style.overflow = '';
   showToast('Preferències de cookies guardades.', '🍪');
 }
 window.hgSavePersonalitzat = hgSavePersonalitzat;
@@ -11712,10 +11699,7 @@ function legalClose() {
   // acceptat/rebutjat encara de veritat, en tornar a la web li hem de
   // tornar a mostrar l'avís perquè no pugui saltar-se'l.
   var cookieModal = document.getElementById('hgCookieModal');
-  if (cookieModal && window._hgCookiesPending) {
-    cookieModal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
+  if (cookieModal && !hgCookieChoice()) cookieModal.classList.add('active');
 }
 window.legalOpen = legalOpen;
 window.legalClose = legalClose;
@@ -11740,7 +11724,7 @@ window.legalClose = legalClose;
   <div class="hg-cookie-box">
     <div class="hg-cookie-icon">🍪</div>
     <h2 data-i18n-key="t174">Avís de cookies</h2>
-    <p data-i18n-key="t297">Aquest lloc web utilitza cookies tècniques i analítiques per millorar la teva experiència. Per accedir al lloc has d'acceptar l'ús de cookies. Si les rebutges, no podràs continuar navegant.</p>
+    <p data-i18n-key="t297">Fem servir cookies tècniques, necessàries perquè la web funcioni, i analítiques, que ens ajuden a millorar-la. Pots acceptar-les totes, rebutjar les opcionals o triar quines vols.</p>
     <p style="font-size:0.85rem;color:#666;" data-i18n-key="t317">Pots consultar més informació a la nostra <a href="#" onclick="hgGoCookiesPolicy();return false;" style="color:#0B70C8;font-weight:600;" data-i18n-key="t429">Política de cookies</a>.</p>
     <div class="hg-cookie-btns">
       <button onclick="hgAcceptCookies()" class="hg-cookie-btn-primary" type="button" data-i18n-key="t406">✓ Acceptar cookies</button>
@@ -11766,7 +11750,9 @@ window.legalClose = legalClose;
 </div>
 
 <!-- CERCADOR GLOBAL DE LA WEB -->
+<link rel="stylesheet" href="portada.css">
 <script src="i18n.js" defer></script>
 <script src="monica-i18n-data.js" defer></script>
+<script src="portada.js" defer></script>
 </body>
 </html>
