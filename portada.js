@@ -69,6 +69,19 @@
     tab4: ['Impacte ambiental', 'Impacto ambiental', 'Environmental impact', 'Impact environnemental', 'Umweltwirkung'],
     // productes
     compara: ['Comparar els productes per sector i certificació', 'Comparar los productos por sector y certificación', 'Compare products by sector and certification', 'Comparer les produits par secteur et certification', 'Produkte nach Branche und Zertifizierung vergleichen'],
+    // panell de contacte
+    ctT: ['Parla amb nosaltres', 'Habla con nosotros', 'Talk to us', 'Parlez-nous', 'Sprechen Sie mit uns'],
+    ctP: ['Resposta ràpida de dilluns a divendres, de 8:00 a 17:30.', 'Respuesta rápida de lunes a viernes, de 8:00 a 17:30.', 'Quick replies Monday to Friday, 8:00–17:30.', 'Réponse rapide du lundi au vendredi, de 8 h à 17 h 30.', 'Schnelle Antwort Montag bis Freitag, 8:00–17:30 Uhr.'],
+    ctTel: ['Telèfon', 'Teléfono', 'Phone', 'Téléphone', 'Telefon'],
+    ctWa: ['WhatsApp', 'WhatsApp', 'WhatsApp', 'WhatsApp', 'WhatsApp'],
+    ctWaD: ['Escriu-nos i et responem aviat', 'Escríbenos y te respondemos pronto', 'Message us and we’ll reply soon', 'Écrivez-nous, nous répondons vite', 'Schreiben Sie uns, wir antworten bald'],
+    ctForm: ['Formulari de contacte', 'Formulario de contacto', 'Contact form', 'Formulaire de contact', 'Kontaktformular'],
+    ctFormD: ['Per a consultes amb més detall', 'Para consultas con más detalle', 'For more detailed enquiries', 'Pour les demandes détaillées', 'Für ausführliche Anfragen'],
+    ctXat: ['Assistent virtual', 'Asistente virtual', 'Virtual assistant', 'Assistant virtuel', 'Virtueller Assistent'],
+    ctXatD: ['Respostes al moment, a qualsevol hora', 'Respuestas al momento, a cualquier hora', 'Instant answers, any time', 'Réponses immédiates, à toute heure', 'Sofortige Antworten, rund um die Uhr'],
+    ctObrir: ['Contactar amb HIGIENEX', 'Contactar con HIGIENEX', 'Contact HIGIENEX', 'Contacter HIGIENEX', 'HIGIENEX kontaktieren'],
+    ctTancar: ['Tancar', 'Cerrar', 'Close', 'Fermer', 'Schließen'],
+    waMsg: ['Hola HIGIENEX, tinc una consulta.', 'Hola HIGIENEX, tengo una consulta.', 'Hello HIGIENEX, I have a question.', 'Bonjour HIGIENEX, j’ai une question.', 'Hallo HIGIENEX, ich habe eine Frage.'],
     // peu
     whatsapp: ['Escriu-nos per WhatsApp', 'Escríbenos por WhatsApp', 'Message us on WhatsApp', 'Écrivez-nous sur WhatsApp', 'Schreiben Sie uns per WhatsApp'],
     intern: ['Accés intern', 'Acceso interno', 'Staff access', 'Accès interne', 'Mitarbeiterzugang'],
@@ -244,6 +257,63 @@
     }
   }
 
+  /* ---------- Panell de contacte (un sol botó flotant amb totes les vies) ---------- */
+  var ICO = {
+    tel: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>',
+    wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21l1.6-4.6A8.5 8.5 0 1 1 7.7 19.4z"/><path d="M9 9.5c.3 2 2.2 4 4.5 4.6l1.2-1.2 1.8.9c-.3 1-1.2 1.7-2.3 1.6C10.9 15 8.6 12.7 8.3 9.4c0-1 .7-1.9 1.6-2.1l.9 1.8z"/></svg>',
+    form: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/></svg>',
+    xat: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.8A8 8 0 1 1 21 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/></svg>',
+    obrir: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.8A8 8 0 1 1 21 12z"/></svg>',
+    tancar: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  };
+  function muntarContacte() {
+    var btn = document.getElementById('hxChatLauncher');
+    if (!btn || document.getElementById('hxContacte')) return;
+    var pan = document.createElement('div');
+    pan.id = 'hxContacte'; pan.hidden = true;
+    pan.setAttribute('role', 'dialog'); pan.setAttribute('aria-labelledby', 'hxContacteT');
+    var fila = function (cls, ico, t, d, attrs) {
+      return '<a class="hxct-op ' + cls + '" ' + attrs + '><span class="hxct-ico">' + ICO[ico] + '</span>' +
+        '<span class="hxct-txt"><b data-hxm="' + t + '"></b><span' + (d.charAt(0) === '=' ? '>' + d.slice(1) : ' data-hxm="' + d + '">') + '</span></span></a>';
+    };
+    pan.innerHTML = '<h2 id="hxContacteT" data-hxm="ctT"></h2><p data-hxm="ctP"></p>' +
+      fila('tel', 'tel', 'ctTel', '=631 706 398', 'href="tel:+34631706398"') +
+      fila('wa', 'wa', 'ctWa', 'ctWaD', 'href="https://wa.me/34631706398" target="_blank" rel="noopener" id="hxctWa"') +
+      fila('form', 'form', 'ctForm', 'ctFormD', 'href="?seccio=contacte" data-ct="form"') +
+      fila('xat', 'xat', 'ctXat', 'ctXatD', 'href="#" data-ct="xat"');
+    document.body.appendChild(pan);
+    // El botó flotant ara obre el panell (abans obria directament el xat).
+    btn.removeAttribute('onclick');
+    btn.innerHTML = '<span class="hxct-b-obrir">' + ICO.obrir + '</span><span class="hxct-b-tancar">' + ICO.tancar + '</span>';
+    btn.setAttribute('aria-controls', 'hxContacte'); btn.setAttribute('aria-expanded', 'false');
+    var obert = false;
+    function posar(o) {
+      obert = o; pan.hidden = !o;
+      btn.classList.toggle('hxct-obert', o); btn.setAttribute('aria-expanded', o ? 'true' : 'false');
+      btn.setAttribute('aria-label', t(o ? 'ctTancar' : 'ctObrir'));
+      if (o) {
+        var wa = document.getElementById('hxctWa');
+        if (wa) wa.href = 'https://wa.me/34631706398?text=' + encodeURIComponent(t('waMsg'));
+        var primer = pan.querySelector('.hxct-op'); if (primer) primer.focus();
+      }
+    }
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (typeof window.toggleHxChat === 'function') window.toggleHxChat(false);
+      posar(!obert);
+    });
+    pan.addEventListener('click', function (e) {
+      var op = e.target.closest('[data-ct]');
+      if (!op) return;
+      e.preventDefault(); posar(false);
+      if (op.getAttribute('data-ct') === 'form') window.navTo('contacte');
+      else if (typeof window.toggleHxChat === 'function') window.toggleHxChat(true);
+    });
+    document.addEventListener('click', function (e) { if (obert && !pan.contains(e.target)) posar(false); });
+    document.addEventListener('keydown', function (e) { if (obert && e.key === 'Escape') { posar(false); btn.focus(); } });
+    btn.setAttribute('aria-label', t('ctObrir'));
+  }
+
   /* ---------- Navegació ---------- */
   function enllacos(e) {
     var el = e.target.closest('[data-nav],[data-fitxa],.hxh-sector,.hxc-tab');
@@ -305,6 +375,7 @@
     muntarCalculadores();
     ordenarProductes();
     arreglarPeu();
+    muntarContacte();
     envoltarNavTo();
     pintarTextos();
     document.addEventListener('click', enllacos);
