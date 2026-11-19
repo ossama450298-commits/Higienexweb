@@ -9922,7 +9922,7 @@ function sendOrder() {
           Tc('Pots seguir la comanda a la web, a «Seguiment de comanda», amb el número {0}.', inv.invoiceNum)
       };
       hxConfirmacioComanda(inv.invoiceNum, paramsC, pdfComandaBlob,
-        Tc('T’adjuntem el justificant de la comanda en PDF. També el pots descarregar aquí: {0}', '{PDF_URL}'))
+        Tc('Justificant de la comanda en PDF (descàrrega): {0}', '{PDF_URL}'))
         .catch(function(err){ console.warn('No s\'ha pogut enviar la confirmació al client:', err); });
     }
   } catch(e) { console.warn('No s\'ha pogut preparar la confirmació per al client:', e); }
