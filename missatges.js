@@ -152,6 +152,50 @@
     anarASeguiment();
   }, true);
 
+
+  // Accessibilitat: noms per a lectors de pantalla
+  var A11Y = {
+    qty: ['Quantitat de {p}', 'Cantidad de {p}', 'Quantity of {p}', 'Quantité de {p}', 'Menge von {p}', 'كمية {p}'],
+    menos: ['Treure una unitat de {p}', 'Quitar una unidad de {p}', 'Remove one {p}', 'Retirer une unité de {p}', 'Eine Einheit {p} entfernen', 'إزالة وحدة من {p}'],
+    mas: ['Afegir una unitat de {p}', 'Añadir una unidad de {p}', 'Add one {p}', 'Ajouter une unité de {p}', 'Eine Einheit {p} hinzufügen', 'إضافة وحدة من {p}'],
+    mapa: ['Mapa de la ubicació d\'HIGIENEX', 'Mapa de la ubicación de HIGIENEX', 'Map of HIGIENEX location', 'Carte de l\'emplacement d\'HIGIENEX', 'Karte des HIGIENEX-Standorts', 'خريطة موقع HIGIENEX'],
+    org: ['Organigrama (desplaçable)', 'Organigrama (desplazable)', 'Organisation chart (scrollable)', 'Organigramme (défilant)', 'Organigramm (scrollbar)', 'الهيكل التنظيمي (قابل للتمرير)'],
+  };
+  function a11y() {
+    var i = ['ca', 'es', 'en', 'fr', 'de', 'ar'].indexOf(localStorage.getItem('hx_lang') || 'ca'); if (i < 0) i = 0;
+    var t = function (k, p) { return A11Y[k][i].replace('{p}', p || ''); };
+    document.querySelectorAll('.pedido-card-new').forEach(function (c) {
+      var nom = c.querySelector('.hx-u25'); nom = nom ? nom.textContent.trim() : (c.querySelector('img') || {}).alt || '';
+      var q = c.querySelector('.qty-num'); if (q) q.setAttribute('aria-label', t('qty', nom));
+      var b = c.querySelectorAll('button[onclick^="changeQty"]');
+      b.forEach(function (x) { x.setAttribute('aria-label', t(/-1/.test(x.getAttribute('onclick')) ? 'menos' : 'mas', nom)); });
+    });
+    document.querySelectorAll('input.qty-num:not([aria-label])').forEach(function (q) { q.setAttribute('aria-label', t('qty', '')); });
+    document.querySelectorAll('iframe.map-embed, iframe[src*="google.com/maps"]').forEach(function (f) { f.setAttribute('title', t('mapa')); });
+    var org = document.querySelector('#organitzacio .org-chart'); org = org && org.parentElement;
+    if (org) { org.setAttribute('tabindex', '0'); org.setAttribute('role', 'region'); org.setAttribute('aria-label', t('org')); org.classList.add('hx-scroll-a11y'); }
+    // Camps de formulari sense etiqueta: usar el placeholder o el text proper
+    document.querySelectorAll('input:not([type=hidden]):not([type=submit]):not([type=button]), select, textarea').forEach(function (e) {
+      if (e.getAttribute('aria-label') || e.getAttribute('aria-labelledby') || (e.labels && e.labels.length)) return;
+      var txt = e.getAttribute('placeholder') || e.getAttribute('title') || '';
+      if (!txt) { var prev = e.previousElementSibling; if (prev && prev.textContent.trim().length < 60) txt = prev.textContent.trim(); }
+      if (!txt) { var fld = e.closest('.form-field, .form-group, label'); if (fld) { var l = fld.querySelector('label, .lbl, span'); if (l && l !== e) txt = l.textContent.trim(); } }
+      if (txt) e.setAttribute('aria-label', txt.replace(/\s*\*\s*$/, ''));
+    });
+    document.querySelectorAll('.comp-table-wrap, .table-wrap, [style*="overflow-x:auto"]').forEach(function (w) {
+      if (w.hasAttribute('tabindex')) return;
+      w.setAttribute('tabindex', '0'); w.classList.add('hx-scroll-a11y');
+      if (!w.getAttribute('aria-label')) { var h = w.closest('section'); h = h && h.querySelector('h2'); w.setAttribute('role', 'region'); w.setAttribute('aria-label', h ? h.textContent.trim() : t('org')); }
+    });
+    var mb = document.getElementById('menuToggleBtn'), dd = document.getElementById('navDropdown');
+    if (mb && dd) { mb.setAttribute('aria-expanded', dd.classList.contains('open') ? 'true' : 'false'); mb.setAttribute('aria-controls', 'navDropdown'); }
+  }
+  function vigilarMenu() {
+    var dd = document.getElementById('navDropdown'), mb = document.getElementById('menuToggleBtn');
+    if (!dd || !mb || !window.MutationObserver) return;
+    new MutationObserver(function () { mb.setAttribute('aria-expanded', dd.classList.contains('open') ? 'true' : 'false'); }).observe(dd, { attributes: true, attributeFilter: ['class'] });
+  }
+
   function iniciar() {
     // Avisos traduïts
     var toast = window.showToast;
@@ -174,8 +218,9 @@
       if (typeof o === 'function' && !o._hxCarret) { var w = function () { var r = o.apply(this, arguments); actualitzarCarret(); return r; }; w._hxCarret = true; window[f] = w; }
     });
     afegirSeguiment();
+    a11y(); vigilarMenu();
     var apl = window.hxApplyLang;
-    if (typeof apl === 'function' && !apl._hxMiss) { var w2 = function () { var r = apl.apply(this, arguments); pintar(); return r; }; w2._hxMiss = true; window.hxApplyLang = w2; }
+    if (typeof apl === 'function' && !apl._hxMiss) { var w2 = function () { var r = apl.apply(this, arguments); pintar(); a11y(); return r; }; w2._hxMiss = true; window.hxApplyLang = w2; }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();

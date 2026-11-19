@@ -130,3 +130,18 @@ footer a:hover { color: var(--ds-gold) !important; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; }
 }
+
+/* ── Accessibilitat (WCAG 2.1 AA): contrast mínim 4,5:1 ── */
+.futur-card h3 { color: #fff !important; }
+p[data-i18n-key="t289"], p[data-i18n-key="t314"], p[data-i18n-key="t319"], footer p { color: #a9bccb !important; }
+p[data-i18n-key="t314"] strong { color: #d3dee7 !important; }
+p[data-i18n-key="t314"] a, footer p a { color: #cfe6f7 !important; text-decoration: underline !important; text-underline-offset: 2px; }
+.hx-u18, .hx-u29, .hx-u33, .hx-u51, .hx-u60, .nl-meta { color: #5c6b78 !important; }
+.nl-tag-normativa, [data-i18n-key="t330"] { color: #7a5a00 !important; }
+.org-box.leaf { background: #0B3D6B !important; color: #fff !important; }
+[data-i18n-key="t1010"] { color: #8a4510 !important; }
+[data-i18n-key="t1010"]:only-child, span:has(> [data-i18n-key="t1010"]) { color: #8a4510 !important; }
+.hxp-nota, #pressupostLines div div div, button[onclick^="hxpCitaTipus"] span, .form-field p, [data-i18n-key="t267"] { color: #4f5d6a !important; }
+#pressupostGrid p { color: #c3d3e1 !important; }
+.hx-scroll-a11y:focus-visible { outline: 3px solid #F2A900; outline-offset: 3px; }
+.testi-author div span, .contact-item p span, .contact-item a[style*="#888"] { color: #5c6b78 !important; }
