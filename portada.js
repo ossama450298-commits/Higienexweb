@@ -21,6 +21,7 @@
     fet1: ['Certificat ISO 14001', 'Certificado ISO 14001', 'ISO 14001 certified', 'Certifié ISO 14001', 'ISO 14001 zertifiziert'],
     fet2: ['19 patents pròpies', '19 patentes propias', '19 own patents', '19 brevets propres', '19 eigene Patente'],
     fet3: ['Descomptes de fins al 15\u00a0%', 'Descuentos de hasta el 15\u00a0%', 'Up to 15\u00a0% volume discount', 'Jusqu’à 15\u00a0% de remise', 'Bis zu 15\u00a0% Mengenrabatt'],
+    x3cap: ['Una garrafa HIGIENEX rendeix com tres de convencionals', 'Una garrafa HIGIENEX rinde como tres convencionales', 'One HIGIENEX container goes as far as three standard ones', 'Un bidon HIGIENEX équivaut à trois bidons classiques', 'Ein HIGIENEX-Kanister ersetzt drei herkömmliche'],
     destT: ['Els més demanats', 'Los más pedidos', 'Best sellers', 'Les plus demandés', 'Am häufigsten bestellt'],
     destP: ['Preu per garrafa de 5 L, sense IVA. El descompte per volum s’aplica sol al cistell.', 'Precio por garrafa de 5 L, sin IVA. El descuento por volumen se aplica solo en el carrito.', 'Price per 5 L container, excl. VAT. Volume discounts are applied automatically in the cart.', 'Prix par bidon de 5 L, HT. La remise sur volume s’applique automatiquement au panier.', 'Preis pro 5-L-Kanister, zzgl. MwSt. Mengenrabatte werden im Warenkorb automatisch abgezogen.'],
     veureFitxa: ['Veure la fitxa', 'Ver la ficha', 'View details', 'Voir la fiche', 'Details ansehen'],
@@ -37,8 +38,8 @@
     s4d: ['Superfícies antimicrobianes i reposició automàtica sense ocupar-te’n.', 'Superficies antimicrobianas y reposición automática sin preocuparte.', 'Antimicrobial surfaces and automatic restocking, hassle-free.', 'Surfaces antimicrobiennes et réassort automatique, sans y penser.', 'Antimikrobielle Oberflächen und automatische Nachlieferung ohne Aufwand.'],
     sVeure: ['Productes per a aquest sector', 'Productos para este sector', 'Products for this sector', 'Produits pour ce secteur', 'Produkte für diese Branche'],
     whyT: ['Per què HIGIENEX', 'Por qué HIGIENEX', 'Why HIGIENEX', 'Pourquoi HIGIENEX', 'Warum HIGIENEX'],
-    w1t: ['Concentrat ×3', 'Concentrado ×3', '3× concentrated', 'Concentré ×3', '3-fach konzentriert'],
-    w1d: ['Una garrafa rendeix com tres de convencionals: menys transport i un 70\u00a0% menys de plàstic.', 'Una garrafa rinde como tres convencionales: menos transporte y un 70\u00a0% menos de plástico.', 'One container goes as far as three standard ones: less transport and 70\u00a0% less plastic.', 'Un bidon équivaut à trois bidons classiques : moins de transport et 70\u00a0% de plastique en moins.', 'Ein Kanister ersetzt drei herkömmliche: weniger Transport und 70\u00a0% weniger Plastik.'],
+    w1t: ['Menys plàstic, menys camions', 'Menos plástico, menos camiones', 'Less plastic, fewer lorries', 'Moins de plastique, moins de camions', 'Weniger Plastik, weniger Lkw'],
+    w1d: ['Com que és concentrat, cada comanda mou un 70\u00a0% menys d’envasos i ocupa menys espai al teu magatzem.', 'Como es concentrado, cada pedido mueve un 70\u00a0% menos de envases y ocupa menos espacio en tu almacén.', 'Because it is concentrated, every order ships 70\u00a0% less packaging and takes up less room in your storeroom.', 'Comme il est concentré, chaque commande transporte 70\u00a0% d’emballages en moins et prend moins de place dans votre réserve.', 'Weil es konzentriert ist, bewegt jede Bestellung 70\u00a0% weniger Verpackung und braucht weniger Platz im Lager.'],
     w2t: ['Certificat i traçable', 'Certificado y trazable', 'Certified and traceable', 'Certifié et traçable', 'Zertifiziert und rückverfolgbar'],
     w2d: ['ISO 14001, registre de biocides i codi QR de lot en cada envàs, amb la seva fitxa de seguretat.', 'ISO 14001, registro de biocidas y código QR de lote en cada envase, con su ficha de seguridad.', 'ISO 14001, biocide registration and a batch QR code on every container, linked to its safety data sheet.', 'ISO 14001, enregistrement biocide et QR code de lot sur chaque bidon, avec sa fiche de sécurité.', 'ISO 14001, Biozid-Registrierung und Chargen-QR-Code auf jedem Gebinde mit Sicherheitsdatenblatt.'],
     w3t: ['Comprar és fàcil', 'Comprar es fácil', 'Easy to order', 'Commander est simple', 'Einfach bestellen'],
@@ -149,7 +150,11 @@
       '<div class="hxh-btns"><button type="button" class="hxh-btn hxh-btn-gold" data-nav="productes" data-hxm="verProductes"></button>' +
       '<button type="button" class="hxh-btn hxh-btn-ghost" data-nav="pressupost" data-hxm="demanarPres"></button></div>' +
       '<ul class="hxh-facts"><li data-hxm="fet1"></li><li data-hxm="fet2"></li><li data-hxm="fet3"></li></ul>' +
-      '</div>';
+      '</div>' +
+      // El concentrat ×3: cau una gota i el número s'omple com una garrafa (un sol moment animat).
+      '<figure class="hxh-x3"><div class="hxh-x3-stage" aria-hidden="true"><span class="hxh-drop"></span>' +
+      '<span class="hxh-x3-num" data-x="\u00d73">\u00d73</span></div>' +
+      '<figcaption data-hxm="x3cap"></figcaption></figure>';
   }
   function muntarPortada() {
     var hero = document.getElementById('heroLogoWrap');
