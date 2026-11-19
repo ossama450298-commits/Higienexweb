@@ -1,0 +1,132 @@
+/* ============================================================
+   HIGIENEX — Sistema de disseny de tota la web (disseny.css)
+   ------------------------------------------------------------
+   Es manté: colors corporatius (blau #0B3D6B, or #F2A900) i el logo.
+   Motiu que es repeteix: la capa daurada del concentrat (la base del
+   ×3 de la portada) apareix sota cada capçalera de pàgina.
+   Tipografia: Archivo amb amplada variable (portada.css la carrega).
+   Molts estils de index.html són en línia; per això hi ha !important.
+   ============================================================ */
+:root {
+  --ds-ink: #0E2A3F;
+  --ds-navy: #0B3D6B;
+  --ds-gold: #F2A900;
+  --ds-water: #8FD3EC;
+  --ds-paper: #F3F6F5;
+  --ds-line: #DCE5EC;
+  --ds-muted: #5B6B78;
+  --ds-text: #1E2F3D;
+  --ds-r: 12px;
+}
+
+/* ---------- Base ---------- */
+body { background: var(--ds-paper) !important; color: var(--ds-text); }
+section { background: var(--ds-paper); }
+section:nth-of-type(even):not(#home) { background: #fff; }
+.container { max-width: 1180px; }
+
+/* Etiquetes en majúscules i lletra de màquina d'escriure: fora */
+.section-tag { display: none !important; }
+[style*="text-transform:uppercase"], [style*="text-transform: uppercase"] { text-transform: none !important; letter-spacing: normal !important; }
+[style*="Courier New"], [style*="monospace"] { font-family: inherit !important; }
+
+/* Sense aparicions animades a cada bloc */
+.fade-in, .fade-in.visible { opacity: 1 !important; transform: none !important; transition: none !important; }
+
+/* ---------- Títols de secció ---------- */
+section h2 { color: var(--ds-ink); font-weight: 750 !important; font-stretch: 114%; letter-spacing: -0.02em; font-size: clamp(1.8rem, 3vw, 2.6rem) !important; line-height: 1.1 !important; text-align: left; }
+section h3 { color: var(--ds-ink); font-stretch: 106%; }
+.section-sub, section .container > p:first-of-type { color: var(--ds-muted); max-width: 62ch; font-size: 1.04rem; line-height: 1.65; }
+section .container { text-align: left; }
+
+/* ---------- Capçaleres de pàgina: tinta + capa daurada ---------- */
+.cat-banner {
+  background: var(--ds-ink) !important; background-image: none !important;
+  padding: calc(70px + 3.2rem) 2rem 3rem !important; margin-top: 0 !important;
+  border-bottom: 10px solid var(--ds-gold); position: relative; overflow: hidden;
+}
+.cat-banner::before, .cat-banner::after { display: none !important; }
+.cat-banner h2 { color: #fff !important; font-size: clamp(2.4rem, 5.2vw, 4.4rem) !important; font-stretch: 118% !important; line-height: 1 !important; margin: 0 0 0.6rem !important; }
+.cat-banner p { color: var(--ds-water) !important; font-size: 1.1rem !important; margin: 0 !important; }
+body[data-view="page"] .cat-banner { margin-top: 0 !important; }
+
+/* Capçaleres amb foto (Missió, Equip, RSC, Clients…): text sobre tinta a l'esquerra, foto neta a la dreta */
+section > div[style*="height:200px"] { height: 280px !important; }
+section > div[style*="height:200px"] > div[style*="position:absolute"] {
+  background: linear-gradient(90deg, var(--ds-ink) 0 48%, rgba(14,42,63,0) 48%) !important; padding: 0 2rem !important;
+  border-bottom: 6px solid var(--ds-gold);
+}
+section > div[style*="height:200px"] > div[style*="position:absolute"] > div { max-width: 44%; }
+section > div[style*="height:200px"] h2 { color: #fff !important; font-size: clamp(1.7rem, 3vw, 2.6rem) !important; }
+section > div[style*="height:200px"] p { color: var(--ds-water) !important; }
+section > div[style*="height:200px"] span[style*="monospace"], section > div[style*="height:200px"] span[style*="Courier"] { display: none !important; }
+
+/* ---------- Seccions fosques: tinta plana, sense degradats ---------- */
+#missio, #rd, #futur, #internacionalitzacio, #rsc, #clients, #marqueting, #rrhh, #mostra-gratuita, #calc-eco { background: var(--ds-ink) !important; }
+#missio h2, #rd h2, #futur h2, #internacionalitzacio h2, #mostra-gratuita h2, #calc-eco h2 { color: #fff; }
+[style*="linear-gradient(135deg,var(--green-deep)"], [style*="linear-gradient(135deg, var(--green-deep)"],
+[style*="linear-gradient(135deg,#0B3D6B"], [style*="linear-gradient(135deg, #0B3D6B"],
+[style*="linear-gradient(135deg,#0B3D6B,#1565A8)"] { background: var(--ds-ink) !important; }
+
+/* ---------- Targetes: planes, filet fi, sense ombres ---------- */
+.sost-card, .rsc-card, .mkt-card, .blog-card, .contact-item, .digi-card, .stat-card, .cp-card,
+.pedido-card-new, .mvv-card, .equip-card, .case-card, .testimonial, .testimonial-card {
+  box-shadow: none !important; border: 1px solid var(--ds-line) !important; border-radius: var(--ds-r) !important; background: #fff !important;
+}
+.sost-card:hover, .rsc-card:hover, .mkt-card:hover, .blog-card:hover, .pedido-card-new:hover { transform: none !important; box-shadow: none !important; border-color: var(--ds-navy) !important; }
+#rd .patent-badge { box-shadow: none !important; border-radius: var(--ds-r) !important; }
+#missio .mvv-card, #rd [class*="card"], #futur [class*="card"] { background: rgba(255,255,255,0.05) !important; border-color: rgba(255,255,255,0.14) !important; }
+[style*="box-shadow:0 "] , [style*="box-shadow: 0 "] { box-shadow: none !important; }
+
+/* Botiga: capçaleres de targeta sense colors de fantasia */
+.pedido-card-new div[style*="linear-gradient"] { background: var(--ds-paper) !important; border-top: 1px solid var(--ds-line); border-bottom: 1px solid var(--ds-line); }
+.pedido-card-new button[style*="linear-gradient"] { background: var(--ds-navy) !important; }
+.pedido-card-new .prod-img-wrap { background: #fff !important; }
+
+/* Passos d'un procés: això sí que és una seqüència, es mantenen els números */
+.step-num { background: var(--ds-navy) !important; color: #fff !important; box-shadow: none !important; }
+.process-step { box-shadow: none !important; }
+
+/* ---------- Botons ---------- */
+.btn-primary, button.btn-primary, a.btn-primary {
+  background: var(--ds-gold) !important; color: #1A1A1A !important; border: 0 !important; border-radius: 10px !important; box-shadow: none !important; font-weight: 700 !important;
+}
+.btn-outline { border-radius: 10px !important; }
+form button[type="submit"], .cp-btn:not(.ghost) { border-radius: 10px !important; box-shadow: none !important; }
+form button[type="submit"]:not([style*="F2A900"]) { background: var(--ds-navy) !important; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid var(--ds-gold) !important; outline-offset: 2px; }
+
+/* ---------- Formularis ---------- */
+input[type="text"], input[type="email"], input[type="tel"], input[type="number"], input[type="password"], input[type="search"], select, textarea {
+  border: 1.5px solid var(--ds-line) !important; border-radius: 10px !important; background-color: #fff; font-family: inherit !important; box-shadow: none !important;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--ds-navy) !important; }
+.form-field label { font-weight: 600; color: var(--ds-ink); }
+
+/* ---------- Taules ---------- */
+section table { border-collapse: collapse; }
+section table thead th, section table thead td { background: var(--ds-ink) !important; color: #fff !important; font-weight: 600 !important; }
+section table td { border-bottom: 1px solid var(--ds-line) !important; }
+
+/* ---------- Pàgines i menús ---------- */
+#navDropdown { font-family: inherit; }
+#navDropdown .side-panel-tag { text-transform: none !important; letter-spacing: normal !important; font-family: inherit !important; }
+
+/* ---------- Peu: tinta i títols normals ---------- */
+footer { background: var(--ds-ink) !important; border-top: 10px solid var(--ds-gold); }
+footer h4 { font-family: inherit !important; text-transform: none !important; letter-spacing: normal !important; font-size: 0.95rem !important; font-weight: 700 !important; color: #fff !important; }
+footer .footer-bottom-bar { background: rgba(0,0,0,0.18) !important; }
+footer a { text-decoration: none; }
+footer a:hover { color: var(--ds-gold) !important; }
+
+/* ---------- Mòbil ---------- */
+@media (max-width: 760px) {
+  .cat-banner { padding: calc(64px + 2rem) 1.2rem 2rem !important; }
+  section > div[style*="height:200px"] { height: auto !important; }
+  section > div[style*="height:200px"] > img { display: none !important; }
+  section > div[style*="height:200px"] > div[style*="position:absolute"] { position: static !important; background: var(--ds-ink) !important; padding: 2rem 1.2rem !important; }
+  section > div[style*="height:200px"] > div[style*="position:absolute"] > div { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}

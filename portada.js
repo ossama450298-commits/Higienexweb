@@ -279,9 +279,7 @@
         try { history.replaceState(history.state, '', location.pathname + '?seccio=' + id); } catch (e) { /* sense historial */ }
         return;
       }
-      // A Productes es comença pel catàleg (abans es començava per la foto de portada).
       orig(id);
-      if (id === 'productes') { var s = document.getElementById('productes'); if (s && s.scrollIntoView) { s.scrollIntoView({ block: 'start' }); window.scrollBy(0, -70); } }
     };
     nou._hxPortada = true;
     window.navTo = nou;
@@ -310,6 +308,8 @@
     envoltarNavTo();
     pintarTextos();
     document.addEventListener('click', enllacos);
+    // La finestra emergent de la newsletter tapava la pàgina: el formulari ja és a la secció.
+    window.hxMaybeShowNewsletterPopup = function () {};
     // Quan canvia l'idioma, es tornen a posar els textos.
     var origApply = window.hxApplyLang;
     if (typeof origApply === 'function') {
