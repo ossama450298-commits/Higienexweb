@@ -1976,6 +1976,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 <script src="jspdf.umd.min.js" defer></script>
 <script src="jspdf.plugin.autotable.min.js" defer></script>
 <script src="html2canvas.min.js" defer></script>
+<script src="pdf-i18n.js" defer></script>
 <script src="pdf-kit.js" defer></script>
 <script src="pdf-docs.js" defer></script>
 <script type="application/ld+json">
@@ -9163,6 +9164,9 @@ function descarregarPressupostPDF() {
   }
   var jsPDF = window.jspdf.jsPDF;
   var doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  /* Textos en l'idioma triat a la web (pdf-i18n.js) */
+  var T = function () { return window.HXT ? HXT.apply(null, arguments) : arguments[0]; };
+  var TU = function (t) { return T(t).toUpperCase(); };
   var W = 595.28, H = 841.89, M = 40;
   var NAVY = [11,61,107], GOLD = [242,169,0], GOLD_D = [184,134,11], INK = [22,35,46], MUTED = [112,128,146], TXT = [74,90,106], LINE = [227,232,237], SOFT = [245,248,251], CREAM = [255,246,224];
   function eur(n) { var v = (Math.round((Number(n) || 0) * 100) / 100).toFixed(2).split('.'); return v[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + v[1] + ' \u20ac'; }
@@ -9185,22 +9189,22 @@ function descarregarPressupostPDF() {
     doc.setFont('times', 'bolditalic'); color(GOLD); doc.text('X', M + doc.getTextWidth('HIGIENE') + 1, yl);
     doc.setFont('helvetica', 'normal'); doc.setTextColor(178, 200, 222);
     if (primera) {
-      doc.setFontSize(8); doc.setCharSpace(1.6); doc.text('HIGIENE PROFESSIONAL SOSTENIBLE', M, 70); doc.setCharSpace(0);
+      doc.setFontSize(8); doc.setCharSpace(1.6); doc.text(T('HIGIENE PROFESSIONAL SOSTENIBLE'), M, 70); doc.setCharSpace(0);
       doc.setFontSize(8.5); doc.text('HIGIENEX S.L.  \u00b7  CIF B12345678', M, 86);
-      kicker('PRESSUPOST SENSE COMPROM\u00cdS', W - M - doc.getTextWidth('PRESSUPOST SENSE COMPROM\u00cdS') - 9, 30, GOLD);
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(24); doc.setTextColor(255, 255, 255); doc.text('PRESSUPOST', W - M, 56, { align: 'right' });
+      kicker(TU('Pressupost sense compromís'), W - M - doc.getTextWidth(TU('Pressupost sense compromís')) - 9, 30, GOLD);
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(24); doc.setTextColor(255, 255, 255); doc.text(TU('Pressupost'), W - M, 56, { align: 'right' });
       doc.setFontSize(11); color(GOLD); doc.text('N\u00ba ' + num, W - M, 74, { align: 'right' });
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(178, 200, 222); doc.text('Data: ' + dd(ara), W - M, 89, { align: 'right' });
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(178, 200, 222); doc.text(T('Data') + ': ' + dd(ara), W - M, 89, { align: 'right' });
     } else {
       doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(255, 255, 255);
-      doc.text('Pressupost ' + num + ' (continuaci\u00f3)', W - M, 32, { align: 'right' });
+      doc.text(T('Pressupost') + ' ' + num, W - M, 32, { align: 'right' });
     }
   }
   capcalera(true);
   var y = 132;
 
   /* Franja de dades clau */
-  var claus = [['DATA D\u2019EMISSI\u00d3', dd(ara)], ['V\u00c0LID FINS AL', dd(validesa)], ['PRODUCTES', items.length + (items.length === 1 ? ' refer\u00e8ncia' : ' refer\u00e8ncies')], ['TOTAL (IVA INCL.)', eur(total)]];
+  var claus = [[TU('Data d’emissió'), dd(ara)], [TU('Vàlid fins al'), dd(validesa)], [TU('Productes'), items.length === 1 ? T('{0} referència', 1) : T('{0} referències', items.length)], [TU('Total (IVA incl.)'), eur(total)]];
   var cw = (W - 2 * M) / claus.length;
   fill(SOFT); stroke(LINE); doc.setLineWidth(0.6); doc.roundedRect(M, y, W - 2 * M, 46, 5, 5, 'FD');
   claus.forEach(function (k, i) {
@@ -9221,12 +9225,12 @@ function descarregarPressupostPDF() {
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8.6); color(TXT);
     linies.slice(1).filter(Boolean).slice(0, 4).forEach(function (l, i) { doc.text(doc.splitTextToSize(l, bw - 28)[0], x + 14, y + 50 + i * 12); });
   }
-  caixa(M, 'CLIENT', [info.empresa || 'Client', info.cif ? 'CIF/NIF: ' + info.cif : '', info.contacte ? 'A l\u2019atenci\u00f3 de: ' + info.contacte : '', info.email || ''], GOLD);
-  caixa(M + bw + 16, 'EMISSOR', ['HIGIENEX S.L.', 'CIF: B12345678', 'Carrer de la Ind\u00fastria, 25 \u00b7 46010 Val\u00e8ncia', 'Tel. 631 706 398', 'contacto@higienexvalencia.es'], NAVY);
+  caixa(M, TU('Client'), [info.empresa || T('Client'), info.cif ? 'CIF/NIF: ' + info.cif : '', info.contacte ? T('A l’atenció de: {0}', info.contacte) : '', info.email || ''], GOLD);
+  caixa(M + bw + 16, TU('Emissor'), ['HIGIENEX S.L.', 'CIF: B12345678', 'Carrer de la Ind\u00fastria, 25 \u00b7 46010 Val\u00e8ncia', 'Tel. 631 706 398', 'contacto@higienexvalencia.es'], NAVY);
   y += 118;
 
   /* Taula de productes */
-  var head = ['PRODUCTE', 'UDS.', 'PREU/UT.'].concat(hiHaDte ? ['DTE.'] : []).concat(['IMPORT']);
+  var head = [TU('Producte'), TU('Uds.'), TU('Preu/ut.')].concat(hiHaDte ? [TU('Dte.')] : []).concat([TU('Import')]);
   var body = items.map(function (it) {
     var r = [it.name + '\n' + it.unit, String(it.qty), eur(it.price)];
     if (hiHaDte) r.push(it.discountRate > 0 ? '-' + Math.round(it.discountRate * 100) + ' %' : '\u2014');
@@ -9268,31 +9272,31 @@ function descarregarPressupostPDF() {
   stroke(LINE); doc.setLineWidth(0.6); doc.setFillColor(255, 255, 255); doc.roundedRect(tx, y, tw, th, 5, 5, 'FD');
   var yt = y + 24;
   function filaT(l, v, c) { doc.setFont('helvetica', c ? 'bold' : 'normal'); doc.setFontSize(9.5); color(c || TXT); doc.text(l, tx + 14, yt); color(c || INK); doc.text(v, W - M - 14, yt, { align: 'right' }); yt += 20; }
-  filaT('Subtotal productes', eur(subtotalBrut));
-  if (descompte > 0) filaT('Descompte per volum', '-' + eur(descompte), GOLD_D);
-  filaT('Transport', eur(TRANSPORT));
-  filaT('IVA (' + Math.round(IVA_PCT * 100) + ' %)', eur(iva));
+  filaT(T('Subtotal productes'), eur(subtotalBrut));
+  if (descompte > 0) filaT(T('Descompte per volum'), '-' + eur(descompte), GOLD_D);
+  filaT(T('Transport'), eur(TRANSPORT));
+  filaT(T('IVA ({0} %)', Math.round(IVA_PCT * 100)), eur(iva));
   var ytot = y + th - 44;
   fill(NAVY); doc.roundedRect(tx, ytot, tw, 44, 5, 5, 'F'); doc.rect(tx, ytot, tw, 8, 'F');
-  kicker('TOTAL', tx + 14, ytot + 26, [178, 200, 222]);
+  kicker(TU('Total'), tx + 14, ytot + 26, [178, 200, 222]);
   doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(255, 255, 255); doc.text(eur(total), W - M - 14, ytot + 28, { align: 'right' });
 
   var cwid = W - 2 * M - tw - 18, yc = y + 28;
-  kicker('CONDICIONS', M, y + 12);
+  kicker(TU('Condicions'), M, y + 12);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8.4); color(TXT);
-  ['Pressupost sense comprom\u00eds, v\u00e0lid fins al ' + dd(validesa) + '.',
-   'Preus en euros. Descomptes per volum aplicats autom\u00e0ticament.',
-   'Transport de ' + eur(TRANSPORT) + ' per comanda. IVA del ' + Math.round(IVA_PCT * 100) + ' % incl\u00f2s al total.',
-   'Per confirmar la comanda, indica el n\u00famero ' + num + ' al nostre equip comercial.'
+  [T('Pressupost sense compromís, vàlid fins al {0}.', dd(validesa)),
+   T('Preus en euros. Descomptes per volum aplicats automàticament.'),
+   T('Transport de {0} per comanda. IVA del {1} % inclòs al total.', eur(TRANSPORT), Math.round(IVA_PCT * 100)),
+   T('Per confirmar la comanda, indica el número {0} al nostre equip comercial.', num)
   ].forEach(function (t) { var ls = doc.splitTextToSize(t, cwid - 12); fill(GOLD); doc.circle(M + 2.5, yc - 3, 1.8, 'F'); doc.text(ls, M + 12, yc); yc += ls.length * 11 + 5; });
   y += Math.max(th, yc - y) + 20;
 
   /* Crida a l'acció */
   if (y + 62 > H - 60) { doc.addPage(); capcalera(false); y = 84; }
   fill(CREAM); stroke([245, 214, 140]); doc.setLineWidth(0.6); doc.roundedRect(M, y, W - 2 * M, 54, 5, 5, 'FD');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(10); color(INK); doc.text('Vols confirmar-lo o ajustar quantitats?', M + 16, y + 22);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(10); color(INK); doc.text(T('Vols confirmar-lo o ajustar quantitats?'), M + 16, y + 22);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8.6); color(TXT);
-  doc.text('Escriu a contacto@higienexvalencia.es o truca al 631 706 398 indicant el n\u00famero de pressupost.', M + 16, y + 38);
+  doc.text(doc.splitTextToSize(T('Escriu a contacto@higienexvalencia.es o truca al 631 706 398 indicant el número de pressupost.'), W - 2 * M - 32).slice(0, 2), M + 16, y + 38);
 
   /* Peu a totes les pàgines */
   var n = doc.getNumberOfPages();
@@ -9301,7 +9305,7 @@ function descarregarPressupostPDF() {
     stroke(GOLD); doc.setLineWidth(1); doc.line(M, H - 48, W - M, H - 48);
     doc.setFont('helvetica', 'normal'); doc.setFontSize(7.6); color(MUTED);
     doc.text('HIGIENEX S.L.  \u00b7  CIF B12345678  \u00b7  Carrer de la Ind\u00fastria, 25, 46010 Val\u00e8ncia  \u00b7  631 706 398  \u00b7  contacto@higienexvalencia.es', M, H - 34);
-    doc.text('P\u00e0g. ' + i + ' de ' + n, W - M, H - 34, { align: 'right' });
+    doc.text(T('Pàg.') + ' ' + i + ' / ' + n, W - M, H - 34, { align: 'right' });
   }
   doc.save('Pressupost_' + num + '.pdf');
 }
@@ -9319,28 +9323,32 @@ function enviarPressupostEmail() {
   var subtotal = items.reduce(function(s, i){ return s + i.total; }, 0);
   var iva = (subtotal + TRANSPORT) * IVA_PCT;
   var total = subtotal + TRANSPORT + iva;
-  var resumText = items.map(function(i){ return i.qty + ' × ' + i.name + ' — ' + i.total.toFixed(2).replace('.', ',') + ' €'; }).join('\n');
+  /* El email que recibe el cliente va en el idioma que tiene elegido en la web. */
+  var T = function () { return window.HXT ? HXT.apply(null, arguments) : arguments[0]; };
+  var loc = window.HXT ? HXT.locale() : 'ca-ES';
+  var eurL = function (n) { return Number(n).toLocaleString(loc, { style: 'currency', currency: 'EUR' }); };
+  var resumText = items.map(function(i){ return i.qty + ' × ' + i.name + ' — ' + eurL(i.total); }).join('\n');
   var numPres = pressupostInvoiceNum();
-  /* El email que recibe el cliente va siempre en castellano, sea cual sea el idioma de la web. */
   var params = {
     to_email: info.email,
     email: info.email,
     empresa: info.empresa || '—',
     contacte: info.contacte || '—',
     resum: resumText,
-    total: total.toFixed(2).replace('.', ',') + ' €',
+    total: eurL(total),
     invoice_num: numPres,
-    title: 'Tu presupuesto ' + numPres + ' — HIGIENEX',
+    title: T('El teu pressupost {0} — HIGIENEX', numPres),
     name: info.contacte || info.empresa || '',
-    badge: 'PRESUPUESTO',
-    subtitle: 'Aquí tienes el presupuesto que has preparado en nuestra web. Es válido durante 30 días.',
-    detail_label: 'Detalle del presupuesto',
-    time: new Date().toLocaleString('es-ES'),
-    message: 'Empresa: ' + (info.empresa || '—') + '\n' +
-      'Presupuesto: ' + numPres + '\n\n' + resumText + '\n\n' +
-      'Transporte: ' + TRANSPORT.toFixed(2).replace('.', ',') + ' €\n' +
-      'Total (IVA incluido): ' + total.toFixed(2).replace('.', ',') + ' €\n\n' +
-      'Para confirmar el pedido o cambiar cantidades, responde a este correo o llámanos al 631 706 398 indicando el número de presupuesto.'
+    badge: T('PRESSUPOST'),
+    subtitle: T('Aquí tens el pressupost que has preparat a la nostra web. És vàlid durant 30 dies.'),
+    detail_label: T('Detall del pressupost'),
+    time: new Date().toLocaleString(loc),
+    lang: window.HXT ? HXT.idioma() : 'ca',
+    message: T('Empresa') + ': ' + (info.empresa || '—') + '\n' +
+      T('Pressupost') + ': ' + numPres + '\n\n' + resumText + '\n\n' +
+      T('Transport') + ': ' + eurL(TRANSPORT) + '\n' +
+      T('Total (IVA inclòs)') + ': ' + eurL(total) + '\n\n' +
+      T('Per confirmar la comanda o canviar quantitats, respon aquest correu o truca’ns al 631 706 398 indicant el número de pressupost.')
   };
   if (btn) { btn.disabled = true; btn.textContent = 'Enviant...'; }
   hxNotify('pressupost', params).then(function(){
@@ -9837,6 +9845,31 @@ function sendOrder() {
         order: { num: inv.invoiceNum, total: inv.total, date: inv.dateStr || '', delivery: inv.entregaStr || '' } }
     });
   } catch(e) { console.warn('No s\'ha pogut preparar l\'email de la comanda:', e); }
+
+  // Email de confirmació per al client, en l'idioma que té triat a la web
+  try {
+    if (inv.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inv.email) && typeof hxNotify === 'function') {
+      var Tc = function () { return window.HXT ? HXT.apply(null, arguments) : arguments[0]; };
+      var locC = window.HXT ? HXT.locale() : 'ca-ES';
+      var eurC = function (n) { return Number(n).toLocaleString(locC, { style: 'currency', currency: 'EUR' }); };
+      var liniesC = keys.map(function(k){ return cart[k].qty + ' × ' + k + ' — ' + eurC(cart[k].total); }).join('\n');
+      hxNotify('aviso', {
+        email: inv.email,
+        name: (document.getElementById('userName') || {}).textContent || '',
+        title: Tc('Hem rebut la teva comanda {0} — HIGIENEX', inv.invoiceNum),
+        badge: Tc('COMANDA CONFIRMADA'),
+        subtitle: Tc('Gràcies per la teva comanda. Ja la estem preparant.'),
+        detail_label: Tc('Detall de la comanda'),
+        time: new Date().toLocaleString(locC),
+        lang: window.HXT ? HXT.idioma() : 'ca',
+        message: Tc('Comanda') + ': ' + inv.invoiceNum + '\n' +
+          Tc('Data de comanda') + ': ' + (inv.dateStr || '') + '\n' +
+          Tc('Lliurament estimat') + ': ' + (inv.entregaStr || '') + '\n\n' + liniesC + '\n\n' +
+          Tc('Total (IVA inclòs)') + ': ' + eurC(inv.total) + '\n\n' +
+          Tc('Pots seguir la comanda a la web, a «Seguiment de comanda», amb el número {0}. El justificant en PDF es descarrega en acabar la compra.', inv.invoiceNum)
+      }).catch(function(err){ console.warn('No s\'ha pogut enviar la confirmació al client:', err); });
+    }
+  } catch(e) { console.warn('No s\'ha pogut preparar la confirmació per al client:', e); }
 
   // Show success
   var s = document.getElementById('orderSuccess');

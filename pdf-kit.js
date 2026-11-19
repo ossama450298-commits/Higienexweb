@@ -42,6 +42,8 @@
     web: 'higienexvalencia.es',
   };
 
+  /* Traducció (pdf-i18n.js); si no ha carregat, es deixa el text en català. */
+  function tr(t) { return window.HXT ? window.HXT.apply(null, arguments) : t; }
   function disponible() {
     return !!(window.jspdf && window.jspdf.jsPDF && typeof new window.jspdf.jsPDF().autoTable === 'function');
   }
@@ -115,7 +117,7 @@
       if (primera) {
         logo(M, 50, 30, true);
         doc.setFont('helvetica', 'normal'); color(C.PALE);
-        doc.setFontSize(7.5); doc.setCharSpace(1.6); doc.text('HIGIENE PROFESSIONAL SOSTENIBLE', M, 68); doc.setCharSpace(0);
+        doc.setFontSize(7.5); doc.setCharSpace(1.6); doc.text(net(tr('HIGIENE PROFESSIONAL SOSTENIBLE')), M, 68); doc.setCharSpace(0);
         doc.setFontSize(8.5); doc.text(EMPRESA.nom + '  ·  CIF ' + EMPRESA.cif, M, 86);
         if (o.kicker) kicker(o.kicker, W - M, 30, C.GOLD, 'right');
         doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255);
@@ -127,7 +129,7 @@
         if (o.num) { doc.setFontSize(10.5); color(C.GOLD); doc.text(net(o.num), W - M, 73, { align: 'right' }); }
         if (o.data !== false) {
           doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); color(C.PALE);
-          doc.text(net(o.etiquetaData || 'Data') + ': ' + net(o.data || dd()), W - M, 89, { align: 'right' });
+          doc.text(net(o.etiquetaData || tr('Data')) + ': ' + net(o.data || dd()), W - M, 89, { align: 'right' });
         }
       } else {
         logo(M, 34, 17, true);
@@ -346,9 +348,9 @@
         stroke(C.GOLD); doc.setLineWidth(1); doc.line(M, H - 48, W - M, H - 48);
         doc.setFont('helvetica', 'normal'); doc.setFontSize(7.4); color(C.MUTED);
         doc.text(EMPRESA.nom + '  ·  CIF ' + EMPRESA.cif + '  ·  ' + EMPRESA.adreca + '  ·  ' + EMPRESA.tel + '  ·  ' + EMPRESA.mail, M, H - 34);
-        doc.text(net(o.pagina || 'Pàg.') + ' ' + i + ' / ' + n, W - M, H - 34, { align: 'right' });
+        doc.text(net(o.pagina || tr('Pàg.')) + ' ' + i + ' / ' + n, W - M, H - 34, { align: 'right' });
         doc.setFontSize(6.6); color(C.PALE);
-        doc.text(net(o.generat || 'Document generat a ' + EMPRESA.web) + ' · ' + dd() + ' ' + new Date().toTimeString().slice(0, 5), M, H - 24);
+        doc.text(net(o.generat || tr('Document generat a higienexvalencia.es')) + ' · ' + dd() + ' ' + new Date().toTimeString().slice(0, 5), M, H - 24);
       }
       if (fitxer) doc.save(fitxer);
       return doc;
