@@ -6662,6 +6662,7 @@ window.toggleMenu = toggleMenu;
 
 function navTo(id) {
   hxTrackPageView(id);
+  hxSeccioURL(id);
   // Tancar el menú lateral
   var dd = document.getElementById('navDropdown');
   var bd = document.getElementById('navBackdrop');
@@ -6718,6 +6719,38 @@ function navTo(id) {
   }
 }
 window.navTo = navTo;
+
+// ── ENLLAÇ PROPI PER A CADA SECCIÓ (?seccio=productes) ─────────
+// Cada secció té una adreça que es pot compartir i que surt al sitemap.xml.
+// En obrir la web amb ?seccio=… es va directament a aquella secció.
+var HX_SECCIONS_SENSE_URL = { fitxaproducte: 1 };
+function hxSeccioValida(id) {
+  if (!id || HX_SECCIONS_SENSE_URL[id] || !/^[a-z0-9-]{2,40}$/.test(id)) return false;
+  if (document.getElementById('g-' + id)) return true;
+  var el = document.getElementById(id);
+  return !!(el && el.closest && el.closest('.hg-page'));
+}
+function hxSeccioURL(id) {
+  try {
+    var q = new URLSearchParams(location.search);
+    q.delete('seccio');
+    if (q.toString()) return; // enllaços especials (producte, verifactu…): no es toca l'adreça
+    var base = location.pathname;
+    var nova = (id === 'home' || id === 'inici' || !hxSeccioValida(id)) ? base : base + '?seccio=' + id;
+    if (nova !== location.pathname + location.search) history.replaceState(history.state, '', nova + location.hash);
+    var abs = 'https://ossama450298-commits.github.io/Higienexweb/' + (nova === base ? '' : '?seccio=' + id);
+    var c = document.querySelector('link[rel="canonical"]'); if (c) c.setAttribute('href', abs);
+    var og = document.querySelector('meta[property="og:url"]'); if (og) og.setAttribute('content', abs);
+  } catch (e) {}
+}
+window.hxSeccioURL = hxSeccioURL;
+(function(){
+  var id; try { id = new URLSearchParams(location.search).get('seccio'); } catch(e) { return; }
+  if (!id) return;
+  function obrir(){ if (hxSeccioValida(id)) navTo(id); }
+  if (document.readyState === 'complete') setTimeout(obrir, 50);
+  else window.addEventListener('load', function(){ setTimeout(obrir, 50); });
+})();
 
 // ── CERCADOR GLOBAL (Ctrl+K) ──────────────────────────────────
 var HX_SEARCH_INDEX = null;
