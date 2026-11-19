@@ -9743,9 +9743,11 @@ function saveOrderToHistory(inv, items) {
   } catch(e) { console.warn('No s\'ha pogut desar l\'historial de comandes:', e); }
   // Copia en la base de datos (accesible desde cualquier dispositivo y desde el ERP)
   var email = (window.HX_USER && window.HX_USER.email) || inv.email || '';
-  hxApi('/orders', { method: 'POST', body: { invoiceNum: inv.invoiceNum, total: inv.total, email: email, site: window.HX_SEDE_SEL || '',
+  // La promesa queda guardada: el correu amb el PDF espera que la comanda existeixi al servidor.
+  window.HX_ORDER_SAVED = hxApi('/orders', { method: 'POST', body: { invoiceNum: inv.invoiceNum, total: inv.total, email: email, site: window.HX_SEDE_SEL || '',
     items: (items || []).map(function(it){ return { name: it.name, qty: it.qty, total: it.total }; }) } })
-    .catch(function(e){ console.warn('No s\'ha pogut desar la comanda al servidor:', e); });
+    .then(function(){ return email; })
+    .catch(function(e){ console.warn('No s\'ha pogut desar la comanda al servidor:', e); return null; });
 }
 function renderOrderHistory() {
   var box = document.getElementById('orderHistory');
@@ -9778,6 +9780,30 @@ function renderOrderHistory() {
 }
 window.renderOrderHistory = renderOrderHistory;
 
+// Correu de confirmació al client amb el justificant en PDF adjunt. Espera que la
+// comanda estigui desada al servidor (el servidor ho comprova); si no hi ha PDF o
+// no s'ha pogut desar, envia la confirmació de sempre, sense adjunt.
+function hxConfirmacioComanda(num, params, pdfBlob, liniaPdf) {
+  var desada = window.HX_ORDER_SAVED || Promise.resolve(null);
+  return desada.then(function(emailComanda){
+    if (pdfBlob && emailComanda && emailComanda.toLowerCase() === String(params.email).toLowerCase()) {
+      var fd = new FormData();
+      Object.keys(params).forEach(function(k){
+        fd.append(k, k === 'message' ? params.message + '\n\n' + liniaPdf : params[k]);
+      });
+      fd.append('num', num);
+      fd.append('pdf', pdfBlob, 'Comanda_' + num + '.pdf');
+      return fetch(HX_API_BASE + '/notify-comanda', { method: 'POST', body: fd }).then(function(r){
+        if (r.ok) return r.json();
+        console.warn('Confirmació amb PDF no enviada (' + r.status + '), envio la de sempre.');
+        return hxNotify('aviso', params);
+      });
+    }
+    return hxNotify('aviso', params);
+  });
+}
+window.hxConfirmacioComanda = hxConfirmacioComanda;
+
 var _orderInFlight = false;
 function sendOrder() {
   var keys = Object.keys(cart);
@@ -9787,7 +9813,7 @@ function sendOrder() {
   setTimeout(function(){ _orderInFlight = false; }, 5000);
 
   // Genera el PDF de la comanda (s'obre en una finestra d'impressió perquè
-  // el client el desi ell mateix — no s'envia com a adjunt per email).
+  // el client el desi ell mateix; també s'adjunta al correu de confirmació).
   var inv;
   try {
     inv = generateComanda();
@@ -9807,6 +9833,8 @@ function sendOrder() {
 
   // Obrir el diàleg d'impressió amb la comanda (el client pot desar-la
   // com a PDF directament) — mateix mecanisme que ja fas servir al ERP.
+  // El mateix PDF s'adjunta després al correu de confirmació.
+  var pdfComandaBlob = null;
   try {
     var userNameForPdf = (document.getElementById('userName') || {}).textContent || 'Client no identificat';
     var clientInfoPdf = { name: userNameForPdf, email: inv.email, company: '' };
@@ -9821,7 +9849,10 @@ function sendOrder() {
       return null;
     })();
     if (fuPdf && fuPdf.company) clientInfoPdf.company = fuPdf.company;
-    if (window.HXPDF_DOCS && HXPDF.disponible()) HXPDF_DOCS.comanda(inv, historyItems, clientInfoPdf);
+    if (window.HXPDF_DOCS && HXPDF.disponible()) {
+      var docComanda = HXPDF_DOCS.comanda(inv, historyItems, clientInfoPdf);
+      try { if (docComanda) pdfComandaBlob = docComanda.output('blob'); } catch(e2) {}
+    }
     else abrirImprimibleComanda('Comanda ' + inv.invoiceNum, htmlComanda(inv, historyItems, clientInfoPdf));
   } catch(err) { console.warn('No s\'ha pogut obrir el PDF de la comanda:', err); }
 
@@ -9875,7 +9906,7 @@ function sendOrder() {
       var locC = window.HXT ? HXT.locale() : 'ca-ES';
       var eurC = function (n) { return Number(n).toLocaleString(locC, { style: 'currency', currency: 'EUR' }); };
       var liniesC = keys.map(function(k){ return cart[k].qty + ' × ' + k + ' — ' + eurC(cart[k].total); }).join('\n');
-      hxNotify('aviso', {
+      var paramsC = {
         email: inv.email,
         name: (document.getElementById('userName') || {}).textContent || '',
         title: Tc('Hem rebut la teva comanda {0} — HIGIENEX', inv.invoiceNum),
@@ -9888,8 +9919,11 @@ function sendOrder() {
           Tc('Data de comanda') + ': ' + (inv.dateStr || '') + '\n' +
           Tc('Lliurament estimat') + ': ' + (inv.entregaStr || '') + '\n\n' + liniesC + '\n\n' +
           Tc('Total (IVA inclòs)') + ': ' + eurC(inv.total) + '\n\n' +
-          Tc('Pots seguir la comanda a la web, a «Seguiment de comanda», amb el número {0}. El justificant en PDF es descarrega en acabar la compra.', inv.invoiceNum)
-      }).catch(function(err){ console.warn('No s\'ha pogut enviar la confirmació al client:', err); });
+          Tc('Pots seguir la comanda a la web, a «Seguiment de comanda», amb el número {0}.', inv.invoiceNum)
+      };
+      hxConfirmacioComanda(inv.invoiceNum, paramsC, pdfComandaBlob,
+        Tc('T’adjuntem el justificant de la comanda en PDF. També el pots descarregar aquí: {0}', '{PDF_URL}'))
+        .catch(function(err){ console.warn('No s\'ha pogut enviar la confirmació al client:', err); });
     }
   } catch(e) { console.warn('No s\'ha pogut preparar la confirmació per al client:', e); }
 

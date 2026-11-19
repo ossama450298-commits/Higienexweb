@@ -357,7 +357,7 @@
       },
     });
     k.avis(T('Seguiment de la comanda'), T('Pots consultar on és la comanda a la web, a Seguiment de comanda, amb el número {0}.', inv.invoiceNum), 'blau');
-    k.tancar('Comanda_' + inv.invoiceNum + '.pdf', T("Aquest document és un justificant de comanda, no una factura. La factura s'emetrà quan s'expedeixi la mercaderia. Per a qualsevol consulta, indica el número de comanda."));
+    return k.tancar('Comanda_' + inv.invoiceNum + '.pdf', T("Aquest document és un justificant de comanda, no una factura. La factura s'emetrà quan s'expedeixi la mercaderia. Per a qualsevol consulta, indica el número de comanda."));
   }
 
   window.HXPDF_DOCS = {
