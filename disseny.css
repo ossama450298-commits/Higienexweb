@@ -209,7 +209,8 @@ p[data-i18n-key="t289"], p[data-i18n-key="t314"] { font-size: 0.8rem !important;
 /* ── Navegació: enllaços a la barra (ordinador) i hamburguesa a la dreta (mòbil) ── */
 .hx-barra { display: none; }
 @media (min-width: 1100px) {
-  .hx-barra { display: flex; align-items: center; gap: 0.25rem; margin-left: 2rem; }
+  .hx-barra { display: flex; align-items: center; justify-content: space-evenly; flex: 1 1 auto; gap: 0.5rem; margin: 0 2rem; }
+  #mainNav #navRightGroup { margin-left: 0 !important; }
   .hx-barra a { position: relative; display: flex; align-items: center; min-height: 44px; padding: 0 0.85rem; color: #0E2A3F; font-weight: 600; font-size: 0.95rem; text-decoration: none; border-radius: 8px; white-space: nowrap; }
   .hx-barra a:hover { background: rgba(14,42,63,0.06); }
   .hx-barra a:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
@@ -220,7 +221,8 @@ p[data-i18n-key="t289"], p[data-i18n-key="t314"] { font-size: 0.8rem !important;
   #menuToggleBtn { order: 99; margin-left: 0.25rem; padding: 0.45rem 0.7rem !important; }
   #menuToggleBtn span:last-child { display: none; }
 }
-html[dir="rtl"] .hx-barra { margin-left: 0; margin-right: 2rem; }
+html[dir="rtl"] .hx-barra { margin: 0 2rem; }
+html[dir="rtl"] #mainNav #navRightGroup { margin-right: 0 !important; }
 html[dir="rtl"] #menuToggleBtn { margin-left: 0; margin-right: 0.25rem; }
 
 /* Panel lateral: s'obre des de la dreta (des de l'esquerra en àrab) */
