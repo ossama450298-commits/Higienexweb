@@ -2015,7 +2015,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
 }
 </script>
 <style>#splashScreen{display:none!important}#home:not(.hxh-home),#heroLogoWrap{visibility:hidden}</style>
-<script>try{if(localStorage.getItem('hx_lang')==='ar'){document.documentElement.setAttribute('dir','rtl');document.documentElement.setAttribute('lang','ar');document.documentElement.classList.add('hx-rtl');}}catch(e){}</script>
+<script>try{var hxL=localStorage.getItem('hx_lang');if(/^(es|en|fr|de|ar)$/.test(hxL)){var hxS=document.createElement('script');hxS.src='i18n/'+hxL+'.js';hxS.async=true;hxS.setAttribute('data-hx-idioma',hxL);document.head.appendChild(hxS);}if(hxL==='ar'){document.documentElement.setAttribute('dir','rtl');document.documentElement.setAttribute('lang','ar');document.documentElement.classList.add('hx-rtl');}}catch(e){}</script>
 </head>
 <body>
 <a href="#home" class="hx-skip-link">Saltar al contingut principal</a>
@@ -9751,12 +9751,35 @@ var HX_SERVER_ORDERS = null, _hxOrdersLoading = false;
 function hxFetchOrders() {
   if (_hxOrdersLoading || !hxApiToken()) return;
   _hxOrdersLoading = true;
-  hxApi('/orders').then(function(d){
+  hxPujarComandesLocals().then(function(){ return hxApi('/orders'); }).then(function(d){
     HX_SERVER_ORDERS = (d.orders || []).map(function(o){
-      return { invoiceNum: o.invoiceNum, date: new Date(o.date).toLocaleString('ca-ES'), total: o.total, items: o.items, status: o.status, site: o.site || '' };
+      return { invoiceNum: o.invoiceNum, date: new Date(o.date).toLocaleString(hxLocaleData()), total: o.total, items: o.items, status: o.status, site: o.site || '' };
     });
     _hxOrdersLoading = false; renderOrderHistory();
   }).catch(function(){ _hxOrdersLoading = false; });
+}
+function hxLocaleData() {
+  var l = 'ca'; try { l = localStorage.getItem('hx_lang') || 'ca'; } catch(e) {}
+  return { ca: 'ca-ES', es: 'es-ES', en: 'en-GB', fr: 'fr-FR', de: 'de-DE', ar: 'ar-u-nu-latn' }[l] || 'ca-ES';
+}
+// Abans l'historial només es guardava al navegador. Si queden comandes antigues
+// d'aquest compte, es pugen una sola vegada al servidor i s'esborra la còpia local.
+function hxPujarComandesLocals() {
+  var clau = ordersKey(), llista = [];
+  if (!/^hx_orders_.+@/.test(clau)) return Promise.resolve();
+  try { llista = JSON.parse(localStorage.getItem(clau) || '[]'); } catch(e) { llista = []; }
+  if (!Array.isArray(llista) || !llista.length) { try { localStorage.removeItem(clau); } catch(e) {} return Promise.resolve(); }
+  var data = function(t) {
+    var m = String(t || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{4}),?\s*(\d{1,2}):(\d{2})/);
+    return m ? new Date(+m[3], m[2] - 1, +m[1], +m[4], +m[5]).toISOString() : '';
+  };
+  var cos = { orders: llista.slice(0, 30).map(function(o){
+    return { invoiceNum: o.invoiceNum, total: o.total, date: data(o.date),
+      items: (o.items || []).map(function(it){ return { name: it.name, qty: it.qty, total: it.total }; }) };
+  }) };
+  return hxApi('/orders/import', { method: 'POST', body: cos })
+    .then(function(){ try { localStorage.removeItem(clau); } catch(e) {} })
+    .catch(function(){ /* es tornarà a provar el pròxim cop */ });
 }
 function loadOrderHistory() {
   if (HX_SERVER_ORDERS) return HX_SERVER_ORDERS;
@@ -9766,27 +9789,35 @@ function loadOrderHistory() {
   } catch(e) { return []; }
 }
 function saveOrderToHistory(inv, items) {
+  var ambCompte = !!hxApiToken(), list0 = null;
   try {
     var list = loadOrderHistory();
-    list.unshift({
+    list.unshift(list0 = {
       invoiceNum: inv.invoiceNum,
       site: window.HX_SEDE_SEL || '',
-      date: new Date().toLocaleString('ca-ES'),
+      date: new Date().toLocaleString(hxLocaleData()),
       total: inv.total,
       items: items,
       status: 'Pendent de confirmació'
     });
     if (list.length > 30) list = list.slice(0, 30);
-    if (HX_SERVER_ORDERS) HX_SERVER_ORDERS = list;
-    localStorage.setItem(ordersKey(), JSON.stringify(list));
+    // Amb compte, la llista és la del servidor (es veu des de qualsevol dispositiu);
+    // la còpia al navegador només es fa servir sense compte.
+    if (ambCompte) HX_SERVER_ORDERS = list;
+    else localStorage.setItem(ordersKey(), JSON.stringify(list));
   } catch(e) { console.warn('No s\'ha pogut desar l\'historial de comandes:', e); }
   // Copia en la base de datos (accesible desde cualquier dispositivo y desde el ERP)
   var email = (window.HX_USER && window.HX_USER.email) || inv.email || '';
   // La promesa queda guardada: el correu amb el PDF espera que la comanda existeixi al servidor.
   window.HX_ORDER_SAVED = hxApi('/orders', { method: 'POST', body: { invoiceNum: inv.invoiceNum, total: inv.total, email: email, site: window.HX_SEDE_SEL || '',
     items: (items || []).map(function(it){ return { name: it.name, qty: it.qty, total: it.total }; }) } })
-    .then(function(){ return email; })
-    .catch(function(e){ console.warn('No s\'ha pogut desar la comanda al servidor:', e); return null; });
+    .then(function(){ if (ambCompte) { HX_SERVER_ORDERS = null; renderOrderHistory(); } return email; })
+    .catch(function(e){
+      console.warn('No s\'ha pogut desar la comanda al servidor:', e);
+      // Sense connexió: es guarda al navegador i es pujarà en el pròxim inici de sessió.
+      if (ambCompte && list0) { try { var l = JSON.parse(localStorage.getItem(ordersKey()) || '[]'); l.unshift(list0); localStorage.setItem(ordersKey(), JSON.stringify(l.slice(0, 30))); } catch(x) {} }
+      return null;
+    });
 }
 function renderOrderHistory() {
   var box = document.getElementById('orderHistory');
@@ -11748,8 +11779,8 @@ window.legalClose = legalClose;
 <link rel="stylesheet" href="portada.css">
 <link rel="stylesheet" href="disseny.css">
 <link rel="stylesheet" href="rtl.css">
+<script src="i18n/ca.js" defer></script>
 <script src="i18n.js" defer></script>
-<script src="monica-i18n-data.js" defer></script>
 <script src="portada.js" defer></script>
 <script src="textos-fixos.js" defer></script>
 <script src="missatges.js" defer></script>

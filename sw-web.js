@@ -8,12 +8,13 @@
 // la xarxa primer; només si no hi ha connexió es fa servir la
 // còpia guardada, perquè l'app segueixi obrint-se offline.
 
-const CACHE_NAME = 'higienex-web-v6'; // ← versió pujada expressament per
+const CACHE_NAME = 'higienex-web-v7'; // ← versió pujada expressament per
                                        //   forçar que qui ja tenia l'app
                                        //   instal·lada descarti la caché vella
 const PRECACHE_URLS = [
   './index.html',
   './i18n.js',
+  './i18n/ca.js',
   './manifest-web.json',
   './icons/icon-web-192.png',
   './icons/icon-web-512.png'
