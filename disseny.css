@@ -145,3 +145,63 @@ p[data-i18n-key="t314"] a, footer p a { color: #cfe6f7 !important; text-decorati
 #pressupostGrid p { color: #c3d3e1 !important; }
 .hx-scroll-a11y:focus-visible { outline: 3px solid #F2A900; outline-offset: 3px; }
 .testi-author div span, .contact-item p span, .contact-item a[style*="#888"] { color: #5c6b78 !important; }
+
+/* ── Crítica de disseny ── */
+/* Botó de contacte a la cantonada dreta (esquerra en àrab) */
+#hxChatLauncher { left: auto !important; right: 1.25rem !important; bottom: 1.25rem !important; }
+#hxContacte { left: auto !important; right: 1.25rem !important; }
+html[dir="rtl"] #hxChatLauncher { right: auto !important; left: 1.25rem !important; }
+html[dir="rtl"] #hxContacte { right: auto !important; left: 1.25rem !important; }
+@media (max-width: 760px) {
+  #hxChatLauncher { right: 1rem !important; bottom: 1rem !important; }
+  #hxContacte { right: 1rem !important; left: 1rem !important; }
+  html[dir="rtl"] #hxChatLauncher { left: 1rem !important; right: auto !important; }
+}
+/* Xifres amb la tipografia de la marca */
+.cat-num, .big-num, .caso-metric, .innov-num, .big-metric, .step-num, .log-stat-num, .fp-price, .testi-quote {
+  font-family: 'Archivo', -apple-system, 'Segoe UI', Arial, sans-serif !important; font-weight: 750 !important; font-stretch: 112%; letter-spacing: -0.01em;
+}
+/* La X del logotip, sempre daurada */
+.logo span { color: var(--hx-gold, #F2A900) !important; }
+/* Productes: un sol títol abans de la botiga */
+#productes > .container > h2[data-i18n-key="t031"], h3[data-i18n-key="t032"] { display: none !important; }
+/* Fotos de «Els més demanats» amb el mateix enquadrament */
+.hxh-prod-img img { width: 134px !important; height: 200px !important; object-fit: cover; border-radius: 10px; border: 1px solid #e3e9ee; background: #fff; }
+@media (max-width: 760px) { .hxh-prod-img img { width: 72px !important; height: 108px !important; } }
+/* Bloc plegable d'innovació */
+.hxp-mes { border-top: 1px solid #d9e1e7; background: #F3F6F5; }
+.hxp-mes > summary { list-style: none; cursor: pointer; max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; display: grid; gap: 0.25rem; position: relative; padding-right: 4rem; }
+.hxp-mes > summary::-webkit-details-marker { display: none; }
+.hxp-mes > summary::after { content: '+'; position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: 2px solid #0E2A3F; display: grid; place-items: center; font-size: 1.4rem; font-weight: 700; color: #0E2A3F; }
+.hxp-mes[open] > summary::after { content: '−'; }
+.hxp-mes > summary:focus-visible { outline: 3px solid #F2A900; outline-offset: -3px; }
+.hxp-mes-t { font-size: 1.4rem; font-weight: 750; font-stretch: 112%; color: #0E2A3F; }
+.hxp-mes-d { color: #4f5d6a; font-size: 0.95rem; }
+html[dir="rtl"] .hxp-mes > summary { padding-right: 1.5rem; padding-left: 4rem; }
+html[dir="rtl"] .hxp-mes > summary::after { right: auto; left: 1.5rem; }
+/* Índex de la pàgina Empresa */
+.hx-index { min-width: 0; max-width: 100vw; overflow: hidden; background: #fff; border-bottom: 1px solid #d9e1e7; }
+.hx-index ul { min-width: 0; width: 100%; box-sizing: border-box; list-style: none; margin: 0 auto; padding: 0 1.5rem; max-width: 1200px; display: flex; gap: 0.25rem; overflow-x: auto; scrollbar-width: none; }
+.hx-index a { display: block; padding: 0.85rem 0.9rem; min-height: 44px; box-sizing: border-box; white-space: nowrap; color: #0E2A3F; font-weight: 600; font-size: 0.92rem; text-decoration: none; border-bottom: 3px solid transparent; }
+.hx-index a:hover, .hx-index a:focus-visible { border-bottom-color: #F2A900; outline: none; }
+/* Text legal del peu: més gran i en una columna al mòbil */
+p[data-i18n-key="t289"], p[data-i18n-key="t314"] { font-size: 0.8rem !important; line-height: 1.6 !important; }
+@media (max-width: 760px) {
+  p[data-i18n-key="t289"], p[data-i18n-key="t314"] { font-size: 0.82rem !important; }
+  p[data-i18n-key="t289"] { max-width: none !important; }
+}
+/* Dades sota els botons de la portada: apilades al mòbil */
+@media (max-width: 760px) {
+  .hxh-facts { flex-direction: column; gap: 0.35rem; }
+  .hxh-facts li, .hxh-facts li:first-child { padding: 0 0 0 0.7rem !important; border-left: 2px solid #F2A900 !important; border-right: 0 !important; }
+  html[dir="rtl"] .hxh-facts li, html[dir="rtl"] .hxh-facts li:first-child { padding: 0 0.7rem 0 0 !important; border-left: 0 !important; border-right: 2px solid #F2A900 !important; }
+}
+@media (max-width: 760px) {
+  [style*="grid-template-columns:1fr 1fr"]:has(p[data-i18n-key="t289"]) { grid-template-columns: 1fr !important; gap: 1rem !important; }
+}
+@media (max-width: 760px) {
+  #organitzacio [style*="grid-template-columns:repeat(3,1fr)"] { grid-template-columns: 1fr !important; }
+}
+/* El botó de contacte es distingeix també sobre el peu fosc */
+#hxChatLauncher { border: 2px solid rgba(255,255,255,0.9) !important; }
+@media (max-width: 760px) { .hxh-facts { align-items: flex-start; } }

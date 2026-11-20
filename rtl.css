@@ -48,13 +48,13 @@ html[dir="rtl"] section > div[style*="height:200px"] > div[style*="position:abso
   background: linear-gradient(270deg, var(--ds-ink) 0 48%, rgba(14,42,63,0) 48%) !important;
 }
 
-/* Botons flotants i panells: a la dreta */
-html[dir="rtl"] #hxChatLauncher { left: auto !important; right: 1.5rem !important; }
-html[dir="rtl"] #hxContacte { left: auto; right: 1.5rem; }
-html[dir="rtl"] #hxChatWindow { left: auto; right: 1.5rem; }
+/* Botons flotants i panells: a l'esquerra (mirall de la versió LTR) */
+html[dir="rtl"] #hxChatLauncher { right: auto !important; left: 1.25rem !important; }
+html[dir="rtl"] #hxContacte { right: auto !important; left: 1.25rem !important; }
+html[dir="rtl"] #hxChatWindow { right: auto; left: 1.25rem; }
 @media (max-width: 760px) {
-  html[dir="rtl"] #hxChatLauncher { right: 1rem !important; }
-  html[dir="rtl"] #hxContacte { right: 1rem; }
+  html[dir="rtl"] #hxChatLauncher { right: auto !important; left: 1rem !important; }
+  html[dir="rtl"] #hxContacte { right: 1rem !important; left: 1rem !important; }
   html[dir="rtl"] #hxChatWindow { right: 1rem; left: 1rem; }
 }
 

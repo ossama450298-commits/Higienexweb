@@ -84,6 +84,15 @@
     waMsg: ['Hola HIGIENEX, tinc una consulta.', 'Hola HIGIENEX, tengo una consulta.', 'Hello HIGIENEX, I have a question.', 'Bonjour HIGIENEX, j’ai une question.', 'Hallo HIGIENEX, ich habe eine Frage.', 'مرحبًا HIGIENEX، لدي استفسار.'],
     // peu
     whatsapp: ['Escriu-nos per WhatsApp', 'Escríbenos por WhatsApp', 'Message us on WhatsApp', 'Écrivez-nous sur WhatsApp', 'Schreiben Sie uns per WhatsApp', 'راسلنا عبر واتساب'],
+    mes: ['Innovació i futur d\'HIGIENEX', 'Innovación y futuro de HIGIENEX', 'HIGIENEX innovation and future', 'Innovation et avenir d\'HIGIENEX', 'Innovation und Zukunft von HIGIENEX', 'الابتكار ومستقبل HIGIENEX'],
+    mesd: ['Laboratori R+D, patents, pla de digitalització i expansió', 'Laboratorio I+D, patentes, plan de digitalización y expansión', 'R&D lab, patents, digitalisation and expansion plan', 'Laboratoire R&D, brevets, plan de digitalisation et d\'expansion', 'F&E-Labor, Patente, Digitalisierungs- und Expansionsplan', 'مختبر البحث والتطوير وبراءات الاختراع وخطة الرقمنة والتوسع'],
+    idx: ['En aquesta pàgina', 'En esta página', 'On this page', 'Sur cette page', 'Auf dieser Seite', 'في هذه الصفحة'],
+    ix_sobre: ['Història', 'Historia', 'History', 'Histoire', 'Geschichte', 'تاريخنا'],
+    ix_missio: ['Missió i valors', 'Misión y valores', 'Mission and values', 'Mission et valeurs', 'Mission und Werte', 'المهمة والقيم'],
+    ix_org: ['Organigrama', 'Organigrama', 'Organisation', 'Organigramme', 'Organigramm', 'الهيكل التنظيمي'],
+    ix_equip: ['Equip', 'Equipo', 'Team', 'Équipe', 'Team', 'الفريق'],
+    ix_treballa: ['Treballa amb nosaltres', 'Trabaja con nosotros', 'Careers', 'Nous rejoindre', 'Karriere', 'انضم إلينا'],
+    ix_casos: ['Casos d\'èxit', 'Casos de éxito', 'Case studies', 'Études de cas', 'Erfolgsgeschichten', 'قصص النجاح'],
     intern: ['Accés intern', 'Acceso interno', 'Staff access', 'Accès interne', 'Mitarbeiterzugang', 'دخول الموظفين'],
   };
   var IDX = { ca: 0, es: 1, en: 2, fr: 3, de: 4, ar: 5 };
@@ -94,8 +103,24 @@
   }
   function t(k) { var e = D[k]; return e ? e[IDX[lang()]] || e[0] : k; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var EMOJI = /^[\s\u2190-\u2BFF\u2600-\u27BF\uFE0F\u200D\u20E3]*(?:(?:\uD83C[\uDDE6-\uDDFF]){2}|[\uD83C-\uD83E][\uDC00-\uDFFF]|[\u2190-\u2BFF\u2600-\u27BF])[\uFE0F\u200D\s]*/;
+  function treureEmojis() {
+    var sel = 'h1, h2, h3, h4, summary, .cat-filter, .filter-btn, [data-category-filter], footer a, footer h4, .btn, .hxh-btn, label, .form-field > span';
+    document.querySelectorAll(sel).forEach(function (el) {
+      if (el.closest('#hxContacte, .nav-inner, .hxct-op')) return;
+      var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), n;
+      while ((n = w.nextNode())) {
+        if (!n.nodeValue.trim()) continue;
+        var nou = n.nodeValue.replace(EMOJI, '');
+        if (nou !== n.nodeValue && nou.trim()) n.nodeValue = nou;
+        break;
+      }
+    });
+  }
   function pintarTextos() {
+    treureEmojis();
     document.querySelectorAll('[data-hxm]').forEach(function (el) { el.textContent = t(el.getAttribute('data-hxm')); });
+    document.querySelectorAll('[data-hxm-aria]').forEach(function (el) { el.setAttribute('aria-label', t(el.getAttribute('data-hxm-aria'))); });
     // Les etiquetes de secció portaven una numeració (04 / ...) que no coincidia amb el menú.
     document.querySelectorAll('.section-tag').forEach(function (el) {
       var s = el.textContent, n = s.replace(/^\s*\d+\s*\/\s*/, '');
@@ -236,6 +261,30 @@
     });
   }
 
+  var MES = ['rd', 'innovacio', 'digitalitzacio', 'futur'];
+  function aplegarInnovacio() {
+    var g = document.getElementById('g-productes');
+    if (!g || document.getElementById('hxMes')) return;
+    var det = document.createElement('details');
+    det.id = 'hxMes'; det.className = 'hxp-mes';
+    det.innerHTML = '<summary><span class="hxp-mes-t" data-hxm="mes"></span><span class="hxp-mes-d" data-hxm="mesd"></span></summary>';
+    MES.forEach(function (id) { var sec = document.getElementById(id); if (sec) det.appendChild(sec); });
+    g.appendChild(det);
+    var q = ''; try { q = new URLSearchParams(location.search).get('seccio') || location.hash.slice(1); } catch (e) { /* sense URL */ }
+    if (MES.indexOf(q) !== -1) det.open = true;
+  }
+  var IX = [['sobre', 'ix_sobre'], ['missio', 'ix_missio'], ['organitzacio', 'ix_org'], ['rrhh', 'ix_equip'], ['treballa', 'ix_treballa'], ['casos', 'ix_casos']];
+  function indexEmpresa() {
+    var ban = document.getElementById('cat-empresa');
+    if (!ban || document.getElementById('hxIndex')) return;
+    var nav = document.createElement('div');
+    nav.setAttribute('role', 'navigation');
+    nav.id = 'hxIndex'; nav.className = 'hx-index';
+    nav.setAttribute('data-hxm-aria', 'idx');
+    nav.innerHTML = '<ul>' + IX.map(function (x) { return '<li><a href="?seccio=' + x[0] + '" data-nav="' + x[0] + '" data-hxm="' + x[1] + '"></a></li>'; }).join('') + '</ul>';
+    ban.parentNode.insertBefore(nav, ban.nextSibling);
+  }
+
   /* ---------- Peu ---------- */
   function arreglarPeu() {
     // El mateix telèfon sortia dues vegades: el segon passa a ser WhatsApp.
@@ -348,6 +397,7 @@
         try { history.replaceState(history.state, '', location.pathname + '?seccio=' + id); } catch (e) { /* sense historial */ }
         return;
       }
+      if (MES.indexOf(id) !== -1) { var d = document.getElementById('hxMes'); if (d) d.open = true; }
       orig(id);
     };
     nou._hxPortada = true;
@@ -373,6 +423,8 @@
     muntarMenu();
     muntarCalculadores();
     ordenarProductes();
+    aplegarInnovacio();
+    indexEmpresa();
     arreglarPeu();
     muntarContacte();
     envoltarNavTo();
