@@ -1972,12 +1972,12 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <meta name="apple-mobile-web-app-title" content="HIGIENEX">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-web.png">
 <script src="vendor/qrcode.min.js" defer></script>
-<script src="pdf-i18n.js?v=20261120f" defer></script>
-<script src="hx-plus.js?v=20261120f" defer></script>
-<script src="pdf-kit.js?v=20261120f" defer></script>
-<script src="pdf-docs.js?v=20261120f" defer></script>
-<script src="pdf-cataleg.js?v=20261120f" defer></script>
-<script src="pdf-fitxes.js?v=20261120f" defer></script>
+<script src="pdf-i18n.js?v=20261120g" defer></script>
+<script src="hx-plus.js?v=20261120g" defer></script>
+<script src="pdf-kit.js?v=20261120g" defer></script>
+<script src="pdf-docs.js?v=20261120g" defer></script>
+<script src="pdf-cataleg.js?v=20261120g" defer></script>
+<script src="pdf-fitxes.js?v=20261120g" defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -3378,10 +3378,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
     <div style="margin-top:2.5rem;">
       <!-- Grid de productes -->
       <h3 style="color:#0B3D6B;font-size:1rem;font-weight:700;margin:0 0 1rem;text-transform:uppercase;letter-spacing:1px;" data-i18n-key="t032">🛒 Compra Online — Afegeix al Cistell</h3>
-      <div style="background:linear-gradient(135deg,#FFF6E0,#FFFBF0);border:1px solid #F2D8A0;border-radius:12px;padding:0.7rem 1rem;margin-bottom:1.2rem;font-size:0.82rem;color:#8a6d1f;display:flex;align-items:center;gap:0.6rem;">
-        <span style="font-size:1.1rem;">🎉</span>
-        <span><strong data-i18n-key="t516">Descomptes per volum:</strong> -5% des de 5 unitats · -10% des de 10 · -15% des de 20 (s'aplica automàticament al cistell).</span>
-      </div>
       <div id="categoryFilters" style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.9rem;">
         <button onclick="filterByCategory('')" class="cat-filter-btn cat-filter-active" data-cat="" style="padding:0.4rem 0.9rem;border-radius:20px;border:1.5px solid #0B3D6B;background:#0B3D6B;color:white;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:Arial,sans-serif;" type="button" data-i18n-key="t397">Tots</button>
         <button onclick="filterByCategory('Hospitals')" class="cat-filter-btn hx-u22" data-cat="Hospitals" type="button" data-i18n-key="t410">🏥 Hospitals</button>
@@ -3684,7 +3680,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <div class="container">
     <span class="section-tag" data-i18n-key="t657">🔁 Automatitza el teu subministrament</span>
     <h2 data-i18n-key="t658">Simulador de comanda recurrent</h2>
-    <p class="section-sub" data-i18n-key="t659">Programa reposicions automàtiques i estalvia amb els nostres descomptes per volum acumulat.</p>
+    <p class="section-sub" data-i18n-key="t659">Programa reposicions automàtiques i oblida’t de quedar-te sense producte.</p>
 
     <div style="max-width:720px;margin:2rem auto 0;background:var(--warm-white);border-radius:20px;padding:2rem;border:1.5px solid var(--border);">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
@@ -3721,7 +3717,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
         </div>
       </div>
 
-      <p style="font-size:0.76rem;opacity:0.65;margin-top:1.2rem;" data-i18n-key="t669"><strong>Descomptes per volum:</strong> -5% des de 5 unitats · -10% des de 10 · -15% des de 20 (s'aplica automàticament al cistell).</p>
       <div style="text-align:center;margin-top:1rem;">
         <button type="button" class="btn-primary" onclick="hxRecurrentAfegir()" data-i18n-key="t670">🛒 Afegir aquesta comanda al cistell</button>
       </div>
@@ -4234,7 +4229,6 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
         <div id="fpVolumWrap" style="display:none;margin-top:1rem;background:var(--warm-white);border-radius:14px;padding:1.1rem 1.2rem;">
           <div style="font-weight:700;color:var(--green-deep);font-size:0.88rem;margin-bottom:0.6rem;">📦 Preu per volum de compra</div>
           <div id="fpVolumTable" style="display:grid;gap:0.4rem;font-size:0.85rem;"></div>
-          <div style="font-size:0.72rem;color:var(--ink-2, #6b6b6b);margin-top:0.6rem;">El descompte s'aplica automàticament al cistell.</div>
         </div>
       </div>
     </div>
@@ -4417,7 +4411,7 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <div class="container">
     <span class="section-tag">📋 Eina interactiva</span>
     <h2>Genera el teu pressupost a l'instant</h2>
-    <p class="section-sub">Tria els productes i les quantitats que necessites. El pressupost es calcula en temps real, amb els descomptes per volum i l'IVA ja aplicats, llest per descarregar en PDF o rebre per email.</p>
+    <p class="section-sub">Tria els productes i les quantitats que necessites. El pressupost es calcula en temps real, amb l'IVA inclòs, llest per descarregar en PDF o rebre per email.</p>
 
     <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:2rem;margin-top:2.2rem;align-items:flex-start;" id="pressupostGrid">
       <div style="background:#fff;border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;">
@@ -7272,6 +7266,7 @@ window.submitTreballaForm = submitTreballaForm;
         <span data-i18n-key="t841" class="hx-u12">Total a pagar</span>
         <span id="paymentTotalDisplay" style="font-size:1.35rem;font-weight:800;color:#0B3D6B;">0,00 €</span>
       </div>
+      <p id="paymentDteNote" style="display:none;margin:-0.7rem 0 1.1rem;font-size:0.82rem;color:#6b5212;text-align:end;"></p>
 
       <div style="display:flex;flex-direction:column;gap:0.55rem;margin-bottom:1.1rem;">
         <button type="button" onclick="hxQuickPay('applepay',this)" class="hx-quickpay-btn" style="display:flex;align-items:center;justify-content:center;gap:0.4rem;width:100%;padding:0.7rem;border:none;border-radius:10px;background:#000;color:#fff;font-weight:700;font-size:0.92rem;cursor:pointer;font-family:-apple-system,'SF Pro Text',Arial,sans-serif;">
@@ -8782,6 +8777,16 @@ function openPaymentModal() {
   var total = hxCartTotalNow();
   var disp = document.getElementById('paymentTotalDisplay');
   if (disp) disp.textContent = total.toFixed(2).replace('.', ',') + ' €';
+  // El descuento por volumen no se enseña en el carrito; aquí se explica por qué el total es menor.
+  var nota = document.getElementById('paymentDteNote');
+  if (nota) {
+    var dte = Object.keys(cart).reduce(function(s,k){ var it = cart[k]; return s + (it.rawTotal != null ? it.rawTotal - it.total : 0); }, 0);
+    var dteIva = hxRedon(dte * (1 + IVA_PCT));
+    var TN = { ca: 'Inclou un descompte per volum de {0} (IVA inclòs).', es: 'Incluye un descuento por volumen de {0} (IVA incluido).', en: 'Includes a volume discount of {0} (VAT incl.).', fr: 'Inclut une remise sur volume de {0} (TVA comprise).', de: 'Enthält einen Mengenrabatt von {0} (inkl. MwSt.).', ar: 'يشمل خصم كمية بقيمة {0} (شامل الضريبة).' };
+    var l = (typeof cpLang === 'function' && cpLang()) || 'ca';
+    nota.textContent = (TN[l] || TN.ca).replace('{0}', hxFormatPrice(dteIva));
+    nota.style.display = dte > 0.004 ? 'block' : 'none';
+  }
   var err = document.getElementById('paymentError');
   if (err) err.style.display = 'none';
   var f = document.getElementById('paymentCardForm');
@@ -8993,7 +8998,7 @@ function addToCart(name, price, btn) {
   if (producte && producte.stock === 'low' && qty > 5) {
     showToast('⚠️ ' + name + ': estoc baix (últimes unitats). Aquesta quantitat pot trigar més del normal a servir-se.', '⚠️');
   } else {
-    showToast(name + ' afegit! (' + qty + ' u.)' + (rate > 0 ? ' 🎉 -' + Math.round(rate*100) + '%' : ''), '✅');
+    showToast(name + ' afegit! (' + qty + ' u.)', '✅');
   }
 }
 window.addToCart = addToCart;
@@ -9054,25 +9059,26 @@ function renderPressupostResum() {
     box.innerHTML = '<p style="color:rgba(255,255,255,0.65);font-size:0.85rem;">Encara no has afegit cap producte. Tria quantitats a l\'esquerra per veure el càlcul.</p>';
     return;
   }
-  var subtotal = items.reduce(function(s, i){ return s + i.total; }, 0);
-  var totalDescompte = items.reduce(function(s, i){ return s + (i.rawTotal - i.total); }, 0);
+  // En pantalla, sin descuento; el PDF del presupuesto que llega por email ya lo aplica.
+  var subtotal = items.reduce(function(s, i){ return s + i.rawTotal; }, 0);
+  var totalDescompte = 0;
   var base = subtotal + TRANSPORT;
-  var iva = base * IVA_PCT;
-  var total = base + iva;
+  var iva = hxRedon(hxRedon(base) * IVA_PCT);
+  var total = hxRedon(base + iva);
   var linesHTML = items.map(function(i) {
     return '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;font-size:0.85rem;color:rgba(255,255,255,0.85);">' +
-      '<span>' + i.qty + ' × ' + escHtml(i.name) + '</span><span>' + i.total.toFixed(2) + ' €</span></div>';
+      '<span>' + i.qty + ' × ' + escHtml(i.name) + '</span><span>' + hxFormatPrice(i.rawTotal) + '</span></div>';
   }).join('');
   box.innerHTML = linesHTML +
     '<div style="margin-top:0.6rem;padding-top:0.6rem;border-top:1px dashed rgba(255,255,255,0.25);">' +
-    '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:rgba(255,255,255,0.75);"><span>Subtotal</span><span>' + subtotal.toFixed(2) + ' €</span></div>' +
-    (totalDescompte > 0 ? '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:var(--accent);"><span>Descompte per volum</span><span>-' + totalDescompte.toFixed(2) + ' €</span></div>' : '') +
-    '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:rgba(255,255,255,0.75);"><span>Transport</span><span>' + TRANSPORT.toFixed(2) + ' €</span></div>' +
-    '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:rgba(255,255,255,0.75);"><span>IVA (' + Math.round(IVA_PCT*100) + '%)</span><span>' + iva.toFixed(2) + ' €</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:rgba(255,255,255,0.75);"><span>Subtotal</span><span>' + hxFormatPrice(subtotal) + '</span></div>' +
+    (totalDescompte > 0 ? '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:var(--accent);"><span>Descompte per volum</span><span>-' + hxFormatPrice(totalDescompte) + '</span></div>' : '') +
+    '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:rgba(255,255,255,0.75);"><span>Transport</span><span>' + hxFormatPrice(TRANSPORT) + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:0.2rem 0;font-size:0.85rem;color:rgba(255,255,255,0.75);"><span>IVA (' + Math.round(IVA_PCT*100) + '%)</span><span>' + hxFormatPrice(iva) + '</span></div>' +
     '</div>' +
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.7rem;padding:0.8rem 1rem;background:rgba(255,255,255,0.12);border-radius:10px;">' +
     '<span style="font-size:0.78rem;letter-spacing:0.05em;text-transform:uppercase;font-weight:700;">Total</span>' +
-    '<span style="font-size:1.3rem;font-weight:700;font-family:Georgia,serif;">' + total.toFixed(2) + ' €</span></div>';
+    '<span style="font-size:1.3rem;font-weight:700;font-family:Georgia,serif;">' + hxFormatPrice(total) + '</span></div>';
 }
 
 function renderPressupost() {
@@ -9473,24 +9479,23 @@ function renderCart() {
   var subtotal = 0;
   items.innerHTML = keys.map(function(k) {
     var it = cart[k];
-    subtotal += it.total;
+    // En pantalla, preu sense descompte: el descompte per volum només surt al correu i als PDF.
+    var brut = it.rawTotal != null ? it.rawTotal : it.total;
+    subtotal += brut;
     return '<div style="display:flex;justify-content:space-between;padding:0.55rem 0;border-bottom:1px solid #F0F0F0;font-size:0.84rem;">' +
       '<span style="color:#444;">' + k + ' <strong>x' + it.qty + '</strong></span>' +
-      '<span style="font-weight:700;color:#0B3D6B;">' + hxFormatPrice(it.total) + '</span>' +
+      '<span style="font-weight:700;color:#0B3D6B;">' + hxFormatPrice(brut) + '</span>' +
       '</div>';
   }).join('');
 
-  // IVA sobre productos + transporte: el mismo total que se cobra y que sale en el justificante
+  // IVA sobre productos + transporte (precio sin descuento; al pagar se cobra con el descuento)
   var iva   = hxRedon(hxRedon(subtotal + TRANSPORT) * IVA_PCT);
   var total = hxRedon(subtotal + TRANSPORT + iva);
-  var totalDescompte = keys.reduce(function(s,k){ var it = cart[k]; return s + (it.discountRate > 0 ? (it.rawTotal - it.total) : 0); }, 0);
 
   items.innerHTML += '<div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px dashed #ddd;font-size:0.82rem;color:#666;">' +
-    (totalDescompte > 0 ? '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;color:#B8860B;font-weight:600;"><span>🎉 ' + 'Descomptes per volum' + '</span><span>-' + hxFormatPrice(totalDescompte) + '</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>Subtotal</span><span>' + hxFormatPrice(subtotal) + '</span></div>' +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>Transport</span><span>' + hxFormatPrice(TRANSPORT) + '</span></div>' +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>IVA (21%)</span><span>' + hxFormatPrice(iva) + '</span></div>' +
-    (totalDescompte > 0 ? '<div style="font-size:0.72rem;color:#999;margin-top:0.3rem;">El detall del descompte per producte surt a la comanda.</div>' : '') +
     '</div>';
 
   if (tot) tot.style.display = 'flex';
@@ -10008,7 +10013,13 @@ function sendOrder() {
       var Tc = function () { return window.HXT ? HXT.apply(null, arguments) : arguments[0]; };
       var locC = window.HXT ? HXT.locale() : 'ca-ES';
       var eurC = function (n) { return Number(n).toLocaleString(locC, { style: 'currency', currency: 'EUR' }); };
-      var liniesC = keys.map(function(k){ return cart[k].qty + ' × ' + k + ' — ' + eurC(cart[k].total); }).join('\n');
+      // En el email sí se detalla el descuento por volumen (en pantalla no se muestra).
+      var liniesC = keys.map(function(k){
+        var it = cart[k], r = it.discountRate || 0;
+        return it.qty + ' × ' + k + ' — ' + (r > 0 ? eurC(it.rawTotal) + ' (-' + Math.round(r * 100) + ' %) = ' : '') + eurC(it.total);
+      }).join('\n');
+      var dteC = keys.reduce(function(s,k){ var it = cart[k]; return s + (it.discountRate > 0 ? it.rawTotal - it.total : 0); }, 0);
+      if (dteC > 0.004) liniesC += '\n' + Tc('Descompte per volum') + ': -' + eurC(dteC);
       var paramsC = {
         email: inv.email,
         name: (document.getElementById('userName') || {}).textContent || '',
@@ -11831,16 +11842,16 @@ window.legalClose = legalClose;
 </div>
 
 <!-- CERCADOR GLOBAL DE LA WEB -->
-<link rel="stylesheet" href="portada.css?v=20261120f">
-<link rel="stylesheet" href="disseny.css?v=20261120f">
-<link rel="stylesheet" href="rtl.css?v=20261120f">
-<script src="i18n/ca.js?v=20261120f" defer></script>
-<script src="i18n.js?v=20261120f" defer></script>
-<script src="portada.js?v=20261120f" defer></script>
-<script src="textos-fixos.js?v=20261120f" defer></script>
-<script src="missatges.js?v=20261120f" defer></script>
-<script src="login-social.js?v=20261120f" defer></script>
-<script src="perfil-empresa.js?v=20261120f" defer></script>
-<script src="legal.js?v=20261120f" defer></script>
+<link rel="stylesheet" href="portada.css?v=20261120g">
+<link rel="stylesheet" href="disseny.css?v=20261120g">
+<link rel="stylesheet" href="rtl.css?v=20261120g">
+<script src="i18n/ca.js?v=20261120g" defer></script>
+<script src="i18n.js?v=20261120g" defer></script>
+<script src="portada.js?v=20261120g" defer></script>
+<script src="textos-fixos.js?v=20261120g" defer></script>
+<script src="missatges.js?v=20261120g" defer></script>
+<script src="login-social.js?v=20261120g" defer></script>
+<script src="perfil-empresa.js?v=20261120g" defer></script>
+<script src="legal.js?v=20261120g" defer></script>
 </body>
 </html>

@@ -374,3 +374,4 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 .hxp-particular { min-height: 44px; padding: 0 1.2rem; background: none; border: 1.5px solid #B08A2E; color: #6b5212; border-radius: 10px; font-weight: 700; font-size: 0.92rem; cursor: pointer; }
 .hxp-part small { display: block; margin-top: 0.35rem; color: #5a6b78; font-size: 0.78rem; }
 .hxp-caixa button:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
+#fpVolumWrap { display: none !important; } /* el descompte per volum ja no es mostra en pantalla */

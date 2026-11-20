@@ -666,10 +666,10 @@
       "Erstellen Sie Ihr Angebot sofort",
       "احصل على عرض سعرك فورًا"
     ],
-    "Tria els productes i les quantitats que necessites. El pressupost es calcula en temps real, amb els descomptes per volum i l'IVA ja aplicats, llest per descarregar en PDF o rebre per email.": [
-      "Elige los productos y las cantidades que necesitas. El presupuesto se calcula en tiempo real, con los descuentos por volumen y el IVA ya aplicados, y lo recibes por email.",
-      "Choose the products and quantities you need. The quote is calculated in real time, with volume discounts and VAT already applied, and sent to you by email.",
-      "Choisissez les produits et les quantités dont vous avez besoin. Le devis est calculé en temps réel, remises sur volume et TVA comprises, et vous est envoyé par e-mail.",
+    "Tria els productes i les quantitats que necessites. El pressupost es calcula en temps real, amb l'IVA inclòs, llest per descarregar en PDF o rebre per email.": [
+      "Elige los productos y las cantidades que necesitas. El presupuesto se calcula en tiempo real, con el IVA incluido, y lo recibes por email.",
+      "Choose the products and quantities you need. The quote is calculated in real time, with VAT included, and sent to you by email.",
+      "Choisissez les produits et les quantités dont vous avez besoin. Le devis est calculé en temps réel, TVA comprise, et vous est envoyé par e-mail.",
       "Wählen Sie Produkte und Mengen. Das Angebot wird in Echtzeit berechnet, mit Mengenrabatten und MwSt., und Ihnen per E-Mail geschickt.",
       "اختر المنتجات والكميات التي تحتاجها. يُحسب عرض السعر فورًا مع تطبيق خصومات الكميات والضريبة، ويصلك عبر البريد الإلكتروني."
     ],
