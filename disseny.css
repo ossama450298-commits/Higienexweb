@@ -251,3 +251,64 @@ html[dir="rtl"] .side-panel-close { right: auto !important; left: 1rem !importan
 #navDropdown .dditem.dd-client { margin: 1rem 1.25rem 0 !important; border: 2px solid #0E2A3F !important; border-radius: 10px; text-align: center; padding: 0.8rem 1rem !important; }
 html[dir="rtl"] #navDropdown .dditem.dd-sub, html[dir="rtl"] #navDropdown .dditem.dd-sub:hover { padding: 0.55rem 2.4rem 0.55rem 1.5rem !important; }
 section > div:is([style*="height:200px"], [style*="height:180px"]) .hx-u10 { display: none !important; }
+
+/* ── Páginas legales (legal.js): barra propia, índice lateral y tabla de cookies ── */
+.legal-page { z-index: 100002 !important; padding: 0 0 5rem !important; background: #fff !important; }
+.hxl-barra { position: sticky; top: 0; z-index: 3; background: var(--ds-ink, #0E2A3F); border-bottom: 4px solid #F2A900; }
+.hxl-barra-in { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; padding: 0.65rem 1.5rem; }
+.hxl-logo { font-family: Georgia, 'Times New Roman', serif; font-weight: 700; font-size: 1.35rem; color: #fff; letter-spacing: 0.01em; }
+.hxl-logo span { color: #F2A900; }
+.hxl-barra .legal-back { margin: 0 0 0 auto !important; background: #F2A900 !important; color: #0E2A3F !important; box-shadow: none !important; min-height: 44px; }
+.hxl-barra .legal-back:hover { background: #ffc233 !important; }
+.hxl-imprimir { min-height: 44px; padding: 0 1rem; border-radius: 30px; border: 1.5px solid rgba(255,255,255,0.5); background: transparent; color: #fff; font-weight: 600; cursor: pointer; }
+.hxl-imprimir:hover { background: rgba(255,255,255,0.1); }
+.hxl-barra .legal-back:focus-visible, .hxl-imprimir:focus-visible, .hxl-index a:focus-visible, .hxl-boto:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
+.hxl-marc { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 3.5rem; padding: 3rem 1.5rem 0; }
+.legal-page .container.hxl-cos { max-width: 760px; margin: 0; padding: 0; }
+.legal-page .hxl-cos .section-tag { display: none !important; }
+.legal-page .hxl-cos h2 { font-family: inherit !important; font-weight: 800; font-stretch: 112%; color: #0E2A3F; font-size: clamp(2rem, 4vw, 2.8rem); margin-top: 0 !important; }
+.legal-page .hxl-cos h3 { display: block; border-bottom: 0; padding: 0; margin: 2.4rem 0 0.7rem; color: #0E2A3F; font-size: 1.2rem; scroll-margin-top: 5.5rem; }
+.legal-page .hxl-cos h3::after { content: ''; display: block; width: 36px; height: 3px; margin-top: 0.45rem; background: #F2A900; border-radius: 2px; }
+.legal-page .hxl-cos p, .legal-page .hxl-cos li { color: #33424f; line-height: 1.75; font-size: 1rem; }
+.hxl-act { margin: -1.2rem 0 0 !important; font-size: 0.88rem !important; color: #5c6b78 !important; }
+.hxl-index { position: sticky; top: 5.5rem; align-self: start; border-left: 3px solid #e3e9ee; padding-left: 1.1rem; }
+.hxl-index-t { margin: 0 0 0.6rem; font-size: 0.8rem; font-weight: 700; color: #5c6b78; }
+.hxl-index ol { list-style: none; margin: 0; padding: 0; counter-reset: hxl; }
+.hxl-index li { counter-increment: hxl; }
+.hxl-index a { display: flex; gap: 0.5rem; padding: 0.4rem 0; min-height: 32px; color: #0E2A3F; text-decoration: none; font-size: 0.9rem; line-height: 1.35; }
+.hxl-index a::before { content: counter(hxl); color: #B8860B; font-weight: 700; min-width: 1.1rem; }
+.hxl-index a:hover { color: #0B3D6B; text-decoration: underline; }
+.hxl-llista { padding-left: 1.2rem; }
+.hxl-taula-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid #e3e9ee; border-radius: 10px; }
+.hxl-taula { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.hxl-taula th { text-align: start; background: #0E2A3F; color: #fff; padding: 0.7rem 0.9rem; font-weight: 600; white-space: nowrap; font-family: inherit !important; text-transform: none !important; letter-spacing: normal !important; font-size: 0.85rem; }
+.hxl-taula td { padding: 0.7rem 0.9rem; border-top: 1px solid #e3e9ee; color: #33424f; vertical-align: top; }
+.hxl-taula tr:nth-child(even) td { background: #F3F6F5; }
+.hxl-taula code { font-size: 0.82rem; background: #eef3f6; padding: 0.1rem 0.35rem; border-radius: 4px; white-space: nowrap; }
+.hxl-nota { background: #FFF6E0; border-left: 4px solid #F2A900; padding: 0.9rem 1rem; border-radius: 6px; font-size: 0.95rem !important; }
+.hxl-boto { margin-top: 0.6rem; min-height: 46px; padding: 0 1.4rem; border-radius: 30px; border: 0; background: #0E2A3F; color: #fff; font-weight: 700; cursor: pointer; }
+.hxl-boto:hover { background: #0B3D6B; }
+html[dir="rtl"] .hxl-index { border-left: 0; border-right: 3px solid #e3e9ee; padding-left: 0; padding-right: 1.1rem; }
+html[dir="rtl"] .hxl-barra .legal-back { margin: 0 auto 0 0 !important; }
+html[dir="rtl"] .hxl-llista { padding-left: 0; padding-right: 1.2rem; }
+@media (max-width: 860px) {
+  .hxl-marc { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; padding-top: 1.6rem; }
+  /* La tabla de cookies pasa a fichas en el móvil: no ensancha la página */
+  .hxl-taula thead { display: none; }
+  .hxl-taula, .hxl-taula tbody, .hxl-taula tr, .hxl-taula td { display: block; width: 100%; }
+  .hxl-taula tr { padding: 0.8rem 1rem; border-top: 1px solid #e3e9ee; }
+  .hxl-taula tr:first-child { border-top: 0; }
+  .hxl-taula td { border: 0 !important; padding: 0.15rem 0 !important; background: none !important; }
+  .hxl-taula tr:nth-child(even) { background: #F3F6F5; }
+  .hxl-taula code { white-space: normal; word-break: break-all; }
+  /* En el móvil las páginas son cortas: el índice no aporta y empujaba el título hacia abajo */
+  .hxl-index { display: none; }
+  .hxl-imprimir { display: none; }
+  .hxl-barra-in { padding: 0.55rem 1rem; }
+}
+@media print {
+  .hxl-barra, .hxl-index, .hxl-boto { display: none !important; }
+  .legal-page { position: static !important; overflow: visible !important; }
+  .hxl-marc { display: block; padding: 0; }
+}
+body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxContacte { display: none !important; }
