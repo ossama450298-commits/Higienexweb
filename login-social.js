@@ -45,6 +45,7 @@
       closeAuthModal();
       setLoggedInUser(res.user.name, '', res.user.role, res.user.email);
       showWelcome(res.user.name, false);
+      if (window.hxPerfilEmpresa) window.hxPerfilEmpresa(res.user); // datos de empresa si faltan
     } catch (e) {
       aviso(caja, e.status === 403 ? t('admin') : t('error'));
     } finally {

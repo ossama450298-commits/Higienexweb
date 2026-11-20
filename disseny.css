@@ -353,3 +353,24 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 .hxs-apple:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
 .hxs-err { margin: 0; color: #B3261E; font-size: 0.82rem; font-weight: 600; text-align: center; }
 .hxs-bloc.hxs-dalt { margin: 0 0 1rem; }
+
+/* Ventana «Completa los datos de tu empresa» */
+#hxPerfilWrap { position: fixed; inset: 0; z-index: 10000000; background: rgba(14, 42, 63, 0.55); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+#hxPerfilWrap.hxp-ocupat .hxp-caixa { opacity: 0.6; pointer-events: none; }
+.hxp-caixa { position: relative; background: #fff; border-radius: 16px; width: 100%; max-width: 440px; max-height: 92vh; overflow-y: auto; padding: 1.6rem 1.5rem 1.2rem; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3); color: #1b2a36; }
+.hxp-caixa h2 { margin: 0 2rem 0.4rem 0; font-size: 1.2rem; color: #0E2A3F; line-height: 1.3; }
+.hxp-intro { margin: 0 0 1.1rem; font-size: 0.9rem; color: #4a5a67; line-height: 1.5; }
+.hxp-caixa label { display: block; font-size: 0.82rem; font-weight: 700; color: #33424f; margin: 0.8rem 0 0.3rem; }
+.hxp-caixa label span { font-weight: 400; color: #5a6b78; }
+.hxp-caixa input, .hxp-caixa select { width: 100%; box-sizing: border-box; padding: 0.7rem 0.8rem; border: 1.5px solid #d5dde3; border-radius: 10px; font: inherit; font-size: 0.95rem; background: #fff; color: #1b2a36; }
+.hxp-caixa input:focus, .hxp-caixa select:focus { outline: none; border-color: #0B3D6B; box-shadow: 0 0 0 3px rgba(11, 61, 107, 0.15); }
+.hxp-x { position: absolute; top: 0.8rem; inset-inline-end: 0.8rem; width: 40px; height: 40px; border: 0; border-radius: 50%; background: #f1f4f6; color: #33424f; cursor: pointer; font-size: 1rem; }
+.hxp-err { min-height: 1.1em; margin: 0.6rem 0 0; color: #B3261E; font-size: 0.82rem; font-weight: 600; }
+.hxp-botons { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 0.8rem; flex-wrap: wrap; }
+.hxp-botons button { min-height: 44px; padding: 0 1.1rem; border-radius: 10px; font-weight: 700; font-size: 0.92rem; cursor: pointer; }
+.hxp-ara-no { background: #fff; border: 1.5px solid #c9d3db; color: #0E2A3F; }
+.hxp-desar { background: #0E2A3F; border: 0; color: #fff; }
+.hxp-part { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid #e3e9ee; text-align: center; }
+.hxp-particular { min-height: 44px; padding: 0 1.2rem; background: none; border: 1.5px solid #B08A2E; color: #6b5212; border-radius: 10px; font-weight: 700; font-size: 0.92rem; cursor: pointer; }
+.hxp-part small { display: block; margin-top: 0.35rem; color: #5a6b78; font-size: 0.78rem; }
+.hxp-caixa button:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
