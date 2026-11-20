@@ -9279,12 +9279,16 @@ function descarregarPressupostPDF(senseDesar) {
     columnStyles: cs,
     didParseCell: function (d) {
       if (d.section === 'head' && d.column.index >= 1) d.cell.styles.halign = 'right';
-      if (d.section === 'body' && d.column.index === 0) { d.cell.styles.fontStyle = 'bold'; }
+      if (d.section === 'body' && d.column.index === 0) {
+        d.cell.styles.fontStyle = 'bold';
+        if (window.HXPDF && HXPDF.foto && HXPDF.foto(items[d.row.index].name)) { d.cell.styles.cellPadding = { top: 9, bottom: 9, left: 46, right: 10 }; d.cell.styles.minCellHeight = 42; }
+      }
       if (d.section === 'body' && hiHaDte && d.column.index === 3 && d.cell.raw !== '\u2014') { d.cell.styles.textColor = GOLD_D; d.cell.styles.fontStyle = 'bold'; }
     },
     willDrawCell: function (d) { if (d.section === 'body' && d.column.index === 0) { d.cell._txt = String(d.cell.raw).split('\n'); d.cell.text = []; } },
     didDrawCell: function (d) {
       /* Nom del producte en negreta i, a sota, la unitat en gris */
+      if (d.section === 'body' && d.column.index === 0 && window.HXPDF && HXPDF.miniatura) HXPDF.miniatura(doc, items[d.row.index].name, d.cell.x + 8, d.cell.y + 5, 30, d.cell.height - 10);
       if (d.section === 'body' && d.column.index === 0 && d.cell._txt) {
         var cx = d.cell.x + d.cell.padding('left'), cy = d.cell.y + d.cell.height / 2;
         doc.setFont('helvetica', 'bold'); doc.setFontSize(9); color(INK); doc.text(d.cell._txt[0], cx, cy - 1);
@@ -9322,11 +9326,24 @@ function descarregarPressupostPDF(senseDesar) {
   y += Math.max(th, yc - y) + 20;
 
   /* Crida a l'acció */
-  if (y + 62 > H - 60) { doc.addPage(); capcalera(false); y = 84; }
-  fill(CREAM); stroke([245, 214, 140]); doc.setLineWidth(0.6); doc.roundedRect(M, y, W - 2 * M, 54, 5, 5, 'FD');
-  doc.setFont('helvetica', 'bold'); doc.setFontSize(10); color(INK); doc.text(T('Vols confirmar-lo o ajustar quantitats?'), M + 16, y + 22);
+  if (y + 82 > H - 60) { doc.addPage(); capcalera(false); y = 84; }
+  fill(CREAM); stroke([245, 214, 140]); doc.setLineWidth(0.6); doc.roundedRect(M, y, W - 2 * M, 76, 6, 6, 'FD');
+  /* QR que porta a la web per fer la comanda */
+  var teQR = false;
+  if (window.QRCode && typeof window.QRCode.create === 'function') {
+    try {
+      var qq = window.QRCode.create('https://ossama450298-commits.github.io/Higienexweb/?seccio=productes', { errorCorrectionLevel: 'M' });
+      var qn = qq.modules.size, qd = qq.modules.data, qm = 54, qp = qm / qn, qx = M + 11, qy = y + 11;
+      doc.setFillColor(255, 255, 255); doc.roundedRect(M + 8, y + 8, 60, 60, 4, 4, 'F');
+      fill(NAVY);
+      for (var qj = 0; qj < qn; qj++) for (var qi = 0; qi < qn; qi++) if (qd[qj * qn + qi]) doc.rect(qx + qi * qp, qy + qj * qp, qp + 0.05, qp + 0.05, 'F');
+      teQR = true;
+    } catch (e) { /* sense QR */ }
+  }
+  var cxx = M + (teQR ? 84 : 16);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); color(INK); doc.text(T('Vols confirmar-lo o ajustar quantitats?'), cxx, y + 26);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8.6); color(TXT);
-  doc.text(doc.splitTextToSize(T('Escriu a contacto@higienexvalencia.es o truca al 631 706 398 indicant el número de pressupost.'), W - 2 * M - 32).slice(0, 2), M + 16, y + 38);
+  doc.text(doc.splitTextToSize(T('Escriu a contacto@higienexvalencia.es o truca al 631 706 398 indicant el número de pressupost.') + (teQR ? ' ' + T('O escaneja el codi per fer la comanda a la web.') : ''), W - M - cxx - 16).slice(0, 3), cxx, y + 42);
 
   /* Peu a totes les pàgines */
   var n = doc.getNumberOfPages();
@@ -10363,7 +10380,7 @@ function hxRenderFDSButtons(){
   if (!wrap) return;
   wrap.innerHTML = Object.keys(CMP_DATA).map(function(name){
     var info = CMP_DATA[name];
-    return '<button type="button" onclick="fpDescarregarFDS(' + JSON.stringify(name) + ')" style="text-align:left;background:var(--warm-white);border:1.5px solid var(--border);border-radius:16px;padding:1.3rem;cursor:pointer;">' +
+    return '<button type="button" onclick="fpDescarregarFDS(' + JSON.stringify(name).replace(/"/g, '&quot;') + ')" style="text-align:left;background:var(--warm-white);border:1.5px solid var(--border);border-radius:16px;padding:1.3rem;cursor:pointer;">' +
       '<div style="font-size:1.6rem;margin-bottom:0.4rem;">' + info.emoji + '</div>' +
       '<div style="font-weight:700;color:var(--green-deep);font-size:0.9rem;">FDS · ' + escHtml(name) + '</div>' +
       '<div style="font-size:0.76rem;color:var(--charcoal);opacity:0.7;margin-top:0.2rem;">' + escHtml(info.certificacio) + '</div>' +
@@ -11341,10 +11358,10 @@ function hxInjectBlogShareButtons(){
     row.className = 'hx-share-row';
     row.style.cssText = 'display:flex;gap:0.5rem;margin-top:0.7rem;';
     row.innerHTML =
-      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'whatsapp\',' + JSON.stringify(title) + ')" title="Compartir a WhatsApp" aria-label="Compartir a WhatsApp" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">💬</button>' +
-      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'linkedin\',' + JSON.stringify(title) + ')" title="Compartir a LinkedIn" aria-label="Compartir a LinkedIn" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">💼</button>' +
-      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'twitter\',' + JSON.stringify(title) + ')" title="Compartir a X" aria-label="Compartir a X" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">🐦</button>' +
-      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'email\',' + JSON.stringify(title) + ')" title="Compartir per email" aria-label="Compartir per email" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">✉️</button>';
+      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'whatsapp\',' + JSON.stringify(title).replace(/"/g, '&quot;') + ')" title="Compartir a WhatsApp" aria-label="Compartir a WhatsApp" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">💬</button>' +
+      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'linkedin\',' + JSON.stringify(title).replace(/"/g, '&quot;') + ')" title="Compartir a LinkedIn" aria-label="Compartir a LinkedIn" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">💼</button>' +
+      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'twitter\',' + JSON.stringify(title).replace(/"/g, '&quot;') + ')" title="Compartir a X" aria-label="Compartir a X" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">🐦</button>' +
+      '<button type="button" onclick="event.stopPropagation();hxShareBlog(\'email\',' + JSON.stringify(title).replace(/"/g, '&quot;') + ')" title="Compartir per email" aria-label="Compartir per email" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:0.65;">✉️</button>';
     content.appendChild(row);
   });
 }

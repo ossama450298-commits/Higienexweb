@@ -119,6 +119,16 @@
       if (s) { s.scrollIntoView({ block: 'start' }); window.scrollBy(0, -80); }
     }, 120);
   }
+  /* Enllaç directe des del QR del justificant: ?seguiment=NUM obre el seguiment amb el número posat */
+  function seguimentDesDeURL() {
+    var num = ''; try { num = new URLSearchParams(location.search).get('seguiment') || ''; } catch (e) { return; }
+    if (!num) return;
+    var obrir = function () {
+      anarASeguiment();
+      setTimeout(function () { var c = document.getElementById('trackNum'); if (c) { c.value = num; var m = document.getElementById('trackEmail'); if (m) m.focus(); } }, 300);
+    };
+    if (document.readyState === 'complete') setTimeout(obrir, 400); else window.addEventListener('load', function () { setTimeout(obrir, 400); });
+  }
   function afegirSeguiment() {
     var ajuda = document.querySelector('#navDropdown .dditem[data-nav="contacte"]');
     if (ajuda && !document.getElementById('hxMenuSeguir')) {
@@ -218,6 +228,7 @@
       if (typeof o === 'function' && !o._hxCarret) { var w = function () { var r = o.apply(this, arguments); actualitzarCarret(); return r; }; w._hxCarret = true; window[f] = w; }
     });
     afegirSeguiment();
+    seguimentDesDeURL();
     a11y(); vigilarMenu();
     var apl = window.hxApplyLang;
     if (typeof apl === 'function' && !apl._hxMiss) { var w2 = function () { var r = apl.apply(this, arguments); pintar(); a11y(); return r; }; w2._hxMiss = true; window.hxApplyLang = w2; }

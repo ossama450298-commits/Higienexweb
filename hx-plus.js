@@ -672,14 +672,22 @@
     doc.setFillColor(201, 154, 46); doc.rect(0, 64, W, 3, 'F');
     doc.setFont('times', 'bold'); doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.text('HIGIENE', 22, 42);
     doc.setFont('times', 'bolditalic'); doc.setTextColor(242, 169, 0); doc.text('X', 22 + doc.getTextWidth('HIGIENE') + 1, 42);
+    /* Foto del producte al costat del nom (si ja s'ha preparat) */
+    var ambFoto = !!(window.HXPDF && HXPDF.miniatura && HXPDF.miniatura(doc, nom, 22, 80, 46, 64));
     doc.setFont('helvetica', 'bold'); doc.setFontSize(15); doc.setTextColor(14, 42, 63);
-    doc.text(doc.splitTextToSize(nom, W - 44), W / 2, 96, { align: 'center' });
+    if (ambFoto) {
+      var ln = doc.splitTextToSize(nom, W - 104);
+      doc.text(ln, 80, 104 - (ln.length - 1) * 8);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(110, 125, 142);
+      doc.text('higienexvalencia.es', 80, 104 + ln.length * 8 + 8);
+    } else doc.text(doc.splitTextToSize(nom, W - 44), W / 2, 96, { align: 'center' });
     var q = window.QRCode.create(url, { errorCorrectionLevel: 'M' }), n = q.modules.size, data = q.modules.data;
-    var mida = 190, pas = mida / n, ox = (W - mida) / 2, oy = 122;
+    var mida = ambFoto ? 168 : 190, pas = mida / n, ox = (W - mida) / 2, oy = ambFoto ? 160 : 122;
+    doc.setDrawColor(227, 232, 237); doc.setLineWidth(0.8); doc.roundedRect(ox - 10, oy - 10, mida + 20, mida + 20, 8, 8, 'S');
     doc.setFillColor(11, 61, 107);
     for (var j = 0; j < n; j++) for (var i = 0; i < n; i++) if (data[j * n + i]) doc.rect(ox + i * pas, oy + j * pas, pas + 0.05, pas + 0.05, 'F');
     doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.setTextColor(14, 42, 63);
-    doc.text(t('etiquetaTxt'), W / 2, oy + mida + 30, { align: 'center' });
+    doc.text(t('etiquetaTxt'), W / 2, oy + mida + 32, { align: 'center' });
     doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(110, 125, 142);
     doc.text(t('etiquetaIdioma'), W / 2, oy + mida + 46, { align: 'center' });
     doc.text('HIGIENEX S.L. · 631 706 398 · contacto@higienexvalencia.es', W / 2, H - 22, { align: 'center' });

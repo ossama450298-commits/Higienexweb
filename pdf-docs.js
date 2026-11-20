@@ -252,14 +252,16 @@
       { titol: cpT('t786'), linies: [c.nom, 'NIF: ' + (c.nif || '—'), c.dir, c.pob, [c.mail, c.tel].filter(Boolean).join(' · ')] },
       { titol: cpT('t787'), linies: ['HIGIENEX S.L.', 'CIF: B12345678', 'Carrer de la Indústria, 25', '46010 València (València)', 'contacto@higienexvalencia.es'] },
     ], 98);
-    k.taula({
+    var nomsLinia = (f.lineas || []).map(function (l) { var p = CP_DB.productos[l.art]; return l.nom || (p ? p.nom : l.art); });
+    var tf = {
       head: [cpT('t788'), cpT('t789'), cpT('t790'), cpT('t791')],
-      body: (f.lineas || []).map(function (l) {
-        var p = CP_DB.productos[l.art];
-        return [l.nom || (p ? p.nom : l.art), CP_NUM(l.cant), CP_EUR(l.precio), CP_EUR(l.cant * l.precio)];
+      body: (f.lineas || []).map(function (l, i) {
+        return [nomsLinia[i], CP_NUM(l.cant), CP_EUR(l.precio), CP_EUR(l.cant * l.precio)];
       }),
       columnStyles: { 0: { fontStyle: 'bold' }, 1: { cellWidth: 56, halign: 'right' }, 2: { cellWidth: 78, halign: 'right' }, 3: { cellWidth: 86, halign: 'right', fontStyle: 'bold', textColor: C.NAVY } },
-    });
+    };
+    if (HXPDF.ambFotos) HXPDF.ambFotos(tf, 0, function (i) { return nomsLinia[i]; }, k.doc);
+    k.taula(tf);
     k.totals([[cpT('t792'), CP_EUR(f.base)], [cpT('t793'), CP_EUR(f.cuota)]], cpT('t794'), CP_EUR(f.total), {
       esquerra: function (x, y, w) {
         k.kicker(cpT('t801'), x, y + 12);
@@ -304,6 +306,15 @@
     doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(VERD[0], VERD[1], VERD[2]); doc.text('HIGIENEX ECO', cx, sy + 18, { align: 'center' });
     doc.setFont('helvetica', 'normal'); doc.setFontSize(9); k.color(C.MUTED);
     doc.text(HXPDF.net(T('València, {0}', data)), cx, sy + 62, { align: 'center' });
+    /* Signatura */
+    var fy = sy + 110;
+    k.stroke(C.INK); doc.setLineWidth(0.6); doc.line(cx - 90, fy, cx + 90, fy);
+    doc.setFont('times', 'italic'); doc.setFontSize(16); k.color(C.NAVY); doc.text(HXPDF.net(T('Direcció Tècnica')), cx, fy - 8, { align: 'center' });
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); k.color(C.MUTED); doc.text(HXPDF.net(T('Departament de qualitat · HIGIENEX S.L.')), cx, fy + 13, { align: 'center' });
+    /* Marc de diploma: doble vora daurada i blava al voltant del cos */
+    k.stroke(C.GOLD); doc.setLineWidth(1.6); doc.rect(22, 126, W - 44, k.H - 126 - 62, 'S');
+    k.stroke(C.NAVY); doc.setLineWidth(0.5); doc.rect(28, 132, W - 56, k.H - 132 - 68, 'S');
+    [[22, 126], [W - 22, 126], [22, k.H - 62], [W - 22, k.H - 62]].forEach(function (p) { k.fill(C.GOLD); doc.circle(p[0], p[1], 3.5, 'F'); });
     k.tancar('certificat-impacte-higienex.pdf');
   }
 
@@ -330,7 +341,7 @@
     var cs = { 0: { fontStyle: 'bold' }, 1: { cellWidth: 50, halign: 'right' }, 2: { cellWidth: 74, halign: 'right' } };
     if (hiHaDte) cs[3] = { cellWidth: 52, halign: 'right' };
     cs[head.length - 1] = { cellWidth: 86, halign: 'right', fontStyle: 'bold', textColor: C.NAVY };
-    k.taula({
+    var tc = {
       head: head,
       body: items.map(function (it) {
         var preu = it.rawTotal ? it.rawTotal / it.qty : it.total / it.qty;
@@ -341,7 +352,9 @@
       }),
       columnStyles: cs,
       didParseCell: function (d) { if (d.section === 'body' && hiHaDte && d.column.index === 3 && d.cell.raw !== '-') { d.cell.styles.textColor = C.GOLD_D; d.cell.styles.fontStyle = 'bold'; } },
-    });
+    };
+    if (HXPDF.ambFotos) HXPDF.ambFotos(tc, 0, function (i) { return items[i].name; }, k.doc);
+    k.taula(tc);
     var files = [[T('Subtotal productes'), eur(sub + dte)]];
     if (dte > 0) files.push([T('Descomptes per volum'), '-' + eur(dte), C.GOLD_D]);
     if (transport) files.push([T('Transport'), eur(transport)]);
@@ -356,7 +369,36 @@
         doc.text(doc.splitTextToSize(T('Hem rebut el pagament. Prepararem la comanda i rebràs un avís quan surti del magatzem.'), w - 100), x + 92, y + 40);
       },
     });
-    k.avis(T('Seguiment de la comanda'), T('Pots consultar on és la comanda a la web, a Seguiment de comanda, amb el número {0}.', inv.invoiceNum), 'blau');
+    /* Estat de la comanda en quatre passos i, al costat, el QR per seguir-la */
+    var passos = [T('Rebuda'), T('En preparació'), T('Enviada'), T('Entregada')], doc = k.doc, M = k.M, W = k.W, bh = 96;
+    k.cal(bh + 8);
+    var by = k.y, qa = 72, bw = W - 2 * M;
+    k.stroke(C.LINE); doc.setLineWidth(0.6); doc.setFillColor(255, 255, 255); doc.roundedRect(M, by, bw, bh, 6, 6, 'FD');
+    k.kicker(T('Estat de la comanda'), M + 16, by + 20);
+    var aw = bw - qa - 150, pw = aw / passos.length, py = by + 48;
+    k.stroke(C.LINE); doc.setLineWidth(2); doc.line(M + 16 + pw / 2, py, M + 16 + aw - pw / 2, py);
+    passos.forEach(function (p, i) {
+      var cx = M + 16 + pw * i + pw / 2, fet = i === 0;
+      if (fet) { k.fill(C.OK); doc.circle(cx, py, 9, 'F'); doc.setDrawColor(255, 255, 255); doc.setLineWidth(1.6); doc.lines([[3, 3], [6, -6]], cx - 4.5, py); }
+      else { doc.setFillColor(255, 255, 255); k.stroke(C.LINE); doc.setLineWidth(1.4); doc.circle(cx, py, 9, 'FD'); doc.setFont('helvetica', 'bold'); doc.setFontSize(8); k.color(C.MUTED); doc.text(String(i + 1), cx, py + 3, { align: 'center' }); }
+      doc.setFont('helvetica', fet ? 'bold' : 'normal'); doc.setFontSize(8.2); k.color(fet ? C.OK : C.TXT);
+      doc.text(HXPDF.net(p), cx, py + 24, { align: 'center' });
+    });
+    var qx = W - M - qa - 12, qy = by + (bh - qa) / 2;
+    k.stroke(C.LINE); doc.setLineWidth(0.6); doc.line(qx - 132, by + 14, qx - 132, by + bh - 14);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); k.color(C.INK);
+    doc.text(doc.splitTextToSize(HXPDF.net(T('Segueix la comanda des del mòbil')), 112), qx - 118, by + 34);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.6); k.color(C.MUTED);
+    doc.text(doc.splitTextToSize(HXPDF.net(T('Escaneja el codi per veure on és la comanda {0} en tot moment. També ho pots consultar a la web, a Seguiment de comanda.', inv.invoiceNum).split('. ')[0] + '.'), 112).slice(0, 4), qx - 118, by + 58);
+    if (window.QRCode && typeof window.QRCode.create === 'function') {
+      try {
+        var q = window.QRCode.create('https://ossama450298-commits.github.io/Higienexweb/?seguiment=' + encodeURIComponent(inv.invoiceNum), { errorCorrectionLevel: 'M' });
+        var n = q.modules.size, dd = q.modules.data, ps = qa / n;
+        k.fill(C.TINTA);
+        for (var j = 0; j < n; j++) for (var i = 0; i < n; i++) if (dd[j * n + i]) doc.rect(qx + i * ps, qy + j * ps, ps + 0.05, ps + 0.05, 'F');
+      } catch (e) { /* sense QR */ }
+    }
+    k.y = by + bh + 14;
     return k.tancar('Comanda_' + inv.invoiceNum + '.pdf', T("Aquest document és un justificant de comanda, no una factura. La factura s'emetrà quan s'expedeixi la mercaderia. Per a qualsevol consulta, indica el número de comanda."));
   }
 

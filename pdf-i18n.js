@@ -329,6 +329,16 @@
     "Portar guants i protecció ocular.": ["Llevar guantes y protección ocular.", "Wear protective gloves and eye protection.", "Porter des gants et une protection oculaire.", "Schutzhandschuhe und Augenschutz tragen."],
     "En cas de contacte amb els ulls: esbandir amb aigua durant uns minuts.": ["En caso de contacto con los ojos: aclarar con agua durante varios minutos.", "If in eyes: rinse cautiously with water for several minutes.", "En cas de contact avec les yeux : rincer avec de l'eau pendant plusieurs minutes.", "Bei Kontakt mit den Augen: einige Minuten lang mit Wasser spülen."],
     "Secció": ["Sección", "Section", "Section", "Abschnitt"],
+
+    /* ---- comanda i pressupost (versió revista) ---- */
+    "Estat de la comanda": ["Estado del pedido", "Order status", "Statut de la commande", "Bestellstatus"],
+    "Rebuda": ["Recibido", "Received", "Reçue", "Eingegangen"],
+    "En preparació": ["En preparación", "Being prepared", "En préparation", "In Vorbereitung"],
+    "Enviada": ["Enviado", "Shipped", "Expédiée", "Versandt"],
+    "Entregada": ["Entregado", "Delivered", "Livrée", "Zugestellt"],
+    "Segueix la comanda des del mòbil": ["Sigue el pedido desde el móvil", "Track your order on your phone", "Suivez la commande sur votre mobile", "Bestellung auf dem Handy verfolgen"],
+    "Escaneja el codi per veure on és la comanda {0} en tot moment. També ho pots consultar a la web, a Seguiment de comanda.": ["Escanea el código para ver dónde está el pedido {0} en todo momento. También puedes consultarlo en la web, en Seguimiento de pedido.", "Scan the code to see where order {0} is at any time. You can also check it on the website under Order tracking.", "Scannez le code pour savoir où en est la commande {0} à tout moment. Vous pouvez aussi la consulter sur le site, dans Suivi de commande.", "Scannen Sie den Code, um jederzeit zu sehen, wo Bestellung {0} ist. Sie können sie auch auf der Website unter Sendungsverfolgung abrufen."],
+    "O escaneja el codi per fer la comanda a la web.": ["O escanea el código para hacer el pedido en la web.", "Or scan the code to order on the website.", "Ou scannez le code pour commander sur le site.", "Oder scannen Sie den Code, um auf der Website zu bestellen."],
   };
   var IDX = { es: 0, en: 1, fr: 2, de: 3 };
   var LOCALE = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB', fr: 'fr-FR', de: 'de-DE' };

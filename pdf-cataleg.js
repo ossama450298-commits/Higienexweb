@@ -300,5 +300,50 @@
     else setTimeout(installar, 200);
   }
   window.HXCataleg = { generar: cataleg, imatge: carregarImatge, preu: preuGarrafa, slug: slug };
+
+  /* ---------- Fotos en miniatura per a tots els PDF ----------
+     Els documents de comanda, factura i pressupost es generen de cop (sense esperar),
+     així que les fotos es preparen un cop carregada la pàgina i es guarden aquí. */
+  var FOTOS = {};
+  function clau(nom) { return String(nom || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim(); }
+  function precarregar() {
+    if (typeof CMP_DATA === 'undefined') return;
+    Object.keys(CMP_DATA).forEach(function (n) {
+      if (FOTOS[clau(n)]) return;
+      carregarImatge(slug(n), 420).then(function (f) { if (f) FOTOS[clau(n)] = f; });
+    });
+  }
+  if (document.readyState === 'complete') setTimeout(precarregar, 1500);
+  else window.addEventListener('load', function () { setTimeout(precarregar, 1500); });
+  function fotoDe(nom) { return FOTOS[clau(nom)] || null; }
+  /* Requadre blanc amb la foto del producte */
+  function miniatura(doc, nom, x, y, w, h) {
+    var f = fotoDe(nom); if (!f) return false;
+    doc.setFillColor(255, 255, 255); doc.setDrawColor(227, 232, 237); doc.setLineWidth(0.5); doc.roundedRect(x, y, w, h, 3, 3, 'FD');
+    var s = Math.min((w - 4) / f.w, (h - 4) / f.h), fw = f.w * s, fh = f.h * s;
+    doc.addImage(f.data, 'JPEG', x + (w - fw) / 2, y + (h - fh) / 2, fw, fh, 'mini-' + clau(nom), 'FAST');
+    return true;
+  }
+  /* Afegeix la miniatura a la columna d'una taula d'autoTable */
+  function ambFotos(t, col, nomFila, doc) {
+    var pdc = t.didParseCell, ddc = t.didDrawCell;
+    t.didParseCell = function (d) {
+      if (pdc) pdc(d);
+      if (d.section === 'body' && d.column.index === col && fotoDe(nomFila(d.row.index))) {
+        var p = d.cell.styles.cellPadding;
+        d.cell.styles.cellPadding = { top: 9, bottom: 9, left: 46, right: (p && p.right) || 10 };
+        d.cell.styles.minCellHeight = 42;
+      }
+    };
+    t.didDrawCell = function (d) {
+      if (d.section === 'body' && d.column.index === col) {
+        var nom = nomFila(d.row.index);
+        if (fotoDe(nom)) miniatura(doc || (d.doc), nom, d.cell.x + 8, d.cell.y + 5, 30, d.cell.height - 10);
+      }
+      if (ddc) ddc(d);
+    };
+    return t;
+  }
+  if (window.HXPDF) { HXPDF.foto = fotoDe; HXPDF.miniatura = miniatura; HXPDF.ambFotos = ambFotos; HXPDF.precarregarFotos = precarregar; }
   installar();
 })();
