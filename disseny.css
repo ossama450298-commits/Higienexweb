@@ -51,15 +51,25 @@ section .container { text-align: start; }
 body[data-view="page"] .cat-banner { margin-top: 0 !important; }
 
 /* Capçaleres amb foto (Missió, Equip, RSC, Clients…): text sobre tinta a l'esquerra, foto neta a la dreta */
-section > div[style*="height:200px"] { height: 280px !important; }
-section > div[style*="height:200px"] > div[style*="position:absolute"] {
-  background: linear-gradient(90deg, var(--ds-ink) 0 48%, rgba(14,42,63,0) 48%) !important; padding: 0 2rem !important;
+section > div:is([style*="height:200px"], [style*="height:180px"]) { height: 300px !important; background: var(--ds-ink); }
+/* La foto ocupa només la meitat dreta: abans omplia tot l'ample i en quedava visible una tira molt retallada */
+section > div:is([style*="height:200px"], [style*="height:180px"]) > img { position: absolute; top: 0; right: 0; width: 52% !important; height: 100% !important; object-fit: cover; object-position: center; }
+section > div:is([style*="height:200px"], [style*="height:180px"]) > div[style*="position:absolute"] {
+  background: none !important; padding: 0 2rem !important;
   border-bottom: 6px solid var(--ds-gold);
 }
-section > div[style*="height:200px"] > div[style*="position:absolute"] > div { max-width: 44%; }
-section > div[style*="height:200px"] h2 { color: #fff !important; font-size: clamp(1.7rem, 3vw, 2.6rem) !important; }
-section > div[style*="height:200px"] p { color: var(--ds-water) !important; }
-section > div[style*="height:200px"] span[style*="monospace"], section > div[style*="height:200px"] span[style*="Courier"] { display: none !important; }
+section > div:is([style*="height:200px"], [style*="height:180px"]) > div[style*="position:absolute"] > div { max-width: 44%; }
+section > div:is([style*="height:200px"], [style*="height:180px"]) h2 { color: #fff !important; font-size: clamp(1.7rem, 3vw, 2.6rem) !important; }
+section > div:is([style*="height:200px"], [style*="height:180px"]) p { color: var(--ds-water) !important; }
+section > div:is([style*="height:200px"], [style*="height:180px"]) span:is([style*="monospace"], [style*="Courier"]) { display: none !important; }
+html[dir="rtl"] section > div:is([style*="height:200px"], [style*="height:180px"]) > img { right: auto; left: 0; }
+@media (max-width: 760px) {
+  /* Al mòbil: text a dalt i foto a sota, sencera */
+  section > div:is([style*="height:200px"], [style*="height:180px"]) { height: auto !important; display: flex; flex-direction: column; }
+  section > div:is([style*="height:200px"], [style*="height:180px"]) > div[style*="position:absolute"] { position: static !important; padding: 1.6rem 1.2rem !important; order: 1; }
+  section > div:is([style*="height:200px"], [style*="height:180px"]) > div[style*="position:absolute"] > div { max-width: none; }
+  section > div:is([style*="height:200px"], [style*="height:180px"]) > img { position: static; width: 100% !important; height: auto !important; aspect-ratio: 3 / 2; order: 2; }
+}
 
 /* ---------- Seccions fosques: tinta plana, sense degradats ---------- */
 #missio, #rd, #futur, #internacionalitzacio, #rsc, #clients, #marqueting, #rrhh, #mostra-gratuita, #calc-eco { background: var(--ds-ink) !important; }
@@ -123,7 +133,6 @@ footer a:hover { color: var(--ds-gold) !important; }
 @media (max-width: 760px) {
   .cat-banner { padding: calc(64px + 2rem) 1.2rem 2rem !important; }
   section > div[style*="height:200px"] { height: auto !important; }
-  section > div[style*="height:200px"] > img { display: none !important; }
   section > div[style*="height:200px"] > div[style*="position:absolute"] { position: static !important; background: var(--ds-ink) !important; padding: 2rem 1.2rem !important; }
   section > div[style*="height:200px"] > div[style*="position:absolute"] > div { max-width: none; }
 }
@@ -241,3 +250,4 @@ html[dir="rtl"] .side-panel-close { right: auto !important; left: 1rem !importan
 #navDropdown .dditem.dd-sub + .dditem:not(.dd-sub) { margin-top: 0.35rem; }
 #navDropdown .dditem.dd-client { margin: 1rem 1.25rem 0 !important; border: 2px solid #0E2A3F !important; border-radius: 10px; text-align: center; padding: 0.8rem 1rem !important; }
 html[dir="rtl"] #navDropdown .dditem.dd-sub, html[dir="rtl"] #navDropdown .dditem.dd-sub:hover { padding: 0.55rem 2.4rem 0.55rem 1.5rem !important; }
+section > div:is([style*="height:200px"], [style*="height:180px"]) .hx-u10 { display: none !important; }
