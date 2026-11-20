@@ -325,7 +325,7 @@
     var dte = items.reduce(function (s, i) { return s + (i.discountRate > 0 ? i.rawTotal - i.total : 0); }, 0);
     var sub = items.reduce(function (s, i) { return s + i.total; }, 0);
     var transport = (typeof TRANSPORT !== 'undefined' && TRANSPORT) || 0;
-    var iva = (sub + transport) * IVA_PCT;
+    var iva = window.hxRedon ? hxRedon(hxRedon(sub + transport) * IVA_PCT) : (sub + transport) * IVA_PCT;
     var k = HXPDF.nou({ kicker: T('Justificant de comanda'), titol: T('Comanda'), num: 'Nº ' + inv.invoiceNum, data: inv.dateStr });
     k.franja([
       [T('Data de comanda'), inv.dateStr],

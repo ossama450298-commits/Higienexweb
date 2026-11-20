@@ -324,3 +324,19 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 #authBtns > button:first-child { background: #0E2A3F !important; border-color: #0E2A3F !important; color: #fff !important; }
 #authBtns > button:first-child:hover { background: #0B3D6B !important; }
 @media (prefers-reduced-motion: reduce) { .hx-barra a::after { transition: none; } }
+
+/* Carret al mòbil: la capçalera no s'ha de partir en tres línies amb noms llargs */
+#pedidosSection > div:first-child { gap: 0.5rem; }
+#pedidosSection > div:first-child button { white-space: nowrap; }
+#pedidosSection > div:first-child > div:nth-child(2) { min-width: 0; flex: 0 1 auto; }
+#userName { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 11rem; display: inline-block; vertical-align: middle; }
+@media (max-width: 480px) {
+  #pedidosSection > div:first-child { padding: 0.8rem 1rem !important; }
+  #pedidosSection > div:first-child > span:first-child { font-size: 1.25rem !important; }
+  #pedidosSection > div:first-child > div:nth-child(2) { padding: 0.35rem 0.7rem !important; gap: 0.35rem !important; }
+  #userName { max-width: 5.5rem; }
+  #pedidosSection > div:first-child button { padding: 0.45rem 0.75rem !important; }
+}
+#pedidosSection > div:first-child > div:nth-child(2) { flex-wrap: nowrap; white-space: nowrap; }
+@media (max-width: 480px) { #pedidosSection > div:first-child > div:nth-child(2) > span:first-child { display: none; } }
+#orderHistory strong { white-space: nowrap; }

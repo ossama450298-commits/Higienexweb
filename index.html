@@ -1972,12 +1972,12 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <meta name="apple-mobile-web-app-title" content="HIGIENEX">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-web.png">
 <script src="vendor/qrcode.min.js" defer></script>
-<script src="pdf-i18n.js?v=20261120b" defer></script>
-<script src="hx-plus.js?v=20261120b" defer></script>
-<script src="pdf-kit.js?v=20261120b" defer></script>
-<script src="pdf-docs.js?v=20261120b" defer></script>
-<script src="pdf-cataleg.js?v=20261120b" defer></script>
-<script src="pdf-fitxes.js?v=20261120b" defer></script>
+<script src="pdf-i18n.js?v=20261120c" defer></script>
+<script src="hx-plus.js?v=20261120c" defer></script>
+<script src="pdf-kit.js?v=20261120c" defer></script>
+<script src="pdf-docs.js?v=20261120c" defer></script>
+<script src="pdf-cataleg.js?v=20261120c" defer></script>
+<script src="pdf-fitxes.js?v=20261120c" defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -7624,7 +7624,7 @@ window.submitTreballaForm = submitTreballaForm;
       <div class="popup-emoji" id="popupEmoji" style="font-size:3rem;">🧴</div>
     </div>
     <h3 id="popupName" data-i18n-key="t168">Producte</h3>
-    <div class="popup-price" id="popupPrice">0,00 € / L</div>
+    <div class="popup-price" id="popupPrice">0,00 €</div>
     <div id="popupRating" style="margin:0.3rem 0 0.6rem;font-size:0.85rem;"></div>
     <p id="popupDesc" data-i18n-key="t293">Descripció del producte.</p>
     <button class="popup-btn" onclick="addProductFromPopup()" type="button" data-i18n-key="t421">
@@ -8764,11 +8764,15 @@ window.startCheckout = startCheckout;
 // "processament") i, en acabar, crida sendOrder() com si el pagament
 // s'hagués confirmat.
 var _hxPayMethod = 'card';
+// Arrodoniment a cèntims «de botiga» (3,675 → 3,68): toFixed() fallava amb els decimals de coma flotant.
+function hxRedon(x) { return Math.round((x + Number.EPSILON) * 100) / 100; }
+window.hxRedon = hxRedon;
 function hxCartTotalNow() {
   var subtotal = Object.keys(cart).reduce(function(s,k){ return s + cart[k].total; }, 0);
   if (!subtotal) return 0;
-  var iva = subtotal * IVA_PCT;
-  return subtotal + iva + TRANSPORT;
+  // El IVA se aplica también al transporte (igual que en el pedido que se registra)
+  var base = hxRedon(subtotal + TRANSPORT);
+  return hxRedon(base + hxRedon(base * IVA_PCT));
 }
 function openPaymentModal() {
   var keys = Object.keys(cart);
@@ -9371,8 +9375,8 @@ function enviarPressupostEmail() {
   }
   var btn = document.getElementById('presEnviarBtn');
   var subtotal = items.reduce(function(s, i){ return s + i.total; }, 0);
-  var iva = (subtotal + TRANSPORT) * IVA_PCT;
-  var total = subtotal + TRANSPORT + iva;
+  var iva = hxRedon(hxRedon(subtotal + TRANSPORT) * IVA_PCT);
+  var total = hxRedon(subtotal + TRANSPORT + iva);
   /* El email que recibe el cliente va en el idioma que tiene elegido en la web. */
   var T = function () { return window.HXT ? HXT.apply(null, arguments) : arguments[0]; };
   var loc = window.HXT ? HXT.locale() : 'ca-ES';
@@ -9476,15 +9480,16 @@ function renderCart() {
       '</div>';
   }).join('');
 
-  var iva   = subtotal * IVA_PCT;
-  var total = subtotal + iva + TRANSPORT;
+  // IVA sobre productos + transporte: el mismo total que se cobra y que sale en el justificante
+  var iva   = hxRedon(hxRedon(subtotal + TRANSPORT) * IVA_PCT);
+  var total = hxRedon(subtotal + TRANSPORT + iva);
   var totalDescompte = keys.reduce(function(s,k){ var it = cart[k]; return s + (it.discountRate > 0 ? (it.rawTotal - it.total) : 0); }, 0);
 
   items.innerHTML += '<div style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px dashed #ddd;font-size:0.82rem;color:#666;">' +
     (totalDescompte > 0 ? '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;color:#B8860B;font-weight:600;"><span>🎉 ' + 'Descomptes per volum' + '</span><span>-' + hxFormatPrice(totalDescompte) + '</span></div>' : '') +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>Subtotal</span><span>' + hxFormatPrice(subtotal) + '</span></div>' +
-    '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>IVA (21%)</span><span>' + hxFormatPrice(iva) + '</span></div>' +
     '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>Transport</span><span>' + hxFormatPrice(TRANSPORT) + '</span></div>' +
+    '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;"><span>IVA (21%)</span><span>' + hxFormatPrice(iva) + '</span></div>' +
     (totalDescompte > 0 ? '<div style="font-size:0.72rem;color:#999;margin-top:0.3rem;">El detall del descompte per producte surt a la comanda.</div>' : '') +
     '</div>';
 
@@ -9746,9 +9751,9 @@ function generateComanda() {
 
   // ── Totals (BASE = productos + transporte) ──
   var products  = Object.values(cart).reduce(function(s,i){ return s+i.total; }, 0);
-  var subtotal  = parseFloat((products + (TRANSPORT||0)).toFixed(2));
-  var iva       = parseFloat((subtotal * IVA_PCT).toFixed(2));
-  var total     = parseFloat((subtotal + iva).toFixed(2));
+  var subtotal  = hxRedon(products + (TRANSPORT||0));
+  var iva       = hxRedon(subtotal * IVA_PCT);
+  var total     = hxRedon(subtotal + iva);
 
   // Ja no es genera cap PDF: nomes calculem les dades de la comanda per a
   // l'historial i per al cos de l'email de confirmació que rep el client.
@@ -9860,7 +9865,7 @@ function renderOrderHistory() {
       '<div style="font-size:0.8rem;color:#666;margin-top:0.3rem;">' + escHtml(o.date) + '</div>' +
       '<div style="font-size:0.82rem;color:#444;margin-top:0.3rem;">' + escHtml(itemsTxt) + '</div>' +
       (o.site ? '<div style="font-size:0.78rem;color:#0B3D6B;margin-top:0.3rem;">📍 ' + escHtml(o.site) + '</div>' : '') +
-      '<div style="text-align:right;font-weight:800;color:#0B3D6B;margin-top:0.3rem;">' + o.total.toFixed(2) + ' €</div>' +
+      '<div style="text-align:right;font-weight:800;color:#0B3D6B;margin-top:0.3rem;">' + hxFormatPrice(o.total) + '</div>' +
       (window.hxpBotonsComanda ? hxpBotonsComanda(idx) : '') +
     '</div>';
   }).join('');
@@ -10039,7 +10044,38 @@ function sendOrder() {
   cart = {};
   renderCart();
   renderOrderHistory();
+  hxAvisComandaFeta(inv);
   setTimeout(function(){ var s=document.getElementById('orderSuccess'); if(s) s.style.display='none'; }, 10000);
+}
+// L'historial de la compte web és al cistell; el portal de client (usuari de l'ERP) només si ja hi ha sessió.
+function hxVeureComandes() {
+  if (CP_LOGGED_IN) { cpOpen(); return; }
+  openCartDrawer();
+  setTimeout(function () { var h = document.getElementById('orderHistory'); if (h) h.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 350);
+}
+window.hxVeureComandes = hxVeureComandes;
+// En pagar, el cistell ja s'ha tancat: la confirmació es mostra en una finestra pròpia
+// perquè el client vegi sempre el número, el total i on seguir la comanda.
+function hxAvisComandaFeta(inv) {
+  try {
+    var Tk = function (k) { return (typeof cpT === 'function' && cpT(k) !== k) ? cpT(k) : k; };
+    var D = {
+      ca: ['Data de lliurament prevista', 'Veure les meves comandes', 'Seguir comprant', 'Número de comanda'],
+      es: ['Entrega prevista', 'Ver mis pedidos', 'Seguir comprando', 'Número de pedido'],
+      en: ['Estimated delivery', 'View my orders', 'Continue shopping', 'Order number'],
+      fr: ['Livraison prévue', 'Voir mes commandes', 'Continuer mes achats', 'Numéro de commande'],
+      de: ['Voraussichtliche Lieferung', 'Meine Bestellungen', 'Weiter einkaufen', 'Bestellnummer'],
+      ar: ['موعد التسليم المتوقع', 'عرض طلباتي', 'متابعة التسوق', 'رقم الطلب']
+    };
+    var t = D[(typeof cpLang === 'function' && cpLang()) || 'ca'] || D.ca;
+    var fila = function (a, b) { return '<div style="display:flex;justify-content:space-between;gap:1rem;padding:0.55rem 0;border-bottom:1px solid #e3e9ee"><span style="color:#5a6b78">' + escHtml(a) + '</span><strong style="color:#0E2A3F;white-space:nowrap">' + escHtml(b) + '</strong></div>'; };
+    var cos = '<div style="text-align:center;font-size:2.4rem;line-height:1;margin-bottom:0.6rem" aria-hidden="true">✅</div>' +
+      fila(t[3], inv.invoiceNum) + fila(Tk('t794'), hxFormatPrice(inv.total)) + (inv.entregaStr ? fila(t[0], inv.entregaStr) : '') +
+      '<p style="margin:1rem 0 0;font-size:0.9rem;color:#33424f;line-height:1.5">' + escHtml(Tk('t339')) + '</p>';
+    var peu = '<button type="button" onclick="cpCloseModal()" style="padding:0.7rem 1.1rem;border-radius:10px;border:1.5px solid #c9d3db;background:#fff;color:#0E2A3F;font-weight:600;cursor:pointer">' + escHtml(t[2]) + '</button>' +
+      '<button type="button" onclick="cpCloseModal();hxVeureComandes()" style="padding:0.7rem 1.1rem;border-radius:10px;border:0;background:#0E2A3F;color:#fff;font-weight:700;cursor:pointer">' + escHtml(t[1]) + '</button>';
+    cpOpenModal(escHtml(Tk('t533')), cos, peu);
+  } catch (e) { console.warn('No s\'ha pogut mostrar la confirmació:', e); }
 }
 window.sendOrder = sendOrder;
 window.generateComanda = generateComanda;
@@ -10196,45 +10232,45 @@ function hxProdDesc(name){
 }
 
 var PRODUCT_INFO = {
-  'ECO Concentrat Pro':     {emoji:'🌿',price:'12,50 € / L',desc:'Concentrat x3 biodegradable. Redueix un 70% els envasos. ISO 14001.'},
-  'Desinfectant HOSP-V':    {emoji:'🏥',price:'18,00 € / L',desc:'Virucida + Bactericida 99,99%. Biocida europeu. Per a quirofans i UCI.'},
-  'Detergent ALIM-PRO':     {emoji:'🏭',price:'9,80 € / L', desc:'Anti-greix industrial. Compatible HACCP. Homologat contacte alimentari.'},
-  'Net HOSTAL Premium':     {emoji:'🏨',price:'11,20 € / L',desc:'0 residus visibles. Aroma neutre. Per a hotels i allotjaments.'},
-  'WorkSafe Antimicrobial': {emoji:'🤝',price:'22,00 € / L',desc:'Superficies antimicrobianes. Col-lab. OfiNova. Per a oficines.'}
+  'ECO Concentrat Pro':     {emoji:'🌿',price:'12,50 € / garrafa 5 L',desc:'Concentrat x3 biodegradable. Redueix un 70% els envasos. ISO 14001.'},
+  'Desinfectant HOSP-V':    {emoji:'🏥',price:'18,00 € / garrafa 5 L',desc:'Virucida + Bactericida 99,99%. Biocida europeu. Per a quirofans i UCI.'},
+  'Detergent ALIM-PRO':     {emoji:'🏭',price:'9,80 € / garrafa 5 L', desc:'Anti-greix industrial. Compatible HACCP. Homologat contacte alimentari.'},
+  'Net HOSTAL Premium':     {emoji:'🏨',price:'11,20 € / garrafa 5 L',desc:'0 residus visibles. Aroma neutre. Per a hotels i allotjaments.'},
+  'WorkSafe Antimicrobial': {emoji:'🤝',price:'22,00 € / garrafa 5 L',desc:'Superficies antimicrobianes. Col-lab. OfiNova. Per a oficines.'}
 };
-PRODUCT_INFO['Gamma Superfícies QR']={emoji:'📱',price:'14,00 € / L',desc:'Tracabilitat digital de lot via QR. Dosi exacta garantida.'};
+PRODUCT_INFO['Gamma Superfícies QR']={emoji:'📱',price:'14,00 € / garrafa 5 L',desc:'Tracabilitat digital de lot via QR. Dosi exacta garantida.'};
 
 // ═══════════════════════════════════════════════════════════
 // COMPARADOR DE PRODUCTES
 // ═══════════════════════════════════════════════════════════
 var CMP_DATA = {
   'ECO Concentrat Pro': {
-    emoji:'🌿', price:'12,50 € / L', sector:'General B2B',
+    emoji:'🌿', price:'12,50 € / garrafa 5 L', sector:'General B2B',
     concentracio:'×3 (dilució 1:3)', certificacio:'ISO 14001',
     biodegradable:'Sí, 100%', envas:'-70% plàstic', us:'Superfícies i sòls generals'
   },
   'Desinfectant HOSP-V': {
-    emoji:'🏥', price:'18,00 € / L', sector:'Sanitari / Hospitals',
+    emoji:'🏥', price:'18,00 € / garrafa 5 L', sector:'Sanitari / Hospitals',
     concentracio:'Ús directe', certificacio:'Biocida UE (TP2/TP4)',
     biodegradable:'Parcial', envas:'Estàndard', us:'Quiròfans, UCI, sanitari crític'
   },
   'Detergent ALIM-PRO': {
-    emoji:'🏭', price:'9,80 € / L', sector:'Indústria alimentària',
+    emoji:'🏭', price:'9,80 € / garrafa 5 L', sector:'Indústria alimentària',
     concentracio:'×2 (dilució 1:2)', certificacio:'HACCP · Contacte alimentari',
     biodegradable:'Sí', envas:'Estàndard', us:'Cuines industrials, línies de producció'
   },
   'Net HOSTAL Premium': {
-    emoji:'🏨', price:'11,20 € / L', sector:'Hostaleria / Hotels',
+    emoji:'🏨', price:'11,20 € / garrafa 5 L', sector:'Hostaleria / Hotels',
     concentracio:'×2 (dilució 1:2)', certificacio:'ISO 14001',
     biodegradable:'Sí', envas:'-40% plàstic', us:'Habitacions, zones comunes'
   },
   'Gamma Superfícies QR': {
-    emoji:'📱', price:'14,00 € / L', sector:'Oficines / Multisector',
+    emoji:'📱', price:'14,00 € / garrafa 5 L', sector:'Oficines / Multisector',
     concentracio:'×3 (dilució 1:3)', certificacio:'ISO 14001 · QR traçabilitat',
     biodegradable:'Sí', envas:'-70% plàstic', us:'Superfícies amb traçabilitat de lot'
   },
   'WorkSafe Antimicrobial': {
-    emoji:'🤝', price:'22,00 € / L', sector:'Oficines / Coworking',
+    emoji:'🤝', price:'22,00 € / garrafa 5 L', sector:'Oficines / Coworking',
     concentracio:'Ús directe', certificacio:'Biocida UE · Col·lab. OfiNova',
     biodegradable:'Parcial', envas:'Estàndard', us:'Superfícies de contacte freqüent, IoT'
   }
@@ -10453,7 +10489,7 @@ function obrirFitxaProducte(name) {
   var prod = null;
   for (var i=0; i<PRODUCTS.length; i++) { if (PRODUCTS[i].name === name) { prod = PRODUCTS[i]; break; } }
   document.getElementById('fpName').textContent = name;
-  document.getElementById('fpPrice').textContent = prod ? (hxFormatPrice(prod.price) + ' / L') : info.price;
+  document.getElementById('fpPrice').textContent = prod ? (hxFormatPrice(prod.price) + ' / garrafa 5 L') : info.price;
   document.getElementById('fpDesc').textContent = hxProdDesc(name)||info.desc;
   document.getElementById('fpBadge').textContent = prod ? prod.unit : 'Producte';
   var img = document.getElementById('fpImg'), emo = document.getElementById('fpEmoji');
@@ -11795,14 +11831,14 @@ window.legalClose = legalClose;
 </div>
 
 <!-- CERCADOR GLOBAL DE LA WEB -->
-<link rel="stylesheet" href="portada.css?v=20261120b">
-<link rel="stylesheet" href="disseny.css?v=20261120b">
-<link rel="stylesheet" href="rtl.css?v=20261120b">
-<script src="i18n/ca.js?v=20261120b" defer></script>
-<script src="i18n.js?v=20261120b" defer></script>
-<script src="portada.js?v=20261120b" defer></script>
-<script src="textos-fixos.js?v=20261120b" defer></script>
-<script src="missatges.js?v=20261120b" defer></script>
-<script src="legal.js?v=20261120b" defer></script>
+<link rel="stylesheet" href="portada.css?v=20261120c">
+<link rel="stylesheet" href="disseny.css?v=20261120c">
+<link rel="stylesheet" href="rtl.css?v=20261120c">
+<script src="i18n/ca.js?v=20261120c" defer></script>
+<script src="i18n.js?v=20261120c" defer></script>
+<script src="portada.js?v=20261120c" defer></script>
+<script src="textos-fixos.js?v=20261120c" defer></script>
+<script src="missatges.js?v=20261120c" defer></script>
+<script src="legal.js?v=20261120c" defer></script>
 </body>
 </html>

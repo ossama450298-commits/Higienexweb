@@ -10,6 +10,18 @@
 (function () {
   'use strict';
   var T = {
+    // Estats de la comanda (historial i seguiment)
+    "Pendent de confirmació": ["Pendiente de confirmación", "Awaiting confirmation", "En attente de confirmation", "Wartet auf Bestätigung", "بانتظار التأكيد"],
+    "Confirmada": ["Confirmado", "Confirmed", "Confirmée", "Bestätigt", "مؤكد"],
+    "En preparació": ["En preparación", "Being prepared", "En préparation", "In Vorbereitung", "قيد التحضير"],
+    "Enviada": ["Enviado", "Shipped", "Expédiée", "Versandt", "تم الشحن"],
+    "Entregada": ["Entregado", "Delivered", "Livrée", "Zugestellt", "تم التسليم"],
+    "Cancel·lada": ["Cancelado", "Cancelled", "Annulée", "Storniert", "ملغى"],
+    "Encara no has fet cap comanda.": ["Todavía no has hecho ningún pedido.", "You haven't placed any orders yet.", "Vous n'avez encore passé aucune commande.", "Sie haben noch keine Bestellung aufgegeben.", "لم تقدّم أي طلب بعد."],
+    "⚠️ No hem trobat cap comanda amb aquest email i número. Revisa les dades o escriu-nos per WhatsApp i t'ajudem.": ["⚠️ No hemos encontrado ningún pedido con este email y número. Revisa los datos o escríbenos por WhatsApp y te ayudamos.", "⚠️ We couldn't find an order with this email and number. Check the details or message us on WhatsApp and we'll help.", "⚠️ Aucune commande trouvée avec cet e-mail et ce numéro. Vérifiez les données ou écrivez-nous sur WhatsApp.", "⚠️ Keine Bestellung mit dieser E-Mail und Nummer gefunden. Prüfen Sie die Angaben oder schreiben Sie uns per WhatsApp.", "⚠️ لم نعثر على طلب بهذا البريد والرقم. تحقّق من البيانات أو راسلنا عبر واتساب."],
+    "Transport": ["Transporte", "Shipping", "Transport", "Versand", "الشحن"],
+    "Descomptes per volum": ["Descuentos por volumen", "Volume discounts", "Remises sur volume", "Mengenrabatte", "خصومات الكمية"],
+    "El detall del descompte per producte surt a la comanda.": ["El detalle del descuento por producto aparece en el pedido.", "The discount per product is detailed in the order.", "Le détail de la remise par produit figure dans la commande.", "Der Rabatt pro Produkt steht in der Bestellung.", "تفاصيل الخصم لكل منتج تظهر في الطلب."],
     "Saltar al contingut principal": [
       "Saltar al contenido principal",
       "Skip to main content",
@@ -832,6 +844,35 @@
   };
   var IDX = { es: 0, en: 1, fr: 2, de: 3, ar: 4 };
   var original = new WeakMap();
+  /* Descripciones de botones (title y aria-label) y textos de ayuda que estaban solo en catalán */
+  var ATR = {
+    "Disminuir quantitat": ["Reducir cantidad", "Decrease quantity", "Diminuer la quantité", "Menge verringern", "تقليل الكمية"],
+    "Augmentar quantitat": ["Aumentar cantidad", "Increase quantity", "Augmenter la quantité", "Menge erhöhen", "زيادة الكمية"],
+    "Disminuir": ["Reducir", "Decrease", "Diminuer", "Verringern", "تقليل"],
+    "Augmentar": ["Aumentar", "Increase", "Augmenter", "Erhöhen", "زيادة"],
+    "Introdueix un telèfon vàlid (mínim 9 xifres)": ["Introduce un teléfono válido (mínimo 9 cifras)", "Enter a valid phone number (at least 9 digits)", "Saisissez un téléphone valide (9 chiffres minimum)", "Geben Sie eine gültige Telefonnummer ein (mindestens 9 Ziffern)", "أدخل رقم هاتف صالحًا (9 أرقام على الأقل)"],
+    "Tancar": ["Cerrar", "Close", "Fermer", "Schließen", "إغلاق"],
+    "Tancar xat": ["Cerrar el chat", "Close chat", "Fermer le chat", "Chat schließen", "إغلاق الدردشة"],
+    "Tancar notificació": ["Cerrar el aviso", "Close notification", "Fermer la notification", "Hinweis schließen", "إغلاق الإشعار"],
+    "Tancar menú": ["Cerrar el menú", "Close menu", "Fermer le menu", "Menü schließen", "إغلاق القائمة"],
+    "Tancar finestra de subscripció": ["Cerrar la ventana de suscripción", "Close subscription window", "Fermer la fenêtre d'abonnement", "Abo-Fenster schließen", "إغلاق نافذة الاشتراك"],
+    "Tancar finestra de producte": ["Cerrar la ficha del producto", "Close product window", "Fermer la fiche produit", "Produktfenster schließen", "إغلاق نافذة المنتج"],
+    "Tancar finestra de mostra gratuïta": ["Cerrar la ventana de muestra gratuita", "Close free sample window", "Fermer la fenêtre d'échantillon gratuit", "Fenster für Gratisprobe schließen", "إغلاق نافذة العينة المجانية"],
+    "Tancar cercador": ["Cerrar el buscador", "Close search", "Fermer la recherche", "Suche schließen", "إغلاق البحث"],
+    "Parlar amb la Mònica": ["Hablar con Mónica", "Chat with Mónica", "Parler avec Mónica", "Mit Mónica sprechen", "تحدث مع مونيكا"],
+    "Obrir xat": ["Abrir el chat", "Open chat", "Ouvrir le chat", "Chat öffnen", "فتح الدردشة"],
+    "Instal·lar l'app": ["Instalar la app", "Install the app", "Installer l'app", "App installieren", "تثبيت التطبيق"],
+    "El teu cistell": ["Tu carrito", "Your cart", "Votre panier", "Ihr Warenkorb", "سلة التسوق"],
+    "Compartir per email": ["Compartir por email", "Share by email", "Partager par e-mail", "Per E-Mail teilen", "مشاركة عبر البريد الإلكتروني"],
+    "Compartir a X": ["Compartir en X", "Share on X", "Partager sur X", "Auf X teilen", "مشاركة على X"],
+    "Compartir a WhatsApp": ["Compartir en WhatsApp", "Share on WhatsApp", "Partager sur WhatsApp", "Auf WhatsApp teilen", "مشاركة على واتساب"],
+    "Compartir a LinkedIn": ["Compartir en LinkedIn", "Share on LinkedIn", "Partager sur LinkedIn", "Auf LinkedIn teilen", "مشاركة على لينكدإن"],
+    "Cercar (Ctrl+K)": ["Buscar (Ctrl+K)", "Search (Ctrl+K)", "Rechercher (Ctrl+K)", "Suchen (Strg+K)", "بحث (Ctrl+K)"],
+    "Cercar a la web": ["Buscar en la web", "Search the website", "Rechercher sur le site", "Website durchsuchen", "البحث في الموقع"],
+    "Canviar idioma": ["Cambiar de idioma", "Change language", "Changer de langue", "Sprache ändern", "تغيير اللغة"],
+    "Correu electrònic": ["Correo electrónico", "Email", "E-mail", "E-Mail", "البريد الإلكتروني"],
+    "Contactar per WhatsApp": ["Contactar por WhatsApp", "Contact us on WhatsApp", "Nous contacter sur WhatsApp", "Per WhatsApp kontaktieren", "تواصل عبر واتساب"],
+  };
   var SALTA = 'script,style,textarea,#hxChatWindow,#adminPanel,[data-i18n-key],[data-hxm],[data-hxp]';
   function lang() {
     try { return localStorage.getItem('hx_lang') || 'ca'; } catch (e) { return 'ca'; }
@@ -847,11 +888,21 @@
       var clau = orig.replace(/\s+/g, ' ').trim();
       // «FDS · Producte»: només es tradueix l'abreviatura de la fitxa de seguretat.
       if (!T[clau] && /^FDS · /.test(clau)) T[clau] = ['FDS', 'SDS', 'FDS', 'SDB', 'ورقة السلامة'].map(function (a) { return a + ' · ' + clau.slice(6); });
+      // «12,50 € / garrafa 5 L»: el preu és per envàs, només es tradueix la unitat.
+      if (!T[clau] && /^[\d.,]+\s?€ \/ garrafa 5 L$/.test(clau)) T[clau] = ['garrafa de 5 L', '5 L drum', 'bidon de 5 L', '5-L-Kanister', 'عبوة 5 لتر'].map(function (u) { return clau.replace('garrafa 5 L', u); });
       if (!T[clau]) continue;
       if (!original.has(n)) original.set(n, orig);
       var m = /^(\s*)[\s\S]*?(\s*)$/.exec(orig);
       n.nodeValue = i == null ? orig : m[1] + T[clau][i] + m[2];
     }
+    ['title', 'aria-label'].forEach(function (a) {
+      document.querySelectorAll('[' + a + ']').forEach(function (el) {
+        var k = 'data-hxo-' + a, orig = el.getAttribute(k) || el.getAttribute(a);
+        if (!ATR[orig]) return;
+        if (!el.hasAttribute(k)) el.setAttribute(k, orig);
+        el.setAttribute(a, i == null ? orig : ATR[orig][i]);
+      });
+    });
   }
   // Alguns blocs es tornen a pintar amb JavaScript (resum del pressupost, etc.):
   // quan apareix contingut nou es tradueix també, si l'idioma no és el català.

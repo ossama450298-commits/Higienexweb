@@ -186,11 +186,12 @@
     if (org) { org.setAttribute('tabindex', '0'); org.setAttribute('role', 'region'); org.setAttribute('aria-label', t('org')); org.classList.add('hx-scroll-a11y'); }
     // Camps de formulari sense etiqueta: usar el placeholder o el text proper
     document.querySelectorAll('input:not([type=hidden]):not([type=submit]):not([type=button]), select, textarea').forEach(function (e) {
-      if (e.getAttribute('aria-label') || e.getAttribute('aria-labelledby') || (e.labels && e.labels.length)) return;
+      // Les etiquetes posades aquí es tornen a calcular en canviar d'idioma (data-hx-auto).
+      if ((e.getAttribute('aria-label') && !e.hasAttribute('data-hx-auto')) || e.getAttribute('aria-labelledby') || (e.labels && e.labels.length)) return;
       var txt = e.getAttribute('placeholder') || e.getAttribute('title') || '';
       if (!txt) { var prev = e.previousElementSibling; if (prev && prev.textContent.trim().length < 60) txt = prev.textContent.trim(); }
       if (!txt) { var fld = e.closest('.form-field, .form-group, label'); if (fld) { var l = fld.querySelector('label, .lbl, span'); if (l && l !== e) txt = l.textContent.trim(); } }
-      if (txt) e.setAttribute('aria-label', txt.replace(/\s*\*\s*$/, ''));
+      if (txt) { e.setAttribute('aria-label', txt.replace(/\s*\*\s*$/, '')); e.setAttribute('data-hx-auto', ''); }
     });
     document.querySelectorAll('.comp-table-wrap, .table-wrap, [style*="overflow-x:auto"]').forEach(function (w) {
       if (w.hasAttribute('tabindex')) return;
