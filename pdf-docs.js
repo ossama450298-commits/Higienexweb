@@ -325,7 +325,8 @@
     var dte = items.reduce(function (s, i) { return s + (i.discountRate > 0 ? i.rawTotal - i.total : 0); }, 0);
     var sub = items.reduce(function (s, i) { return s + i.total; }, 0);
     var transport = (typeof TRANSPORT !== 'undefined' && TRANSPORT) || 0;
-    var iva = window.hxRedon ? hxRedon(hxRedon(sub + transport) * IVA_PCT) : (sub + transport) * IVA_PCT;
+    var dtoCli = +inv.dtoCliImp || 0; // descuento extra de cliente (ERP)
+    var iva = window.hxRedon ? hxRedon(hxRedon(sub - dtoCli + transport) * IVA_PCT) : (sub - dtoCli + transport) * IVA_PCT;
     var k = HXPDF.nou({ kicker: T('Justificant de comanda'), titol: T('Comanda'), num: 'Nº ' + inv.invoiceNum, data: inv.dateStr });
     k.franja([
       [T('Data de comanda'), inv.dateStr],
@@ -357,6 +358,7 @@
     k.taula(tc);
     var files = [[T('Subtotal productes'), eur(sub + dte)]];
     if (dte > 0) files.push([T('Descomptes per volum'), '-' + eur(dte), C.GOLD_D]);
+    if (dtoCli > 0) files.push([T('Descompte de client ({0} %)', inv.dtoCliPct), '-' + eur(dtoCli), C.GOLD_D]);
     if (transport) files.push([T('Transport'), eur(transport)]);
     files.push([T('IVA ({0} %)', Math.round(IVA_PCT * 100)), eur(iva)]);
     k.totals(files, T('Total'), eur(inv.total), {

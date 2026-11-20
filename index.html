@@ -1972,12 +1972,12 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <meta name="apple-mobile-web-app-title" content="HIGIENEX">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-web.png">
 <script src="vendor/qrcode.min.js" defer></script>
-<script src="pdf-i18n.js?v=20261120g" defer></script>
-<script src="hx-plus.js?v=20261120g" defer></script>
-<script src="pdf-kit.js?v=20261120g" defer></script>
-<script src="pdf-docs.js?v=20261120g" defer></script>
-<script src="pdf-cataleg.js?v=20261120g" defer></script>
-<script src="pdf-fitxes.js?v=20261120g" defer></script>
+<script src="pdf-i18n.js?v=20261120h" defer></script>
+<script src="hx-plus.js?v=20261120h" defer></script>
+<script src="pdf-kit.js?v=20261120h" defer></script>
+<script src="pdf-docs.js?v=20261120h" defer></script>
+<script src="pdf-cataleg.js?v=20261120h" defer></script>
+<script src="pdf-fitxes.js?v=20261120h" defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -8762,12 +8762,26 @@ var _hxPayMethod = 'card';
 // Arrodoniment a cèntims «de botiga» (3,675 → 3,68): toFixed() fallava amb els decimals de coma flotant.
 function hxRedon(x) { return Math.round((x + Number.EPSILON) * 100) / 100; }
 window.hxRedon = hxRedon;
+// Descuento extra de cliente (5–30 %) que se asigna en el ERP a los mejores clientes.
+// Llega con la cuenta (HX_PROFILE.dtoExtra) y se aplica sobre los productos, después
+// del descuento por volumen. En pantalla no se enseña: sale al pagar, en los PDF y en el email.
+function hxDtoCli() {
+  var u = window.HX_PROFILE, v = u ? +u.dtoExtra : 0;
+  return (window.HX_USER && [5, 10, 15, 20, 25, 30].indexOf(v) >= 0) ? v : 0;
+}
+window.hxDtoCli = hxDtoCli;
+// prodVol = suma de productos con el descuento por volumen ya aplicado
+function hxImports(prodVol) {
+  var pct = hxDtoCli(), dteCli = hxRedon(prodVol * pct / 100), prod = hxRedon(prodVol - dteCli);
+  var base = hxRedon(prod + (TRANSPORT || 0)), iva = hxRedon(base * IVA_PCT);
+  return { pct: pct, dteCli: dteCli, prod: prod, base: base, iva: iva, total: hxRedon(base + iva) };
+}
+window.hxImports = hxImports;
 function hxCartTotalNow() {
   var subtotal = Object.keys(cart).reduce(function(s,k){ return s + cart[k].total; }, 0);
   if (!subtotal) return 0;
   // El IVA se aplica también al transporte (igual que en el pedido que se registra)
-  var base = hxRedon(subtotal + TRANSPORT);
-  return hxRedon(base + hxRedon(base * IVA_PCT));
+  return hxImports(subtotal).total;
 }
 function openPaymentModal() {
   var keys = Object.keys(cart);
@@ -8781,11 +8795,15 @@ function openPaymentModal() {
   var nota = document.getElementById('paymentDteNote');
   if (nota) {
     var dte = Object.keys(cart).reduce(function(s,k){ var it = cart[k]; return s + (it.rawTotal != null ? it.rawTotal - it.total : 0); }, 0);
-    var dteIva = hxRedon(dte * (1 + IVA_PCT));
-    var TN = { ca: 'Inclou un descompte per volum de {0} (IVA inclòs).', es: 'Incluye un descuento por volumen de {0} (IVA incluido).', en: 'Includes a volume discount of {0} (VAT incl.).', fr: 'Inclut une remise sur volume de {0} (TVA comprise).', de: 'Enthält einen Mengenrabatt von {0} (inkl. MwSt.).', ar: 'يشمل خصم كمية بقيمة {0} (شامل الضريبة).' };
+    var prodVol = Object.keys(cart).reduce(function(s,k){ return s + cart[k].total; }, 0);
+    var imC = hxImports(prodVol);
+    var dteIva = hxRedon((dte + imC.dteCli) * (1 + IVA_PCT));
+    var TN = imC.pct
+      ? { ca: 'Inclou els teus descomptes (client {1} % i per volum): {0} (IVA inclòs).', es: 'Incluye tus descuentos (cliente {1} % y por volumen): {0} (IVA incluido).', en: 'Includes your discounts (customer {1} % and volume): {0} (VAT incl.).', fr: 'Inclut vos remises (client {1} % et volume) : {0} (TVA comprise).', de: 'Enthält Ihre Rabatte (Kunde {1} % und Menge): {0} (inkl. MwSt.).', ar: 'يشمل خصوماتك (عميل {1}% وكمية): {0} (شامل الضريبة).' }
+      : { ca: 'Inclou un descompte per volum de {0} (IVA inclòs).', es: 'Incluye un descuento por volumen de {0} (IVA incluido).', en: 'Includes a volume discount of {0} (VAT incl.).', fr: 'Inclut une remise sur volume de {0} (TVA comprise).', de: 'Enthält einen Mengenrabatt von {0} (inkl. MwSt.).', ar: 'يشمل خصم كمية بقيمة {0} (شامل الضريبة).' };
     var l = (typeof cpLang === 'function' && cpLang()) || 'ca';
-    nota.textContent = (TN[l] || TN.ca).replace('{0}', hxFormatPrice(dteIva));
-    nota.style.display = dte > 0.004 ? 'block' : 'none';
+    nota.textContent = (TN[l] || TN.ca).replace('{0}', hxFormatPrice(dteIva)).replace('{1}', imC.pct);
+    nota.style.display = (dte + imC.dteCli) > 0.004 ? 'block' : 'none';
   }
   var err = document.getElementById('paymentError');
   if (err) err.style.display = 'none';
@@ -9217,7 +9235,8 @@ function descarregarPressupostPDF(senseDesar) {
   var subtotalBrut = items.reduce(function (s, i) { return s + i.rawTotal; }, 0);
   var descompte = items.reduce(function (s, i) { return s + (i.rawTotal - i.total); }, 0);
   var subtotal = items.reduce(function (s, i) { return s + i.total; }, 0);
-  var base = subtotal + TRANSPORT, iva = base * IVA_PCT, total = base + iva;
+  var impP = hxImports(subtotal), dtoCli = impP.dteCli;
+  var base = impP.base, iva = impP.iva, total = impP.total;
   var num = pressupostInvoiceNum(), ara = new Date(), validesa = new Date(ara.getTime() + 30 * 86400000);
   var hiHaDte = items.some(function (it) { return it.discountRate > 0; });
 
@@ -9310,7 +9329,7 @@ function descarregarPressupostPDF(senseDesar) {
   y = doc.lastAutoTable.finalY + 20;
 
   /* Totals + condicions */
-  var nFiles = 3 + (descompte > 0 ? 1 : 0), th = 26 + nFiles * 20 + 44;
+  var nFiles = 3 + (descompte > 0 ? 1 : 0) + (dtoCli > 0 ? 1 : 0), th = 26 + nFiles * 20 + 44;
   if (y + th + 84 > H - 56) { doc.addPage(); capcalera(false); y = 84; }
   var tw = 230, tx = W - M - tw;
   stroke(LINE); doc.setLineWidth(0.6); doc.setFillColor(255, 255, 255); doc.roundedRect(tx, y, tw, th, 5, 5, 'FD');
@@ -9318,6 +9337,7 @@ function descarregarPressupostPDF(senseDesar) {
   function filaT(l, v, c) { doc.setFont('helvetica', c ? 'bold' : 'normal'); doc.setFontSize(9.5); color(c || TXT); doc.text(l, tx + 14, yt); color(c || INK); doc.text(v, W - M - 14, yt, { align: 'right' }); yt += 20; }
   filaT(T('Subtotal productes'), eur(subtotalBrut));
   if (descompte > 0) filaT(T('Descompte per volum'), '-' + eur(descompte), GOLD_D);
+  if (dtoCli > 0) filaT(T('Descompte de client ({0} %)', impP.pct), '-' + eur(dtoCli), GOLD_D);
   filaT(T('Transport'), eur(TRANSPORT));
   filaT(T('IVA ({0} %)', Math.round(IVA_PCT * 100)), eur(iva));
   var ytot = y + th - 44;
@@ -9381,8 +9401,7 @@ function enviarPressupostEmail() {
   }
   var btn = document.getElementById('presEnviarBtn');
   var subtotal = items.reduce(function(s, i){ return s + i.total; }, 0);
-  var iva = hxRedon(hxRedon(subtotal + TRANSPORT) * IVA_PCT);
-  var total = hxRedon(subtotal + TRANSPORT + iva);
+  var total = hxImports(subtotal).total; // con el descuento de cliente, si lo tiene
   /* El email que recibe el cliente va en el idioma que tiene elegido en la web. */
   var T = function () { return window.HXT ? HXT.apply(null, arguments) : arguments[0]; };
   var loc = window.HXT ? HXT.locale() : 'ca-ES';
@@ -9756,15 +9775,16 @@ function generateComanda() {
 
   // ── Totals (BASE = productos + transporte) ──
   var products  = Object.values(cart).reduce(function(s,i){ return s+i.total; }, 0);
-  var subtotal  = hxRedon(products + (TRANSPORT||0));
-  var iva       = hxRedon(subtotal * IVA_PCT);
-  var total     = hxRedon(subtotal + iva);
+  var imp       = hxImports(products); // con el descuento de cliente, si lo tiene
+  var total     = imp.total;
 
   // Ja no es genera cap PDF: nomes calculem les dades de la comanda per a
   // l'historial i per al cos de l'email de confirmació que rep el client.
   return {
     invoiceNum: comandaNum,
     total: total,
+    dtoCliPct: imp.pct,
+    dtoCliImp: imp.dteCli,
     email: (clientInfo.email && clientInfo.email !== '-') ? clientInfo.email : '',
     dateStr: dateStr,
     entregaStr: entregaStr
@@ -10020,6 +10040,7 @@ function sendOrder() {
       }).join('\n');
       var dteC = keys.reduce(function(s,k){ var it = cart[k]; return s + (it.discountRate > 0 ? it.rawTotal - it.total : 0); }, 0);
       if (dteC > 0.004) liniesC += '\n' + Tc('Descompte per volum') + ': -' + eurC(dteC);
+      if (inv.dtoCliPct) liniesC += '\n' + Tc('Descompte de client ({0} %)', inv.dtoCliPct) + ': -' + eurC(inv.dtoCliImp);
       var paramsC = {
         email: inv.email,
         name: (document.getElementById('userName') || {}).textContent || '',
@@ -11842,16 +11863,16 @@ window.legalClose = legalClose;
 </div>
 
 <!-- CERCADOR GLOBAL DE LA WEB -->
-<link rel="stylesheet" href="portada.css?v=20261120g">
-<link rel="stylesheet" href="disseny.css?v=20261120g">
-<link rel="stylesheet" href="rtl.css?v=20261120g">
-<script src="i18n/ca.js?v=20261120g" defer></script>
-<script src="i18n.js?v=20261120g" defer></script>
-<script src="portada.js?v=20261120g" defer></script>
-<script src="textos-fixos.js?v=20261120g" defer></script>
-<script src="missatges.js?v=20261120g" defer></script>
-<script src="login-social.js?v=20261120g" defer></script>
-<script src="perfil-empresa.js?v=20261120g" defer></script>
-<script src="legal.js?v=20261120g" defer></script>
+<link rel="stylesheet" href="portada.css?v=20261120h">
+<link rel="stylesheet" href="disseny.css?v=20261120h">
+<link rel="stylesheet" href="rtl.css?v=20261120h">
+<script src="i18n/ca.js?v=20261120h" defer></script>
+<script src="i18n.js?v=20261120h" defer></script>
+<script src="portada.js?v=20261120h" defer></script>
+<script src="textos-fixos.js?v=20261120h" defer></script>
+<script src="missatges.js?v=20261120h" defer></script>
+<script src="login-social.js?v=20261120h" defer></script>
+<script src="perfil-empresa.js?v=20261120h" defer></script>
+<script src="legal.js?v=20261120h" defer></script>
 </body>
 </html>

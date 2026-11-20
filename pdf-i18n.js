@@ -192,6 +192,7 @@
     'Subtotal productes': ['Subtotal productos', 'Products subtotal', 'Sous-total produits', 'Zwischensumme Produkte'],
     'Descomptes per volum': ['Descuentos por volumen', 'Volume discounts', 'Remises sur volume', 'Mengenrabatte'],
     'Descompte per volum': ['Descuento por volumen', 'Volume discount', 'Remise sur volume', 'Mengenrabatt'],
+    'Descompte de client ({0} %)': ['Descuento de cliente ({0} %)', 'Customer discount ({0} %)', 'Remise client ({0} %)', 'Kundenrabatt ({0} %)'],
     'Transport': ['Transporte', 'Shipping', 'Livraison', 'Versand'],
     'IVA ({0} %)': ['IVA ({0} %)', 'VAT ({0} %)', 'TVA ({0} %)', 'MwSt. ({0} %)'],
     'PAGAMENT': ['PAGO', 'PAYMENT', 'PAIEMENT', 'ZAHLUNG'],
