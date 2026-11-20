@@ -310,6 +310,25 @@
     "Horari": ["Horario", "Opening hours", "Horaires", "Öffnungszeiten"],
     "Dilluns a divendres, 8:00-17:30": ["Lunes a viernes, 8:00-17:30", "Monday to Friday, 8:00-17:30", "Du lundi au vendredi, 8h00-17h30", "Montag bis Freitag, 8:00-17:30"],
     "Escaneja per anar a la botiga": ["Escanea para ir a la tienda", "Scan to visit the shop", "Scannez pour aller à la boutique", "Scannen, um zum Shop zu gelangen"],
+
+    /* ---- fitxa tècnica i FDS (versió revista) ---- */
+    "Preu per garrafa de 5 L": ["Precio por garrafa de 5 L", "Price per 5 L container", "Prix par bidon de 5 L", "Preis pro 5-L-Kanister"],
+    "Revisió": ["Revisión", "Revision", "Révision", "Revision"],
+    "Referència": ["Referencia", "Reference", "Référence", "Artikelnummer"],
+    "Diluir": ["Diluir", "Dilute", "Diluer", "Verdünnen"],
+    "Aplicar": ["Aplicar", "Apply", "Appliquer", "Auftragen"],
+    "Deixar actuar": ["Dejar actuar", "Leave to act", "Laisser agir", "Einwirken lassen"],
+    "Ventilar": ["Ventilar", "Ventilate", "Aérer", "Lüften"],
+    "Perfil ambiental": ["Perfil ambiental", "Environmental profile", "Profil environnemental", "Umweltprofil"],
+    "Fitxa_tecnica": ["Ficha_tecnica", "Data_sheet", "Fiche_technique", "Datenblatt"],
+    "Data de revisió": ["Fecha de revisión", "Revision date", "Date de révision", "Revisionsdatum"],
+    "Horari laboral i urgències 24/7": ["Horario laboral y urgencias 24/7", "Office hours and 24/7 emergencies", "Heures ouvrables et urgences 24h/24", "Bürozeiten und Notfälle rund um die Uhr"],
+    "Paraula d'advertència": ["Palabra de advertencia", "Signal word", "Mention d'avertissement", "Signalwort"],
+    "Atenció": ["Atención", "Warning", "Attention", "Achtung"],
+    "Provoca irritació ocular greu.": ["Provoca irritación ocular grave.", "Causes serious eye irritation.", "Provoque une sévère irritation des yeux.", "Verursacht schwere Augenreizung."],
+    "Portar guants i protecció ocular.": ["Llevar guantes y protección ocular.", "Wear protective gloves and eye protection.", "Porter des gants et une protection oculaire.", "Schutzhandschuhe und Augenschutz tragen."],
+    "En cas de contacte amb els ulls: esbandir amb aigua durant uns minuts.": ["En caso de contacto con los ojos: aclarar con agua durante varios minutos.", "If in eyes: rinse cautiously with water for several minutes.", "En cas de contact avec les yeux : rincer avec de l'eau pendant plusieurs minutes.", "Bei Kontakt mit den Augen: einige Minuten lang mit Wasser spülen."],
+    "Secció": ["Sección", "Section", "Section", "Abschnitt"],
   };
   var IDX = { es: 0, en: 1, fr: 2, de: 3 };
   var LOCALE = { ca: 'ca-ES', es: 'es-ES', en: 'en-GB', fr: 'fr-FR', de: 'de-DE' };

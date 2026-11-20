@@ -299,6 +299,6 @@
     if (window.HXPDF_DOCS) window.HXPDF_DOCS.cataleg = cataleg;
     else setTimeout(installar, 200);
   }
-  window.HXCataleg = { generar: cataleg };
+  window.HXCataleg = { generar: cataleg, imatge: carregarImatge, preu: preuGarrafa, slug: slug };
   installar();
 })();
