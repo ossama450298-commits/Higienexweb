@@ -205,3 +205,14 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();
 })();
+
+// Enllaç directe a les pàgines legals (el demana, per exemple, Google per a l'inici de sessió):
+//   ?legal=aviso-legal · ?legal=privacidad · ?legal=cookies
+(function () {
+  var id = '';
+  try { id = new URLSearchParams(location.search).get('legal') || ''; } catch (e) { return; }
+  if (!/^(aviso-legal|privacidad|cookies)$/.test(id)) return;
+  function obrir() { if (typeof window.legalOpen === 'function') window.legalOpen('page-' + id); }
+  if (document.readyState === 'complete') setTimeout(obrir, 300);
+  else window.addEventListener('load', function () { setTimeout(obrir, 300); });
+})();
