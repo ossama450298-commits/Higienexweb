@@ -340,3 +340,16 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 #pedidosSection > div:first-child > div:nth-child(2) { flex-wrap: nowrap; white-space: nowrap; }
 @media (max-width: 480px) { #pedidosSection > div:first-child > div:nth-child(2) > span:first-child { display: none; } }
 #orderHistory strong { white-space: nowrap; }
+
+/* Entrar con Google o Apple */
+.hxs-bloc { margin: 0.4rem 0 0.6rem; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+.hxs-bloc.hxs-ocupat { opacity: 0.55; pointer-events: none; }
+.hxs-o { display: flex; align-items: center; gap: 0.7rem; width: 100%; color: #5a6b78; font-size: 0.82rem; }
+.hxs-o span { flex: 1; height: 1px; background: #e3e9ee; }
+.hxs-o em { font-style: normal; }
+.hxs-google { width: 100%; max-width: 400px; min-height: 44px; display: flex; justify-content: center; }
+.hxs-apple { width: 100%; max-width: 400px; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+  background: #000; color: #fff; border: 0; border-radius: 4px; font: 600 0.95rem -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; cursor: pointer; }
+.hxs-apple:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
+.hxs-err { margin: 0; color: #B3261E; font-size: 0.82rem; font-weight: 600; text-align: center; }
+.hxs-bloc.hxs-dalt { margin: 0 0 1rem; }
