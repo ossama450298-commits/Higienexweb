@@ -59,6 +59,9 @@
     mOper: ['Operacions i logística', 'Operaciones y logística', 'Operations and logistics', 'Opérations et logistique', 'Betrieb und Logistik', 'العمليات واللوجستيات'],
     mComp: ['Sostenibilitat i mercat', 'Sostenibilidad y mercado', 'Sustainability and market', 'Durabilité et marché', 'Nachhaltigkeit und Markt', 'الاستدامة والسوق'],
     mNews: ['Newsletter', 'Newsletter', 'Newsletter', 'Newsletter', 'Newsletter', 'النشرة الإخبارية'],
+    nPres: ['Pressupost', 'Presupuesto', 'Quote', 'Devis', 'Angebot', 'عرض سعر'],
+    nCont: ['Contacte', 'Contacto', 'Contact', 'Contact', 'Kontakt', 'اتصل بنا'],
+    nNav: ['Navegació principal', 'Navegación principal', 'Main navigation', 'Navigation principale', 'Hauptnavigation', 'التنقل الرئيسي'],
     mAjuda: ['Ajuda i contacte', 'Ayuda y contacto', 'Help and contact', 'Aide et contact', 'Hilfe und Kontakt', 'المساعدة والتواصل'],
     // calculadores
     calcT: ['Calculadores', 'Calculadoras', 'Calculators', 'Calculateurs', 'Rechner', 'الحاسبات'],
@@ -118,6 +121,9 @@
     });
   }
   function pintarTextos() {
+    if (typeof window.cpUpdateNavState === 'function') { try { window.cpUpdateNavState(); } catch (e) { /* encara no */ } }
+    var lbl = document.getElementById('navClientDditemLabel');
+    if (lbl) lbl.textContent = lbl.textContent.replace(EMOJI, '');
     treureEmojis();
     document.querySelectorAll('[data-hxm]').forEach(function (el) { el.textContent = t(el.getAttribute('data-hxm')); });
     document.querySelectorAll('[data-hxm-aria]').forEach(function (el) { el.setAttribute('aria-label', t(el.getAttribute('data-hxm-aria'))); });
@@ -219,6 +225,43 @@
     }).join('');
     inner.innerHTML = html;
     if (client) { client.classList.add('dd-client'); inner.appendChild(client); }
+  }
+
+  /* ---------- Barra superior: enllaços visibles a l'ordinador ---------- */
+  var BARRA = [['productes', 'mProductes'], ['calculadores', 'mCalc'], ['pressupost', 'nPres'], ['empresa', 'mEmpresa'], ['contacte', 'nCont']];
+  var PARE = { safestock: 'productes', rd: 'productes', innovacio: 'productes', digitalitzacio: 'productes', futur: 'productes', descarregues: 'productes',
+    cita: 'pressupost', operacions: 'empresa', compromis: 'empresa', newsletter: 'empresa', sobre: 'empresa', missio: 'empresa', organitzacio: 'empresa',
+    rrhh: 'empresa', treballa: 'empresa', casos: 'empresa', faq: 'contacte', garanties: 'contacte', fidelitzacio: 'contacte', auditoria: 'contacte' };
+  var ultimaSeccio = '';
+  function muntarBarra() {
+    var inner = document.querySelector('#mainNav .nav-inner') || document.querySelector('.nav-inner');
+    var logo = inner && inner.querySelector('.logo');
+    var boto = document.getElementById('menuToggleBtn');
+    if (!inner || !logo || document.getElementById('hxBarra')) return;
+    var barra = document.createElement('div');
+    barra.id = 'hxBarra'; barra.className = 'hx-barra';
+    barra.setAttribute('role', 'navigation'); barra.setAttribute('data-hxm-aria', 'nNav');
+    barra.innerHTML = BARRA.map(function (b) { return '<a href="?seccio=' + b[0] + '" data-nav="' + b[0] + '" data-hxm="' + b[1] + '"></a>'; }).join('');
+    logo.parentNode.insertBefore(barra, logo.nextSibling);
+    // L'hamburguesa (mòbil i tauleta) va a la cantonada, després del carret.
+    if (boto) { inner.appendChild(boto); boto.setAttribute('aria-controls', 'navDropdown'); }
+    try { ultimaSeccio = new URLSearchParams(location.search).get('seccio') || ''; } catch (e) { /* sense URL */ }
+    marcarActiu();
+  }
+  function marcarActiu() {
+    var barra = document.getElementById('hxBarra');
+    if (!barra) return;
+    var actiu = '';
+    if (document.body.getAttribute('data-view') !== 'home') {
+      var pag = document.querySelector('.hg-page.hg-page-active');
+      var grup = pag ? pag.id.replace(/^g-/, '') : '';
+      var id = ultimaSeccio;
+      actiu = id === 'pressupost' || PARE[id] === 'pressupost' ? 'pressupost' : (PARE[grup] || grup);
+    }
+    barra.querySelectorAll('a').forEach(function (a) {
+      if (a.getAttribute('data-nav') === actiu) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+    });
   }
 
   /* ---------- Calculadores amb pestanyes ---------- */
@@ -392,13 +435,15 @@
     var calcIds = CALCS.map(function (c) { return c[0]; });
     var nou = function (id) {
       if (id === 'calculadores' || calcIds.indexOf(id) !== -1) {
-        orig('calculadores');
+        orig('calculadores'); ultimaSeccio = 'calculadores'; marcarActiu();
         mostrarCalc(id === 'calculadores' ? 'calculadora' : id);
         try { history.replaceState(history.state, '', location.pathname + '?seccio=' + id); } catch (e) { /* sense historial */ }
         return;
       }
       if (MES.indexOf(id) !== -1) { var d = document.getElementById('hxMes'); if (d) d.open = true; }
+      ultimaSeccio = id;
       orig(id);
+      marcarActiu();
     };
     nou._hxPortada = true;
     window.navTo = nou;
@@ -423,6 +468,7 @@
   function iniciar() {
     muntarPortada();
     muntarMenu();
+    muntarBarra();
     muntarCalculadores();
     ordenarProductes();
     aplegarInnovacio();

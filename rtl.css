@@ -31,10 +31,10 @@ html[dir="rtl"] [style*="text-align:left"] { text-align: right !important; }
 html[dir="rtl"] #navRightGroup { margin-left: 0 !important; margin-right: auto !important; }
 html[dir="rtl"] #mainNav .nav-inner > .logo { margin-right: 0; margin-left: 0.4rem; }
 
-/* Menú lateral: surt per la dreta */
-html[dir="rtl"] #navDropdown { left: auto !important; right: 0 !important; transform: translateX(100%); box-shadow: -8px 0 30px rgba(0,0,0,0.15); }
+/* Menú lateral: surt per l'esquerra (mirall de la versió LTR, que surt per la dreta) */
+html[dir="rtl"] #navDropdown { right: auto !important; left: 0 !important; transform: translateX(-100%); box-shadow: 8px 0 30px rgba(0,0,0,0.15) !important; }
 html[dir="rtl"] #navDropdown.open { transform: translateX(0); }
-html[dir="rtl"] #navDropdown .dditem.dd-sub { padding-left: 1.6rem !important; padding-right: 2.6rem !important; }
+html[dir="rtl"] #navDropdown .dditem.dd-sub { padding-left: 1.5rem !important; padding-right: 2.4rem !important; }
 html[dir="rtl"] .side-panel-close { right: auto !important; left: 1rem !important; }
 
 /* Portada */

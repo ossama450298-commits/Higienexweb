@@ -205,3 +205,37 @@ p[data-i18n-key="t289"], p[data-i18n-key="t314"] { font-size: 0.8rem !important;
 /* El botó de contacte es distingeix també sobre el peu fosc */
 #hxChatLauncher { border: 2px solid rgba(255,255,255,0.9) !important; }
 @media (max-width: 760px) { .hxh-facts { align-items: flex-start; } }
+
+/* ── Navegació: enllaços a la barra (ordinador) i hamburguesa a la dreta (mòbil) ── */
+.hx-barra { display: none; }
+@media (min-width: 1100px) {
+  .hx-barra { display: flex; align-items: center; gap: 0.25rem; margin-left: 2rem; }
+  .hx-barra a { position: relative; display: flex; align-items: center; min-height: 44px; padding: 0 0.85rem; color: #0E2A3F; font-weight: 600; font-size: 0.95rem; text-decoration: none; border-radius: 8px; white-space: nowrap; }
+  .hx-barra a:hover { background: rgba(14,42,63,0.06); }
+  .hx-barra a:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
+  .hx-barra a[aria-current="page"]::after { content: ''; position: absolute; left: 0.85rem; right: 0.85rem; bottom: 4px; height: 3px; border-radius: 2px; background: #F2A900; }
+  #menuToggleBtn { display: none !important; }
+}
+@media (max-width: 1099px) {
+  #menuToggleBtn { order: 99; margin-left: 0.25rem; padding: 0.45rem 0.7rem !important; }
+  #menuToggleBtn span:last-child { display: none; }
+}
+html[dir="rtl"] .hx-barra { margin-left: 0; margin-right: 2rem; }
+html[dir="rtl"] #menuToggleBtn { margin-left: 0; margin-right: 0.25rem; }
+
+/* Panel lateral: s'obre des de la dreta (des de l'esquerra en àrab) */
+#navDropdown { left: auto !important; right: 0 !important; transform: translateX(100%); box-shadow: -8px 0 30px rgba(0,0,0,0.15) !important; padding-top: 4rem !important; }
+#navDropdown.open { transform: translateX(0); }
+html[dir="rtl"] #navDropdown { right: auto !important; left: 0 !important; transform: translateX(-100%); box-shadow: 8px 0 30px rgba(0,0,0,0.15) !important; }
+html[dir="rtl"] #navDropdown.open { transform: translateX(0); }
+html[dir="rtl"] .side-panel-close { right: auto !important; left: 1rem !important; }
+#navDropdown .side-panel-brand { display: none !important; }
+/* Seccions principals amb separador; subseccions agrupades a sota, sense línies */
+#navDropdown .dditem { border-bottom: 0 !important; border-top: 1px solid #e8edf1; padding: 0.95rem 1.5rem !important; }
+#navDropdown .dditem:first-child { border-top: 0; }
+#navDropdown .dditem:hover { padding-left: 1.5rem !important; }
+#navDropdown .dditem.dd-sub { border-top: 0 !important; padding: 0.55rem 1.5rem 0.55rem 2.4rem !important; min-height: 44px; display: flex !important; align-items: center; font-size: 0.92rem !important; color: #4f5d6a !important; }
+#navDropdown .dditem.dd-sub:hover { padding-left: 2.4rem !important; }
+#navDropdown .dditem.dd-sub + .dditem:not(.dd-sub) { margin-top: 0.35rem; }
+#navDropdown .dditem.dd-client { margin: 1rem 1.25rem 0 !important; border: 2px solid #0E2A3F !important; border-radius: 10px; text-align: center; padding: 0.8rem 1rem !important; }
+html[dir="rtl"] #navDropdown .dditem.dd-sub, html[dir="rtl"] #navDropdown .dditem.dd-sub:hover { padding: 0.55rem 2.4rem 0.55rem 1.5rem !important; }
