@@ -20,7 +20,7 @@
     demanarPres: ['Demanar pressupost', 'Pedir presupuesto', 'Request a quote', 'Demander un devis', 'Angebot anfordern', 'اطلب عرض سعر'],
     fet1: ['Certificat ISO 14001', 'Certificado ISO 14001', 'ISO 14001 certified', 'Certifié ISO 14001', 'ISO 14001 zertifiziert', 'حاصلة على شهادة ISO 14001'],
     fet2: ['19 patents pròpies', '19 patentes propias', '19 own patents', '19 brevets propres', '19 eigene Patente', '19 براءة اختراع خاصة'],
-    fet3: ['Descomptes de fins al 15\u00a0%', 'Descuentos de hasta el 15\u00a0%', 'Up to 15\u00a0% volume discount', 'Jusqu’à 15\u00a0% de remise', 'Bis zu 15\u00a0% Mengenrabatt', 'خصومات حتى 15\u00a0%'],
+    fet3: ['Entrega en 24–72\u00a0h', 'Entrega en 24–72\u00a0h', 'Delivery in 24–72\u00a0h', 'Livraison en 24–72\u00a0h', 'Lieferung in 24–72\u00a0Std.', 'التوصيل خلال 24–72 ساعة'],
     x3cap: ['Una garrafa HIGIENEX rendeix com tres de convencionals', 'Una garrafa HIGIENEX rinde como tres convencionales', 'One HIGIENEX container goes as far as three standard ones', 'Un bidon HIGIENEX équivaut à trois bidons classiques', 'Ein HIGIENEX-Kanister ersetzt drei herkömmliche', 'عبوة واحدة من HIGIENEX تعادل ثلاث عبوات تقليدية'],
     destT: ['Els més demanats', 'Los más pedidos', 'Best sellers', 'Les plus demandés', 'Am häufigsten bestellt', 'الأكثر طلبًا'],
     destP: ['Preu per garrafa de 5 L, sense IVA.', 'Precio por garrafa de 5 L, sin IVA.', 'Price per 5 L container, excl. VAT.', 'Prix par bidon de 5 L, HT.', 'Preis pro 5-L-Kanister, zzgl. MwSt.', 'السعر لعبوة 5 لترات دون ضريبة القيمة المضافة.'],
@@ -457,7 +457,7 @@
   }
   function carregarDiferit() {
     // Respostes de l'assistent virtual: només fan falta quan s'obre el xat.
-    carregar('monica-i18n-data.js').catch(function () { /* el xat té respostes de reserva */ });
+    carregar('monica-i18n-data.js?v=20261121b').catch(function () { /* el xat té respostes de reserva */ });
     carregar('jspdf.umd.min.js')
       .then(function () { return carregar('jspdf.plugin.autotable.min.js'); })
       .then(function () { return carregar('html2canvas.min.js'); })

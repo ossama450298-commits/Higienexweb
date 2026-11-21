@@ -1,0 +1,9 @@
+hx-arab-regular.ttf / hx-arab-bold.ttf — tipografia per als PDF en àrab.
+
+És una fusió de dues tipografies lliures, només amb els caràcters necessaris:
+· Noto Sans Arabic — Copyright 2022 The Noto Project Authors. SIL Open Font License 1.1
+  (vegeu NOTO-SANS-ARABIC-LICENSE.txt).
+· DejaVu Sans (lletres llatines) — Copyright Bitstream, Inc. i DejaVu fonts team.
+  Llicència Bitstream Vera / DejaVu: https://dejavu-fonts.github.io/License.html
+La tipografia resultant s'ha reanomenat «HX Arab», tal com demanen les dues llicències
+per a versions modificades.
