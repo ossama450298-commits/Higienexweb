@@ -1972,12 +1972,12 @@ body[data-view="page"] .cat-banner { margin-top: 70px; }
   <meta name="apple-mobile-web-app-title" content="HIGIENEX">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-web.png">
 <script src="vendor/qrcode.min.js" defer></script>
-<script src="pdf-i18n.js?v=20261120h" defer></script>
-<script src="hx-plus.js?v=20261120h" defer></script>
-<script src="pdf-kit.js?v=20261120h" defer></script>
-<script src="pdf-docs.js?v=20261120h" defer></script>
-<script src="pdf-cataleg.js?v=20261120h" defer></script>
-<script src="pdf-fitxes.js?v=20261120h" defer></script>
+<script src="pdf-i18n.js?v=20261121a" defer></script>
+<script src="hx-plus.js?v=20261121a" defer></script>
+<script src="pdf-kit.js?v=20261121a" defer></script>
+<script src="pdf-docs.js?v=20261121a" defer></script>
+<script src="pdf-cataleg.js?v=20261121a" defer></script>
+<script src="pdf-fitxes.js?v=20261121a" defer></script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -9876,7 +9876,7 @@ function renderOrderHistory() {
   var list = loadOrderHistory();
   if (!list.length) {
     box.style.display = 'block';
-    box.innerHTML = '<h3 style="color:#0B3D6B;font-size:0.95rem;font-weight:700;margin:1.6rem 0 0.6rem;" data-i18n-key="t173">📦 Les meves comandes</h3>' +
+    box.innerHTML = '<h3 style="color:#0B3D6B;font-size:0.95rem;font-weight:700;margin:1.6rem 0 0.6rem;">' + escHtml(typeof cpT === 'function' ? cpT('t173') : '📦 Les meves comandes') + '</h3>' +
       '<p style="color:#888;font-size:0.85rem;">Encara no has fet cap comanda.</p>';
     return;
   }
@@ -11863,16 +11863,17 @@ window.legalClose = legalClose;
 </div>
 
 <!-- CERCADOR GLOBAL DE LA WEB -->
-<link rel="stylesheet" href="portada.css?v=20261120h">
-<link rel="stylesheet" href="disseny.css?v=20261120h">
-<link rel="stylesheet" href="rtl.css?v=20261120h">
-<script src="i18n/ca.js?v=20261120h" defer></script>
-<script src="i18n.js?v=20261120h" defer></script>
-<script src="portada.js?v=20261120h" defer></script>
-<script src="textos-fixos.js?v=20261120h" defer></script>
-<script src="missatges.js?v=20261120h" defer></script>
-<script src="login-social.js?v=20261120h" defer></script>
-<script src="perfil-empresa.js?v=20261120h" defer></script>
-<script src="legal.js?v=20261120h" defer></script>
+<link rel="stylesheet" href="portada.css?v=20261121a">
+<link rel="stylesheet" href="disseny.css?v=20261121a">
+<link rel="stylesheet" href="rtl.css?v=20261121a">
+<script src="i18n/ca.js?v=20261121a" defer></script>
+<script src="i18n.js?v=20261121a" defer></script>
+<script src="portada.js?v=20261121a" defer></script>
+<script src="textos-fixos.js?v=20261121a" defer></script>
+<script src="missatges.js?v=20261121a" defer></script>
+<script src="login-social.js?v=20261121a" defer></script>
+<script src="perfil-empresa.js?v=20261121a" defer></script>
+<script src="facturas-cliente.js?v=20261121a" defer></script>
+<script src="legal.js?v=20261121a" defer></script>
 </body>
 </html>

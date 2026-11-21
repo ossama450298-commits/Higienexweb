@@ -375,3 +375,14 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 .hxp-part small { display: block; margin-top: 0.35rem; color: #5a6b78; font-size: 0.78rem; }
 .hxp-caixa button:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
 #fpVolumWrap { display: none !important; } /* el descompte per volum ja no es mostra en pantalla */
+
+/* «Mis facturas» en la cuenta del cliente */
+.hxmf-tit { color: #0B3D6B; font-size: 0.95rem; font-weight: 700; margin: 1.6rem 0 0.6rem; }
+.hxmf-fila { border: 1px solid #EEF2F5; border-radius: 12px; padding: 0.8rem 1rem; margin-bottom: 0.6rem; }
+.hxmf-cap, .hxmf-dades { display: flex; justify-content: space-between; align-items: center; gap: 0.6rem; }
+.hxmf-cap strong { color: #0B3D6B; font-size: 0.9rem; white-space: nowrap; }
+.hxmf-estat { font-size: 0.76rem; font-weight: 700; padding: 0.15rem 0.6rem; border-radius: 20px; }
+.hxmf-dades { margin-top: 0.35rem; font-size: 0.82rem; color: #5a6b78; }
+.hxmf-dades strong { color: #0B3D6B; font-size: 0.95rem; }
+.hxmf-pdf { margin-top: 0.6rem; min-height: 40px; padding: 0 0.9rem; border-radius: 10px; border: 1.5px solid #c9d3db; background: #fff; color: #0E2A3F; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+.hxmf-pdf:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
