@@ -7546,7 +7546,7 @@ window.submitTreballaForm = submitTreballaForm;
 </div><!-- /pedidosSection -->
 
 <!-- ═══════════════════════════════════════
-     PANEL D'ADMINISTRACIO — OUSSAMA
+     PANEL D'ADMINISTRACIO
      ═══════════════════════════════════════ -->
 <div id="adminPanel">
   <div id="adminHeader">
@@ -8672,8 +8672,7 @@ function showToast(msg, emoji) {
 window.showToast = showToast;
 
 function showWelcome(name, isProfessor) {
-  if (name==='Edu') showToast('Hola Edu! Gracies profe!', '❤️');
-  else showToast('Benvingut/da, ' + name + '!', '❤️');
+  showToast('Benvingut/da, ' + name + '!', '❤️');
   if (_pendingCheckout) {
     _pendingCheckout = false;
     openCartDrawer();
@@ -8683,9 +8682,7 @@ window.showWelcome = showWelcome;
 
 function showAdminWelcome(name) {
   openAdminPanel();
-  var msgs = { 'Oussama':'El jefe ha entrat! 😎', 'Ari':'Ari ha aterrizado! 😂', 'Lucia':'Ha arribat mes guapa! 😄' };
-  var emojis = { 'Oussama':'👑', 'Ari':'🚀', 'Lucia':'💅' };
-  setTimeout(function(){ showToast(msgs[name]||'Benvingut Admin!', emojis[name]||'⚙️'); }, 300);
+  setTimeout(function(){ showToast('Benvingut/da, ' + name + '!', '⚙️'); }, 300);
 }
 window.showAdminWelcome = showAdminWelcome;
 
@@ -10158,7 +10155,7 @@ function renderAdminUsers() {
     '<span style="background:'+rc+';color:white;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.72rem;font-weight:700;">'+rn+'</span>'+
     (canDel?'<button data-email="'+u.email+'" onclick="adminDelete(this)" style="background:#fee2e2;color:#dc2626;border:none;padding:0.25rem 0.6rem;border-radius:8px;cursor:pointer;font-size:0.75rem;" type="button">Eliminar</button>':'')+
     (u.role!=='admin'?'<button data-action="promote" data-email="'+u.email+'" onclick="adminAction(this)" style="background:#e0f2fe;color:#0369a1;border:none;padding:0.25rem 0.6rem;border-radius:8px;cursor:pointer;font-size:0.75rem;" type="button">Admin</button>':'')+
-    (u.role==='admin'&&u.name!=='Oussama'?'<button data-action="demote" data-email="'+u.email+'" onclick="adminAction(this)" style="background:#fef9c3;color:#854d0e;border:none;padding:0.25rem 0.6rem;border-radius:8px;cursor:pointer;font-size:0.75rem;" type="button">Treure</button>':'')+
+    (u.role==='admin'&&!(window.HX_USER&&u.email===HX_USER.email)?'<button data-action="demote" data-email="'+u.email+'" onclick="adminAction(this)" style="background:#fef9c3;color:#854d0e;border:none;padding:0.25rem 0.6rem;border-radius:8px;cursor:pointer;font-size:0.75rem;" type="button">Treure</button>':'')+
     '</div></div>';
   }).join('');
 }
@@ -11639,7 +11636,7 @@ if(_pp2) _pp2.addEventListener('click',function(e){
 });
 
 // ═══════════════════════════════════════
-// SUPERPODERES OUSSAMA — CEO HIGIENEX
+// Barra d'administració avançada
 // ═══════════════════════════════════════
 
 function initSuperadmin() {
@@ -11648,7 +11645,7 @@ function initSuperadmin() {
   bar.id = 'superadminBar';
   bar.innerHTML =
     '<div>' +
-      '<div class="sa-title">👑 SUPERADMIN — OUSSAMA · CEO HIGIENEX</div>' +
+      '<div class="sa-title">👑 ADMINISTRACIÓ AVANÇADA</div>' +
       '<div class="sa-stats" id="saStats">' +
         '<span>Usuaris: <strong id="saStat1">-</strong></span>' +
         '<span>Productes: <strong id="saStat2">-</strong></span>' +
@@ -11744,12 +11741,11 @@ function deactivateMaintenance() {
 }
 window.deactivateMaintenance = deactivateMaintenance;
 
-// Hook into openAdminPanel to add superadmin bar for Oussama
+// Barra d'administració avançada per als administradors (el servidor ja comprova els permisos)
 var _origOpenAdmin = openAdminPanel;
 window.openAdminPanel = function() {
   _origOpenAdmin();
-  var uName = (document.getElementById('userName') || {}).textContent || '';
-  if (uName === 'Oussama' && !document.getElementById('superadminBar')) {
+  if (window.HX_USER && HX_USER.role === 'admin' && !document.getElementById('superadminBar')) {
     setTimeout(initSuperadmin, 100);
   }
 };
