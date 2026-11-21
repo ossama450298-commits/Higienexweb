@@ -76,8 +76,8 @@
 
   /* ---------- Textos nous ---------- */
   var D = {
-    avisT: ['Per pagar necessites un compte', 'Para pagar necesitas una cuenta', 'You need an account to pay', 'Un compte est nécessaire pour payer', 'Zum Bezahlen brauchen Sie ein Konto', 'تحتاج إلى حساب للدفع'],
-    avisP: ['Es crea en un minut i et permet seguir les comandes, repetir-les i rebre les factures.', 'Se crea en un minuto y te permite seguir los pedidos, repetirlos y recibir las facturas.', 'It takes a minute and lets you track orders, repeat them and receive your invoices.', 'Il se crée en une minute et permet de suivre vos commandes, de les répéter et de recevoir vos factures.', 'Es ist in einer Minute erstellt und Sie können Bestellungen verfolgen, wiederholen und Rechnungen erhalten.', 'يُنشأ في دقيقة ويتيح لك تتبّع الطلبات وتكرارها واستلام الفواتير.'],
+    avisT: ['Pots pagar amb compte o sense', 'Puedes pagar con cuenta o sin ella', 'Pay with or without an account', 'Payez avec ou sans compte', 'Mit oder ohne Konto bezahlen', 'ادفع بحساب أو بدونه'],
+    avisP: ['Amb compte pots seguir les comandes, repetir-les i rebre les factures. Sense compte, només et demanem el nom i el correu.', 'Con cuenta puedes seguir los pedidos, repetirlos y recibir las facturas. Sin cuenta, solo te pedimos el nombre y el correo.', 'With an account you can track orders, repeat them and get your invoices. Without one, we only need your name and email.', 'Avec un compte, vous suivez vos commandes et recevez vos factures. Sans compte, il suffit de votre nom et de votre e-mail.', 'Mit Konto können Sie Bestellungen verfolgen, wiederholen und Rechnungen erhalten. Ohne Konto brauchen wir nur Name und E-Mail.', 'مع الحساب يمكنك تتبّع الطلبات وتكرارها واستلام الفواتير. بدون حساب نطلب فقط الاسم والبريد.'],
     entrar: ['Iniciar sessió', 'Iniciar sesión', 'Log in', 'Se connecter', 'Anmelden', 'تسجيل الدخول'],
     crear: ['Crear un compte', 'Crear una cuenta', 'Create an account', 'Créer un compte', 'Konto erstellen', 'إنشاء حساب'],
     seguir: ['Seguir la meva comanda', 'Seguir mi pedido', 'Track my order', 'Suivre ma commande', 'Meine Bestellung verfolgen', 'تتبّع طلبي'],

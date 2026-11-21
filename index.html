@@ -9773,6 +9773,13 @@ function generateComanda() {
     clientInfo.cp      = fu.data.cp      || '-';
   }
 
+  // Compra como invitado (invitado.js): nombre y correo que ha escrito
+  if (!window.HX_USER && window.HX_GUEST && window.HX_GUEST.email) {
+    clientInfo.email = HX_GUEST.email;
+    clientInfo.name = HX_GUEST.name || clientInfo.name;
+    clientInfo.company = HX_GUEST.company || '';
+  }
+
   // ── Totals (BASE = productos + transporte) ──
   var products  = Object.values(cart).reduce(function(s,i){ return s+i.total; }, 0);
   var imp       = hxImports(products); // con el descuento de cliente, si lo tiene
@@ -9986,7 +9993,7 @@ function sendOrder() {
 
   // Enviar al client un email de confirmació amb el detall complet de la comanda
   try {
-    var userName = (document.getElementById('userName') || {}).textContent || 'Client no identificat';
+    var userName = (!window.HX_USER && window.HX_GUEST && HX_GUEST.name) || (document.getElementById('userName') || {}).textContent || 'Client no identificat';
     var filesHTML = keys.map(function(k){
       return '<tr>' +
         '<td style="padding:8px 4px;border-bottom:1px solid #EEF2F5;color:#333;">' + escHtml(k) + '</td>' +
@@ -10043,7 +10050,7 @@ function sendOrder() {
       if (inv.dtoCliPct) liniesC += '\n' + Tc('Descompte de client ({0} %)', inv.dtoCliPct) + ': -' + eurC(inv.dtoCliImp);
       var paramsC = {
         email: inv.email,
-        name: (document.getElementById('userName') || {}).textContent || '',
+        name: (!window.HX_USER && window.HX_GUEST && HX_GUEST.name) || (document.getElementById('userName') || {}).textContent || '',
         title: Tc('Hem rebut la teva comanda {0} — HIGIENEX', inv.invoiceNum),
         badge: Tc('COMANDA CONFIRMADA'),
         subtitle: Tc('Gràcies per la teva comanda. Ja la estem preparant.'),
@@ -11874,6 +11881,8 @@ window.legalClose = legalClose;
 <script src="login-social.js?v=20261121a" defer></script>
 <script src="perfil-empresa.js?v=20261121a" defer></script>
 <script src="facturas-cliente.js?v=20261121a" defer></script>
+<script src="recuperar.js?v=20261121a" defer></script>
+<script src="invitado.js?v=20261121a" defer></script>
 <script src="legal.js?v=20261121a" defer></script>
 </body>
 </html>
