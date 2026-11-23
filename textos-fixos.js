@@ -10,6 +10,8 @@
 (function () {
   'use strict';
   var T = {
+    "Assistent Mònica": ["Asistente Mònica", "Mònica, assistant", "Assistante Mònica", "Assistentin Mònica", "المساعدة مونيكا"],
+    "En línia": ["En línea", "Online", "En ligne", "Online", "متصلة"],
     // Estats de la comanda (historial i seguiment)
     "Pendent de confirmació": ["Pendiente de confirmación", "Awaiting confirmation", "En attente de confirmation", "Wartet auf Bestätigung", "بانتظار التأكيد"],
     "Confirmada": ["Confirmado", "Confirmed", "Confirmée", "Bestätigt", "مؤكد"],

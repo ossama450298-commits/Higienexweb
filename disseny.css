@@ -386,3 +386,6 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 .hxmf-dades strong { color: #0B3D6B; font-size: 0.95rem; }
 .hxmf-pdf { margin-top: 0.6rem; min-height: 40px; padding: 0 0.9rem; border-radius: 10px; border: 1.5px solid #c9d3db; background: #fff; color: #0E2A3F; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
 .hxmf-pdf:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
+
+/* Aviso de privacidad de Mònica con IA */
+.hx-ia-avis { margin: 0; padding: 0.35rem 0.9rem 0.6rem; font-size: 0.72rem; color: #5a6b78; line-height: 1.35; text-align: center; }
