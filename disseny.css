@@ -392,3 +392,24 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 /* País e idioma de los documentos (pais-idioma.js) */
 .hx-pi-ajuda { display: block; margin-top: 0.3rem; font-size: 0.75rem; line-height: 1.4; color: #5a6b78; text-align: left; }
 #regPaisIdioma select { background: #fff; }
+/* Zona de clientes: «Tus datos» (perfil-empresa.js) */
+#hxMisDades { background: #fff; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 24px rgba(11, 61, 107, 0.08); border: 1px solid rgba(11, 61, 107, 0.06); }
+.hxmd-cap { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 2px solid #F0F4FF; }
+.hxmd-cap h3 { margin: 0 0 0.2rem; color: #0B3D6B; font-size: 1rem; }
+.hxmd-cap p { margin: 0; color: #5a6b78; font-size: 0.82rem; }
+.hxmd-editar { flex-shrink: 0; background: #0B3D6B; color: #fff; border: none; border-radius: 20px; padding: 0.5rem 1.1rem; font: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer; min-height: 40px; }
+.hxmd-editar:hover { background: #0E2A3F; }
+.hxmd-editar:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
+#hxMisDades dl { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.9rem 1.5rem; margin: 0; }
+#hxMisDades dt { font-size: 0.72rem; color: #5a6b78; margin-bottom: 0.15rem; }
+#hxMisDades dl > div:nth-child(2) { grid-column: span 2; }
+#hxMisDades dd { margin: 0; font-size: 0.92rem; font-weight: 600; color: #16232e; overflow-wrap: anywhere; }
+#hxMisDades dd.hxmd-buit { font-weight: 400; color: #8a97a3; font-style: italic; }
+@media (max-width: 560px) {
+  #hxMisDades { padding: 1.1rem; }
+  .hxmd-cap { flex-direction: column; gap: 0.7rem; padding-bottom: 0.8rem; margin-bottom: 0.8rem; }
+  .hxmd-editar { width: 100%; }
+  #hxMisDades dl { grid-template-columns: 1fr 1fr; gap: 0.6rem 1rem; }
+  #hxMisDades dl > div:nth-child(2) { grid-column: 1 / -1; } /* el correo, a lo ancho */
+  #hxMisDades dd { font-size: 0.85rem; }
+}
