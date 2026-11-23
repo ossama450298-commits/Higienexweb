@@ -441,3 +441,21 @@ footer h2.hx-peu-tit { font-family: inherit; text-transform: none; letter-spacin
 #hxValora button { min-height: 38px; padding: 0 1rem; border-radius: 20px; border: 1.5px solid #0B3D6B; background: #fff; color: #0B3D6B; font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
 #hxValora button:hover { background: #0B3D6B; color: #fff; }
 #hxValora button:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
+/* Seguimiento del pedido con línea de tiempo (seguimiento.js) */
+.hx-tl-cap { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 6px; }
+.hx-tl-cap strong { font-size: 1rem; color: #0B3D6B; }
+.hx-tl-cap span { font-size: 0.85rem; color: #555; }
+.hx-tl-llista { list-style: none; margin: 1rem 0 0.6rem; padding: 0; position: relative; }
+.hx-tl-pas { display: grid; grid-template-columns: 28px 1fr; gap: 12px; padding: 0 0 18px; position: relative; }
+.hx-tl-pas:not(:last-child)::before { content: ''; position: absolute; left: 13px; top: 26px; bottom: 0; width: 2px; background: #dfe7ee; }
+.hx-tl-pas.fet:not(:last-child)::before { background: #0B7256; }
+.hx-tl-punt { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #fff; border: 2px solid #c9d3db; color: #fff; font-size: 0.8rem; font-weight: 700; }
+.hx-tl-pas.fet .hx-tl-punt { background: #0B7256; border-color: #0B7256; }
+.hx-tl-pas.ara .hx-tl-punt { background: #F2A900; border-color: #F2A900; box-shadow: 0 0 0 5px rgba(242, 169, 0, 0.2); }
+.hx-tl-pas strong { display: block; font-size: 0.92rem; color: #16232e; line-height: 1.3; }
+.hx-tl-pas:not(.fet) strong { color: #5a6b78; font-weight: 600; }
+.hx-tl-pas em { font-style: normal; font-size: 0.7rem; font-weight: 700; color: #8A5A00; background: #FFF3D6; border-radius: 20px; padding: 0.1rem 0.5rem; margin-left: 0.3rem; vertical-align: middle; }
+.hx-tl-pas small { display: block; margin-top: 2px; font-size: 0.78rem; color: #5a6b78; }
+.hx-tl-no { background: #FFF3E0; border-radius: 10px; padding: 1rem; color: #B8621B; font-size: 0.85rem; margin-top: 0.8rem; }
+.hx-tl-cerca { color: #888; font-size: 0.85rem; padding: 0.5rem 0; }
+.hx-tl-prod { font-size: 0.82rem; color: #555; margin: 0.6rem 0 0; }
