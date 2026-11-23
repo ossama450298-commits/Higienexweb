@@ -164,6 +164,15 @@
   }
   window.hxPintarDades = pintarDades;
 
+  // Cuentas antiguas sin país: se piden los datos una sola vez por cuenta
+  function demanarUnCop() {
+    var u = window.HX_USER && window.HX_PROFILE;
+    if (!u || u.role !== 'client' || u.country) return;
+    var k = 'hx_perfil_demanat_' + String(u.email || '').toLowerCase();
+    try { if (localStorage.getItem(k)) return; localStorage.setItem(k, '1'); } catch (e) { return; }
+    obrir(u);
+  }
+
   function iniciar() {
     var sec = document.getElementById('pressupost');
     if (sec && window.IntersectionObserver) {
@@ -172,7 +181,7 @@
     // También al iniciar sesión con email y al volver a una sesión guardada.
     var o = window.setLoggedInUser;
     if (typeof o === 'function' && !o._hxPerfil) {
-      var w = function () { var r = o.apply(this, arguments); setTimeout(function () { omplirPressupost(false); pintarDades(); }, 1500); return r; };
+      var w = function () { var r = o.apply(this, arguments); setTimeout(function () { omplirPressupost(false); pintarDades(); demanarUnCop(); }, 1500); return r; };
       w._hxPerfil = true; window.setLoggedInUser = w;
     }
     setTimeout(function () { omplirPressupost(false); pintarDades(); }, 2500);

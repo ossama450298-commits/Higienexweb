@@ -40,15 +40,18 @@
       lbl('hxInvNom', 'nom') + '<input id="hxInvNom" autocomplete="name" value="' + esc(g.name || '') + '" style="' + INP + '">' +
       lbl('hxInvMail', 'email') + '<input id="hxInvMail" type="email" autocomplete="email" value="' + esc(g.email || '') + '" style="' + INP + '">' +
       lbl('hxInvEmp', 'empresa') + '<input id="hxInvEmp" autocomplete="organization" value="' + esc(g.company || '') + '" style="' + INP + '">' +
+      (window.HXPAIS ? '<div id="hxInvPaisIdioma">' + HXPAIS.camps('hxInv', g, {}) + '</div>' : '') +
       '<p style="margin:0;font-size:0.82rem;color:#5a6b78;line-height:1.45">' + esc(t('nota')) + '</p>' +
       '<p id="hxInvErr" role="alert" style="margin:0.6rem 0 0;color:#B3261E;font-size:0.85rem;font-weight:600"></p>',
       '<button type="button" id="hxInvSeguir" style="' + BTN + 'background:#F2A900;border:0;color:#1A1A1A">' + esc(t('seguir')) + '</button>');
+    if (window.HXPAIS) HXPAIS.enllacar('hxInv');
     document.getElementById('hxInvEntrar').onclick = function () { cpCloseModal(); _pendingCheckout = true; openAuthModal(); switchTab('login'); };
     document.getElementById('hxInvCrear').onclick = function () { cpCloseModal(); _pendingCheckout = true; openAuthModal(); switchTab('register'); };
     document.getElementById('hxInvSeguir').onclick = function () {
       var n = document.getElementById('hxInvNom').value.trim(), m = document.getElementById('hxInvMail').value.trim().toLowerCase();
       if (!n || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m)) { document.getElementById('hxInvErr').textContent = t('falta'); return; }
       guardat = { name: n.slice(0, 80), email: m.slice(0, 200), company: document.getElementById('hxInvEmp').value.trim().slice(0, 120) };
+      if (window.HXPAIS) Object.assign(guardat, HXPAIS.llegir('hxInv')); // país e idioma del pedido
       try { sessionStorage.setItem('hx_guest', JSON.stringify(guardat)); } catch (e) { console.warn(e); }
       window.HX_GUEST = guardat;
       cpCloseModal();

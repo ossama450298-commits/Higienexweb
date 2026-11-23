@@ -413,3 +413,7 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
   #hxMisDades dl > div:nth-child(2) { grid-column: 1 / -1; } /* el correo, a lo ancho */
   #hxMisDades dd { font-size: 0.85rem; }
 }
+/* Compra como invitado: país e idioma (invitado.js + pais-idioma.js) */
+#hxInvPaisIdioma label { display: block; font-weight: 700; font-size: 0.85rem; }
+#hxInvPaisIdioma select { width: 100%; box-sizing: border-box; padding: 0.7rem 0.8rem; border: 1.5px solid #d5dde3; border-radius: 10px; font-size: 0.95rem; margin: 0.3rem 0 0.2rem; background: #fff; }
+#hxInvPaisIdioma > div { margin-bottom: 0.7rem; }

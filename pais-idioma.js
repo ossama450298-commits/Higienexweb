@@ -83,7 +83,7 @@
 
   /* Idioma de los documentos: el del cliente con sesión iniciada o, si no, el de la web */
   function idiomaDocs() {
-    var u = window.HX_USER && window.HX_PROFILE;
+    var u = (window.HX_USER && window.HX_PROFILE) || (!window.HX_USER && window.HX_GUEST);
     return (u && LANGS.indexOf(u.docLang) >= 0 && u.docLang) || lang();
   }
   window.hxIdiomaDocs = idiomaDocs;
