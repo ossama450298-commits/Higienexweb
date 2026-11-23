@@ -1076,7 +1076,7 @@ function cpEnviarFacturaEmail(num, btn){
   var fd = new FormData();
   fd.append('num', num);
   fd.append('lang', hxIdiomaWeb());
-  fd.append('pdf', doc.output('blob'), 'factura-' + num + '.pdf');
+  fd.append('pdf', doc.output('blob'), hxNomPdf('factura', num));
   var txt = btn ? btn.innerHTML : '';
   if (btn) { btn.disabled = true; btn.innerHTML = '…'; }
   fetch(HX_API_BASE + '/portal/factura-email', { method: 'POST', headers: { 'X-Portal-Token': hxPortalToken() }, body: fd })
@@ -1200,7 +1200,7 @@ function cpDescarregarExtracte(){
     doc.setTextColor(148,163,176);
     doc.text('HIGIENEX S.L. \u00b7 '+cpT('t838')+' \u00b7 '+new Date().toLocaleString(cpLang()), W/2, 820, {align:'center'});
   }
-  doc.save('extracte-de-compte.pdf');
+  doc.save(hxNomPdf('extracte'));
 }
 window.cpDescarregarExtracte = cpDescarregarExtracte;
 
@@ -1330,7 +1330,7 @@ function cpDescarregarFactura(num){
   doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
   doc.setTextColor(148,163,176);
   doc.text('HIGIENEX S.L. \u00b7 '+cpT('t805')+' \u00b7 '+new Date().toLocaleString(cpLang()), W/2, y, {align:'center'});
-  doc.save('factura-'+num+'.pdf');
+  doc.save(hxNomPdf('factura', num));
 }
 window.cpDescarregarFactura=cpDescarregarFactura;
 

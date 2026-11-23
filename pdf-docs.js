@@ -230,7 +230,7 @@
       },
     });
     k.totals([[cpT('t829'), CP_EUR(tot)], [cpT('t830'), CP_EUR(pagat), C.OK]], cpT('t831'), CP_EUR(pend));
-    k.tancar('extracte-de-compte.pdf', 'HIGIENEX S.L. · ' + cpT('t838'));
+    k.tancar(hxNomPdf('extracte'), 'HIGIENEX S.L. · ' + cpT('t838'));
   }
 
   /* ---------- Portal: factura ---------- */
@@ -276,7 +276,7 @@
       var vr = HXVF.cadena(CP_DB.facturas).map[num];
       if (vr) { k.cal(116); k.y = HXVF.bloquePDF(k.doc, vr, k.M, k.W, k.H, k.y, cpVFLang()); }
     } catch (err) { /* sense registre VeriFactu: la factura es descarrega igualment */ }
-    return k.tancar('factura-' + num + '.pdf', 'HIGIENEX S.L. · ' + cpT('t805'));
+    return k.tancar(hxNomPdf('factura', num), 'HIGIENEX S.L. · ' + cpT('t805'));
   }
 
   /* ---------- Portal: certificat d'impacte ---------- */
@@ -401,7 +401,7 @@
       } catch (e) { /* sense QR */ }
     }
     k.y = by + bh + 14;
-    return k.tancar('Comanda_' + inv.invoiceNum + '.pdf', T("Aquest document és un justificant de comanda, no una factura. La factura s'emetrà quan s'expedeixi la mercaderia. Per a qualsevol consulta, indica el número de comanda."));
+    return k.tancar(hxNomPdf('comanda', inv.invoiceNum), T("Aquest document és un justificant de comanda, no una factura. La factura s'emetrà quan s'expedeixi la mercaderia. Per a qualsevol consulta, indica el número de comanda."));
   }
 
   window.HXPDF_DOCS = {

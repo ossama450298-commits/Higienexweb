@@ -357,6 +357,8 @@
   function idioma() {
     var l = 'ca';
     try { l = localStorage.getItem('hx_lang') || 'ca'; } catch (e) {}
+    // pedido, presupuesto y factura: en el idioma del cliente (pais-idioma.js)
+    if (window.HX_LANG_DOC) l = window.HX_LANG_DOC;
     if (l === 'ar') return 'en';
     return LOCALE[l] ? l : 'ca';
   }

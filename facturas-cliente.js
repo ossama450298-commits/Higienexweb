@@ -77,14 +77,15 @@
     files.push([T('Base imposable'), e(f.base)]);
     files.push([T('IVA ({0} %)', 21), e(f.cuota)]);
     k.totals(files, T('Total'), e(f.total));
-    k.tancar('Factura_' + String(f.num).replace(/[^\w-]/g, '') + '.pdf', T('Pagament per transferència a CaixaBank · ES21 2100 4455 6612 3456 7890 · Indica el número de factura.'));
+    k.tancar(hxNomPdf('factura', f.num), T('Pagament per transferència a CaixaBank · ES21 2100 4455 6612 3456 7890 · Indica el número de factura.'));
   }
 
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest && ev.target.closest('.hxmf-pdf');
     if (!b || !FACT) return;
     var f = FACT[+b.getAttribute('data-i')];
-    if (f) pdf(f);
+    // en el idioma de los documentos del cliente (pais-idioma.js)
+    if (f) (window.hxAmbIdiomaDocs ? hxAmbIdiomaDocs(function () { pdf(f); }) : pdf(f));
   });
 
   function iniciar() {

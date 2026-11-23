@@ -389,3 +389,6 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 
 /* Aviso de privacidad de Mònica con IA */
 .hx-ia-avis { margin: 0; padding: 0.35rem 0.9rem 0.6rem; font-size: 0.72rem; color: #5a6b78; line-height: 1.35; text-align: center; }
+/* País e idioma de los documentos (pais-idioma.js) */
+.hx-pi-ajuda { display: block; margin-top: 0.3rem; font-size: 0.75rem; line-height: 1.4; color: #5a6b78; text-align: left; }
+#regPaisIdioma select { background: #fff; }

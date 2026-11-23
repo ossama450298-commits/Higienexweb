@@ -1671,7 +1671,7 @@ function descarregarPressupostPDF(senseDesar) {
     doc.text(T('Pàg.') + ' ' + i + ' / ' + n, W - M, H - 34, { align: 'right' });
   }
   if (senseDesar) return { doc: doc, num: num, validesa: dd(validesa), total: total };
-  doc.save('Pressupost_' + num + '.pdf');
+  doc.save(hxNomPdf('pressupost', num));
 }
 window.descarregarPressupostPDF = descarregarPressupostPDF;
 
@@ -1728,7 +1728,7 @@ function enviarPressupostEmail() {
     fdP.append('validesa', pdfPres.validesa);
     fdP.append('lang', hxIdiomaWeb());
     fdP.append('items', JSON.stringify(items.map(function (i) { return { name: i.name, qty: i.qty, total: Math.round(i.total * 100) / 100 }; })));
-    fdP.append('pdf', pdfPres.doc.output('blob'), 'Pressupost_' + pdfPres.num + '.pdf');
+    fdP.append('pdf', pdfPres.doc.output('blob'), hxNomPdf('pressupost', pdfPres.num));
     fetch(HX_API_BASE + '/notify-pressupost', { method: 'POST', headers: { Authorization: 'Bearer ' + hxApiToken() }, body: fdP })
       .then(function (r) { if (!r.ok) throw new Error('Error ' + r.status); })
       .then(function () {
@@ -2212,7 +2212,7 @@ function hxConfirmacioComanda(num, params, pdfBlob, liniaPdf, botoPdf) {
       fd.append('pdf_line', liniaPdf);
       fd.append('pdf_label', botoPdf || 'PDF');
       fd.append('num', num);
-      fd.append('pdf', pdfBlob, 'Comanda_' + num + '.pdf');
+      fd.append('pdf', pdfBlob, hxNomPdf('comanda', num));
       return fetch(HX_API_BASE + '/notify-comanda', { method: 'POST', body: fd }).then(function(r){
         if (r.ok) return r.json();
         console.warn('Confirmació amb PDF no enviada (' + r.status + '), envio la de sempre.');

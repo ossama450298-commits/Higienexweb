@@ -34,7 +34,9 @@
   function tc(k, def) { return (typeof cpT === 'function' && cpT(k) !== k) ? cpT(k) : def; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
-  function faltenDades(u) { return u && u.role === 'client' && !u.company && u.sector !== 'Particular'; }
+  // Falta la empresa (o «Soy particular») o falta el país
+  function faltenDades(u) { return u && u.role === 'client' && ((!u.company && u.sector !== 'Particular') || !u.country); }
+  function paisIdioma() { return window.HXPAIS ? HXPAIS.llegir('hxp') : {}; }
 
   function tancar() {
     var w = document.getElementById('hxPerfilWrap'); if (w) w.remove();
@@ -48,7 +50,7 @@
     w.classList.add('hxp-ocupat');
     try {
       var r = await hxApi('/me', { method: 'PATCH', body: dades });
-      window.HX_PROFILE = r.user;
+      window.HX_PROFILE = Object.assign({}, window.HX_PROFILE || {}, r.user);
       tancar();
       omplirPressupost(true);
       if (!dades.particular && typeof showToast === 'function') showToast(t('desat'), '✅');
@@ -69,11 +71,12 @@
         '<h2 id="hxpTitol">' + esc(t('titol')) + '</h2>' +
         '<p class="hxp-intro">' + esc(t('intro')) + '</p>' +
         '<label for="hxpEmpresa">' + esc(t('empresa')) + '</label>' +
-        '<input id="hxpEmpresa" type="text" autocomplete="organization" maxlength="120" placeholder="' + esc(t('phEmpresa')) + '">' +
+        '<input id="hxpEmpresa" type="text" autocomplete="organization" maxlength="120" placeholder="' + esc(t('phEmpresa')) + '" value="' + esc(u.company || '') + '">' +
         '<label for="hxpCif">' + esc(t('cif')) + ' <span>' + esc(t('opcional')) + '</span></label>' +
         '<input id="hxpCif" type="text" maxlength="20" placeholder="B12345678" value="' + esc(u.cif || '') + '">' +
         '<label for="hxpSector">' + esc(t('sector')) + '</label>' +
         '<select id="hxpSector">' + SECTORS.map(function (s) { return '<option value="' + esc(s[0]) + '"' + (u.sector === s[0] ? ' selected' : '') + '>' + esc(tc(s[1], s[0])) + '</option>'; }).join('') + '</select>' +
+        (window.HXPAIS ? HXPAIS.camps('hxp', u, {}) : '') +
         '<p class="hxp-err" role="alert"></p>' +
         '<div class="hxp-botons">' +
           '<button type="button" class="hxp-ara-no">' + esc(t('araNo')) + '</button>' +
@@ -88,11 +91,12 @@
     w.addEventListener('click', function (e) { if (e.target === w) tancar(); });
     w.querySelector('.hxp-x').onclick = tancar;
     w.querySelector('.hxp-ara-no').onclick = tancar;
-    w.querySelector('.hxp-particular').onclick = function () { desar({ particular: true, cif: document.getElementById('hxpCif').value }); };
+    if (window.HXPAIS) HXPAIS.enllacar('hxp');
+    w.querySelector('.hxp-particular').onclick = function () { desar(Object.assign({ particular: true, cif: document.getElementById('hxpCif').value }, paisIdioma())); };
     w.querySelector('.hxp-desar').onclick = function () {
       var emp = document.getElementById('hxpEmpresa').value.trim();
       if (!emp) { w.querySelector('.hxp-err').textContent = t('falta'); document.getElementById('hxpEmpresa').focus(); return; }
-      desar({ company: emp, cif: document.getElementById('hxpCif').value, sector: document.getElementById('hxpSector').value });
+      desar(Object.assign({ company: emp, cif: document.getElementById('hxpCif').value, sector: document.getElementById('hxpSector').value }, paisIdioma()));
     };
     w.querySelector('#hxpEmpresa').addEventListener('keydown', function (e) { if (e.key === 'Enter') w.querySelector('.hxp-desar').click(); });
     document.addEventListener('keydown', teclat);

@@ -83,7 +83,10 @@
   };
   var FONT = 'HXArab', carregada = false, b64 = {};
 
-  function enArab() { try { return localStorage.getItem('hx_lang') === 'ar'; } catch (e) { return false; } }
+  function enArab() {
+    if (window.HX_LANG_DOC) return window.HX_LANG_DOC === 'ar'; // documentos en el idioma del cliente
+    try { return localStorage.getItem('hx_lang') === 'ar'; } catch (e) { return false; }
+  }
   function aB64(buf) {
     var s = '', a = new Uint8Array(buf), i;
     for (i = 0; i < a.length; i += 0x8000) s += String.fromCharCode.apply(null, a.subarray(i, i + 0x8000));
@@ -91,13 +94,14 @@
   }
   // La tipografia es baixa només amb la web en àrab (uns 330 KB), abans que calgui fer cap PDF.
   function carregar() {
-    if (carregada || !enArab()) return;
+    if (carregada || !(enArab() || (window.hxIdiomaDocs && window.hxIdiomaDocs() === 'ar'))) return;
     carregada = 'baixant';
     Promise.all(['regular', 'bold'].map(function (p) {
       return fetch('fonts/hx-arab-' + p + '.ttf').then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })
         .then(function (buf) { b64[p] = aB64(buf); });
     })).then(function () { carregada = true; }).catch(function (e) { carregada = false; console.warn('Tipografia àrab no disponible', e); });
   }
+  window.hxCarregarArab = carregar;
   function actiu() { return carregada === true && enArab(); }
 
   /* Traduccions: amb la tipografia a punt, l'àrab; si no, l'anglès de sempre */
