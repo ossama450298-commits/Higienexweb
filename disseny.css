@@ -427,3 +427,5 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 .hxpp-ok, .hxpp-ko { font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 20px; }
 .hxpp-ok { background: #E7F4EE; color: #0B7256; }
 .hxpp-ko { background: #FCE8E6; color: #8C281E; }
+/* Pie: títulos de columna (h2 por orden de títulos; mismo aspecto que antes) */
+footer h2.hx-peu-tit { font-family: inherit; text-transform: none; letter-spacing: normal; font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0 0 1rem; line-height: 1.3; }
