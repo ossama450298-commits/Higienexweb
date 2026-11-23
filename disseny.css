@@ -417,3 +417,13 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 #hxInvPaisIdioma label { display: block; font-weight: 700; font-size: 0.85rem; }
 #hxInvPaisIdioma select { width: 100%; box-sizing: border-box; padding: 0.7rem 0.8rem; border: 1.5px solid #d5dde3; border-radius: 10px; font-size: 0.95rem; margin: 0.3rem 0 0.2rem; background: #fff; }
 #hxInvPaisIdioma > div { margin-bottom: 0.7rem; }
+/* Pago en modo de prueba (pagament-prova.js) */
+#hxPagProva { background: #FFF8E6; border: 1px solid #F2D58A; border-radius: 12px; padding: 0.75rem 0.85rem; margin: 0 0 1rem; font-size: 0.8rem; color: #4a3b10; }
+#hxPagProva p { margin: 0 0 0.5rem; line-height: 1.45; }
+.hxpp-targetes { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.hxpp-targetes button { flex: 1 1 200px; display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; min-height: 40px; padding: 0.4rem 0.7rem; border: 1px solid #E5C877; border-radius: 9px; background: #fff; font: inherit; font-size: 0.78rem; font-variant-numeric: tabular-nums; color: #1b2a36; cursor: pointer; }
+.hxpp-targetes button:hover { border-color: #B08A2E; }
+.hxpp-targetes button:focus-visible { outline: 3px solid #0B3D6B; outline-offset: 2px; }
+.hxpp-ok, .hxpp-ko { font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.45rem; border-radius: 20px; }
+.hxpp-ok { background: #E7F4EE; color: #0B7256; }
+.hxpp-ko { background: #FCE8E6; color: #8C281E; }
