@@ -459,3 +459,17 @@ footer h2.hx-peu-tit { font-family: inherit; text-transform: none; letter-spacin
 .hx-tl-no { background: #FFF3E0; border-radius: 10px; padding: 1rem; color: #B8621B; font-size: 0.85rem; margin-top: 0.8rem; }
 .hx-tl-cerca { color: #888; font-size: 0.85rem; padding: 0.5rem 0; }
 .hx-tl-prod { font-size: 0.82rem; color: #555; margin: 0.6rem 0 0; }
+/* App instalada (app-web.js): barra inferior y aviso para iPhone */
+#hxAppBar { display: none; }
+.hx-app #hxAppBar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 9000; background: #fff; border-top: 1px solid #dfe7ee; box-shadow: 0 -4px 18px rgba(11, 61, 107, 0.08); padding: 4px 4px calc(4px + env(safe-area-inset-bottom)); }
+#hxAppBar button { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 52px; border: 0; background: none; color: #33424f; font: inherit; font-size: 0.68rem; font-weight: 600; cursor: pointer; }
+#hxAppBar svg { width: 24px; height: 24px; fill: none; stroke: #0B3D6B; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+#hxAppBar button:focus-visible { outline: 3px solid #F2A900; outline-offset: -3px; border-radius: 10px; }
+.hx-ab-n { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: #F2A900; color: #1A1A1A; font-size: 0.66rem; font-weight: 800; line-height: 18px; }
+.hx-app body { padding-bottom: calc(64px + env(safe-area-inset-bottom)); }
+.hx-app #hxChatLauncher, .hx-app #whatsappBtn { bottom: calc(76px + env(safe-area-inset-bottom)) !important; }
+@media (min-width: 900px) { .hx-app #hxAppBar { display: none; } .hx-app body { padding-bottom: 0; } }
+#hxIosAvis { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 9500; display: flex; gap: 12px; align-items: center; background: #fff; border-radius: 16px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(14, 42, 63, 0.25); font-size: 0.85rem; color: #1b2a36; }
+#hxIosAvis img { border-radius: 10px; flex-shrink: 0; }
+#hxIosAvis p { margin: 2px 0 0; color: #5a6b78; }
+#hxIosAvis button { flex-shrink: 0; width: 36px; height: 36px; border: 0; border-radius: 50%; background: #F3F6F5; font-size: 1rem; cursor: pointer; }
