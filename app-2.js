@@ -643,7 +643,7 @@ function hxCarregarFaq(){
   if (!HX_FAQ_PROMESA) {
     HX_FAQ_PROMESA = new Promise(function(resolve){
       var s = document.createElement('script');
-      s.src = 'monica-faq-data.js?v=20261121b';
+      s.src = 'monica-faq-data.js?v=20261123c';
       s.onload = function(){ resolve(); };
       s.onerror = function(){ HX_FAQ_PROMESA = null; resolve(); };   // sense FAQ, la IA respon igualment
       document.head.appendChild(s);

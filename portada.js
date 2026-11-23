@@ -457,7 +457,7 @@
   }
   function carregarDiferit() {
     // Respostes de l'assistent virtual: només fan falta quan s'obre el xat.
-    carregar('monica-i18n-data.js?v=20261121b').catch(function () { /* el xat té respostes de reserva */ });
+    carregar('monica-i18n-data.js?v=20261123c').catch(function () { /* el xat té respostes de reserva */ });
     carregar('jspdf.umd.min.js')
       .then(function () { return carregar('jspdf.plugin.autotable.min.js'); })
       .then(function () { return carregar('html2canvas.min.js'); })
