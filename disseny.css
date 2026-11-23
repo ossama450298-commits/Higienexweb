@@ -429,3 +429,15 @@ body.hxl-oberta #mainNav, body.hxl-oberta #hxChatLauncher, body.hxl-oberta #hxCo
 .hxpp-ko { background: #FCE8E6; color: #8C281E; }
 /* Pie: títulos de columna (h2 por orden de títulos; mismo aspecto que antes) */
 footer h2.hx-peu-tit { font-family: inherit; text-transform: none; letter-spacing: normal; font-size: 0.95rem; font-weight: 700; color: #fff; margin: 0 0 1rem; line-height: 1.3; }
+/* Valoraciones (valoraciones.js) */
+.hx-val-nota { margin: 0 0 0.6rem; font-size: 0.82rem; line-height: 1.45; color: #5a6b78; }
+#hxValora { background: #fff; border-radius: 20px; padding: 1.3rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 24px rgba(11, 61, 107, 0.08); border: 1px solid rgba(11, 61, 107, 0.06); }
+#hxValora h3 { margin: 0 0 0.2rem; color: #0B3D6B; font-size: 1rem; }
+#hxValora > p { margin: 0 0 0.8rem; color: #5a6b78; font-size: 0.82rem; }
+#hxValora ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+#hxValora li { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; padding: 0.55rem 0; border-top: 1px solid #EEF2F5; font-size: 0.9rem; font-weight: 600; color: #16232e; }
+#hxValora li > span:first-child { flex: 1; min-width: 150px; }
+.hx-val-fet { font-size: 0.78rem; font-weight: 500; color: #B08A2E; }
+#hxValora button { min-height: 38px; padding: 0 1rem; border-radius: 20px; border: 1.5px solid #0B3D6B; background: #fff; color: #0B3D6B; font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+#hxValora button:hover { background: #0B3D6B; color: #fff; }
+#hxValora button:focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
