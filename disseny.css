@@ -503,3 +503,20 @@ footer h2.hx-peu-tit { font-family: inherit; text-transform: none; letter-spacin
 .hxcmp-taula { overflow: auto; padding: 1rem; }
 .hxstock-avis { display: block; width: 100%; margin-top: .6rem; padding: .6rem; border: 1.5px dashed #0B3D6B; border-radius: 10px; background: #F3F6F5; color: #0B3D6B; font-weight: 700; cursor: pointer; }
 .hxstock-avis:disabled { border-style: solid; background: #E8F5E9; color: #2E7D32; cursor: default; }
+
+/* ---------- Web en mantenimiento (mantenimiento.js) ---------- */
+html.hx-en-mant, html.hx-en-mant body { overflow: hidden; }
+#hxMant { position: fixed; inset: 0; z-index: 2147483000; display: grid; place-items: center; padding: 20px;
+  background: radial-gradient(120% 90% at 100% 100%, #123651 0%, #0E2A3F 55%, #09202F 100%); color: #E7EEF2; overflow: auto; }
+#hxMant .hxmant-caixa { max-width: 520px; width: 100%; text-align: center; }
+#hxMant .hxmant-logo { font: 800 30px/1 Georgia, 'Times New Roman', serif; letter-spacing: 1px; color: #fff; }
+#hxMant .hxmant-logo span { color: #D4AF5A; }
+#hxMant .hxmant-ic { font-size: 54px; margin: 28px 0 8px; }
+#hxMant h1 { margin: 0 0 10px; font-size: clamp(26px, 6vw, 36px); color: #fff; line-height: 1.15; }
+#hxMant .hxmant-txt { font-size: 17px; line-height: 1.6; margin: 0 0 16px; color: #C9D6DE; }
+#hxMant .hxmant-msg { margin: 0 auto 18px; padding: 12px 16px; max-width: 440px; border-left: 3px solid #D4AF5A;
+  background: rgba(255, 255, 255, .07); border-radius: 0 8px 8px 0; text-align: start; font-size: 15.5px; line-height: 1.55; color: #fff; }
+#hxMant .hxmant-tel { font-size: 16px; margin: 0 0 22px; }
+#hxMant .hxmant-tel a { color: #F2A900; font-weight: 800; font-size: 20px; text-decoration: none; white-space: nowrap; }
+#hxMant .hxmant-tel a:focus-visible { outline: 2px solid #F2A900; outline-offset: 3px; }
+#hxMant .hxmant-auto { font-size: 13px; color: #8FA6B4; margin: 0; }
