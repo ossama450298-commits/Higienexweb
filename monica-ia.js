@@ -12,6 +12,12 @@
   var TX = {
     aviso: ['La Mònica fa servir IA de Google. No hi escriguis dades personals.', 'Mònica usa IA de Google. No escribas datos personales.', 'Mònica uses Google AI. Please don’t share personal data.', 'Mònica utilise l’IA de Google. N’écrivez pas de données personnelles.', 'Mònica nutzt KI von Google. Bitte keine persönlichen Daten eingeben.', 'تستخدم مونيكا ذكاء Google الاصطناعي. لا تكتب بيانات شخصية.'],
     afegit: ['Afegit al cistell.', 'Añadido al carrito.', 'Added to the cart.', 'Ajouté au panier.', 'In den Warenkorb gelegt.', 'أُضيف إلى السلة.'],
+    proposta: ['Comanda proposada', 'Pedido propuesto', 'Suggested order', 'Commande proposée', 'Vorgeschlagene Bestellung', 'الطلب المقترح'],
+    pressu: ['Pressupost proposat', 'Presupuesto propuesto', 'Suggested quote', 'Devis proposé', 'Vorgeschlagenes Angebot', 'عرض السعر المقترح'],
+    totalSense: ['Total aprox. (sense IVA)', 'Total aprox. (sin IVA)', 'Approx. total (excl. VAT)', 'Total approx. (HT)', 'Summe ca. (ohne MwSt.)', 'المجموع التقريبي (بدون ضريبة)'],
+    garrafes: ['garrafes', 'garrafas', 'jerrycans', 'bidons', 'Kanister', 'عبوات'],
+    afegir: ['Afegir al cistell', 'Añadir al carrito', 'Add to cart', 'Ajouter au panier', 'In den Warenkorb', 'أضف إلى السلة'],
+    preparo: ['Et preparo aquesta comanda. Revisa-la i, si està bé, afegeix-la al cistell:', 'Te preparo este pedido. Revísalo y, si está bien, añádelo al carrito:', 'Here is your order. Check it and, if it looks right, add it to the cart:', 'Voici votre commande. Vérifiez-la et ajoutez-la au panier si elle vous convient :', 'Hier ist Ihre Bestellung. Prüfen Sie sie und legen Sie sie in den Warenkorb:', 'جهّزت لك هذا الطلب. راجعه وأضفه إلى السلة إن كان صحيحًا:'],
   };
   function lang() { try { var l = localStorage.getItem('hx_lang') || 'ca'; return LANGS.indexOf(l) >= 0 ? l : 'ca'; } catch (e) { return 'ca'; } }
   function t(k) { return TX[k][LANGS.indexOf(lang())]; }
@@ -59,6 +65,7 @@
     var body = document.getElementById('hxChatBody');
     if (!body || !accions || !accions.length) return;
     accions.forEach(function (a) {
+      if ((a.tipo === 'carrito' || a.tipo === 'presupuesto') && a.productos && a.productos.length) { targeta(a, body); return; }
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'hxQuickBtn';
@@ -69,6 +76,48 @@
     });
     body.scrollTop = body.scrollHeight;
   }
+
+  /* Tarjeta con el pedido o presupuesto propuesto: líneas, total aproximado y botón */
+  function eur(n) { return (Math.round(n * 100) / 100).toFixed(2).replace('.', ',') + ' €'; }
+  function targeta(a, body) {
+    var total = 0;
+    var linies = a.productos.map(function (p) {
+      var imp = preu(p.nombre) * p.garrafas; total += imp;
+      return '<li><span><b>' + p.garrafas + '</b> × ' + esc(p.nombre) + '</span><span>' + eur(imp) + '</span></li>';
+    }).join('');
+    var d = document.createElement('div');
+    d.className = 'hxPedido';
+    d.innerHTML = '<div class="hxPedido-t">' + (a.tipo === 'carrito' ? '🛒 ' + esc(t('proposta')) : '📋 ' + esc(t('pressu'))) + '</div>' +
+      '<ul>' + linies + '</ul><div class="hxPedido-tot"><span>' + esc(t('totalSense')) + '</span><b>' + eur(total) + '</b></div>';
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'hxPedido-btn';
+    b.textContent = a.tipo === 'carrito' ? (a.texto || t('afegir')) : a.texto;
+    b.onclick = function () { executar(a); b.disabled = true; b.textContent = '✓ ' + (a.tipo === 'carrito' ? t('afegit') : a.texto); };
+    d.appendChild(b);
+    body.appendChild(d);
+  }
+
+  /* Sin IA: «quiero 4 garrafas de ECO y 2 de HOSP» → pedido propuesto con los productos del catálogo */
+  function normal(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+  var PARAULES = /(vull|voldria|quiero|querria|necesito|necessito|demana|pide|pedir|comprar|compra|afegeix|añade|anade|add|order|want|buy|commande|bestell)/;
+  function pedidoLocal(text) {
+    var tx = normal(text);
+    if (!PARAULES.test(tx) || !/\d/.test(tx)) return null;
+    var productos = [];
+    (window.PRODUCTS || []).filter(function (p) { return p.active; }).forEach(function (p) {
+      var paraules = normal(p.name).split(/\s+/);
+      var claus = [paraules.slice(0, 2).join(' '), paraules[0], paraules[1]].filter(function (k) { return k && k.length >= 3; });
+      var pos = -1;
+      for (var i = 0; i < claus.length && pos < 0; i++) pos = tx.indexOf(claus[i]);
+      if (pos < 0) return;
+      var abans = tx.slice(Math.max(0, pos - 30), pos).match(/(\d{1,3})\D{0,22}$/);
+      var despres = tx.slice(pos, pos + 40).match(/^\D{0,30}?(\d{1,3})\s*(garraf|unit|unid|u\b|x\b)/);
+      var n = abans ? +abans[1] : despres ? +despres[1] : 0;
+      if (n > 0) productos.push({ nombre: p.name, garrafas: Math.min(500, n) });
+    });
+    return productos.length ? { tipo: 'carrito', productos: productos, texto: t('afegir') } : null;
+  }
+  window.hxPedidoLocal = pedidoLocal;
 
   function preguntarIA(text, l) {
     var hist = (window.HX_CHAT_HISTORY || []).slice(-13, -1).map(function (m) { return { role: m.who === 'user' ? 'user' : 'assistant', content: m.text }; });
@@ -98,11 +147,16 @@
         hxHideTyping();
         if (typeof hxStat === 'function') hxStat({ k: 'c', s: 'ia', l: l });
         hxAddMessage(d.reply, 'bot');
-        botons(d.actions);
+        var acc = d.actions || [];
+        // si la IA no ha propuesto el pedido pero el cliente lo pide claro, se prepara aquí
+        if (!acc.some(function (x) { return x.tipo === 'carrito'; })) { var loc = pedidoLocal(text); if (loc) acc = acc.concat([loc]); }
+        botons(acc);
       }).catch(function (e) {
         // sin IA: las respuestas de siempre
         console.warn('Mònica sin IA:', e.message);
         hxHideTyping();
+        var local = pedidoLocal(text);
+        if (local) { hxAddMessage(t('preparo'), 'bot'); botons([local]); return; }
         base.apply(null, [text]);
       });
     };

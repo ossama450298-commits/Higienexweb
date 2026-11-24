@@ -473,3 +473,13 @@ footer h2.hx-peu-tit { font-family: inherit; text-transform: none; letter-spacin
 #hxIosAvis img { border-radius: 10px; flex-shrink: 0; }
 #hxIosAvis p { margin: 2px 0 0; color: #5a6b78; }
 #hxIosAvis button { flex-shrink: 0; width: 36px; height: 36px; border: 0; border-radius: 50%; background: #F3F6F5; font-size: 1rem; cursor: pointer; }
+
+/* Mònica: pedido o presupuesto propuesto (monica-ia.js) */
+.hxPedido { align-self: stretch; margin: 4px 0 8px; padding: 12px 14px; border-radius: 14px; background: #fff; border: 1px solid #d5dee0; box-shadow: 0 2px 10px rgba(11, 61, 107, .08); }
+.hxPedido-t { font-weight: 800; color: #0B3D6B; font-size: .92rem; margin-bottom: 6px; }
+.hxPedido ul { list-style: none; margin: 0; padding: 0; }
+.hxPedido li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px dashed #e3e9ea; font-size: .9rem; }
+.hxPedido-tot { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; font-size: .88rem; color: #4a6272; }
+.hxPedido-tot b { color: #0B3D6B; font-size: 1rem; }
+.hxPedido-btn { width: 100%; margin-top: 10px; min-height: 42px; border: 0; border-radius: 10px; background: #F2A900; color: #1A1A1A; font-weight: 800; cursor: pointer; }
+.hxPedido-btn:disabled { background: #E8F5E9; color: #2E7D32; cursor: default; }
