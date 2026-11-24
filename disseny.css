@@ -483,3 +483,23 @@ footer h2.hx-peu-tit { font-family: inherit; text-transform: none; letter-spacin
 .hxPedido-tot b { color: #0B3D6B; font-size: 1rem; }
 .hxPedido-btn { width: 100%; margin-top: 10px; min-height: 42px; border: 0; border-radius: 10px; background: #F2A900; color: #1A1A1A; font-weight: 800; cursor: pointer; }
 .hxPedido-btn:disabled { background: #E8F5E9; color: #2E7D32; cursor: default; }
+
+/* Productes: comparar des del catàleg, estoc i avisos (productes-plus.js) */
+.hxcmp-check { display: inline-flex; align-items: center; gap: .4rem; margin-top: .6rem; font-size: .85rem; font-weight: 700; color: #0B3D6B; cursor: pointer; }
+.hxcmp-check input { width: 18px; height: 18px; accent-color: #0B3D6B; }
+#hxCmpBar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 900; display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; justify-content: center; max-width: calc(100% - 32px); padding: .6rem .8rem; border-radius: 16px; background: #0E2A3F; color: #fff; box-shadow: 0 10px 30px rgba(14,42,63,.35); }
+.hx-app #hxCmpBar { bottom: calc(84px + env(safe-area-inset-bottom)); }
+.hxcmp-noms { display: flex; gap: .4rem; flex-wrap: wrap; }
+.hxcmp-noms span { background: rgba(255,255,255,.14); border-radius: 20px; padding: .25rem .7rem; font-size: .8rem; }
+#hxCmpBar button { border: 0; border-radius: 10px; padding: .55rem .9rem; font-weight: 800; cursor: pointer; }
+.hxcmp-treure { background: transparent; color: #c4d2dc; }
+.hxcmp-veure { background: #F2A900; color: #1A1A1A; }
+.hxcmp-veure:disabled { background: rgba(255,255,255,.18); color: #dbe5ec; cursor: default; }
+#hxCmpModal { position: fixed; inset: 0; z-index: 2000; background: rgba(14,42,63,.55); display: grid; place-items: center; padding: 16px; }
+.hxcmp-caixa { background: #fff; border-radius: 18px; width: min(900px, 100%); max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+.hxcmp-cap { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.2rem; border-bottom: 1px solid #e3e9ea; }
+.hxcmp-cap h3 { margin: 0; color: #0E2A3F; }
+.hxcmp-cap button { width: 40px; height: 40px; border: 0; border-radius: 10px; background: #F3F6F5; font-size: 1.1rem; cursor: pointer; }
+.hxcmp-taula { overflow: auto; padding: 1rem; }
+.hxstock-avis { display: block; width: 100%; margin-top: .6rem; padding: .6rem; border: 1.5px dashed #0B3D6B; border-radius: 10px; background: #F3F6F5; color: #0B3D6B; font-weight: 700; cursor: pointer; }
+.hxstock-avis:disabled { border-style: solid; background: #E8F5E9; color: #2E7D32; cursor: default; }
