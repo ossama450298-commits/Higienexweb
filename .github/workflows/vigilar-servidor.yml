@@ -1,0 +1,47 @@
+# Vigilante del servidor de HIGIENEX (Worker higienexweb2 + web pública).
+# Cada 30 minutos comprueba que responden. Si algo falla 3 veces seguidas (con 30 s entre
+# intentos, para no dar falsas alarmas), la ejecución sale en rojo y GitHub avisa por email
+# al dueño del repositorio. También se puede lanzar a mano desde la pestaña «Actions».
+name: Vigilar el servidor
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Comprobar web, ERP y base de datos
+        shell: bash
+        run: |
+          set -u
+          W=https://higienexweb2.ossama450298.workers.dev
+          fallos=0
+          echo "| Qué | Dirección | Resultado |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          # comprobar <nombre> <url> <texto que debe salir en la respuesta>
+          comprobar() {
+            local nombre="$1" url="$2" texto="$3" codigo="" tiempo="" cuerpo=""
+            for intento in 1 2 3; do
+              cuerpo=$(curl -sS -m 20 -o /tmp/r -w '%{http_code} %{time_total}' "$url" 2>/dev/null) || cuerpo="000 0"
+              codigo=${cuerpo%% *}; tiempo=${cuerpo##* }
+              if [ "$codigo" = "200" ] && grep -q "$texto" /tmp/r; then
+                echo "| $nombre | $url | ✅ ${tiempo} s |" >> "$GITHUB_STEP_SUMMARY"
+                return 0
+              fi
+              [ "$intento" -lt 3 ] && sleep 30
+            done
+            echo "| $nombre | $url | ❌ HTTP $codigo |" >> "$GITHUB_STEP_SUMMARY"
+            echo "::error title=$nombre no responde::$url devolvió HTTP $codigo"
+            fallos=$((fallos + 1))
+          }
+          comprobar "Servidor y base de datos" "$W/erp/api/estado-acceso" '"abierto"'
+          comprobar "ERP (pantalla de acceso)" "$W/erp/" 'HIGIENEX'
+          comprobar "Web pública" "https://ossama450298-commits.github.io/Higienexweb/" 'HIGIENEX'
+          [ "$fallos" -eq 0 ] || exit 1
