@@ -2,6 +2,8 @@
 # Cada 30 minutos comprueba que responden. Si algo falla 3 veces seguidas (con 30 s entre
 # intentos, para no dar falsas alarmas), la ejecución sale en rojo y GitHub avisa por email
 # al dueño del repositorio. También se puede lanzar a mano desde la pestaña «Actions».
+# Cada resultado se guarda en el servidor (POST /api/vigilante) con un token OIDC que firma
+# GitHub (sin claves guardadas): así el informe diario puede leer el resumen de 24 h.
 name: Vigilar el servidor
 
 on:
@@ -11,6 +13,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   comprobar:
@@ -23,6 +26,7 @@ jobs:
           set -u
           W=https://higienexweb2.ossama450298.workers.dev
           fallos=0
+          lista=""
           echo "| Qué | Dirección | Resultado |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
           # comprobar <nombre> <url> <texto que debe salir en la respuesta>
@@ -40,8 +44,18 @@ jobs:
             echo "| $nombre | $url | ❌ HTTP $codigo |" >> "$GITHUB_STEP_SUMMARY"
             echo "::error title=$nombre no responde::$url devolvió HTTP $codigo"
             fallos=$((fallos + 1))
+            lista="$lista|$nombre"
           }
           comprobar "Servidor y base de datos" "$W/erp/api/estado-acceso" '"abierto"'
           comprobar "ERP (pantalla de acceso)" "$W/erp/" 'HIGIENEX'
           comprobar "Web pública" "https://ossama450298-commits.github.io/Higienexweb/" 'HIGIENEX'
+          # Guardar el resultado en el servidor (si está caído, simplemente no llega)
+          tok=$(curl -sS -m 20 -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL:-}&audience=higienex-vigilante" | python3 -c 'import json,sys;print(json.load(sys.stdin)["value"])' 2>/dev/null) || tok=""
+          if [ -n "$tok" ]; then
+            cuerpo=$(python3 -c 'import json,sys;print(json.dumps({"fallos":[x for x in sys.argv[1].split("|") if x]}))' "$lista")
+            curl -sS -m 20 -o /dev/null -w "Resultado guardado en el servidor: HTTP %{http_code}\n" \
+              -X POST "$W/api/vigilante" -H "Authorization: Bearer $tok" -H "Content-Type: application/json" \
+              --data "$cuerpo" || echo "No se ha podido guardar el resultado en el servidor"
+          fi
           [ "$fallos" -eq 0 ] || exit 1
