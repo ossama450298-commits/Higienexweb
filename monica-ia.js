@@ -108,8 +108,6 @@
     };
     nou._hxIA = true;
     window.hxRespond = nou;
-    // la reserva ya no consulta el servidor antiguo (higienexchat), que tiene instrucciones desfasadas
-    window.HX_WORKER_URL = '';
     // aviso de privacidad bajo el campo de escribir
     var form = document.getElementById('hxChatForm');
     if (form && !document.getElementById('hxIaAvis')) {

@@ -551,87 +551,15 @@ function hxHideTyping(){
   if (t) t.remove();
 }
 
-var HX_WORKER_URL = 'https://higienexchat.ossama450298.workers.dev';
-
-function hxBuildContext(){
-  try{
-    if (typeof PRODUCTS !== 'undefined') {
-      return JSON.stringify({
-        productes: PRODUCTS.filter(function(p){ return p.active; }).map(function(p){
-          return { nom: p.name, preu: p.price, unitat: p.unit, disponibilitat: p.stock };
-        }),
-        garanties: 'Devolucions en 14 dies naturals per a envasos sense obrir, sense cost. Reposició en 24-48h si arriba un producte danyat.',
-        horari: 'Dilluns a divendres, 8:00 a 17:30. Urgències 24/7 per a hospitals i centres crítics.',
-        contacte: { telefon: '631 706 398 (també WhatsApp)', email: 'contacto@higienexvalencia.es' },
-        empresa: { nom: 'HIGIENEX S.L.', formaJuridica: 'Societat Limitada Laboral (SLL)', any: 2015, capitalSocial: '3.000 €', cif: 'B12345678', adreca: 'Carrer de la Indústria, 25, 46010 València, Espanya', empleats: 30, patents: 19 },
-        sectors: ['hospitals i clíniques', 'hotels i allotjaments', 'indústria alimentària', 'oficines i empreses', 'administracions públiques', 'gimnasos i instal·lacions esportives'],
-        certificacions: ['ISO 14001 (gestió ambiental)', 'registre de biocides UE per als desinfectants', 'homologació HACCP per a contacte alimentari'],
-        enviamentInternacional: 'Actualment només mercat espanyol. Pla d\'entrada a Portugal previst per al 2026 via distribuïdors locals.',
-        concentratsEco: 'Dilució 1:3 (×3) o superior, redueix un 70% els envasos i el transport.',
-        auditoriaGratuita: 'Visita tècnica gratuïta i sense compromís, informe i pressupost en menys de 5 dies laborables.',
-        fidelitzacio: 'Programa per punts (1 punt/€): Bronze 0-999, Plata 1.000-2.999 (5% dte), Or 3.000-6.999 (10% dte + gestor dedicat), Platí +7.000 (15% dte).',
-        idioma_resposta: HX_LAST_LANG || cpLang()
-      });
-    }
-  } catch(e){}
-  return '';
-}
-
+// Resposta de reserva quan ni les preguntes freqüents ni la IA (monica-ia.js, /api/chat del
+// Worker higienexweb2) tenen resposta. L'antic servidor «higienexchat» ja no s'utilitza.
 function hxAskAI(userText, lang){
-  if (!HX_WORKER_URL) {
-    hxHideTyping();
-    hxAddMessage(hxUiStr('fallback', lang), 'bot');
-    hxRenderQuickReplies(lang);
-    return;
-  }
-  var historyForApi = HX_CHAT_HISTORY.slice(-10).map(function(m){
-    return { role: m.who === 'user' ? 'user' : 'assistant', content: m.text };
-  });
-  // Com a màxim 15 s d'espera: als 6 s s'avisa que s'està consultant i, si
-  // passats 15 s no hi ha resposta, es dona la sortida per WhatsApp/correu.
-  var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-  var avisEspera = setTimeout(function(){
-    hxHideTyping();
-    hxAddMessage(hxUiStr('ai_wait', lang), 'bot');
-    hxShowTyping();
-  }, 6000);
-  var limit = setTimeout(function(){ if (ctrl) ctrl.abort(); }, 15000);
-  fetch(HX_WORKER_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: userText, history: historyForApi, context: hxBuildContext() }),
-    signal: ctrl ? ctrl.signal : undefined
-  })
-  .then(function(res){ return res.json(); })
-  .then(function(data){
-    clearTimeout(avisEspera); clearTimeout(limit);
-    hxHideTyping();
-    hxStat({ k: 'c', s: (data && data.reply) ? 'ia' : 'error', l: lang });
-    if (data && data.reply) {
-      hxAddMessage(data.reply, 'bot');
-      HX_CHAT_FALLBACK_STREAK++;
-    } else {
-      hxAddMessage(hxUiStr('fallback', lang), 'bot');
-      HX_CHAT_FALLBACK_STREAK++;
-    }
-    if (HX_CHAT_FALLBACK_STREAK >= 2) { hxAddEscalation(lang); HX_CHAT_FALLBACK_STREAK = 0; }
-    hxRenderQuickReplies(lang);
-  })
-  .catch(function(err){
-    clearTimeout(avisEspera); clearTimeout(limit);
-    hxHideTyping();
-    if (err && err.name === 'AbortError') {
-      console.warn('L\'assistent IA ha trigat més de 15 s; es mostra la resposta de reserva.');
-      hxStat({ k: 'c', s: 'ia-lenta', l: lang });
-      hxAddMessage(hxUiStr('ai_slow', lang), 'bot');
-      hxAddEscalation(lang);
-    } else {
-      console.warn('Error connectant amb l\'assistent IA:', err);
-      hxStat({ k: 'c', s: 'error', l: lang });
-      hxAddMessage(hxUiStr('ai_error', lang), 'bot');
-    }
-    hxRenderQuickReplies(lang);
-  });
+  hxHideTyping();
+  hxStat({ k: 'c', s: 'reserva', l: lang });
+  hxAddMessage(hxUiStr('fallback', lang), 'bot');
+  HX_CHAT_FALLBACK_STREAK++;
+  if (HX_CHAT_FALLBACK_STREAK >= 2) { hxAddEscalation(lang); HX_CHAT_FALLBACK_STREAK = 0; }
+  hxRenderQuickReplies(lang);
 }
 
 // ── Corpus ampli de preguntes freqüents (monica-faq-data.js), multiidioma ──

@@ -96,7 +96,6 @@
     ix_equip: ['Equip', 'Equipo', 'Team', 'Équipe', 'Team', 'الفريق'],
     ix_treballa: ['Treballa amb nosaltres', 'Trabaja con nosotros', 'Careers', 'Nous rejoindre', 'Karriere', 'انضم إلينا'],
     ix_casos: ['Casos d\'èxit', 'Casos de éxito', 'Case studies', 'Études de cas', 'Erfolgsgeschichten', 'قصص النجاح'],
-    intern: ['Accés intern', 'Acceso interno', 'Staff access', 'Accès interne', 'Mitarbeiterzugang', 'دخول الموظفين'],
   };
   var IDX = { ca: 0, es: 1, en: 2, fr: 3, de: 4, ar: 5 };
   function lang() {
@@ -338,14 +337,7 @@
       a.target = '_blank'; a.rel = 'noopener';
       a.innerHTML = '<span data-hxm="whatsapp"></span>';
     }
-    // L'accés al panell intern passa de la capçalera al peu.
-    var barra = document.querySelector('.footer-bottom-bar');
-    if (barra && !document.getElementById('hxIntern')) {
-      var p = document.createElement('p');
-      p.className = 'hx-intern';
-      p.innerHTML = '<a id="hxIntern" href="https://higienexweb2.ossama450298.workers.dev/erp/" target="_blank" rel="noopener" data-hxm="intern"></a>';
-      barra.appendChild(p);
-    }
+    // L'accés a l'ERP ja no surt a la web pública: els empleats hi entren amb l'enllaç directe.
   }
 
   /* ---------- Panell de contacte (un sol botó flotant amb totes les vies) ---------- */
@@ -461,11 +453,37 @@
     carregar('jspdf.umd.min.js')
       .then(function () { return carregar('jspdf.plugin.autotable.min.js'); })
       .then(function () { return carregar('html2canvas.min.js'); })
-      .then(function () { return carregar('vendor/xlsx.full.min.js'); })
       .catch(function (e) { console.warn('Llibreria no carregada:', e); });
   }
 
+  // Excel (880 KB): es descarrega només quan algú exporta o puja un fitxer d'Excel.
+  var xlsxPromesa = null;
+  function ambExcel() {
+    if (window.XLSX) return Promise.resolve();
+    if (!xlsxPromesa) xlsxPromesa = carregar('vendor/xlsx.full.min.js').catch(function (e) { xlsxPromesa = null; throw e; });
+    return xlsxPromesa;
+  }
+  function envoltarExcel() {
+    ['hxDescarregarCatalegExcel', 'hxDownloadBulkTemplate', 'hxProcessBulkUpload'].forEach(function (nom) {
+      var f = window[nom];
+      if (typeof f !== 'function' || f._hxExcel) return;
+      var w = function () {
+        var self = this, args = arguments;
+        return ambExcel().then(function () { return f.apply(self, args); })
+          .catch(function (e) { console.warn('No s\'ha pogut carregar el mòdul d\'Excel', e); return f.apply(self, args); });
+      };
+      w._hxExcel = true; window[nom] = w;
+    });
+    // en obrir la finestra de càrrega massiva ja es va descarregant
+    var obrir = window.hxOpenBulkUpload;
+    if (typeof obrir === 'function' && !obrir._hxExcel) {
+      var o = function () { ambExcel().catch(function () { /* es tornarà a provar en fer servir l'Excel */ }); return obrir.apply(this, arguments); };
+      o._hxExcel = true; window.hxOpenBulkUpload = o;
+    }
+  }
+
   function iniciar() {
+    envoltarExcel();
     muntarPortada();
     muntarMenu();
     muntarBarra();

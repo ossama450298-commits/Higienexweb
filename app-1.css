@@ -1510,7 +1510,7 @@ html.hx-rtl .form-row { direction: rtl; }
   }
   #navRightGroup::-webkit-scrollbar { display: none; }
   #navRightGroup #authBtns button { padding: 0.4rem 0.7rem !important; font-size: 0.76rem !important; }
-  #navCartBtn, #navRightGroup a[href="https://higienexweb2.ossama450298.workers.dev/erp/"] { flex-shrink: 0; }
+  #navCartBtn { flex-shrink: 0; }
   /* El posicionament del desplegable d'idioma es calcula dinàmicament en JS
      (hxToggleLangMenu a i18n.js), ja que #mainNav té 'transform' i això
      trencava el position:fixed fix per CSS. */
