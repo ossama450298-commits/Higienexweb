@@ -2096,7 +2096,7 @@ document.addEventListener('keydown', function(e){
   if (!(e.ctrlKey || e.metaKey) || !e.shiftKey || e.altKey) return;
   if (e.code !== 'KeyH' && String(e.key).toLowerCase() !== 'h') return;
   e.preventDefault();
-  window.open('https://higienexweb2.ossama450298.workers.dev/erp/?admin=1', '_blank', 'noopener');
+  location.href = 'https://higienexweb2.ossama450298.workers.dev/erp/?admin=1'; // en la misma pestaña
 });
 document.addEventListener('keydown', function(e){
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
