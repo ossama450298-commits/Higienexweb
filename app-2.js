@@ -1705,7 +1705,7 @@ function renderCart() {
   var keys = Object.keys(cart);
   if (!items) return;
   if (!keys.length) {
-    items.innerHTML = '<p style="color:#aaa;font-size:0.85rem;text-align:center;padding:1.5rem 0;">Cap producte afegit</p>';
+    items.innerHTML = '<p style="color:#aaa;font-size:0.85rem;text-align:center;padding:1.5rem 0;">' + escHtml(typeof cpT === 'function' ? cpT('t292') : 'Cap producte afegit encara') + '</p>';
     if (tot) tot.style.display = 'none';
     return;
   }
@@ -2098,7 +2098,7 @@ function renderOrderHistory() {
   if (!list.length) {
     box.style.display = 'block';
     box.innerHTML = '<h3 style="color:#0B3D6B;font-size:0.95rem;font-weight:700;margin:1.6rem 0 0.6rem;">' + escHtml(typeof cpT === 'function' ? cpT('t173') : '📦 Les meves comandes') + '</h3>' +
-      '<p style="color:#888;font-size:0.85rem;">Encara no has fet cap comanda.</p>';
+      '<p style="color:#888;font-size:0.85rem;">' + escHtml(typeof cpT === 'function' ? cpT('t766') : 'Encara no has fet cap comanda') + '.</p>';
     return;
   }
   var rows = list.map(function(o, idx){

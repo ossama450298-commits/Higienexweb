@@ -163,6 +163,8 @@
     }
   }
   window.hxPintarDades = pintarDades;
+  // Des de l'àrea de clients (area-cliente.js): editar les dades quan es vulgui
+  window.hxEditarPerfil = function () { obrir(window.HX_PROFILE || {}); };
 
   // Cuentas antiguas sin país: se piden los datos una sola vez por cuenta
   function demanarUnCop() {
