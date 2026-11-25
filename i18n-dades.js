@@ -997,6 +997,7 @@ var HX_I18N = {
   t916: { ca: 'Encara ets al nivell Bronze: sense descompte encara, però cada comanda suma punts per pujar de nivell.', es: 'Todavía estás en el nivel Bronce: sin descuento aún, pero cada pedido suma puntos para subir de nivel.', en: "You're still at Bronze level: no discount yet, but every order adds points toward the next tier.", fr: 'Vous êtes encore au niveau Bronze : pas encore de remise, mais chaque commande ajoute des points pour monter de niveau.', de: 'Sie sind noch auf der Bronze-Stufe: noch kein Rabatt, aber jede Bestellung bringt Punkte für die nächste Stufe.', ar: 'ما زلت في المستوى البرونزي: لا خصم بعد، لكن كل طلب يضيف نقاطًا نحو المستوى التالي.' },
   t917: { ca: 'et falten', es: 'te faltan', en: 'you need', fr: 'il vous manque', de: 'Ihnen fehlen', ar: 'تحتاج إلى' },
   t918: { ca: 'punts per arribar a', es: 'puntos para llegar a', en: 'points to reach', fr: 'points pour atteindre', de: 'Punkte, um', ar: 'نقطة للوصول إلى' },
+  t1100: { ca: '📄 Descarregar fitxa de seguretat (FDS)', es: '📄 Descargar ficha de seguridad (FDS)', en: '📄 Download safety data sheet (SDS)', fr: '📄 Télécharger la fiche de sécurité (FDS)', de: '📄 Sicherheitsdatenblatt herunterladen (SDB)', ar: '📄 تنزيل صحيفة بيانات السلامة' },
   t919: { ca: 'Ja has arribat al nivell màxim!', es: '¡Ya has alcanzado el nivel máximo!', en: "You've reached the top tier!", fr: 'Vous avez atteint le niveau maximum !', de: 'Sie haben die höchste Stufe erreicht!', ar: 'لقد بلغت أعلى مستوى!' },
 };
 
