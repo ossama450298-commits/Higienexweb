@@ -162,6 +162,7 @@ html.hxa-oberta, html.hxa-oberta body { overflow: hidden; }
 /* Tutorial del área (guia-clientes.js) */
 #hxGuia { position: fixed; inset: 0; z-index: 9999993; }
 .hxg-bloc { position: absolute; inset: 0; }
+#hxGuia.sense .hxg-bloc { background: rgba(14, 42, 63, 0.62); }
 .hxg-luz { position: fixed; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(14, 42, 63, 0.62); outline: 3px solid #F2A900; pointer-events: none; transition: top 0.25s, left 0.25s, width 0.25s, height 0.25s; }
 .hxg-caixa { position: fixed; width: min(380px, calc(100vw - 24px)); box-sizing: border-box; background: #fff; color: #1E2F3D; border-radius: 12px; padding: 18px 20px 16px; box-shadow: 0 16px 40px rgba(14, 42, 63, 0.35); }
 .hxg-caixa.centre { top: 50%; left: 50%; transform: translate(-50%, -50%); }
@@ -174,6 +175,12 @@ html.hxa-oberta, html.hxa-oberta body { overflow: hidden; }
 .hxg-pri { background: #0B3D6B; color: #fff; border: 1px solid #0B3D6B; }
 .hxg-sec { background: #fff; color: #0B3D6B; border: 1px solid #DCE5EC; }
 .hxg-saltar { background: none; border: 0; color: #5B6B78; padding-inline: 0 !important; text-decoration: underline; }
+.hxg-caixa.final { text-align: center; border-top: 6px solid #F2A900; padding: 26px 26px 20px; width: min(440px, calc(100vw - 24px)); }
+.hxg-caixa.final h2 { font-family: Georgia, serif; font-size: 1.6rem; margin-bottom: 10px; }
+.hxg-caixa.final p#hxgX { font-size: 1rem; }
+.hxg-caixa.final .hxg-botons { justify-content: center; }
+.hxg-caixa.final .hxg-saltar { display: none; }
+.hxg-caixa.final .hxg-botons span { margin: 0; }
 #hxGuia :focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
 @media (max-width: 760px) {
   .hxg-caixa:not(.centre) { left: 12px; right: 12px; width: auto; top: auto; bottom: calc(76px + env(safe-area-inset-bottom)); }

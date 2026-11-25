@@ -62,6 +62,9 @@
     { s: 'ajuda', sel: ['#hxaA1'],
       t: ['Ajuda', 'Ayuda', 'Help', 'Aide', 'Hilfe', 'مساعدة'],
       x: ['WhatsApp i correu de contacte, preguntes freqüents i, aquí mateix, el botó per tornar a veure aquest tutorial quan vulguis.', 'WhatsApp y correo de contacto, preguntas frecuentes y, aquí mismo, el botón para volver a ver este tutorial cuando quieras.', 'WhatsApp and email, FAQs and, right here, a button to watch this tutorial again.', 'WhatsApp, e-mail, FAQ et le bouton pour revoir ce tutoriel.', 'WhatsApp, E-Mail, FAQ und hier der Knopf, um das Tutorial erneut zu sehen.', 'واتساب والبريد والأسئلة الشائعة وزر لإعادة هذا الدليل.'] },
+    { s: 'inici', sel: [], final: true,
+      t: ['Tot a punt, Edu! 🎉', '¡Todo listo, Edu! 🎉', 'All set, Edu! 🎉', 'Tout est prêt, Edu ! 🎉', 'Alles bereit, Edu! 🎉', 'كل شيء جاهز يا إدو! 🎉'],
+      x: ['Gràcies per dedicar-nos aquest temps. Gaudeix de la teva àrea de clients: les comandes, les factures i les teves dades, sempre a mà i al teu ritme. Qualsevol cosa que necessitis, som a un missatge de distància.', 'Gracias por dedicarnos este rato. Disfruta de tu área de clientes: tus pedidos, tus facturas y tus datos, siempre a mano y a tu ritmo. Para cualquier cosa que necesites, estamos a un mensaje de distancia.', 'Thanks for taking the time. Enjoy your client area: your orders, invoices and details, always at hand and at your own pace. Whatever you need, we’re just a message away.', 'Merci pour ce moment. Profitez de votre espace client : commandes, factures et données, toujours à portée de main. Besoin de quoi que ce soit ? Nous sommes à un message.', 'Danke für Ihre Zeit. Viel Freude mit Ihrem Kundenbereich: Bestellungen, Rechnungen und Daten, immer griffbereit. Was auch immer Sie brauchen – wir sind nur eine Nachricht entfernt.', 'شكرًا على وقتك. استمتع بمنطقة العملاء: طلباتك وفواتيرك وبياناتك دائمًا في متناولك. لأي شيء تحتاجه، نحن على بُعد رسالة.'] },
   ];
 
   function lang() { try { var l = localStorage.getItem('hx_lang') || 'ca'; return LANGS.indexOf(l) >= 0 ? l : 'ca'; } catch (e) { return 'ca'; } }
@@ -86,6 +89,7 @@
   function situar() {
     if (!capa) return;
     var p = PASSOS[pas], el = objectiu(p), luz = capa.querySelector('.hxg-luz'), caixa = capa.querySelector('.hxg-caixa');
+    capa.classList.toggle('sense', !el); // sense element: tot el fons enfosquit
     if (!el) { luz.style.display = 'none'; caixa.classList.add('centre'); caixa.style.top = caixa.style.left = ''; return; }
     var r = el.getBoundingClientRect(), m = 6;
     luz.style.display = 'block';
@@ -104,6 +108,7 @@
     if (p.s) { if (A && A.oberta()) A.ir(p.s); else if (A) A.obrir(p.s); }
     else if (A && A.oberta()) A.tancar();
     var caixa = capa.querySelector('.hxg-caixa');
+    caixa.classList.toggle('final', !!p.final);
     caixa.innerHTML = '<p class="hxg-pas">' + esc(tr(UI.pas).replace('{0}', pas + 1).replace('{1}', PASSOS.length)) + '</p>' +
       '<h2 id="hxgT">' + esc(tr(p.t)) + '</h2><p id="hxgX">' + esc(tr(p.x)) + '</p>' +
       '<div class="hxg-botons"><button type="button" class="hxg-saltar" data-g="fi">' + esc(tr(UI.saltar)) + '</button><span>' +
