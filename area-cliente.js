@@ -425,6 +425,7 @@
   /* ---------- Ajuda ---------- */
   function ajuda() {
     var h = titol(t('ajuda'));
+    if (window.hxMonicaArea) h += window.hxMonicaArea.targeta();
     h += '<div role="group" class="hxa-card" aria-labelledby="hxaA1"><h2 id="hxaA1">' + esc(t('contacte')) + '</h2><p class="hxa-meta">' + esc(t('contacteTxt')) + '</p>' +
       '<div class="hxa-acc"><a class="hxa-btn" href="https://wa.me/34631706398" target="_blank" rel="noopener">' + esc(t('whatsapp')) + ' · 631 706 398</a>' +
       '<a class="hxa-btn sec" href="mailto:contacto@higienexvalencia.es">' + esc(t('correu')) + ' · contacto@higienexvalencia.es</a></div></div>';
@@ -554,6 +555,7 @@
       return;
     }
     if (a === 'pagar') { obrirPagament(num); return; }
+    if (a === 'monica') { if (window.hxMonicaArea) window.hxMonicaArea.obrir(); return; }
     if (a === 'tutorial') { if (window.hxGuiaClientes) window.hxGuiaClientes.iniciar(0); return; }
     if (a === 'editar') { if (typeof window.hxEditarPerfil === 'function') window.hxEditarPerfil(); return; }
     if (a === 'tancar-altres') {
@@ -623,12 +625,14 @@
     tornarPlus();
     a.hidden = true;
     a.innerHTML = '';
+    if (window.hxMonicaArea) window.hxMonicaArea.tancar();
     document.documentElement.classList.remove('hxa-oberta');
     if (tornarFocus && tornarFocus.focus) try { tornarFocus.focus(); } catch (e) { /* element ja no hi és */ }
   }
   function ir(sec) { if (SECCIONS.indexOf(sec) >= 0) { S.sec = sec; pintar(); var m = document.getElementById('hxaMain'); if (m) m.scrollTop = 0; } }
   function oberta() { var a = document.getElementById('hxArea'); return !!(a && !a.hidden); }
-  window.hxArea = { obrir: obrir, tancar: tancar, ir: ir, oberta: oberta, refrescar: function () { if (document.getElementById('hxArea') && !document.getElementById('hxArea').hidden) carregar(); } };
+  function dadesArea() { return { comandes: S.comandes, factures: S.factures, prog: S.prog, cites: S.cites }; }
+  window.hxArea = { obrir: obrir, tancar: tancar, ir: ir, oberta: oberta, accio: accio, dades: dadesArea, estat: estat, refrescar: function () { if (document.getElementById('hxArea') && !document.getElementById('hxArea').hidden) carregar(); } };
 
   /* ---------- enllaços amb la resta de la web ---------- */
   function iniciar() {
