@@ -432,7 +432,8 @@
       return '<details class="hxa-faq"><summary>' + esc(t('q' + i)) + '</summary><p>' + esc(t('a' + i)) + '</p></details>';
     }).join('') + '</div>';
     h += '<div class="hxa-acc"><button type="button" class="hxa-btn sec" data-acc="seguir-num">' + esc(t('seguirAltra')) + '</button>' +
-      '<button type="button" class="hxa-btn sec" data-acc="cita">' + esc(t('demanarCita')) + '</button></div>';
+      '<button type="button" class="hxa-btn sec" data-acc="cita">' + esc(t('demanarCita')) + '</button>' +
+      (window.hxGuiaClientes && window.hxGuiaClientes.disponible() ? '<button type="button" class="hxa-btn sec" data-acc="tutorial">🎓 ' + esc(window.hxGuiaClientes.textBoto()) + '</button>' : '') + '</div>';
     return h;
   }
 
@@ -553,6 +554,7 @@
       return;
     }
     if (a === 'pagar') { obrirPagament(num); return; }
+    if (a === 'tutorial') { if (window.hxGuiaClientes) window.hxGuiaClientes.iniciar(0); return; }
     if (a === 'editar') { if (typeof window.hxEditarPerfil === 'function') window.hxEditarPerfil(); return; }
     if (a === 'tancar-altres') {
       api('/cuenta/cerrar-otras', { method: 'POST' }).then(function () { S.sessions = 1; toast(t('altresTancades'), '🔒'); pintar(); })
@@ -624,7 +626,9 @@
     document.documentElement.classList.remove('hxa-oberta');
     if (tornarFocus && tornarFocus.focus) try { tornarFocus.focus(); } catch (e) { /* element ja no hi és */ }
   }
-  window.hxArea = { obrir: obrir, tancar: tancar, refrescar: function () { if (document.getElementById('hxArea') && !document.getElementById('hxArea').hidden) carregar(); } };
+  function ir(sec) { if (SECCIONS.indexOf(sec) >= 0) { S.sec = sec; pintar(); var m = document.getElementById('hxaMain'); if (m) m.scrollTop = 0; } }
+  function oberta() { var a = document.getElementById('hxArea'); return !!(a && !a.hidden); }
+  window.hxArea = { obrir: obrir, tancar: tancar, ir: ir, oberta: oberta, refrescar: function () { if (document.getElementById('hxArea') && !document.getElementById('hxArea').hidden) carregar(); } };
 
   /* ---------- enllaços amb la resta de la web ---------- */
   function iniciar() {

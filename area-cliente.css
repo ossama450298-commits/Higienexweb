@@ -159,4 +159,25 @@ html.hxa-oberta, html.hxa-oberta body { overflow: hidden; }
   .hxa-acc .hxa-btn { flex: 1 1 auto; }
   .hxa-dreta { width: 100%; justify-content: space-between; }
 }
+/* Tutorial del área (guia-clientes.js) */
+#hxGuia { position: fixed; inset: 0; z-index: 9999993; }
+.hxg-bloc { position: absolute; inset: 0; }
+.hxg-luz { position: fixed; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(14, 42, 63, 0.62); outline: 3px solid #F2A900; pointer-events: none; transition: top 0.25s, left 0.25s, width 0.25s, height 0.25s; }
+.hxg-caixa { position: fixed; width: min(380px, calc(100vw - 24px)); box-sizing: border-box; background: #fff; color: #1E2F3D; border-radius: 12px; padding: 18px 20px 16px; box-shadow: 0 16px 40px rgba(14, 42, 63, 0.35); }
+.hxg-caixa.centre { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.hxg-pas { margin: 0 0 4px; font-size: 0.78rem; font-weight: 700; color: #8A6400; }
+.hxg-caixa h2 { margin: 0 0 6px; font-size: 1.12rem; color: #0E2A3F; line-height: 1.3; font-family: inherit; }
+.hxg-caixa p#hxgX { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #33475A; }
+.hxg-botons { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.hxg-botons span { display: flex; gap: 8px; margin-inline-start: auto; }
+.hxg-botons button { font: inherit; min-height: 40px; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.88rem; }
+.hxg-pri { background: #0B3D6B; color: #fff; border: 1px solid #0B3D6B; }
+.hxg-sec { background: #fff; color: #0B3D6B; border: 1px solid #DCE5EC; }
+.hxg-saltar { background: none; border: 0; color: #5B6B78; padding-inline: 0 !important; text-decoration: underline; }
+#hxGuia :focus-visible { outline: 3px solid #F2A900; outline-offset: 2px; }
+@media (max-width: 760px) {
+  .hxg-caixa:not(.centre) { left: 12px; right: 12px; width: auto; top: auto; bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .hxg-caixa.dalt { top: 12px !important; bottom: auto; }
+}
+@media (prefers-reduced-motion: reduce) { .hxg-luz { transition: none; } }
 @media (prefers-reduced-motion: reduce) { #hxArea * { scroll-behavior: auto !important; } }
