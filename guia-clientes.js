@@ -1,8 +1,8 @@
 /* ============================================================
    HIGIENEX — Tutorial del área de clientes (guia-clientes.js)
    Solo para la cuenta de Edu (el servidor marca su cuenta con «guia»).
-   Empieza solo la primera vez que inicia sesión en este dispositivo y se
-   puede repetir desde Ayuda › «Ver el tutorial». Teclado: ← → y Esc.
+   Empieza sola cada vez que Edu inicia sesión (no al recargar la página con
+   la sesión ya abierta) y se puede repetir desde Ayuda › «Ver el tutorial». Teclado: ← → y Esc.
    ============================================================ */
 (function () {
   'use strict';
@@ -71,7 +71,6 @@
   function tr(a) { return a[LANGS.indexOf(lang())] || a[1]; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function guia() { var p = window.HX_PROFILE; return !!(window.HX_USER && p && p.guia); }
-  function clauVista() { return 'hx_guia_clientes_' + String((window.HX_PROFILE || {}).email || '').toLowerCase(); }
   function mobil() { return window.matchMedia('(max-width: 760px)').matches; }
 
   var pas = 0, capa = null, tmr = null;
@@ -144,7 +143,6 @@
   function iniciar(desDe) {
     if (!guia()) return;
     tancarGuia();
-    try { localStorage.setItem(clauVista(), '1'); } catch (e) { /* sense emmagatzematge: es pot tornar a veure */ }
     pas = desDe || 0;
     capa = document.createElement('div');
     capa.id = 'hxGuia';
@@ -163,10 +161,9 @@
   }
   window.hxGuiaClientes = { iniciar: iniciar, disponible: guia };
 
-  // Primer inici de sessió d'Edu en aquest dispositiu: comença sola
+  // Cada vegada que Edu inicia sessió (no en recarregar la pàgina amb la sessió guardada): comença sola
   function potser() {
     if (!guia() || capa) return;
-    try { if (localStorage.getItem(clauVista())) return; } catch (e) { return; }
     if (document.getElementById('hxPerfilWrap') || document.querySelector('#authModal.open')) { setTimeout(potser, 1500); return; }
     iniciar(0);
   }
@@ -178,7 +175,8 @@
   function arrencar() {
     var o = window.setLoggedInUser;
     if (typeof o === 'function' && !o._hxGuia) {
-      var w = function () { var r = o.apply(this, arguments); vigilar(); return r; };
+      // el 5è argument (skipSave) és true quan només es recupera la sessió guardada
+      var w = function (n, a, r, e, nomesRecuperar) { var res = o.apply(this, arguments); if (!nomesRecuperar) vigilar(); return res; };
       w._hxGuia = true; window.setLoggedInUser = w;
     }
     var lo = window.logout;
@@ -186,7 +184,6 @@
       var w2 = function () { tancarGuia(); return lo.apply(this, arguments); };
       w2._hxGuia = true; window.logout = w2;
     }
-    vigilar();
   }
   window.hxGuiaClientes.textBoto = function () { return tr(UI.veure); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', arrencar);
