@@ -2090,12 +2090,11 @@ function hxRunSearch(query){
   });
 }
 window.hxRunSearch = hxRunSearch;
-// Ctrl + A (fuera de un campo de texto): acceso al Centro de control de administración del ERP.
+// Ctrl + Mayús + H (en Mac, Cmd + Mayús + H): acceso al Centro de control de administración del ERP.
 // No hay ningún enlace visible: solo lo conoce el administrador. La entrada pide su contraseña.
 document.addEventListener('keydown', function(e){
-  if (!(e.ctrlKey || e.metaKey) || e.altKey || e.shiftKey || e.key.toLowerCase() !== 'a') return;
-  var t = e.target;
-  if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return; // seleccionar texto, como siempre
+  if (!(e.ctrlKey || e.metaKey) || !e.shiftKey || e.altKey) return;
+  if (e.code !== 'KeyH' && String(e.key).toLowerCase() !== 'h') return;
   e.preventDefault();
   window.open('https://higienexweb2.ossama450298.workers.dev/erp/?admin=1', '_blank', 'noopener');
 });
