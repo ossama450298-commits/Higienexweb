@@ -25,7 +25,7 @@
     { "name": "El meu compte", "short_name": "Compte", "url": "./?app=compte", "icons": [{ "src": "icons/icon-web-192.png", "sizes": "192x192" }] }
   ],
   "screenshots": [
-    { "src": "icons/captura-mobil.png", "sizes": "780x1688", "type": "image/png", "form_factor": "narrow", "label": "Botiga de HIGIENEX al mòbil" },
-    { "src": "icons/captura-ordinador.png", "sizes": "1280x800", "type": "image/png", "form_factor": "wide", "label": "Portada de HIGIENEX a l'ordinador" }
+    { "src": "icons/captura-mobil.webp", "sizes": "780x1688", "type": "image/webp", "form_factor": "narrow", "label": "Botiga de HIGIENEX al mòbil" },
+    { "src": "icons/captura-ordinador.webp", "sizes": "1280x800", "type": "image/webp", "form_factor": "wide", "label": "Portada de HIGIENEX a l'ordinador" }
   ]
 }

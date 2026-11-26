@@ -450,9 +450,11 @@
   function carregarDiferit() {
     // Respostes de l'assistent virtual: només fan falta quan s'obre el xat.
     carregar('monica-i18n-data.js?v=20261123c').catch(function () { /* el xat té respostes de reserva */ });
-    carregar('jspdf.umd.min.js')
-      .then(function () { return carregar('jspdf.plugin.autotable.min.js'); })
-      .then(function () { return carregar('html2canvas.min.js'); })
+    // Tot el que fa PDF (llibreries i scripts propis) es carrega després de la portada, en ordre.
+    var PDF = ['jspdf.umd.min.js', 'jspdf.plugin.autotable.min.js', 'pdf-i18n.js?v=20261126a', 'pdf-arab.js?v=20261126a',
+      'pdf-kit.js?v=20261126a', 'pdf-docs.js?v=20261126a', 'pdf-cataleg.js?v=20261126a', 'pdf-fitxes.js?v=20261126a', 'html2canvas.min.js'];
+    window.hxPdfLlest = PDF.reduce(function (cadena, src) { return cadena.then(function () { return carregar(src); }); }, Promise.resolve())
+      .then(function () { if (typeof window.hxEmbolcallarDocs === 'function') window.hxEmbolcallarDocs(); })
       .catch(function (e) { console.warn('Llibreria no carregada:', e); });
   }
 

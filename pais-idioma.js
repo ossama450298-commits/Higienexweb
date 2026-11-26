@@ -114,10 +114,16 @@
     obj[nom] = w;
   }
 
+  // Els documents PDF es carreguen després de la portada (portada.js): s'embolcallen quan arriben
+  function embolcallarDocs() {
+    if (window.HXPDF_DOCS) ['comanda', 'factura', 'extracte'].forEach(function (n) { embolcallar(window.HXPDF_DOCS, n); });
+  }
+  window.hxEmbolcallarDocs = embolcallarDocs;
+
   function iniciar() {
     // Pedido, presupuesto y facturas del área de clientes
     ['sendOrder', 'descarregarPressupostPDF', 'enviarPressupostEmail', 'cpEnviarFacturaEmail'].forEach(function (n) { embolcallar(window, n); });
-    if (window.HXPDF_DOCS) ['comanda', 'factura', 'extracte'].forEach(function (n) { embolcallar(window.HXPDF_DOCS, n); });
+    embolcallarDocs();
     // Los emails que se preparan en la web llevan el idioma de los documentos
     var iw = window.hxIdiomaWeb;
     if (typeof iw === 'function' && !iw._hxDoc) {
