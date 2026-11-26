@@ -33,6 +33,7 @@
     ferComanda: ['Fer una comanda', 'Hacer un pedido', 'Place an order', 'Passer commande', 'Bestellen', 'قدّم طلبًا'],
     seguiment: ['Seguiment', 'Seguimiento', 'Tracking', 'Suivi', 'Sendungsverfolgung', 'التتبع'],
     repetir: ['Repetir', 'Repetir', 'Reorder', 'Recommander', 'Erneut bestellen', 'كرّر الطلب'],
+    incidencia: ['Notificar incidència', 'Notificar incidencia', 'Report a problem', 'Signaler un problème', 'Problem melden', 'الإبلاغ عن مشكلة'],
     programar: ['Programar', 'Programar', 'Schedule', 'Programmer', 'Planen', 'جدولة'],
     pendents: ['Factures pendents', 'Facturas pendientes', 'Unpaid invoices', 'Factures à payer', 'Offene Rechnungen', 'فواتير غير مدفوعة'],
     totAlDia: ['Ho tens tot pagat.', 'Lo tienes todo pagado.', 'Everything is paid.', 'Tout est payé.', 'Alles ist bezahlt.', 'كل شيء مدفوع.'],
@@ -336,7 +337,8 @@
         '<div class="hxa-acc"><button type="button" class="hxa-btn sec" data-acc="seguir" data-num="' + esc(o.invoiceNum) + '" aria-expanded="' + obert + '">' + esc(t('seguiment')) + '</button>' +
         '<button type="button" class="hxa-btn sec" data-acc="pdf-comanda" data-num="' + esc(o.invoiceNum) + '">⬇ ' + esc(t('pdf')) + '</button>' +
         '<button type="button" class="hxa-btn sec" data-acc="repetir" data-num="' + esc(o.invoiceNum) + '">' + esc(t('repetir')) + '</button>' +
-        '<button type="button" class="hxa-btn sec" data-acc="programar" data-num="' + esc(o.invoiceNum) + '">' + esc(t('programar')) + '</button></div>' +
+        '<button type="button" class="hxa-btn sec" data-acc="programar" data-num="' + esc(o.invoiceNum) + '">' + esc(t('programar')) + '</button>' +
+        '<button type="button" class="hxa-btn sec hxa-inc" data-acc="incidencia" data-num="' + esc(o.invoiceNum) + '">' + esc(t('incidencia')) + '</button></div>' +
         (obert ? '<div class="hxa-seg" id="hxaSeg"></div>' : '') + '</li>';
     }).join('') : '<li class="hxa-buit">' + esc(t('capResultat')) + '</li>') + '</ul>';
     return h + plusCaixa();
@@ -555,6 +557,7 @@
       return;
     }
     if (a === 'pagar') { obrirPagament(num); return; }
+    if (a === 'incidencia') { if (window.hxIncidencia) window.hxIncidencia.obrir(num); return; }
     if (a === 'monica') { if (window.hxMonicaArea) window.hxMonicaArea.obrir(); return; }
     if (a === 'tutorial') { if (window.hxGuiaClientes) window.hxGuiaClientes.iniciar(0); return; }
     if (a === 'editar') { if (typeof window.hxEditarPerfil === 'function') window.hxEditarPerfil(); return; }
